@@ -178,6 +178,29 @@ class Class(Type):
         self.functions.extend(functions)
 
 
+class Interface(Type):
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType):
+        super().__init__(name, ctype)
+        self.symbol_prefix = symbol_prefix
+        self.gtype = gtype
+        self.methods = []
+        self.properties = []
+        self.signals = []
+        self.functions = []
+
+    def set_methods(self, methods: T.List[Method]) -> None:
+        self.methods.extend(methods)
+
+    def set_properties(self, properties: T.List[Property]) -> None:
+        self.properties.extend(properties)
+
+    def set_signals(self, signals: T.List[Signal]) -> None:
+        self.signals.extend(signals)
+
+    def set_functions(self, functions: T.List[Function]) -> None:
+        self.functions.extend(functions)
+
+
 class EnumerationMember(GIRElement):
     def __init__(self, name: str, value: str, identifier: str, nick: str):
         super().__init__()
@@ -222,12 +245,14 @@ class Namespace:
         self._shared_libraries = []
 
         self._aliases = []
+        self._boxed = []
+        self._classes = []
         self._constants = []
         self._enumerations = []
         self._error_domains = []
-        self._classes = []
-        self._records = []
         self._functions = []
+        self._interfaces = []
+        self._records = []
 
     def __str__(self):
         return f"{self.name}-{self.version}"
@@ -253,6 +278,9 @@ class Namespace:
     def add_constant(self, constant: Constant) -> None:
         self._constants.append(constant)
 
+    def add_interface(self, interface: Interface) -> None:
+        self._interfaces.append(interface)
+
     def get_classes(self) -> T.List[Class]:
         return self._classes
 
@@ -267,6 +295,9 @@ class Namespace:
 
     def get_aliases(self) -> T.List[Alias]:
         return self._aliases
+
+    def get_interfaces(self) -> T.List[Interface]:
+        return self._interfaces
 
 
 class Include:

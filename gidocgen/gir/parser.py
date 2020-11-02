@@ -82,10 +82,11 @@ class GirParser:
         repository.add_namespace(namespace)
 
         parse_methods = {
-            _corens('class'): self._parse_class,
             _corens('alias'): self._parse_alias,
+            _corens('class'): self._parse_class,
             _corens('constant'): self._parse_constant,
             _corens('enumeration'): self._parse_enumeration,
+            _corens('interface'): self._parse_interface,
         }
 
         for node in ns:
@@ -390,3 +391,52 @@ class GirParser:
         res.set_signals(signals)
 
         ns.add_class(res)
+
+    def _parse_interface(self, node: ET.Element, ns: ast.Namespace) -> None:
+        name = node.attrib.get('name')
+        symbol_prefix = node.attrib.get(_cns('symbol-prefix'))
+        ctype = node.attrib.get(_cns('type'))
+        type_name = node.attrib.get(_glibns('type-name'))
+        get_type = node.attrib.get(_glibns('get-type'))
+        type_struct = node.attrib.get(_glibns('type-struct'))
+
+        gtype = None
+        if type_name is not None:
+            gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
+
+        doc = self._maybe_parse_doc(node)
+        source_pos = self._maybe_parse_source_position(node)
+
+        res = ast.Interface(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
+        res.set_doc(doc)
+        res.set_source_position(source_pos)
+
+        methods = []
+        children = node.findall('core:method', GI_NAMESPACES)
+        for child in children:
+            methods.append(self._parse_method(child))
+
+        res.set_methods(methods)
+
+        functions = []
+        children = node.findall('core:function', GI_NAMESPACES)
+        for child in children:
+            functions.append(self._parse_function(child))
+
+        res.set_functions(functions)
+
+        properties = []
+        children = node.findall('core:property', GI_NAMESPACES)
+        for child in children:
+            properties.append(self._parse_property(child))
+
+        res.set_properties(properties)
+
+        signals = []
+        children = node.findall('glib:signal', GI_NAMESPACES)
+        for child in children:
+            signals.append(self._parse_signal(child))
+
+        res.set_signals(signals)
+
+        ns.add_interface(res)

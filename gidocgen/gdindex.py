@@ -336,11 +336,12 @@ def run(options):
     namespace = repository.get_namespace()
     shlibs = ', '.join(namespace.get_shared_libraries())
 
-    classes = sorted(namespace.get_classes(), key=lambda cls: cls.name.lower())
     aliases = sorted(namespace.get_aliases(), key=lambda alias: alias.name.lower())
+    classes = sorted(namespace.get_classes(), key=lambda cls: cls.name.lower())
     constants = sorted(namespace.get_constants(), key=lambda const: const.name.lower())
-    enums = sorted(namespace.get_enumerations(), key=lambda enum: enum.name.lower())
     domains = sorted(namespace.get_error_domains(), key=lambda domain: domain.name.lower())
+    enums = sorted(namespace.get_enumerations(), key=lambda enum: enum.name.lower())
+    interfaces = sorted(namespace.get_interfaces(), key=lambda interface: interface.name.lower())
 
     title = str(log.color('Namespace', 36))
     log.log(f'└── {title}: {namespace.name}, version: {namespace.version}')
@@ -386,6 +387,42 @@ def run(options):
             if 'functions' in sections:
                 sections.remove('functions')
                 _print_class_functions(cls, sections, is_last_class)
+
+    title = str(log.color('Interfaces', 36))
+    log.log(f'    ├── {title}')
+
+    if len(interfaces) == 0:
+        log.log( '    │   └── None')
+    else:
+        for i, iface in enumerate(interfaces):
+            is_last_iface = i == len(interfaces) - 1
+            if is_last_iface:
+                log.log(f'    │   └── {iface.name}')
+            else:
+                log.log(f'    │   ├── {iface.name}')
+
+            sections = []
+            if iface.properties:
+                sections += ['properties']
+            if iface.signals:
+                sections += ['signals']
+            if iface.methods:
+                sections += ['methods']
+            if iface.functions:
+                sections += ['functions']
+
+            if 'properties' in sections:
+                sections.remove('properties')
+                _print_class_properties(iface, sections, is_last_iface)
+            if 'signals' in sections:
+                sections.remove('signals')
+                _print_class_signals(iface, sections, is_last_iface)
+            if 'methods' in sections:
+                sections.remove('methods')
+                _print_class_methods(iface, sections, is_last_iface)
+            if 'functions' in sections:
+                sections.remove('functions')
+                _print_class_functions(cls, sections, is_last_iface)
 
     title = str(log.color('Aliases', 36))
     log.log(f'    ├── {title}')
