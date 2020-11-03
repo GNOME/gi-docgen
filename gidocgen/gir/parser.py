@@ -83,10 +83,14 @@ class GirParser:
 
         parse_methods = {
             _corens('alias'): self._parse_alias,
+            _glibns('boxed'): self._parse_boxed,
             _corens('class'): self._parse_class,
             _corens('constant'): self._parse_constant,
             _corens('enumeration'): self._parse_enumeration,
+            _corens('function'): self._parse_function,
             _corens('interface'): self._parse_interface,
+            _corens('record'): self._parse_record,
+            _corens('union'): self._parse_union,
         }
 
         for node in ns:
@@ -440,3 +444,120 @@ class GirParser:
         res.set_signals(signals)
 
         ns.add_interface(res)
+
+    def _parse_boxed(self, node: ET.Element, ns: ast.Namespace) -> None:
+        name = node.attrib.get(_glibns('name'))
+        symbol_prefix = node.attrib.get(_cns('symbol-prefix'))
+        type_name = node.attrib.get(_glibns('type-name'))
+        get_type = node.attrib.get(_glibns('get-type'))
+
+        gtype = None
+        if type_name is not None:
+            gtype = ast.GType(type_name=type_name, get_type=get_type)
+
+        doc = self._maybe_parse_doc(node)
+        source_pos = self._maybe_parse_source_position(node)
+
+        res = ast.Boxed(name=name, symbol_prefix=symbol_prefix, gtype=gtype)
+        res.set_doc(doc)
+        res.set_source_position(source_pos)
+
+        methods = []
+        children = node.findall('core:method', GI_NAMESPACES)
+        for child in children:
+            methods.append(self._parse_method(child))
+
+        res.set_methods(methods)
+
+        functions = []
+        children = node.findall('core:function', GI_NAMESPACES)
+        for child in children:
+            functions.append(self._parse_function(child))
+
+        res.set_functions(functions)
+
+        ns.add_boxed(res)
+
+    def _parse_record(self, node: ET.Element, ns: ast.Namespace) -> None:
+        name = node.attrib.get('name')
+        symbol_prefix = node.attrib.get(_cns('symbol-prefix'))
+        ctype = node.attrib.get(_cns('type'))
+        type_name = node.attrib.get(_glibns('type-name'))
+        get_type = node.attrib.get(_glibns('get-type'))
+        type_struct = node.attrib.get(_glibns('type-struct'))
+
+        gtype = None
+        if type_name is not None:
+            gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
+
+        doc = self._maybe_parse_doc(node)
+        source_pos = self._maybe_parse_source_position(node)
+
+        res = ast.Record(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
+        res.set_doc(doc)
+        res.set_source_position(source_pos)
+
+        ctors = []
+        children = node.findall('core:constructor', GI_NAMESPACES)
+        for child in children:
+            ctors.append(self._parse_function(child))
+
+        res.set_constructors(ctors)
+
+        methods = []
+        children = node.findall('core:method', GI_NAMESPACES)
+        for child in children:
+            methods.append(self._parse_method(child))
+
+        res.set_methods(methods)
+
+        functions = []
+        children = node.findall('core:function', GI_NAMESPACES)
+        for child in children:
+            functions.append(self._parse_function(child))
+
+        res.set_functions(functions)
+
+        ns.add_record(res)
+
+    def _parse_union(self, node: ET.Element, ns: ast.Namespace) -> None:
+        name = node.attrib.get('name')
+        symbol_prefix = node.attrib.get(_cns('symbol-prefix'))
+        ctype = node.attrib.get(_cns('type'))
+        type_name = node.attrib.get(_glibns('type-name'))
+        get_type = node.attrib.get(_glibns('get-type'))
+        type_struct = node.attrib.get(_glibns('type-struct'))
+
+        gtype = None
+        if type_name is not None:
+            gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
+
+        doc = self._maybe_parse_doc(node)
+        source_pos = self._maybe_parse_source_position(node)
+
+        res = ast.Union(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
+        res.set_doc(doc)
+        res.set_source_position(source_pos)
+
+        ctors = []
+        children = node.findall('core:constructor', GI_NAMESPACES)
+        for child in children:
+            ctors.append(self._parse_function(child))
+
+        res.set_constructors(ctors)
+
+        methods = []
+        children = node.findall('core:method', GI_NAMESPACES)
+        for child in children:
+            methods.append(self._parse_method(child))
+
+        res.set_methods(methods)
+
+        functions = []
+        children = node.findall('core:function', GI_NAMESPACES)
+        for child in children:
+            functions.append(self._parse_function(child))
+
+        res.set_functions(functions)
+
+        ns.add_union(res)

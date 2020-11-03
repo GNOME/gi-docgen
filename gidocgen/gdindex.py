@@ -337,11 +337,13 @@ def run(options):
     shlibs = ', '.join(namespace.get_shared_libraries())
 
     aliases = sorted(namespace.get_aliases(), key=lambda alias: alias.name.lower())
+    boxeds = sorted(namespace.get_boxeds(), key=lambda boxed: boxed.name.lower())
     classes = sorted(namespace.get_classes(), key=lambda cls: cls.name.lower())
     constants = sorted(namespace.get_constants(), key=lambda const: const.name.lower())
     domains = sorted(namespace.get_error_domains(), key=lambda domain: domain.name.lower())
     enums = sorted(namespace.get_enumerations(), key=lambda enum: enum.name.lower())
     interfaces = sorted(namespace.get_interfaces(), key=lambda interface: interface.name.lower())
+    records = sorted(namespace.get_records(), key=lambda record: record.name.lower())
 
     title = str(log.color('Namespace', 36))
     log.log(f'└── {title}: {namespace.name}, version: {namespace.version}')
@@ -423,6 +425,37 @@ def run(options):
             if 'functions' in sections:
                 sections.remove('functions')
                 _print_class_functions(cls, sections, is_last_iface)
+
+    title = str(log.color('Records', 36))
+    log.log(f'    ├── {title}')
+
+    if len(records) == 0:
+        log.log( '    │   └── None')
+    else:
+        for i, record in enumerate(records):
+            is_last_record = i == len(records) - 1
+            if is_last_record:
+                log.log(f'    │   └── {record.name}')
+            else:
+                log.log(f'    │   ├── {record.name}')
+
+            sections = []
+            if record.constructors:
+                sections += ['constructors']
+            if record.methods:
+                sections += ['methods']
+            if record.functions:
+                sections += ['functions']
+
+            if 'constructors' in sections:
+                sections.remove('constructors')
+                _print_class_constructors(record, sections, is_last_record)
+            if 'methods' in sections:
+                sections.remove('methods')
+                _print_class_methods(record, sections, is_last_record)
+            if 'functions' in sections:
+                sections.remove('functions')
+                _print_class_functions(record, sections, is_last_record)
 
     title = str(log.color('Aliases', 36))
     log.log(f'    ├── {title}')

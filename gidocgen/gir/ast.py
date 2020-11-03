@@ -201,6 +201,59 @@ class Interface(Type):
         self.functions.extend(functions)
 
 
+class Boxed(Type):
+    def __init__(self, name: str, symbol_prefix: str, gtype: GType):
+        super().__init__(name, None)
+        self.symbol_prefix = symbol_prefix
+        self.gtype = gtype
+        self.methods = []
+        self.functions = []
+
+    def set_methods(self, methods: T.List[Method]) -> None:
+        self.methods.extend(methods)
+
+    def set_functions(self, functions: T.List[Function]) -> None:
+        self.functions.extend(functions)
+
+
+class Record(Type):
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType):
+        super().__init__(name, ctype)
+        self.symbol_prefix = symbol_prefix
+        self.gtype = gtype
+        self.constructors = []
+        self.methods = []
+        self.functions = []
+
+    def set_constructors(self, ctors: T.List[Function]) -> None:
+        self.constructors.extend(ctors)
+
+    def set_methods(self, methods: T.List[Method]) -> None:
+        self.methods.extend(methods)
+
+    def set_functions(self, functions: T.List[Function]) -> None:
+        self.functions.extend(functions)
+
+
+class Union(Type):
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType):
+        super().__init__(name, ctype)
+        self.symbol_prefix = symbol_prefix
+        self.gtype = gtype
+        self.constructors = []
+        self.methods = []
+        self.functions = []
+
+    def set_constructors(self, ctors: T.List[Function]) -> None:
+        self.constructors.extend(ctors)
+
+    def set_methods(self, methods: T.List[Method]) -> None:
+        self.methods.extend(methods)
+
+    def set_functions(self, functions: T.List[Function]) -> None:
+        self.functions.extend(functions)
+
+
 class EnumerationMember(GIRElement):
     def __init__(self, name: str, value: str, identifier: str, nick: str):
         super().__init__()
@@ -245,7 +298,7 @@ class Namespace:
         self._shared_libraries = []
 
         self._aliases = []
-        self._boxed = []
+        self._boxeds = []
         self._classes = []
         self._constants = []
         self._enumerations = []
@@ -253,6 +306,7 @@ class Namespace:
         self._functions = []
         self._interfaces = []
         self._records = []
+        self._unions = []
 
     def __str__(self):
         return f"{self.name}-{self.version}"
@@ -281,6 +335,18 @@ class Namespace:
     def add_interface(self, interface: Interface) -> None:
         self._interfaces.append(interface)
 
+    def add_boxed(self, boxed: Boxed) -> None:
+        self._boxeds.append(boxed)
+
+    def add_record(self, record: Record) -> None:
+        self._records.append(record)
+
+    def add_union(self, union: Union) -> None:
+        self._unions.append(union)
+
+    def add_function(self, function: Function) -> None:
+        self._functions.append(function)
+
     def get_classes(self) -> T.List[Class]:
         return self._classes
 
@@ -298,6 +364,18 @@ class Namespace:
 
     def get_interfaces(self) -> T.List[Interface]:
         return self._interfaces
+
+    def get_boxeds(self) -> T.List[Boxed]:
+        return self._boxeds
+
+    def get_records(self) -> T.List[Record]:
+        return self._records
+
+    def get_unions(self) -> T.List[Union]:
+        return self._unions
+
+    def get_functions(self) -> T.List[Function]:
+        return self._functions
 
 
 class Include:
