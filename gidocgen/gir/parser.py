@@ -121,6 +121,25 @@ class GirParser:
 
         return ast.SourcePosition(filename=child.attrib['filename'], line=child.attrib['line'])
 
+    def _maybe_parse_deprecated_doc(self, node: ET.Element) -> T.Optional[str]:
+        child = node.find('core:doc-deprecated', GI_NAMESPACES)
+        if child is None:
+            return None
+
+        return node.text
+
+    def _maybe_parse_docs(self, node: ET.Element, element: ast.GIRElement) -> None:
+        deprecated = node.attrib.get('deprecated')
+        deprecated_since = node.attrib.get('deprecated-version')
+        deprecated_doc = self._maybe_parse_deprecated_doc(node)
+        doc = self._maybe_parse_doc(node)
+        source_pos = self._maybe_parse_source_position(node)
+
+        element.set_doc(doc)
+        element.set_source_position(source_pos)
+        if deprecated:
+            element.set_deprecated(deprecated_doc, deprecated_since)
+
     def _parse_alias(self, node: ET.Element, ns: ast.Namespace) -> None:
         child = node.find('core:type', GI_NAMESPACES)
         assert child is not None
@@ -130,12 +149,8 @@ class GirParser:
 
         alias_type = ast.Type(name=child.attrib['name'], ctype=child.attrib.get(_cns('type')))
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = ast.Alias(name=name, ctype=ctype, target=alias_type)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
         ns.add_alias(res)
 
@@ -149,12 +164,8 @@ class GirParser:
 
         const_type = ast.Type(name=child.attrib['name'], ctype=child.attrib.get(_cns('type')))
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = ast.Constant(name=name, ctype=ctype, value=value, target=const_type)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
         ns.add_constant(res)
 
@@ -166,7 +177,10 @@ class GirParser:
         if child is not None:
             ctype = ast.Type(name=child.attrib['name'], ctype=child.attrib.get(_cns('type')))
 
-        return ast.ReturnValue(transfer=transfer, target=ctype) 
+        res = ast.ReturnValue(transfer=transfer, target=ctype)
+        self._maybe_parse_docs(node, res)
+
+        return res
 
     def _parse_parameter(self, node: ET.Element, is_instance_param: bool = False) -> ast.Parameter:
         name = node.attrib.get('name')
@@ -182,9 +196,12 @@ class GirParser:
         if child is not None:
             ctype = ast.Type(name=child.attrib['name'], ctype=child.attrib.get(_cns('type')))
 
-        return ast.Parameter(name=name, direction=direction, transfer=transfer, target=ctype,
+        res = ast.Parameter(name=name, direction=direction, transfer=transfer, target=ctype,
             optional=optional, nullable=nullable, caller_allocates=caller_allocates,
             callee_allocates=callee_allocates) 
+        self._maybe_parse_docs(node, res)
+
+        return res
 
     def _parse_function(self, node: ET.Element, ns: T.Optional[ast.Namespace] = None) -> ast.Function:
         name = node.attrib.get('name')
@@ -198,14 +215,10 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = ast.Function(name=name, identifier=identifier)
         res.set_return_value(return_value)
         res.set_parameters(params)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
         if ns is not None:
             ns.add_function(res)
@@ -227,14 +240,10 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = ast.Method(name=name, identifier=identifier, instance_param=instance_param)
         res.set_return_value(return_value)
         res.set_parameters(params)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
         if cls is not None:
             cls.add_method(res)
@@ -246,12 +255,9 @@ class GirParser:
         value = node.attrib.get('value')
         identifier = node.attrib.get(_cns("identifier"))
         nick = node.attrib.get(_glibns("nick"))
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
 
         res = ast.EnumerationMember(name=name, value=value, identifier=identifier, nick=nick)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
         return res
 
     def _parse_enumeration(self, node: ET.Element, ns: ast.Namespace) -> None:
@@ -277,9 +283,6 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name, get_type)
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = None
         error_domain = node.attrib.get(_glibns('error-domain'))
         if error_domain:
@@ -291,8 +294,7 @@ class GirParser:
 
         res.set_members(members)
         res.set_functions(functions)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
     def _parse_property(self, node: ET.Element, cls: T.Optional[ast.Class] = None) -> ast.Property:
         name = node.attrib.get('name')
@@ -308,9 +310,12 @@ class GirParser:
         else:
             ctype = ast.Type(name='void', ctype='void')
 
-        return ast.Property(name=name, transfer=transfer, target=ctype,
+        res = ast.Property(name=name, transfer=transfer, target=ctype,
             writable=writable, readable=readable,
             construct=construct, construct_only=construct_only)
+        self._maybe_parse_docs(node, res)
+
+        return res
 
     def _parse_signal(self, node: ET.Element, cls: T.Optional[ast.Class] = None) -> ast.Signal:
         name = node.attrib.get('name')
@@ -324,14 +329,10 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = ast.Signal(name=name, when=when)
         res.set_return_value(return_value)
         res.set_parameters(params)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
         if cls is not None:
             cls.add_signal(res)
@@ -352,12 +353,8 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = ast.Class(name=name, symbol_prefix=symbol_prefix, ctype=ctype, parent=parent, abstract=abstract, gtype=gtype)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
         ctors = []
         children = node.findall('core:constructor', GI_NAMESPACES)
@@ -408,12 +405,8 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = ast.Interface(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
         methods = []
         children = node.findall('core:method', GI_NAMESPACES)
@@ -455,12 +448,8 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type)
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = ast.Boxed(name=name, symbol_prefix=symbol_prefix, gtype=gtype)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
         methods = []
         children = node.findall('core:method', GI_NAMESPACES)
@@ -490,12 +479,8 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = ast.Record(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
         ctors = []
         children = node.findall('core:constructor', GI_NAMESPACES)
@@ -532,12 +517,8 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        doc = self._maybe_parse_doc(node)
-        source_pos = self._maybe_parse_source_position(node)
-
         res = ast.Union(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
-        res.set_doc(doc)
-        res.set_source_position(source_pos)
+        self._maybe_parse_docs(node, res)
 
         ctors = []
         children = node.findall('core:constructor', GI_NAMESPACES)

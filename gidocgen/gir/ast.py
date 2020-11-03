@@ -23,6 +23,9 @@ class GIRElement:
     def __init__(self):
         self.doc = None
         self.source_position = None
+        self.deprecated = False
+        self.deprecated_doc = None
+        self.deprecated_since = None
 
     def set_doc(self, doc: Doc) -> None:
         """Set the documentation for the element"""
@@ -31,6 +34,11 @@ class GIRElement:
     def set_source_position(self, pos: SourcePosition) -> None:
         """Set the position in the source code for the element"""
         self.source_position = pos
+
+    def set_deprecated(self, doc: str = None, since_version: str = None) -> None:
+        self.deprecated = True
+        self.deprecated_doc = doc
+        self.deprecated_since = since_version
 
 
 class Type(GIRElement):
