@@ -342,8 +342,10 @@ def run(options):
     constants = sorted(namespace.get_constants(), key=lambda const: const.name.lower())
     domains = sorted(namespace.get_error_domains(), key=lambda domain: domain.name.lower())
     enums = sorted(namespace.get_enumerations(), key=lambda enum: enum.name.lower())
+    functions = sorted(namespace.get_functions(), key=lambda func: func.name.lower())
     interfaces = sorted(namespace.get_interfaces(), key=lambda interface: interface.name.lower())
     records = sorted(namespace.get_records(), key=lambda record: record.name.lower())
+    unions = sorted(namespace.get_unions(), key=lambda union: union.name.lower())
 
     title = str(log.color('Namespace', 36))
     log.log(f'└── {title}: {namespace.name}, version: {namespace.version}')
@@ -456,6 +458,51 @@ def run(options):
             if 'functions' in sections:
                 sections.remove('functions')
                 _print_class_functions(record, sections, is_last_record)
+
+    title = str(log.color('Unions', 36))
+    log.log(f'    ├── {title}')
+
+    if len(records) == 0:
+        log.log( '    │   └── None')
+    else:
+        for i, union in enumerate(unions):
+            is_last_union = i == len(unions) - 1
+            if is_last_union:
+                log.log(f'    │   └── {union.name}')
+            else:
+                log.log(f'    │   ├── {union.name}')
+
+            sections = []
+            if union.constructors:
+                sections += ['constructors']
+            if union.methods:
+                sections += ['methods']
+            if union.functions:
+                sections += ['functions']
+
+            if 'constructors' in sections:
+                sections.remove('constructors')
+                _print_class_constructors(union, sections, is_last_union)
+            if 'methods' in sections:
+                sections.remove('methods')
+                _print_class_methods(union, sections, is_last_union)
+            if 'functions' in sections:
+                sections.remove('functions')
+                _print_class_functions(union, sections, is_last_union)
+
+    title = str(log.color('Functions', 36))
+    log.log(f'    ├── {title}')
+
+    if len(aliases) == 0:
+        log.log( '    │   └── None')
+    else:
+        for i, func in enumerate(functions):
+            is_last_func = i == len(functions) - 1
+            func_str = _print_function(func)
+            if is_last_func:
+                log.log(f'    │   ├── {func_str}')
+            else:
+                log.log(f'    │   └── {func_str}')
 
     title = str(log.color('Aliases', 36))
     log.log(f'    ├── {title}')
