@@ -147,6 +147,37 @@ def _print_enum_functions(enum, sections=[], is_last_enum=False, is_last_branch=
         log.log(f'    {root_branch}   {enum_branch}   {member_branch}   {leaf} {func_str}')
 
 
+def _print_class_implements(cls, sections=[], is_last_class=False):
+    if not cls.implements:
+        return
+
+    root_branch = '│'
+
+    if is_last_class:
+        ifaces_branch = ' '
+    else:
+        ifaces_branch = '│'
+
+    if not sections:
+        sect_branch = '└──'
+        iface_branch = ' '
+    else:
+        sect_branch = '├──'
+        iface_branch = '│'
+
+    title = str(log.color('Implements', 36))
+    log.log(f'    {root_branch}   {ifaces_branch}   {sect_branch} {title}')
+
+    for i, iface in enumerate(cls.implements):
+        is_last_iface = i == len(cls.implements) - 1
+        if is_last_iface:
+            leaf = '└──'
+        else:
+            leaf = '├──'
+
+        log.log(f'    {root_branch}   {ifaces_branch}   {iface_branch}   {leaf} {iface}')
+
+
 def _print_class_properties(cls, sections=[], is_last_class=False):
     if not cls.properties:
         return
@@ -365,6 +396,8 @@ def run(options):
                 log.log(f'    │   ├── {cls.name} - parent: {cls.parent}, abstract: {log.color(cls.abstract, 196)}')
 
             sections = []
+            if cls.implements:
+                sections += ['implements']
             if cls.properties:
                 sections += ['properties']
             if cls.signals:
@@ -376,6 +409,9 @@ def run(options):
             if cls.functions:
                 sections += ['functions']
 
+            if 'implements' in sections:
+                sections.remove('implements')
+                _print_class_implements(cls, sections, is_last_class)
             if 'properties' in sections:
                 sections.remove('properties')
                 _print_class_properties(cls, sections, is_last_class)
