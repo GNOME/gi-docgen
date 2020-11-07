@@ -4,14 +4,16 @@
 __all__ = [
     'GirParser',
 
+    'Alias',
+    'BitField',
     'Callable',
     'Class',
     'Constant',
-    'EnumerationMember',
     'Enumeration',
     'ErrorDomain',
     'Function',
     'Include',
+    'Member',
     'Method',
     'Namespace',
     'Parameter',
@@ -20,14 +22,16 @@ __all__ = [
 ]
 
 from .ast import (
+    Alias,
+    BitField,
     Callable,
     Class,
     Constant,
-    EnumerationMember,
     Enumeration,
     ErrorDomain,
     Function,
     Include,
+    Member,
     Method,
     Namespace,
     Parameter,

@@ -57,6 +57,11 @@ class GType:
         self.type_struct = type_struct
 
 
+class VoidType(Type):
+    def __init__(self):
+        super().__init__(name='none', ctype='void')
+
+
 class Alias(Type):
     """Alias to a Type"""
     def __init__(self, name: str, ctype: str, target: Type):
@@ -74,28 +79,34 @@ class Constant(Type):
 
 class Parameter(GIRElement):
     """A callable parameter"""
-    def __init__(self, name: str, direction: str, transfer: str, target: Type, caller_allocates: bool = False, callee_allocates: bool = False, optional: bool = False, nullable: bool = False):
+    def __init__(self, name: str, direction: str, transfer: str, target: Type, caller_allocates: bool = False, optional: bool = False, nullable: bool = False, closure: int = -1, destroy: int = -1, scope: str = None):
         super().__init__()
         self.name = name
         self.direction = direction
         self.transfer = transfer
         self.caller_allocates = caller_allocates
-        self.callee_allocates = callee_allocates
         self.optional = optional
         self.nullable = nullable
+        self.scope = scope
+        self.closure = closure
+        self.destroy = destroy
         if target is None:
-            self.target = Type(name='void', ctype='void')
+            self.target = VoidType()
         else:
             self.target = target
 
 
 class ReturnValue(GIRElement):
     """A callable's return value"""
-    def __init__(self, transfer: str, target: Type):
+    def __init__(self, transfer: str, target: Type, nullable: bool = False, closure: int = -1, destroy: int = -1, scope: str = None):
         super().__init__()
         self.transfer = transfer
+        self.nullable = nullable
+        self.scope = scope
+        self.closure = closure
+        self.destroy = destroy
         if target is None:
-            self.target = Type(name='void', ctype='void')
+            self.target = VoidType()
         else:
             self.target = target
 
@@ -130,6 +141,57 @@ class Method(Callable):
         self.instance_param = instance_param
 
 
+class Callback(Callable):
+    def __init__(self, name: str, ctype: str, throws: bool):
+        super().__init__(name, None)
+        self.ctype = ctype
+        self.throws = throws
+
+
+class Member(GIRElement):
+    """A member in an enumeration, error domain, or bitfield"""
+    def __init__(self, name: str, value: str, identifier: str, nick: str):
+        super().__init__()
+        self.name = name
+        self.value = value
+        self.identifier = identifier
+        self.nick = nick
+
+
+class Enumeration(Type):
+    """An enumeration type"""
+    def __init__(self, name: str, ctype: str, gtype: GType):
+        super().__init__(name, ctype)
+        self.gtype = gtype
+        self.members = []
+        self.functions = []
+
+    def set_members(self, members: T.List[Member]) -> None:
+        self.members.extend(members)
+
+    def add_member(self, member: Member) -> None:
+        self.members.append(member)
+
+    def add_function(self, function: Function) -> None:
+        self.functions.append(function)
+
+    def set_functions(self, functions: T.List[Function]) -> None:
+        self.functions.extend(functions)
+
+
+class BitField(Enumeration):
+    """An enumeration type of bit masks"""
+    def __init__(self, name: str, ctype: str, gtype: GType):
+        super().__init__(name, ctype, gtype)
+
+
+class ErrorDomain(Enumeration):
+    """An error domain for GError"""
+    def __init__(self, name: str, ctype: str, gtype: GType, domain: str):
+        super().__init__(name, ctype, gtype)
+        self.domain = domain
+
+
 class Property(GIRElement):
     def __init__(self, name: str, transfer: str, target: Type, writable: bool = True, readable: bool = True, construct: bool = False, construct_only: bool = False):
         super().__init__()
@@ -143,10 +205,13 @@ class Property(GIRElement):
 
 
 class Signal(GIRElement):
-    def __init__(self, name: str, when: str):
+    def __init__(self, name: str, detailed: bool, when: str, action: bool = False, no_hooks: bool = False, no_recurse: bool = False):
         super().__init__()
         self.name = name
         self.when = when
+        self.action = action
+        self.no_hooks = no_hooks
+        self.no_recurse = no_recurse
         self.parameters = []
         self.return_value = None
 
@@ -157,6 +222,45 @@ class Signal(GIRElement):
         self.return_value = res
 
 
+class Field(GIRElement):
+    """A field in a struct or union"""
+    def __init__(self, name: str, target: Type, writable: bool, readable: bool, private: bool = False, bits: int = 0):
+        super().__init__()
+        self.name = name
+        self.target = target
+        self.writable = writable
+        self.readable = readable
+        self.private = private
+        self.bits = bits
+
+
+class Interface(Type):
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType):
+        super().__init__(name, ctype)
+        self.symbol_prefix = symbol_prefix
+        self.gtype = gtype
+        self.methods = []
+        self.properties = []
+        self.signals = []
+        self.functions = []
+        self.fields = []
+
+    def set_methods(self, methods: T.List[Method]) -> None:
+        self.methods.extend(methods)
+
+    def set_properties(self, properties: T.List[Property]) -> None:
+        self.properties.extend(properties)
+
+    def set_signals(self, signals: T.List[Signal]) -> None:
+        self.signals.extend(signals)
+
+    def set_functions(self, functions: T.List[Function]) -> None:
+        self.functions.extend(functions)
+
+    def set_fields(self, fields: T.List[Field]) -> None:
+        self.fields.extend(fields)
+
+
 class Class(Type):
     def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType, parent: str = 'GObject.Object', abstract: bool = False):
         super().__init__(name, ctype)
@@ -164,11 +268,14 @@ class Class(Type):
         self.parent = parent
         self.abstract = abstract
         self.gtype = gtype
+        self.implements = []
         self.constructors = []
         self.methods = []
         self.properties = []
         self.signals = []
         self.functions = []
+        self.fields = []
+        self.callbacks = []
 
     def set_constructors(self, ctors: T.List[Function]) -> None:
         self.constructors.extend(ctors)
@@ -185,28 +292,11 @@ class Class(Type):
     def set_functions(self, functions: T.List[Function]) -> None:
         self.functions.extend(functions)
 
+    def set_implements(self, ifaces: T.List[str]) -> None:
+        self.implements.extend(ifaces)
 
-class Interface(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType):
-        super().__init__(name, ctype)
-        self.symbol_prefix = symbol_prefix
-        self.gtype = gtype
-        self.methods = []
-        self.properties = []
-        self.signals = []
-        self.functions = []
-
-    def set_methods(self, methods: T.List[Method]) -> None:
-        self.methods.extend(methods)
-
-    def set_properties(self, properties: T.List[Property]) -> None:
-        self.properties.extend(properties)
-
-    def set_signals(self, signals: T.List[Signal]) -> None:
-        self.signals.extend(signals)
-
-    def set_functions(self, functions: T.List[Function]) -> None:
-        self.functions.extend(functions)
+    def set_fields(self, fields: T.List[Field]) -> None:
+        self.fields.extend(fields)
 
 
 class Boxed(Type):
@@ -214,11 +304,7 @@ class Boxed(Type):
         super().__init__(name, None)
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
-        self.methods = []
         self.functions = []
-
-    def set_methods(self, methods: T.List[Method]) -> None:
-        self.methods.extend(methods)
 
     def set_functions(self, functions: T.List[Function]) -> None:
         self.functions.extend(functions)
@@ -232,6 +318,7 @@ class Record(Type):
         self.constructors = []
         self.methods = []
         self.functions = []
+        self.fields = []
 
     def set_constructors(self, ctors: T.List[Function]) -> None:
         self.constructors.extend(ctors)
@@ -241,6 +328,9 @@ class Record(Type):
 
     def set_functions(self, functions: T.List[Function]) -> None:
         self.functions.extend(functions)
+
+    def set_fields(self, fields: T.List[Field]) -> None:
+        self.fields.extend(fields)
 
 
 class Union(Type):
@@ -251,6 +341,7 @@ class Union(Type):
         self.constructors = []
         self.methods = []
         self.functions = []
+        self.fields = []
 
     def set_constructors(self, ctors: T.List[Function]) -> None:
         self.constructors.extend(ctors)
@@ -261,40 +352,8 @@ class Union(Type):
     def set_functions(self, functions: T.List[Function]) -> None:
         self.functions.extend(functions)
 
-
-class EnumerationMember(GIRElement):
-    def __init__(self, name: str, value: str, identifier: str, nick: str):
-        super().__init__()
-        self.name = name
-        self.value = value
-        self.identifier = identifier
-        self.nick = nick
-
-
-class Enumeration(Type):
-    def __init__(self, name: str, ctype: str, gtype: GType):
-        super().__init__(name, ctype)
-        self.gtype = gtype
-        self.members = []
-        self.functions = []
-
-    def set_members(self, members: T.List[EnumerationMember]) -> None:
-        self.members.extend(members)
-
-    def add_member(self, member: EnumerationMember) -> None:
-        self.members.append(member)
-
-    def add_function(self, function: Function) -> None:
-        self.functions.append(function)
-
-    def set_functions(self, functions: T.List[Function]) -> None:
-        self.functions.extend(functions)
-
-
-class ErrorDomain(Enumeration):
-    def __init__(self, name: str, ctype: str, gtype: GType, domain: str):
-        super().__init__(name, ctype, gtype)
-        self.domain = domain
+    def set_fields(self, fields: T.List[Field]) -> None:
+        self.fields.extend(fields)
 
 
 class Namespace:
@@ -306,6 +365,7 @@ class Namespace:
         self._shared_libraries = []
 
         self._aliases = []
+        self._bitfields = []
         self._boxeds = []
         self._classes = []
         self._constants = []
@@ -355,6 +415,9 @@ class Namespace:
     def add_function(self, function: Function) -> None:
         self._functions.append(function)
 
+    def add_bitfield(self, bitfield: BitField) -> None:
+        self._bitfields.append(bitfield)
+
     def get_classes(self) -> T.List[Class]:
         return self._classes
 
@@ -384,6 +447,9 @@ class Namespace:
 
     def get_functions(self) -> T.List[Function]:
         return self._functions
+
+    def get_bitfields(self) -> T.List[BitField]:
+        return self._bitfields
 
 
 class Include:
