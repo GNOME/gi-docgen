@@ -338,22 +338,7 @@ def _print_class_functions(cls, sections=[], is_last_class=False):
         log.log(f'    {root_branch}   {functions_branch}   {function_branch}   {leaf} {func_str}')
 
 
-def run(options):
-    xdg_data_dirs = os.environ.get('XDG_DATA_DIRS', '/usr/share:/usr/local/share').split(':')
-    xdg_data_home = os.environ.get('XDG_DATA_HOME', os.path.expanduser('~/.local/share'))
-
-    paths = []
-    paths.append(os.getcwd())
-    paths.append(os.path.join(xdg_data_home, 'gir-1.0'))
-    paths.extend([ os.path.join(x, 'gir-1.0') for x in xdg_data_dirs ])
-
-    if not options.quiet:
-        log.info(f"Search paths: {paths}")
-
-    parser = GirParser(search_paths=paths)
-    parser.parse(options.infile)
-
-    repository = parser.get_repository()
+def gen_tree(repository):
     includes = ', '.join([ str(x) for x in repository.get_includes() ])
     c_includes = ', '.join(repository.get_c_includes())
     packages = ', '.join(repository.get_packages())
@@ -617,5 +602,22 @@ def run(options):
             if 'functions' in sections:
                 sections.remove('functions')
                 _print_enum_functions(domain, sections, is_last_domain, True)
+
+
+def run(options):
+    xdg_data_dirs = os.environ.get('XDG_DATA_DIRS', '/usr/share:/usr/local/share').split(':')
+    xdg_data_home = os.environ.get('XDG_DATA_HOME', os.path.expanduser('~/.local/share'))
+
+    paths = []
+    paths.append(os.getcwd())
+    paths.append(os.path.join(xdg_data_home, 'gir-1.0'))
+    paths.extend([ os.path.join(x, 'gir-1.0') for x in xdg_data_dirs ])
+
+    log.info(f"Search paths: {paths}")
+
+    parser = GirParser(search_paths=paths)
+    parser.parse(options.infile)
+
+    gen_tree (parser.get_repository())
 
     return 0
