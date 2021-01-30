@@ -21,6 +21,8 @@ class GIDocGenApp:
         self.quiet = False
         self.commands = {}
         self.parser = argparse.ArgumentParser(prog='gi-docgen', formatter_class=self.formatter)
+        self.parser.add_argument("-q", "--quiet", action="store_true", help="suppress messages except warnings")
+        self.parser.add_argument("--fatal-warnings", action="store_true", help="whether warnings are fatal")
 
         self.subparser = self.parser.add_subparsers(title='Commands',
                                                     description='If no command is specified, default to help')
@@ -44,8 +46,17 @@ class GIDocGenApp:
 
         options = self.parser.parse_args(args)
 
+        log.set_quiet(options.quiet)
+        log.set_fatal_warnings(options.fatal_warnings)
+        log.set_log_epoch()
+
         try:
-            return options.run_func(options)
+            res = options.run_func(options)
+            report_res = log.report()
+            if res == 0:
+                return report_res
+            return res
+
         except Exception:
             traceback.print_exc()
             return 1
