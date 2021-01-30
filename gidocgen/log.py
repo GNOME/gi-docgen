@@ -4,6 +4,8 @@
 import os
 import platform
 import sys
+import time
+
 
 def setup_output():
     try:
@@ -13,8 +15,18 @@ def setup_output():
     except Exception:
         return False
 
+
+def setup_debug():
+    if os.environ.get('GIDOCGEN_DEBUG', '0') == '1':
+        return True
+    return False
+
+
 log_colorize_output = setup_output()
+log_debug = setup_debug()
+log_quiet = False
 log_fatal_warnings = False
+log_warnings_counter = 0
 log_epoch = 0
 
 colors = {
@@ -99,10 +111,29 @@ def log_once(text, prefix=None, location=None):
     '''
     Prints a line of text only once.
     '''
-    if text in logged_once:
+    t = tuple(text, prefix, location)
+    if t in logged_once:
         return
     log(text, prefix, location)
-    logged_once.add(text)
+    logged_once.add(t)
+
+
+def set_quiet(quiet):
+    global log_quiet
+    log_quiet = quiet
+
+
+def set_fatal_warnings(fatal_warnings):
+    global log_fatal_warnings
+    log_fatal_warnings = fatal_warnings
+
+
+def set_log_epoch(epoch = 0):
+    global log_epoch
+    if epoch == 0:
+        log_epoch = time.monotonic()
+    else:
+        log_epoch = epoch
 
 
 def log(text, prefix=None, location=None):
@@ -124,27 +155,49 @@ def log(text, prefix=None, location=None):
 def error(text, location=None):
     '''Prints an error message'''
     log(text, prefix=red('ERROR'), location=location)
-    if log_fatal_warnings:
-        sys.exit(1)
+    sys.exit(1)
 
 
 def warning(text, location=None):
     '''Prints a warning message'''
     log(text, prefix=yellow('WARNING'), location=location)
+
+    global log_warnings_counter
+    log_warnings_counter += 1
+
     if log_fatal_warnings:
         sys.exit(1)
 
 
 def info(text, location=None):
     '''Prints an information message'''
-    log(text, prefix=green('INFO'), location=location)
+    if not log_quiet:
+        log(text, prefix=green('INFO'), location=location)
 
 
 def debug(text, location=None):
     '''Prints a debug message'''
-    log(text, prefix=dim('DEBUG'), location=location)
+    if log_debug:
+        log(text, prefix=dim('DEBUG'), location=location)
 
 
 def deprecation(text, location=None):
     '''Prints a deprecation warning'''
     log(text, prefix=blue('DEPRECATED'), location=location)
+    global log_warnings_counter
+    log_warnings_counter += 1
+
+
+def report():
+    if log_quiet:
+        return
+
+    elapsed = (time.monotonic() - log_epoch)
+
+    report =  [""]
+    report += [ f"Elapsed time: {elapsed:.3f} seconds" ]
+    report += [ f"Total warnings: {log_warnings_counter}" ]
+
+    print("\n".join(report))
+
+    return log_warnings_counter != 0
