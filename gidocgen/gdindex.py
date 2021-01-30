@@ -422,9 +422,9 @@ def gen_tree(repository):
         for i, iface in enumerate(interfaces):
             is_last_iface = i == len(interfaces) - 1
             if is_last_iface:
-                log.log(f'    │   └── {iface.name}')
+                log.log(f'    │   └── {iface.name}, prerequisite: {iface.prerequisite}')
             else:
-                log.log(f'    │   ├── {iface.name}')
+                log.log(f'    │   ├── {iface.name}, prerequisite: {iface.prerequisite}')
 
             sections = []
             if iface.properties:
