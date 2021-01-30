@@ -3,12 +3,18 @@
 
 import typing as T
 
+
 class Doc:
     """A documentation node, pointing to the source code"""
-    def __init__(self, content: str, filename: str, line: int):
+    def __init__(self, content: str, filename: str, line: int, version: str = None, stability: str = None):
         self.content = content
         self.filename = filename
         self.line = line
+        self.version = version
+        self.stability = stability
+
+    def __str__(self):
+        return self.content
 
 
 class SourcePosition:
@@ -17,36 +23,140 @@ class SourcePosition:
         self.filename = filename
         self.line = line
 
+    def __str__(self):
+        return f'{self.filename}:{self.line}'
+
+
+class Annotation:
+    """A user-defined annotation"""
+    def __init__(self, name: str, value: str):
+        self.name = name
+        self.value = value
+
+
+class CInclude:
+    """A C include header"""
+    def __init__(self, name: str):
+        self.name = name
+
+
+class Include:
+    """A GIR include"""
+    def __init__(self, name: str, version: str = None):
+        self.name = name
+        self.version = version
+
+    def __str__(self):
+        if self.version is not None:
+            return f"{self.name}-{self.version}"
+        return f"{self.name}"
+
+    def girfile(self) -> str:
+        if self.version is not None:
+            return f"{self.name}-{self.version}.gir"
+        return f"{self.name}.gir"
+
+
+class Package:
+    """Pkg-config containing the library"""
+    def __init__(self, name: str):
+        self.name = name
+
+
+class Info:
+    """Base information for most types"""
+    def __init__(self, introspectable: bool = True, deprecated: str = None, deprecated_version: str = None, version: str = None, stability: str = None):
+        self.introspectable = introspectable
+        self.deprecated = deprecated
+        self.deprecated_version = deprecated_version
+        self.version = version
+        self.stability = stability
+        self.annotations = []
+        self.doc = None
+        self.source_position = None
+
+    def add_annotation(self, annotation: Annotation) -> None:
+        self.annotations.append(annotation)
+
 
 class GIRElement:
     """Base type for elements inside the GIR"""
-    def __init__(self):
-        self.doc = None
-        self.source_position = None
-        self.deprecated = False
-        self.deprecated_doc = None
-        self.deprecated_since = None
+    def __init__(self, name: str = None):
+        self.name = name
+        self.info = Info()
+
+    def set_introspectable(self, introspectable: bool) -> None:
+        """Set whether the symbol is introspectable"""
+        self.info.introspectable = introspectable
+
+    @property
+    def introspectable(self):
+        return self.info.introspectable
+
+    def set_version(self, version: str) -> None:
+        """Set the version of the symbol"""
+        self.info.version = version
+
+    def set_stability(self, stability: str) -> None:
+        """Set the stability of the symbol"""
+        self.info.stability = stability
+
+    @property
+    def stability(self):
+        return self.info.stability
 
     def set_doc(self, doc: Doc) -> None:
         """Set the documentation for the element"""
-        self.doc = doc
+        self.info.doc = doc
+
+    @property
+    def doc(self):
+        return self.info.doc
 
     def set_source_position(self, pos: SourcePosition) -> None:
         """Set the position in the source code for the element"""
-        self.source_position = pos
+        self.info.source_position = pos
 
     def set_deprecated(self, doc: str = None, since_version: str = None) -> None:
-        self.deprecated = True
-        self.deprecated_doc = doc
-        self.deprecated_since = since_version
+        """Set the deprecation annotations for the element"""
+        self.info.deprecated = doc
+        self.info.deprecated_version = since_version
+
+    def add_annotation(self, name: str, value: str = None) -> None:
+        """Add an annotation to the symbol"""
+        self.info.add_annotation(Annotation(name, value))
 
 
 class Type(GIRElement):
     """Base class for all Type nodes"""
-    def __init__(self, name: str, ctype: str):
-        super().__init__()
-        self.name = name
+    def __init__(self, name: str, ctype: str = None):
+        super().__init__(name)
         self.ctype = ctype
+
+    def __eq__(self, other):
+        if isinstance(other, Type):
+            return self.name == other.name
+        elif isinstance(other, str):
+            return self.name == other
+        else:
+            return False
+
+    def __cmp__(self, other):
+        return cmp(self.name, other.name)
+
+    def __repr__(self):
+        return f"Type({self.name}, {self.ctype})"
+
+
+class ArrayType(GIRElement):
+    """Base class for Array nodes"""
+    def __init__(self, name: str, value_type: Type, ctype: str = None, zero_terminated: bool = False, fixed_size: int = -1, length: int = -1):
+        super().__init__(name)
+        self.ctype = ctype
+        self.zero_terminated = zero_terminated
+        self.fixed_size = fixed_size
+        self.length = length
+        self.value_type = value_type
 
 
 class GType:
@@ -60,6 +170,17 @@ class GType:
 class VoidType(Type):
     def __init__(self):
         super().__init__(name='none', ctype='void')
+
+    def __str__(self):
+        return "void"
+
+
+class VarArgs(Type):
+    def __init__(self):
+        super().__init__(name='none', ctype='args')
+
+    def __str__(self):
+        return "..."
 
 
 class Alias(Type):
@@ -79,9 +200,8 @@ class Constant(Type):
 
 class Parameter(GIRElement):
     """A callable parameter"""
-    def __init__(self, name: str, direction: str, transfer: str, target: Type, caller_allocates: bool = False, optional: bool = False, nullable: bool = False, closure: int = -1, destroy: int = -1, scope: str = None):
-        super().__init__()
-        self.name = name
+    def __init__(self, name: str, direction: str, transfer: str, target: Type = None, caller_allocates: bool = False, optional: bool = False, nullable: bool = False, closure: int = -1, destroy: int = -1, scope: str = None):
+        super().__init__(name)
         self.direction = direction
         self.transfer = transfer
         self.caller_allocates = caller_allocates
@@ -114,8 +234,7 @@ class ReturnValue(GIRElement):
 class Callable(GIRElement):
     """A callable symbol: function, method, function-macro, ..."""
     def __init__(self, name: str, identifier: str):
-        super().__init__()
-        self.name = name
+        super().__init__(name)
         self.identifier = identifier
         self.parameters = []
         self.return_value = None
@@ -129,6 +248,22 @@ class Callable(GIRElement):
     def set_return_value(self, res: ReturnValue) -> None:
         self.return_value = res
 
+    def __contains__(self, param):
+        if isinstance(param, str):
+            for p in self.parameters:
+                if p.name == param:
+                    return True
+        elif isinstance(param, Parameter):
+            return param in self.parameters
+        elif isinstance(param, ReturnValue):
+            return param == self.return_value
+        return False
+
+
+class FunctionMacro(Callable):
+    def __init__(self, name: str, identifier: str):
+        super().__init__(name, identifier)
+
 
 class Function(Callable):
     def __init__(self, name: str, identifier: str):
@@ -139,6 +274,23 @@ class Method(Callable):
     def __init__(self, name: str, identifier: str, instance_param: Parameter):
         super().__init__(name, identifier)
         self.instance_param = instance_param
+
+    def __contains__(self, param):
+        if isinstance(param, Parameter) and param == self.instance_param:
+            return True
+        return super().__contains__(self, param)
+
+
+class VirtualMethod(Callable):
+    def __init__(self, name: str, identifier: str, invoker: str, instance_param: Parameter):
+        super().__init__(name, identifier)
+        self.instance_param = instance_param
+        self.invoker = invoker
+
+    def __contains__(self, name):
+        if isinstance(param, Parameter) and param == self.instance_param:
+            return True
+        return super().__contains__(self, param)
 
 
 class Callback(Callable):
@@ -151,8 +303,7 @@ class Callback(Callable):
 class Member(GIRElement):
     """A member in an enumeration, error domain, or bitfield"""
     def __init__(self, name: str, value: str, identifier: str, nick: str):
-        super().__init__()
-        self.name = name
+        super().__init__(name)
         self.value = value
         self.identifier = identifier
         self.nick = nick
@@ -178,6 +329,15 @@ class Enumeration(Type):
     def set_functions(self, functions: T.List[Function]) -> None:
         self.functions.extend(functions)
 
+    def __contains__(self, member):
+        if isinstance(member, Member):
+            return member in self.members
+        return False
+
+    def __iter__(self):
+        for member in self.members:
+            yield member
+
 
 class BitField(Enumeration):
     """An enumeration type of bit masks"""
@@ -194,8 +354,7 @@ class ErrorDomain(Enumeration):
 
 class Property(GIRElement):
     def __init__(self, name: str, transfer: str, target: Type, writable: bool = True, readable: bool = True, construct: bool = False, construct_only: bool = False):
-        super().__init__()
-        self.name = name
+        super().__init__(name)
         self.transfer = transfer
         self.writable = writable
         self.readable = readable
@@ -206,8 +365,7 @@ class Property(GIRElement):
 
 class Signal(GIRElement):
     def __init__(self, name: str, detailed: bool, when: str, action: bool = False, no_hooks: bool = False, no_recurse: bool = False):
-        super().__init__()
-        self.name = name
+        super().__init__(name)
         self.when = when
         self.action = action
         self.no_hooks = no_hooks
@@ -225,8 +383,7 @@ class Signal(GIRElement):
 class Field(GIRElement):
     """A field in a struct or union"""
     def __init__(self, name: str, target: Type, writable: bool, readable: bool, private: bool = False, bits: int = 0):
-        super().__init__()
-        self.name = name
+        super().__init__(name)
         self.target = target
         self.writable = writable
         self.readable = readable
@@ -240,13 +397,18 @@ class Interface(Type):
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
         self.methods = []
+        self.virtual_methods = []
         self.properties = []
         self.signals = []
         self.functions = []
         self.fields = []
+        self.prerequisite = None
 
     def set_methods(self, methods: T.List[Method]) -> None:
         self.methods.extend(methods)
+
+    def set_virtual_methods(self, methods: T.List[VirtualMethod]) -> None:
+        self.virtual_methods.extend(methods)
 
     def set_properties(self, properties: T.List[Property]) -> None:
         self.properties.extend(properties)
@@ -260,6 +422,9 @@ class Interface(Type):
     def set_fields(self, fields: T.List[Field]) -> None:
         self.fields.extend(fields)
 
+    def set_prerequisite(self, prerequisite: str) -> None:
+        self.prerequisite = prerequisite
+
 
 class Class(Type):
     def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType, parent: str = 'GObject.Object', abstract: bool = False):
@@ -271,17 +436,29 @@ class Class(Type):
         self.implements = []
         self.constructors = []
         self.methods = []
+        self.virtual_methods = []
         self.properties = []
         self.signals = []
         self.functions = []
         self.fields = []
         self.callbacks = []
 
+    @property
+    def type_struct(self) -> str:
+        return self.gtype.type_struct
+
+    @property
+    def type_func(self) -> str:
+        return self.gtype.type_func
+
     def set_constructors(self, ctors: T.List[Function]) -> None:
         self.constructors.extend(ctors)
 
     def set_methods(self, methods: T.List[Method]) -> None:
         self.methods.extend(methods)
+
+    def set_virtual_methods(self, methods: T.List[VirtualMethod]) -> None:
+        self.virtual_methods.extend(methods)
 
     def set_properties(self, properties: T.List[Property]) -> None:
         self.properties.extend(properties)
@@ -357,11 +534,10 @@ class Union(Type):
 
 
 class Namespace:
-    def __init__(self, name: str, version: str, identifier_prefix=None, symbol_prefix=None):
+    def __init__(self, name: str, version: str, identifier_prefix: T.List[str] = [], symbol_prefix: T.List[str] = []):
         self.name = name
         self.version = version
-        self.identifier_prefix = identifier_prefix or self.name
-        self.symbol_prefix = symbol_prefix or self.name.lower()
+
         self._shared_libraries = []
 
         self._aliases = []
@@ -372,9 +548,19 @@ class Namespace:
         self._enumerations = []
         self._error_domains = []
         self._functions = []
+        self._function_macros = []
         self._interfaces = []
         self._records = []
         self._unions = []
+
+        if identifier_prefix:
+            self.identifier_prefix = identifier_prefix
+        else:
+            self.identifier_prefix = [self.name]
+        if symbol_prefix:
+            self.symbol_prefix = symbol_prefix
+        else:
+            self.symbol_prefix = [self.name.lower()]
 
     def __str__(self):
         return f"{self.name}-{self.version}"
@@ -418,6 +604,9 @@ class Namespace:
     def add_bitfield(self, bitfield: BitField) -> None:
         self._bitfields.append(bitfield)
 
+    def add_function_macro(self, function: FunctionMacro) -> None:
+        self._function_macros.append(function)
+
     def get_classes(self) -> T.List[Class]:
         return self._classes
 
@@ -451,17 +640,20 @@ class Namespace:
     def get_bitfields(self) -> T.List[BitField]:
         return self._bitfields
 
+    def get_function_macros(self) -> T.List[FunctionMacro]:
+        return self._function_macros
 
-class Include:
-    def __init__(self, name: str, version: str):
-        self.name = name
-        self.version = version
+    def find_record(self, record: str) -> T.Optional[Record]:
+        for r in self._records:
+            if r.name == record:
+                return r
+        return None
 
-    def __str__(self):
-        return f"{self.name}-{self.version}"
-
-    def girfile(self) -> str:
-        return f"{self.name}-{self.version}.gir"
+    def find_interface(self, iface: str) -> T.Optional[Interface]:
+        for i in self._interfaces:
+            if i.name == iface:
+                return i
+        return None
 
 
 class Repository:
@@ -475,10 +667,10 @@ class Repository:
         self.includes.append(Include(name, version))
 
     def add_package(self, name: str) -> None:
-        self.package.append(name)
+        self.package.append(Package(name))
 
     def set_c_include(self, name: str) -> None:
-        self.c_includes.append(name)
+        self.c_includes.append(CInclude(name))
 
     def add_namespace(self, ns: Namespace) -> None:
         self.namespaces.append(ns)
@@ -486,10 +678,10 @@ class Repository:
     def get_includes(self) -> T.List[Include]:
         return self.includes
 
-    def get_c_includes(self) -> T.List[str]:
+    def get_c_includes(self) -> T.List[CInclude]:
         return self.c_includes
 
-    def get_packages(self) -> T.List[str]:
+    def get_packages(self) -> T.List[Package]:
         return self.packages
 
     def get_namespace(self) -> Namespace:

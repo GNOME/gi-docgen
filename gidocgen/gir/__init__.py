@@ -9,9 +9,13 @@ __all__ = [
     'Callable',
     'Class',
     'Constant',
+    'Doc',
     'Enumeration',
     'ErrorDomain',
+    'Field',
     'Function',
+    'GIRElement',
+    'GType',
     'Include',
     'Member',
     'Method',
@@ -19,6 +23,10 @@ __all__ = [
     'Parameter',
     'Repository',
     'ReturnValue',
+    'Type',
+    'VarArgs',
+    'VirtualMethod',
+    'VoidType',
 ]
 
 from .ast import (
@@ -27,9 +35,13 @@ from .ast import (
     Callable,
     Class,
     Constant,
+    Doc,
     Enumeration,
     ErrorDomain,
+    Field,
     Function,
+    GIRElement,
+    GType,
     Include,
     Member,
     Method,
@@ -37,6 +49,10 @@ from .ast import (
     Parameter,
     Repository,
     ReturnValue,
+    Type,
+    VarArgs,
+    VirtualMethod,
+    VoidType,
 )
 
 from .parser import GirParser
