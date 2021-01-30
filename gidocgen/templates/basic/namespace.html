@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }} &ndash; {{ namespace.version }}{% endblock %}
+
+{% block meta_other %}
+  <meta name="og:title" content="{{ namespace.name }}-{{ namespace.version }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}-{{ namespace.version }}"/>
+{% endblock %}
+
+{% block navbar %}
+<nav class="sidebar">
+  <div class="namespace">
+    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  </div>
+  <div class="section">
+    <h5>Sections</h5>
+    <div class="links">
+    {% for symbol in symbols %}
+      <a href="#{{ symbol }}">{{ symbol }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Namespace</h3>
+    <h1>{{ namespace.name }} &ndash; {{ namespace.version }}</h1>
+
+    <div>
+      <p>{{ CONFIG.description }}</p>
+    </div>
+
+    <div class="meta">
+      <table>
+        <tr><td>Authors</td><td>{{ CONFIG.authors }}</td></tr>
+        <tr><td>License</td><td>{{ CONFIG.license }}</td></tr>
+        <tr><td>Website</td><td><a href="{{ CONFIG.website_url }}" class="external">{{ CONFIG.website_url }}</a></td></tr>
+        <tr><td>Browse code</td><td><a href="{{ CONFIG.browse_url }}" class="external">{{ CONFIG.browse_url }}</a></td></tr>
+      </table>
+    </div>
+  </header>
+
+  {% if CONFIG.dependencies|length > 0 %}
+  <section>
+    <div>
+      <h4><a name="dependencies">Dependencies</a></h4>
+
+      <ul>
+      {% for dep in CONFIG.dependencies %}
+        <li><a href="{{ dep.docs_file }}" class="external-link">{{ dep.name }}</a> &mdash; {{ dep.description }}</a></li>
+      {% endfor %}
+      </ul>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if content_files|length > 0 %}
+  <section>
+    <div>
+      <h4 id="extra">Additional documentation</a></h4>
+
+      <ul>
+      {% for abs_file_src, abs_file_dst, file_name, file_title in content_files %}
+        <li><a href="{{ file_name }}">{{ file_title }}</a></li>
+      {% endfor %}
+      </ul>
+    </div>
+  </section>
+  {% endif %}
+
+  <section>
+    <div>
+      <h4 id="classes">Classes</h4>
+
+      {% for class in symbols.classes %}
+      {% if loop.first %}<ul>{% endif %}
+      <li><a href="class.{{ class.name }}.html">{{ class.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+      <p><em>No classes available.</em></p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <div>
+      <h4 id="interfaces">Interfaces</h4>
+
+      {% for iface in symbols.interfaces %}
+      {% if loop.first %}<ul>{% endif %}
+      <li><a href="iface.{{ iface.name }}.html">{{ iface.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+      <p><em>No interfaces available.</em></p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <div>
+      <h4 id="enums">Enumerations</h4>
+
+      {% for enum in symbols.enums %}
+      {% if loop.first %}<ul>{% endif %}
+      <li><a href="enum.{{ enum.name }}.html">{{ enum.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+      <p><em>No enumerations available.</em></p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <div>
+      <h4 id="bitfields">Bitfields</h4>
+
+      {% for flag in symbols.bitfields %}
+      {% if loop.first %}<ul>{% endif %}
+      <li><a href="flags.{{ flag.name }}.html">{{ flag.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+      <p><em>No bitfields available.</em></p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <div>
+      <h4 id="domains">Error domains</h4>
+
+      {% for error in symbols.domains %}
+      {% if loop.first %}<ul>{% endif %}
+      <li><a href="error.{{ error.name }}.html">{{ error.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+      <p><em>No error domains available.</em></p>
+      {% endfor %}
+    </div>
+  </section>
+
+</section>
+{% endblock %}

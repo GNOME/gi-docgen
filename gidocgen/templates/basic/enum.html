@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ enum.name }}{% endblock %}
+
+{% block meta_other %}
+  <meta name="og:title" content="{{ namespace.name }}.{{ enum.name }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}.{{ enum.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="namespace">
+    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  </div>
+  <div class="section">
+    <h5>Type</h5>
+    <div class="links">
+      <a class="current" href="{{ enum.link_prefix }}.{{ enum.name }}.html">{{ enum.name }}</a>
+    </div>
+  </div>
+  <div class="section">
+    <h5>Type functions</h5>
+    <div class="links">
+    {% for m in enum.type_funcs %}
+      <a class="method" href="type_func.{{ enum.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Enumeration</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.{{ enum.name }}</h1>
+  </header>
+
+  <section>
+    <div class="declaration">
+      <h4><a name="declaration">Declaration</a></h4>
+
+      <div class="collapse-toggle">
+        {% if enum.error %}
+        <pre><code>error {{ namespace.name }}.{{ enum.name }}</code></pre>
+        {% elif enum.bitfield %}
+        <pre><code>flags {{ namespace.name }}.{{ enum.name }}</code></pre>
+        {% else %}
+        <pre><code>enum {{ namespace.name }}.{{ enum.name }}</code></pre>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="description collapse-toggle">
+      <h4><a name="description">Description</a></h4>
+
+      {{ enum.description|safe }}
+    </div>
+
+    <div class="members">
+      <h4><a name="members">Members</a></h4>
+
+      <table>
+      {% for member in enum.members %}
+        <tr>
+          <td><code>{{ member.name }}</code></td>
+          <td><code>{{ member.value }}</code></td>
+          <td><code>&quot;{{ member.nick }}&quot;</code></td>
+          <td>{{ member.description|safe }}</td>
+        </tr>
+      {% endfor %}
+      </table>
+    </div>
+
+    {% if enum.error_domain %}
+    <div class="error-domain">
+      <h4><a name="error-domain">Error domain</a></h4>
+
+      <pre><code>&quot;{{ enum.domain }}&quot;</code></pre>
+    </div>
+    {% endif %}
+
+    {% if enum.type_funcs %}
+    <div class="type-funcs">
+      <h4><a name="type-funcs">Type functions</a></h4>
+
+      <ul>
+      {% for func in enum.type_funcs %}
+        <li><a href="type_func.{{ enum.name }}.{{ func.name }}.html">{{ func.identifier }} ();</a></li>
+      {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+  </section>
+</section>
+{% endblock %}

@@ -404,6 +404,14 @@ class Interface(Type):
         self.fields = []
         self.prerequisite = None
 
+    @property
+    def type_struct(self) -> str:
+        return self.gtype.type_struct
+
+    @property
+    def type_func(self) -> str:
+        return self.gtype.type_func
+
     def set_methods(self, methods: T.List[Method]) -> None:
         self.methods.extend(methods)
 

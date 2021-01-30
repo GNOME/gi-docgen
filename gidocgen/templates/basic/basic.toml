@@ -1,0 +1,27 @@
+[metadata]
+name = "Basic"
+author_name = "Emmanuele Bassi"
+author_email = "ebassi@gnome.org"
+copyright_year = "2021"
+license = "Apache-2.0 OR GPL-3.0-or-later"
+
+[templates]
+class = "class.html"
+interface = "interface.html"
+content = "content.html"
+property = "property.html"
+signal = "signal.html"
+vfunc = "vfunc.html"
+method = "method.html"
+type_func = "type_func.html"
+class_method = "class_method.html"
+namespace = "namespace.html"
+error = "enum.html"
+flags = "enum.html"
+enum = "enum.html"
+
+[css]
+style = "style.css"
+
+[extra_files]
+files = ["main.js", "pygment.css"]

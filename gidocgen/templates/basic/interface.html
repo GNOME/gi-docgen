@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ interface.name }}{% endblock %}
+
+{% block meta_other %}
+  <meta name="og:title" content="{{ namespace.name }}.{{ interface.name }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}.{{ interface.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="namespace">
+    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  </div>
+  <div class="section">
+    <h5>Interface</h5>
+    <div class="links">
+      <a class="current" href="iface.{{ interface.name }}.html#description">{{ interface.name }}</a>
+    </div>
+  </div>
+  <div class="section">
+    <h5>Instance methods</h5>
+    <div class="links">
+    {% for m in interface.methods %}
+      <a class="method" href="method.{{ interface.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Interface methods</h5>
+    <div class="links">
+    {% for m in interface.class_methods %}
+      <a class="method" href="class_method.{{ interface.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Type functions</h5>
+    <div class="links">
+    {% for m in interface.type_funcs %}
+      <a class="method" href="type_func.{{ interface.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Properties</h5>
+    <div class="links">
+    {% for p in interface.properties %}
+      <a href="property.{{ interface.name }}.{{ p.name }}.html">{{ p.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Signals</h5>
+    <div class="links">
+    {% for s in interface.signals %}
+      <a href="signal.{{ interface.name }}.{{ s.name }}.html">{{ s.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Interface</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.{{ interface.name }}</h1>
+  </header>
+
+  <section>
+    <summary>
+      <div class="collapse-toggle">
+        <h4><a name="description">Description</a></h4>
+
+        <pre><code>interface {{ namespace.name }}.{{ interface.name }} : {{ interface.requires }}</code></pre>
+
+        <div>
+          {{ interface.description|safe }}
+        </div>
+      </div>
+    </summary>
+
+    {% if interface.methods %}
+    <div class="methods">
+      <h4><a name="methods">Instance methods</a></h4>
+
+      {% for method in interface.methods %}
+      <div>
+        <h6><a href="method.{{ interface.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+      </div>
+      {% endfor %}
+
+    </div>
+    {% endif %}
+
+    {% if interface.properties %}
+    <div class="properties">
+      <h4><a name="properties">Properties</a></h4>
+
+      {% for property in interface.properties %}
+      <div>
+        <h6><a href="property.{{ interface.name }}.{{ property.name }}.html">{{ namespace.name }}.{{ interface.name }}:{{ property.name }}</a></h6>
+      </div>
+      {% endfor %}
+
+    </div>
+    {% endif %}
+
+    {% if interface.signals %}
+    <div class="signals">
+      <h4><a name="signals">Signals</a></h4>
+
+      {% for signal in interface.signals %}
+      <div>
+        <h6><a href="signal.{{ interface.name }}.{{ signal.name }}.html">{{ namespace.name }}.{{ interface.name }}::{{ signal.name }}</a></h6>
+      </div>
+      {% endfor %}
+
+    </div>
+    {% endif %}
+
+    {% if interface.class_name %}
+    <div class="class">
+      <h4><a name="class">Interface structure</a></h4>
+
+      <pre><code>struct {{ namespace.name }}.{{ interface.class_name }} {
+  {% for field in interface.class_fields %}
+  {{ field.name }}: {{ field.type_name }};
+  {% else %}/* no available fields */{% endfor %}
+}</code></pre>
+
+      {% if interface.class_fields %}
+      <div>
+        <h6>Interface members</h6>
+
+        <table>
+        {% for field in interface.class_fields %}
+        <tr>
+          <td><code>{{ field.name }}</code></td>
+          <td>{{ field.description|safe }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if interface.class_methods %}
+    <div class="methods">
+      <h4><a name="class-functions">Class methods</a></h4>
+
+      {% for method in interface.class_methods %}
+      <div>
+        <h6><a href="class_method.{{ interface.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %} 
+
+    {% if interface.functions %}
+    <div class="methods">
+      <h4><a name="type-functions">Type functions</a></h4>
+
+      {% for func in interface.type_funcs %}
+      <div>
+        <h6><a href="type_func.{{ interface.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </section>
+</section>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ class.name }}.{{ method.name }}{% endblock %}
+
+{% block meta_other %}
+  <meta name="og:title" content="{{ namespace.name }}.{{ class.name }}.{{ method.name }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}.{{ class.name }}.{{ method.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="namespace">
+    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  </div>
+  <div class="section">
+    <h5>Type</h5>
+    <div class="links">
+      <a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>
+    </div>
+  </div>
+  <div class="section">
+    <h5>Instance methods</h5>
+    <div class="links">
+    {% for m in class.methods %}
+      <a class="method{% if method.name == m.name %} current{% endif %}" href="method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Class methods</h5>
+    <div class="links">
+    {% for m in class.class_methods %}
+      <a class="method" href="class_method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Type functions</h5>
+    <div class="links">
+    {% for m in class.type_funcs %}
+      <a class="method" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Properties</h5>
+    <div class="links">
+    {% for p in class.properties %}
+      <a href="property.{{ class.name }}.{{ p.name }}.html">{{ p.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Signals</h5>
+    <div class="links">
+    {% for s in class.signals %}
+      <a href="signal.{{ class.name }}.{{ s.name }}.html">{{ s.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Method</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.<a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>.{{ method.name }}</h1>
+  </header>
+
+  <section>
+    <div class="declaration">
+      <h4><a name="declaration">Declaration</a></h4>
+
+      <div class="collapse-toggle">
+        <pre><code>{% if method.return_value %}{{ method.return_value.type_cname }}{% else %}void{% endif %}
+{{ method.identifier }} (
+  {{ class.type_cname }}* self{% if method.arguments|length != 0 %},{% endif %}
+  {% for arg in method.arguments %}{{ arg.type_cname }} {{ arg.name }}{% if not loop.last %},{% endif %}{%- endfor %}
+)</code></pre>
+    </div>
+
+    <div class="description collapse-toggle">
+      <h4><a name="description">Description</a></h4>
+
+      {{ method.description|safe }}
+    </div>
+
+    {% if method.arguments|length != 0 %}
+    <div class="parameters collapse-toggle">
+      <h4><a name="parameters">Parameters</a></h4>
+
+      <div>
+        <table>
+          {% for arg in method.arguments %}
+          <tr>
+            <td><code>{{ arg.name }}: {{ arg.type_cname }}</code></td>
+            <td>{{ arg.direction }}</td>
+            <td>{{ arg.transfer }}</td>
+            <td>{% if arg.is_pointer and arg.nullable %}nullable{% endif %}</td>
+            <td>{{ arg.description|safe }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if method.return_value %}
+    <div class="returns collapse-toggle">
+      <h4><a name="returns">Return value</a></h4>
+
+      <div>
+        {{ method.return_value.description|safe }}
+
+        <table>
+          <tr>
+            <td>{{ method.return_value.transfer }}</td>
+            <td>{% if method.return_value.is_pointer and method.return_value.nullable %}nullable{% endif %}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+  </section>
+</section>
+{% endblock %}

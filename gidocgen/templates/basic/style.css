@@ -1,0 +1,170 @@
+@import url("pygment.css");
+
+body {
+  font: 16px/1.4 "Source Serif Pro", serif;
+  margin: 0;
+  position: relative;
+  padding: 10px 15px 20px 15px;
+
+  -webkit-font-feature-settings: "kern", "liga";
+  -moz-font-feature-settings: "kern", "liga";
+  font-feature-settings: "kern", "liga";
+}
+
+h1 {
+  font-size: 1.5em;
+}
+
+h2 {
+  font-size: 1.4em;
+}
+
+h3 {
+  font-size: 1.3em;
+}
+
+.content h2, .content h3, .content h4 {
+  color: #acacac;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.navbar h3, .navbar h4, .navbar h6 {
+  text-align: center;
+  padding-left: 
+}
+
+ol, ul {
+  padding-left: 25px;
+}
+
+ul ul, ol ul, ul ol, ol ol {
+  margin-bottom: .6em;
+}
+
+p {
+  margin: 0 0 .6em 0;
+}
+
+a {
+  color: #3b86e2;
+}
+
+summary {
+  outline: none;
+}
+
+code, pre {
+  font-family: "Source Code Pro", monospace;
+}
+
+pre {
+  padding: 14px;
+}
+
+#body-wrapper {
+  box-sizing: border-box;
+}
+
+#main {
+  position: relative;
+}
+
+.content {
+  margin-left: 230px;
+  margin-top: 50px;
+  max-width: none;
+  overflow: visible;
+  min-width: 70em;
+}
+
+.sidebar {
+  background-color: #efefef;
+  width: 200px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  overflow: auto;
+}
+
+* {
+  scrollbar-width: initial;
+}
+
+.sidebar {
+  scrollbar-width: thin;
+}
+
+.sidebar .section > ul > li {
+  margin-right: -10px;
+}
+
+.sidebar .namespace {
+  padding-left: 12px;
+}
+
+.sidebar .section {
+  padding-left: 12px;
+}
+
+.sidebar .links {
+  margin-bottom: 15px;
+}
+
+.sidebar .section a {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 300;
+  transition: border 500ms ease-out;
+}
+
+.sidebar .section a.current {
+  background-color: white;
+}
+
+.content, nav {
+  max-width: 960px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.content table:not(.table-display) {
+  border-spacing: 0 5px;
+}
+
+.content td {
+  vertical-align: top;
+}
+
+.content td:first-child {
+  padding-right: 20px;
+}
+
+.content td p:first-child {
+  margin-top: 0;
+}
+
+.content td h1, .content td h2 {
+  margin-left: 0;
+  font-size: 1.1em;
+}
+
+.content tr:first-child td {
+  border-top: 0;
+}
+
+kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  font: 15px monospace;
+  line-height: 10px;
+  vertical-align: middle;
+  border: solid 1px;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0;
+  cursor: default;
+}

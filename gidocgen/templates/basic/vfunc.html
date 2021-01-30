@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ class.name }}.{{ vfunc.name }}{% endblock %}
+
+{% block meta_other %}
+  <meta name="og:title" content="{{ namespace.name }}.{{ class.name }}.{{ vfunc.name }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}.{{ class.name }}.{{ vfunc.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="namespace">
+    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  </div>
+  <div class="section">
+    <h5>Type</h5>
+    <div class="links">
+      <a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>
+    </div>
+  </div>
+  <div class="section">
+    <h5>Instance methods</h5>
+    <div class="links">
+    {% for m in class.methods %}
+      <a class="method" href="method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Class methods</h5>
+    <div class="links">
+    {% for m in class.class_methods %}
+      <a class="method" href="class_vfunc.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Type functions</h5>
+    <div class="links">
+    {% for m in class.type_funcs %}
+      <a class="vfunc" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Properties</h5>
+    <div class="links">
+    {% for p in class.properties %}
+      <a href="property.{{ class.name }}.{{ p.name }}.html">{{ p.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Signals</h5>
+    <div class="links">
+    {% for s in class.signals %}
+      <a href="signal.{{ class.name }}.{{ s.name }}.html">{{ s.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Virtual function</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.<a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>.{{ vfunc.name }}</h1>
+  </header>
+
+  <section>
+    <div class="declaration">
+      <h4><a name="declaration">Declaration</a></h4>
+
+      <div class="collapse-toggle">
+        <pre><code>{% if vfunc.return_value %}{{ vfunc.return_value.type_cname }}{% else %}void{% endif %}
+{{ vfunc.identifier }} (
+  {{ class.type_cname }}* self{% if vfunc.arguments|length != 0 %},{% endif %}
+  {% for arg in vfunc.arguments %}{{ arg.type_cname }} {{ arg.name }}{% if not loop.last %},{% endif %}{%- endfor %}
+)</code></pre>
+    </div>
+
+    <div class="description collapse-toggle">
+      <h4><a name="description">Description</a></h4>
+
+      {{ vfunc.description|safe }}
+    </div>
+
+    {% if vfunc.arguments|length != 0 %}
+    <div class="parameters collapse-toggle">
+      <h4><a name="parameters">Parameters</a></h4>
+
+      <div>
+        <table>
+          {% for arg in vfunc.arguments %}
+          <tr>
+            <td><code>{{ arg.name }}: {{ arg.type_cname }}</code></td>
+            <td>{{ arg.direction }}</td>
+            <td>{{ arg.transfer }}</td>
+            <td>{%- if arg.nullable %}nullable{% else %}not nullable{% endif -%}</td>
+            <td>{{ arg.description|safe }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if vfunc.return_value %}
+    <div class="returns collapse-toggle">
+      <h4><a name="returns">Return value</a></h4>
+
+      <div>
+        {{ vfunc.return_value.description|safe }}
+
+        <table>
+          <tr>
+            <td>{{ vfunc.return_value.transfer }}</td>
+            <td>{%- if vfunc.return_value.nullable %}nullable{% else %}not nullable{% endif -%}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+  </section>
+</section>
+{% endblock %}

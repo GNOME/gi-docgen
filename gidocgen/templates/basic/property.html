@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ class.name }}:{{ property.name }}{% endblock %}
+
+{% block meta_other %}
+<meta name="og:title" content="{{ namespace.name }}.{{ class.name }}:{{ property.name }}"/>
+<meta name="og:description" content="Reference for {{ namespace.name }}.{{ class.name }}:{{ property.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="namespace">
+    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  </div>
+  <div class="section">
+    <h5>Type</h5>
+    <div class="links">
+      <a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>
+    </div>
+  </div>
+  <div class="section">
+    <h5>Instance methods</h5>
+    <div class="links">
+    {% for m in class.methods %}
+      <a class="method" href="method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Class methods</h5>
+    <div class="links">
+    {% for m in class.class_methods %}
+      <a class="method" href="class_method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Type functions</h5>
+    <div class="links">
+    {% for m in class.type_funcs %}
+      <a class="method" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Properties</h5>
+    <div class="links">
+    {% for p in class.properties %}
+      <a class="property{% if p.name == property.name %} current{% endif %}"href="property.{{ class.name }}.{{ p.name }}.html">{{ p.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Signals</h5>
+    <div class="links">
+    {% for s in class.signals %}
+      <a href="signal.{{ class.name }}.{{ s.name }}.html">{{ s.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Property</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.<a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>:{{ property.name }}</h1>
+  </header>
+
+  <section>
+    <div class="declaration">
+      <h4><a name="declaration">Declaration</a></h4>
+
+      <div>
+        <pre><code>{{ property.name }}: {{ property.type_name }}</code></pre>
+      </div>
+    </div>
+
+    <div class="description">
+      <h4><a name="description">Description</a></h4>
+
+      {{ property.description|safe }}
+    </div>
+
+    <div class="flags">
+      <h4><a name="Flags"</a></h4>
+      <table>
+        <tr>
+          <td>Readable</td><td>{% if property.readable %}<b>yes</b>{% else %}<b>no</b>{% endif %}</td>
+        </tr>
+        <tr>
+          <td>Writable</td><td>{% if property.writable %}<b>yes</b>{% else %}<b>no</b>{% endif %}</td>
+        </tr>
+        <tr>
+          <td>Construct</td><td>{% if property.construct %}<b>yes</b>{% else %}<b>no</b>{% endif %}</td>
+        </tr>
+        <tr>
+          <td>Construct only</td><td>{% if property.construct_only %}<b>yes</b>{% else %}<b>no</b>{% endif %}</td>
+        </tr>
+      </table>
+    </div>
+
+  </section>
+</section>
+{% endblock %}

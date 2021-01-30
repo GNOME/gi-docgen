@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ class.name }}::{{ signal.name }}{% endblock %}
+
+{% block meta_other %}
+<meta name="og:title" content="{{ namespace.name }}.{{ class.name }}::{{ signal.name }}"/>
+<meta name="og:description" content="Reference for {{ namespace.name }}.{{ class.name }}::{{ signal.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="namespace">
+    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  </div>
+  <div class="section">
+    <h5>Type</h5>
+    <div class="links">
+      <a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>
+    </div>
+  </div>
+  <div class="section">
+    <h5>Instance methods</h5>
+    <div class="links">
+    {% for m in class.methods %}
+      <a class="method" href="method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Class methods</h5>
+    <div class="links">
+    {% for m in class.class_methods %}
+      <a class="method" href="class_method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Type functions</h5>
+    <div class="links">
+    {% for m in class.type_funcs %}
+      <a class="method" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Properties</h5>
+    <div class="links">
+    {% for p in class.properties %}
+      <a class="property" href="property.{{ class.name }}.{{ p.name }}.html">{{ p.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Signals</h5>
+    <div class="links">
+    {% for s in class.signals %}
+      <a class="signal{% if s.name == signal.name %} current{% endif %}" href="signal.{{ class.name }}.{{ s.name }}.html">{{ s.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Signal</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.<a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>::{{ signal.name }}</h1>
+  </header>
+
+  <section>
+    <div class="declaration">
+      <h4><a name="declaration">Declaration</a></h4>
+
+      <div>
+        <pre><code>{% if signal.return_value %}{{ signal.return_value.type_cname }}{% else %}void{% endif %}
+{{ signal.name }} (
+  {{ class.type_cname }}* self{% if signal.arguments|length != 0 %},{% endif %}
+  {% for arg in signal.arguments %}{{ arg.type_cname }} {{ arg.name }}{% if not loop.last %},{% endif %}{% endfor %}
+  gpointer user_data
+)</code></pre>
+    </div>
+
+    <div class="description">
+      <h4><a name="description">Description</a></h4>
+
+      {{ signal.description|safe }}
+    </div>
+
+    {% if signal.arguments|length != 0 %}
+    <div class="parameters">
+      <h4><a name="parameters">Parameters</a></h4>
+
+      <table>
+        {% for arg in signal.arguments %}
+        <tr>
+          <td><code>{{ arg.name }}: {{ arg.type_cname }}</code></td>
+          <td>{{ arg.description|safe }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+
+    {% if signal.return_value %}
+    <div class="returns">
+      <h4><a name="returns">Return value</a></h4>
+
+      {{ signal.return_value.description|safe }}
+    </div>
+    {% endif %}
+
+  </section>
+</section>
+{% endblock %}

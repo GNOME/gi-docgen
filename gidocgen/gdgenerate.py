@@ -1,0 +1,911 @@
+# SPDX-FileCopyrightText: 2021 GNOME Foundation
+# SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
+
+import argparse
+import jinja2
+import markdown
+import os
+import re
+import shutil
+import sys
+
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import HtmlFormatter
+from typogrify.filters import typogrify
+
+from . import config, log
+
+from .gir import *
+
+
+HELP_MSG = "Generates the reference"
+
+CODEBLOCK_START_RE = re.compile(
+    r'''
+    ^
+    \s*
+    \|\[
+    \s*
+    (?P<language>\<\!-- \s* language="\w+" \s* --\>)?
+    \s*
+    $
+    ''',
+    re.UNICODE | re.VERBOSE)
+
+LANGUAGE_RE = re.compile(
+    r'''
+    ^
+    \s*
+    <!--
+    \s*
+    language="(?P<language>\w+)"
+    \s*
+    -->
+    \s*
+    $
+    ''',
+    re.UNICODE | re.VERBOSE)
+
+CODEBLOCK_END_RE = re.compile(
+    r'''
+    ^
+    \s*
+    \]\|
+    \s*
+    $
+    ''',
+    re.UNICODE | re.VERBOSE)
+
+LANGUAGE_MAP = {
+    'c': 'c',
+    'css': 'css',
+    'plain': 'plain',
+    'xml': 'xml',
+}
+
+TRANSFER_MODES = {
+    'none': 'Ownership is not transferred',
+    'container': 'Ownership of the container type is transferred',
+    'full': 'Ownership of the data is transferred',
+    'floating': '',
+}
+
+DIRECTION_MODES = {
+    'none': '-',
+    'in': 'in',
+    'inout': 'in-out',
+    'out': 'out',
+}
+
+SCOPE_MODES = {
+    'none': '-',
+    'call': 'Arguments are valid during the call',
+    'notified': 'Arguments are valid until the notify function is called',
+    'async': 'Arguments are valid until the call is completed',
+}
+
+MD_EXTENSIONS = [
+    'def_list',
+    'fenced_code',
+    'tables',
+]
+
+def process_language(lang):
+    if lang is None:
+        return "plain"
+
+    res = LANGUAGE_RE.match(lang)
+    if res:
+        language = res.group("language") or "plain"
+    else:
+        language = "plain"
+
+    return LANGUAGE_MAP[language.lower()]
+
+
+def preprocess_gtkdoc(text):
+    processed_text = []
+
+    code_block_text = []
+    code_block_language = None
+    inside_code_block = False
+    for line in text.split("\n"):
+        res = CODEBLOCK_START_RE.match(line)
+        if res:
+            code_block_language = process_language(res.group("language"))
+            inside_code_block = True
+            continue
+
+        res = CODEBLOCK_END_RE.match(line)
+        if res and inside_code_block:
+            if code_block_language == "plain":
+                processed_text += ["```"]
+                processed_text.extend(code_block_text)
+                processed_text += ["```"]
+            else:
+                lexer = get_lexer_by_name(code_block_language)
+                formatter = HtmlFormatter()
+                code_block = highlight("\n".join(code_block_text), lexer, formatter)
+                processed_text += [""]
+                processed_text.extend(code_block.split("\n"))
+                processed_text += [""]
+
+            code_block_language = None
+            code_block_text = []
+            inside_code_block = False
+            continue
+
+        if inside_code_block:
+            code_block_text += [line]
+        else:
+            processed_line = line
+            processed_line = re.sub(r'#([A-Z][A-Za-z0-9:]+)', r'<code>\1</code>', processed_line)
+            processed_line = re.sub(r'@(\w+)', r'<code>\1</code>', processed_line)
+            processed_line = re.sub(r'%([A-Za-z0-9_]+)', r'<code>\1</code>', processed_line)
+            processed_line = re.sub(r'#\s+([\w\-_\s]+)(#+\s+[\w\{\}#-_]+)?', r'##### \1', processed_line)
+            processed_text += [processed_line]
+
+    text = "\n".join(processed_text)
+    return markdown.markdown(text, extensions=MD_EXTENSIONS)
+
+
+class TemplateProperty:
+    def __init__(self, namespace, cls, prop):
+        self.name = prop.name
+        self.type_name = prop.target.name
+        self.type_cname = prop.target.ctype
+        self.description = "No description available."
+        self.readable = prop.readable
+        self.writable = prop.writable
+        self.construct = prop.construct
+        self.construct_only = prop.construct_only
+        if prop.doc is not None:
+            self.description = preprocess_gtkdoc(prop.doc.content)
+
+
+class TemplateArgument:
+    def __init__(self, call, argument):
+        self.name = argument.name
+        self.type_name = argument.target.name
+        self.type_cname = argument.target.ctype
+        self.transfer = TRANSFER_MODES[argument.transfer or 'none']
+        self.direction = DIRECTION_MODES[argument.direction or 'none']
+        self.nullable = argument.nullable
+        self.scope = SCOPE_MODES[argument.scope or 'none']
+        if argument.closure != -1:
+            self.closure = call.parameters[argument.closure]
+        else:
+            self.closure = None
+        self.description = "No description available."
+        if argument.doc is not None:
+            self.description = preprocess_gtkdoc(argument.doc.content)
+
+    @property
+    def is_pointer(self):
+        return '*' in self.type_cname
+
+
+class TemplateReturnValue:
+    def __init__(self, call, retval):
+        self.name = retval.name
+        self.type_name = retval.target.name
+        self.type_cname = retval.target.ctype
+        self.transfer = TRANSFER_MODES[retval.transfer or 'none']
+        self.nullable = retval.nullable
+        self.description = "No description available."
+        if retval.doc is not None:
+            self.description = preprocess_gtkdoc(retval.doc.content)
+
+    @property
+    def is_pointer(self):
+        return '*' in self.type_cname
+
+
+class TemplateSignal:
+    def __init__(self, namespace, cls, signal):
+        self.name = signal.name
+        self.description = "No description available."
+
+        if signal.doc is not None:
+            self.description = preprocess_gtkdoc(signal.doc.content)
+
+        self.arguments = []
+        for arg in signal.parameters:
+            self.arguments.append(TemplateArgument(signal, arg))
+
+        self.return_value = None
+        if not isinstance(signal.return_value.target, VoidType):
+            self.return_value = TemplateReturnValue(signal, signal.return_value)
+
+
+class TemplateMethod:
+    def __init__(self, namespace, cls, method):
+        self.name = method.name
+        self.identifier = method.identifier
+        self.description = "No description available."
+
+        if method.doc is not None:
+            self.description = preprocess_gtkdoc(method.doc.content)
+
+        self.arguments = []
+        for arg in method.parameters:
+            self.arguments.append(TemplateArgument(method, arg))
+
+        self.return_value = None
+        if not isinstance(method.return_value.target, VoidType):
+            self.return_value = TemplateReturnValue(method, method.return_value)
+
+
+class TemplateFunction:
+    def __init__(self, func):
+        self.name = func.name
+        self.identifier = func.identifier
+        self.description = "No description available."
+        if func.doc is not None:
+            self.description = preprocess_gtkdoc(func.doc.content)
+
+        self.arguments = []
+        for arg in func.parameters:
+            self.arguments.append(TemplateArgument(func, arg))
+
+        self.return_value = None
+        if not isinstance(func.return_value.target, VoidType):
+            self.return_value = TemplateReturnValue(func, func.return_value)
+
+
+class TemplateCallback:
+    def __init__(self, cb):
+        self.name = cb.name
+        self.description = "No description available."
+        if cb.doc is not None:
+            self.description = preprocess_gtkdoc(cb.doc.content)
+
+        self.arguments = []
+        for arg in cb.parameters:
+            self.arguments.append(TemplateArgument(cb, arg))
+
+        self.return_value = None
+        if not isinstance(cb.return_value.target, VoidType):
+            self.return_value = TemplateReturnValue(cb, cb.return_value)
+
+
+class TemplateField:
+    def __init__(self, field):
+        self.name = field.name
+        self.type_name = field.target and field.target.name or 'none'
+        self.type_cname = field.target and field.target.ctype or 'none'
+        self.private = field.private
+        self.description = "No description available."
+        if field.doc is not None:
+            self.description = preprocess_gtkdoc(field.doc.content)
+
+
+class TemplateInterface:
+    def __init__(self, namespace, iface_name):
+        interface = namespace.find_interface(iface_name)
+        if interface is None:
+            self.name = iface_name
+            self.requires = "GObject.Object"
+            self.link_prefix = "iface"
+            return
+
+        self.name = interface.name
+        self.requires = interface.prerequisite
+        if self.requires is None:
+            self.requires = "GObject.Object"
+
+        self.symbol_prefix = f"{namespace.symbol_prefix}_{interface.symbol_prefix}"
+        self.type_cname = interface.ctype
+
+        self.link_prefix = "iface"
+
+        self.description = "No description available."
+        if interface.doc is not None:
+            self.description = preprocess_gtkdoc(interface.doc.content)
+
+        self.class_name = interface.type_struct
+
+        self.class_struct = namespace.find_record(interface.type_struct)
+        if self.class_struct is not None:
+            self.class_fields = []
+            self.class_methods = []
+
+            for field in self.class_struct.fields:
+                if not field.private:
+                    self.class_fields.append(TemplateField(field))
+
+            for meth in self.class_struct.methods:
+                self.class_methods.append(TemplateFunction(meth))
+
+        if len(interface.properties) != 0:
+            self.properties = []
+            for prop in interface.properties:
+                self.properties.append(TemplateProperty(namespace, self, prop))
+
+        if len(interface.signals) != 0:
+            self.signals = []
+            for sig in interface.signals:
+                self.signals.append(TemplateSignal(namespace, self, sig))
+
+        if len(interface.methods) != 0:
+            self.methods = []
+            for meth in interface.methods:
+                self.methods.append(TemplateMethod(namespace, self, meth))
+
+        if len(interface.virtual_methods) != 0:
+            self.virtual_methods = []
+            for vfunc in self.virtual_methods:
+                self.virtual_methods.append(TemplateMethod(namespace, self, vfunc))
+
+
+class TemplateClass:
+    def __init__(self, namespace, cls):
+        self.name = cls.name
+        self.symbol_prefix = f"{namespace.symbol_prefix}_{cls.symbol_prefix}"
+        self.type_cname = cls.ctype
+        self.link_prefix = "class"
+
+        self.description = "No description available."
+        if cls.parent is None:
+            self.parent = 'GObject.TypeInstance'
+        elif '.' in cls.parent:
+            self.parent = cls.parent
+        else:
+            self.parent = f"{namespace.name}.{cls.parent}"
+
+        if cls.doc is not None:
+            self.description = preprocess_gtkdoc(cls.doc.content)
+
+        if len(cls.properties) != 0:
+            self.properties = []
+            for prop in cls.properties:
+                self.properties.append(TemplateProperty(namespace, self, prop))
+
+        if len(cls.signals) != 0:
+            self.signals = []
+            for sig in cls.signals:
+                self.signals.append(TemplateSignal(namespace, self, sig))
+
+        if len(cls.methods) != 0:
+            self.methods = []
+            for meth in cls.methods:
+                self.methods.append(TemplateMethod(namespace, self, meth))
+
+        self.class_name = cls.type_struct
+
+        self.instance_struct = None
+        if len(cls.fields) != 0:
+            self.instance_struct = self.class_name
+
+        self.class_struct = namespace.find_record(cls.type_struct)
+        if self.class_struct is None:
+            return
+
+        if self.class_struct:
+            self.class_fields = []
+            self.class_methods = []
+
+            for field in self.class_struct.fields:
+                if not field.private:
+                    self.class_fields.append(TemplateField(field))
+
+            for meth in self.class_struct.methods:
+                self.class_methods.append(TemplateFunction(meth))
+
+        if len(cls.implements) != 0:
+            self.interfaces = []
+            for iface in cls.implements:
+                self.interfaces.append(TemplateInterface(namespace, iface))
+
+        if len(cls.virtual_methods) != 0:
+            self.virtual_methods = []
+            for vfunc in cls.virtual_methods:
+                self.virtual_methods.append(TemplateMethod(namespace, self, vfunc))
+
+        if len(cls.functions) != 0:
+            self.type_funcs = []
+            for func in cls.functions:
+                self.type_funcs.append(TemplateFunction(func))
+
+
+class TemplateMember:
+    def __init__(self, enum, member):
+        self.name = member.identifier
+        self.nick = member.nick
+        self.value = member.value
+        self.description = "No description available."
+        if member.doc is not None:
+            text = preprocess_gtkdoc(member.doc.content)
+            self.description = markdown.markdown(text, extensions=['fenced_code'])
+
+
+class TemplateEnum:
+    def __init__(self, namespace, enum):
+        self.name = enum.name
+        self.symbol_prefix = None
+        self.type_cname = enum.ctype
+        self.bitfield = False
+        self.error = False
+        self.domain = None
+
+        if isinstance(enum, BitField):
+            self.link_prefix = "flags"
+            self.bitfield = True
+        elif isinstance(enum, ErrorDomain):
+            self.link_prefix = "error"
+            self.error = True
+            self.domain = enum.domain
+        else:
+            self.link_prefix = "enum"
+
+        if len(enum.members) != 0:
+            self.members = []
+            for member in enum.members:
+                self.members.append(TemplateMember(enum, member))
+
+        if len(enum.functions) != 0:
+            self.type_funcs = []
+            for func in enum.functions:
+                self.type_funcs.append(TemplateFunction(func))
+
+
+class TemplateNamespace:
+    def __init__(self, namespace):
+        self.name = namespace.name
+        self.version = namespace.version
+        self.prefix = f"{namespace.symbol_prefix}"
+
+
+def _gen_classes(config, theme_config, output_dir, jinja_env, namespace, all_classes):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    class_tmpl = jinja_env.get_template(theme_config.class_template)
+    method_tmpl = jinja_env.get_template('method.html')
+    property_tmpl = jinja_env.get_template('property.html')
+    signal_tmpl = jinja_env.get_template('signal.html')
+    class_method_tmpl = jinja_env.get_template('class_method.html')
+    type_func_tmpl = jinja_env.get_template('type_func.html')
+    vfunc_tmpl = jinja_env.get_template('vfunc.html')
+
+    for cls in all_classes:
+        class_file = os.path.join(ns_dir, f"class.{cls.name}.html")
+        log.info(f"Creating class file for {namespace.name}.{cls.name}: {class_file}")
+
+        tmpl = TemplateClass(namespace, cls)
+
+        with open(class_file, "w") as out:
+            content = class_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'class': tmpl,
+            })
+
+            out.write(typogrify(content))
+
+        for method in getattr(tmpl, 'methods', []):
+            method_file = os.path.join(ns_dir, f"method.{cls.name}.{method.name}.html")
+            log.debug(f"Creating method file for {namespace.name}.{cls.name}.{method.name}: {method_file}")
+
+            with open(method_file, "w") as out:
+                out.write(method_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'method': method,
+                }))
+
+        for prop in getattr(tmpl, 'properties', []):
+            prop_file = os.path.join(ns_dir, f"property.{cls.name}.{prop.name}.html")
+            log.debug(f"Creating property file for {namespace.name}.{cls.name}.{prop.name}: {prop_file}")
+
+            with open(prop_file, "w") as out:
+                out.write(property_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'property': prop,
+                }))
+
+        for signal in getattr(tmpl, 'signals', []):
+            signal_file = os.path.join(ns_dir, f"signal.{cls.name}.{signal.name}.html")
+            log.debug(f"Creating signal file for {namespace.name}.{cls.name}.{signal.name}: {signal_file}")
+
+            with open(signal_file, "w") as out:
+                out.write(signal_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'signal': signal,
+                }))
+
+        for cls_method in getattr(tmpl, 'class_methods', []):
+            cls_method_file = os.path.join(ns_dir, f"class_method.{cls.name}.{cls_method.name}.html")
+            log.debug(f"Creating class method file for {namespace.name}.{cls.name}.{cls_method.name}: {cls_method_file}")
+
+            with open(cls_method_file, "w") as out:
+                out.write(class_method_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'class_method': cls_method,
+                }))
+
+        for vfunc in getattr(tmpl, 'virtual_methods', []):
+            vfunc_file = os.path.join(ns_dir, f"vfunc.{cls.name}.{vfunc.name}.html")
+            log.debug(f"Creating vfunc file for {namespace.name}.{cls.name}.{vfunc.name}: {vfunc_file}")
+
+            with open(vfunc_file, "w") as out:
+                out.write(vfunc_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'vfunc': vfunc,
+                }))
+
+        for type_func in getattr(tmpl, 'type_funcs', []):
+            type_func_file = os.path.join(ns_dir, f"type_func.{cls.name}.{type_func.name}.html")
+            log.debug(f"Creating type func file for {namespace.name}.{cls.name}.{type_func.name}: {type_func_file}")
+
+            with open(type_func_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': type_func,
+                }))
+
+
+def _gen_interfaces(config, theme_config, output_dir, jinja_env, namespace, all_interfaces):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    iface_tmpl = jinja_env.get_template(theme_config.interface_template)
+    method_tmpl = jinja_env.get_template('method.html')
+    property_tmpl = jinja_env.get_template('property.html')
+    signal_tmpl = jinja_env.get_template('signal.html')
+    class_method_tmpl = jinja_env.get_template('class_method.html')
+    type_func_tmpl = jinja_env.get_template('type_func.html')
+    vfunc_tmpl = jinja_env.get_template('vfunc.html')
+
+    for iface in all_interfaces:
+        iface_file = os.path.join(ns_dir, f"iface.{iface.name}.html")
+        log.info(f"Creating interface file for {namespace.name}.{iface.name}: {iface_file}")
+
+        tmpl = TemplateInterface(namespace, iface)
+
+        with open(iface_file, "w") as out:
+            out.write(iface_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'interface': tmpl,
+            }))
+
+        for method in getattr(tmpl, 'methods', []):
+            method_file = os.path.join(ns_dir, f"method.{iface.name}.{method.name}.html")
+            log.debug(f"Creating method file for {namespace.name}.{iface.name}.{method.name}: {method_file}")
+
+            with open(method_file, "w") as out:
+                out.write(method_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'method': method,
+                }))
+
+        for prop in getattr(tmpl, 'properties', []):
+            prop_file = os.path.join(ns_dir, f"property.{iface.name}.{prop.name}.html")
+            log.debug(f"Creating property file for {namespace.name}.{iface.name}.{prop.name}: {prop_file}")
+
+            with open(prop_file, "w") as out:
+                out.write(property_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'property': prop,
+                }))
+
+        for signal in getattr(tmpl, 'signals', []):
+            signal_file = os.path.join(ns_dir, f"signal.{iface.name}.{signal.name}.html")
+            log.debug(f"Creating signal file for {namespace.name}.{iface.name}.{signal.name}: {signal_file}")
+
+            with open(signal_file, "w") as out:
+                out.write(signal_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'signal': signal,
+                }))
+
+        for cls_method in getattr(tmpl, 'class_methods', []):
+            iface_method_file = os.path.join(ns_dir, f"class_method.{iface.name}.{cls_method.name}.html")
+            log.debug(f"Creating class method file for {namespace.name}.{iface.name}.{cls_method.name}: {cls_method_file}")
+
+            with open(cls_method_file, "w") as out:
+                out.write(class_method_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'class_method': cls_method,
+                }))
+
+        for vfunc in getattr(tmpl, 'virtual_methods', []):
+            vfunc_file = os.path.join(ns_dir, f"vfunc.{iface.name}.{vfunc.name}.html")
+            log.debug(f"Creating vfunc file for {namespace.name}.{iface.name}.{vfunc.name}: {vfunc_file}")
+
+            with open(vfunc_file, "w") as out:
+                out.write(vfunc_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'vfunc': vfunc,
+                }))
+
+        for type_func in getattr(tmpl, 'type_funcs', []):
+            type_func_file = os.path.join(ns_dir, f"type_func.{iface.name}.{type_func.name}.html")
+            log.debug(f"Creating type func file for {namespace.name}.{iface.name}.{type_func.name}: {type_func_file}")
+
+            with open(type_func_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': type_func,
+                }))
+
+
+def _gen_enums(config, theme_config, output_dir, jinja_env, namespace, all_enums):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    enum_tmpl = jinja_env.get_template(theme_config.enum_template)
+    type_func_tmpl = jinja_env.get_template('type_func.html')
+
+    for enum in all_enums:
+        enum_file = os.path.join(ns_dir, f"enum.{enum.name}.html")
+        log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
+
+        tmpl = TemplateEnum(namespace, enum)
+
+        with open(enum_file, "w") as out:
+            out.write(enum_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'enum': tmpl,
+            }))
+
+        for type_func in getattr(tmpl, 'type_funcs', []):
+            type_func_file = os.path.join(ns_dir, f"type_func.{enum.name}.{type_func.name}.html")
+            log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
+
+            with open(type_func_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': type_func,
+                }))
+
+
+def _gen_bitfields(config, theme_config, output_dir, jinja_env, namespace, all_enums):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    enum_tmpl = jinja_env.get_template(theme_config.flags_template)
+    type_func_tmpl = jinja_env.get_template('type_func.html')
+
+    for enum in all_enums:
+        enum_file = os.path.join(ns_dir, f"flags.{enum.name}.html")
+        log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
+
+        tmpl = TemplateEnum(namespace, enum)
+
+        with open(enum_file, "w") as out:
+            out.write(enum_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'enum': tmpl,
+            }))
+
+        for type_func in getattr(tmpl, 'type_funcs', []):
+            type_func_file = os.path.join(ns_dir, f"type_func.{enum.name}.{type_func.name}.html")
+            log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
+
+            with open(type_func_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': type_func,
+                }))
+
+
+def _gen_domains(config, theme_config, output_dir, jinja_env, namespace, all_enums):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    enum_tmpl = jinja_env.get_template(theme_config.error_template)
+    type_func_tmpl = jinja_env.get_template('type_func.html')
+
+    for enum in all_enums:
+        enum_file = os.path.join(ns_dir, f"error.{enum.name}.html")
+        log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
+
+        tmpl = TemplateEnum(namespace, enum)
+
+        with open(enum_file, "w") as out:
+            out.write(enum_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'enum': tmpl,
+            }))
+
+        for type_func in getattr(tmpl, 'type_funcs', []):
+            type_func_file = os.path.join(ns_dir, f"type_func.{enum.name}.{type_func.name}.html")
+            log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
+
+            with open(type_func_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': type_func,
+                }))
+
+
+def _gen_content_files(config, content_dir, output_dir):
+    content_files = []
+
+    for (file_name, content_title) in config.content_files:
+        content_file = file_name.replace('.md', '.html')
+        infile = os.path.join(content_dir, file_name)
+        outfile = os.path.join(output_dir, content_file)
+        log.debug(f"Adding extra content file: {infile} -> {outfile} ('{content_title}')")
+        content_files += [(infile, outfile, content_file, content_title)]
+
+    return content_files
+
+
+def gen_reference(config, options, repository, templates_dir, theme_config, content_dir, output_dir):
+    theme_dir = os.path.join(templates_dir, theme_config.name.lower())
+    log.debug(f"Loading jinja templates from {theme_dir}")
+
+    fs_loader = jinja2.FileSystemLoader(theme_dir)
+    jinja_env = jinja2.Environment(loader=fs_loader, autoescape=jinja2.select_autoescape(['html']))
+
+    namespace = repository.get_namespace()
+
+    symbols = {
+        "aliases": sorted(namespace.get_aliases(), key=lambda alias: alias.name.lower()),
+        "bitfields": sorted(namespace.get_bitfields(), key=lambda bitfield: bitfield.name.lower()),
+        "classes": sorted(namespace.get_classes(), key=lambda cls: cls.name.lower()),
+        "constants": sorted(namespace.get_constants(), key=lambda const: const.name.lower()),
+        "domains": sorted(namespace.get_error_domains(), key=lambda domain: domain.name.lower()),
+        "enums": sorted(namespace.get_enumerations(), key=lambda enum: enum.name.lower()),
+        "functions": sorted(namespace.get_functions(), key=lambda func: func.name.lower()),
+        "interfaces": sorted(namespace.get_interfaces(), key=lambda interface: interface.name.lower()),
+        "records": sorted(namespace.get_records(), key=lambda record: record.name.lower()),
+        "unions": sorted(namespace.get_unions(), key=lambda union: union.name.lower()),
+    }
+
+    all_indices = {
+        "classes": _gen_classes,
+        "interfaces": _gen_interfaces,
+        "enums": _gen_enums,
+        "bitfields": _gen_bitfields,
+        "domains": _gen_domains,
+    }
+
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+    log.debug(f"Creating output path for the namespace: {ns_dir}")
+    os.makedirs(ns_dir, exist_ok=True)
+
+    content_files = _gen_content_files(config, content_dir, ns_dir)
+
+    ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
+    ns_file = os.path.join(ns_dir, "index.html")
+    log.info(f"Creating namespace index file for {namespace.name}.{namespace.version}: {ns_file}")
+    with open(ns_file, "w") as out:
+        out.write(ns_tmpl.render({
+            "CONFIG": config,
+            "namespace": namespace,
+            "symbols": symbols,
+            "content_files": content_files,
+        }))
+
+    if options.sections == [] or options.sections == ["all"]:
+        gen_indices = all_indices.keys()
+    else:
+        gen_indices = options.sections
+
+    log.info(f"Generating references for: {gen_indices}")
+
+    for section in gen_indices:
+        generator = all_indices.get(section, None)
+        if generator is None:
+            log.debug(f"No generator for section {section}")
+            continue
+
+        s = symbols.get(section, [])
+        if s is None:
+            log.debug(f"No symbols for section {section}")
+            continue
+
+        generator(config, theme_config, output_dir, jinja_env, namespace, s)
+
+    if len(content_files) != 0:
+        content_tmpl = jinja_env.get_template(theme_config.content_template)
+        for (src, dst, filename, title) in content_files:
+            log.info(f"Generating content file {filename} for '{title}': {dst}")
+
+            src_data = ""
+            with open(src, "r") as infile:
+                source = []
+                for line in infile:
+                    source += [line]
+                src_data = "".join(source)
+
+            dst_data = markdown.markdown(src_data, extensions=['fenced_code'])
+            with open(dst, "w") as outfile:
+                outfile.write(content_tmpl.render({
+                    "CONFIG": config,
+                    "namespace": namespace,
+                    "symbols": symbols,
+                    "content_files": content_files,
+                    "content_title": title,
+                    "content_data": dst_data,
+                }))
+
+    if theme_config.css is not None:
+        log.info(f"Copying style from {theme_dir} to {ns_dir}")
+        style_src = os.path.join(theme_dir, theme_config.css)
+        style_dst = os.path.join(ns_dir, theme_config.css)
+        shutil.copyfile(style_src, style_dst)
+
+    for extra_file in theme_config.extra_files:
+        log.debug(f"Copying extra file {extra_file} from {theme_dir} to {ns_dir}")
+        src = os.path.join(theme_dir, extra_file)
+        dst = os.path.join(ns_dir, extra_file)
+        shutil.copyfile(src, dst)
+
+
+def add_args(parser):
+    parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[], help="include paths for other GIR files")
+    parser.add_argument("-C", "--config", metavar="FILE", help="the configuration file")
+    parser.add_argument("--dry-run", action="store_true", help="parses the GIR file without generating files")
+    parser.add_argument("--templates-dir", default=None, help="the base directory with the theme templates")
+    parser.add_argument("--content-dir", default=None, help="the base directory with the extra content")
+    parser.add_argument("--theme-name", default="basic", help="the theme to use")
+    parser.add_argument("--output-dir", default=None, help="the output directory for the index files")
+    parser.add_argument("--section", action="append", dest="sections", default=[], help="the sections to generate, or 'all'")
+    parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'), default=sys.stdin, help="the GIR file to parse")
+
+
+def run(options):
+    xdg_data_dirs = os.environ.get("XDG_DATA_DIRS", "/usr/share:/usr/local/share").split(":")
+    xdg_data_home = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
+
+    paths = []
+    paths.append(os.getcwd())
+    paths.append(os.path.join(xdg_data_home, "gir-1.0"))
+    paths.extend([ os.path.join(x, "gir-1.0") for x in xdg_data_dirs ])
+
+    log.info(f"Loading config file: {options.config}")
+
+    conf = config.GIDocConfig(options.config)
+
+    output_dir = options.output_dir or os.getcwd()
+    content_dir = options.content_dir or os.getcwd()
+
+    templates_dir = conf.get_templates_dir(default=(options.templates_dir or os.getcwd()))
+    theme_name = conf.get_theme_name(default=options.theme_name)
+    theme_conf = config.GITemplateConfig(templates_dir, theme_name)
+
+    log.info(f"Search paths: {paths}")
+    log.info(f"Templates directory: {templates_dir}")
+    log.info(f"Theme name: {theme_conf.name}")
+
+    log.info("Parsing GIR file")
+    parser = GirParser(search_paths=paths)
+    parser.parse(options.infile)
+
+    if not options.dry_run:
+        gen_reference(conf, options, parser.get_repository(), templates_dir, theme_conf, content_dir, output_dir)
+
+    return 0

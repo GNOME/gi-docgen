@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ class.name }}{% endblock %}
+
+{% block meta_other %}
+  <meta name="og:title" content="{{ namespace.name }}.{{ class.name }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}.{{ class.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="namespace">
+    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  </div>
+  <div class="section">
+    <h5>Class</h5>
+    <div class="links">
+      <a class="current" href="class.{{ class.name }}.html#description">{{ class.name }}</a>
+    </div>
+  </div>
+  <div class="section">
+    <h5>Instance methods</h5>
+    <div class="links">
+    {% for m in class.methods %}
+      <a class="method" href="method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Class methods</h5>
+    <div class="links">
+    {% for m in class.class_methods %}
+      <a class="method" href="class_method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Type functions</h5>
+    <div class="links">
+    {% for m in class.type_funcs %}
+      <a class="method" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Properties</h5>
+    <div class="links">
+    {% for p in class.properties %}
+      <a href="property.{{ class.name }}.{{ p.name }}.html">{{ p.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Signals</h5>
+    <div class="links">
+    {% for s in class.signals %}
+      <a href="signal.{{ class.name }}.{{ s.name }}.html">{{ s.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Class</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.{{ class.name }}</h1>
+  </header>
+
+  <section>
+    <summary>
+      <div class="collapse-toggle">
+        <h4><a name="description">Description</a></h4>
+
+        <pre><code>{% if not class.class_struct or not class.instance_struct %}final {% endif -%}class {{ namespace.name }}.{{ class.name }} : {{ class.parent }} { }</code></pre>
+
+        <div>
+          {{ class.description|safe }}
+        </div>
+      </div>
+    </summary>
+
+    {% if class.interfaces %}
+    <div>
+      <h4><a name="implements">Implements</a></h4>
+
+      <ul>
+        {% for iface in class.interfaces %}
+        <li class="interface"><a href="iface.{{ iface.name }}.html">{{ namespace.name }}.{{ iface.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if class.methods %}
+    <div class="methods">
+      <h4><a name="methods">Instance methods</a></h4>
+
+      {% for method in class.methods %}
+      <div>
+        <h6><a href="method.{{ class.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+      </div>
+      {% endfor %}
+
+    </div>
+    {% endif %}
+
+    {% if class.properties %}
+    <div class="properties">
+      <h4><a name="properties">Properties</a></h4>
+
+      {% for property in class.properties %}
+      <div>
+        <h6><a href="property.{{ class.name }}.{{ property.name }}.html">{{ namespace.name }}.{{ class.name }}:{{ property.name }}</a></h6>
+      </div>
+      {% endfor %}
+
+    </div>
+    {% endif %}
+
+    {% if class.signals %}
+    <div class="signals">
+      <h4><a name="signals">Signals</a></h4>
+
+      {% for signal in class.signals %}
+      <div>
+        <h6><a href="signal.{{ class.name }}.{{ signal.name }}.html">{{ namespace.name }}.{{ class.name }}::{{ signal.name }}</a></h6>
+      </div>
+      {% endfor %}
+
+    </div>
+    {% endif %}
+
+    {% if class.class_name %}
+    <div class="class">
+      <h4><a name="class">Class structure</a></h4>
+
+      <pre><code>struct {{ namespace.name}}.{{ class.class_name }} {
+  {% for field in class.class_fields %}
+  {{ field.name }}: {{ field.type_name }};
+  {% else %}/* no available fields */{% endfor %}
+}</code></pre>
+
+      {% if class.class_fields %}
+      <div>
+        <h6>Class members</h6>
+
+        <table>
+        {% for field in class.class_fields %}
+        <tr>
+          <td><code>{{ field.name }}</code></td>
+          <td>{{ field.description|safe }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if class.class_methods %}
+    <div class="methods">
+      <h4><a name="class-functions">Class methods</a></h4>
+
+      {% for method in class.class_methods %}
+      <div>
+        <h6><a href="class_method.{{ class.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %} 
+
+    {% if class.functions %}
+    <div class="methods">
+      <h4><a name="type-functions">Type functions</a></h4>
+
+      {% for func in class.type_funcs %}
+      <div>
+        <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </section>
+</section>
+{% endblock %}

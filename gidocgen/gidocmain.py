@@ -7,7 +7,7 @@ import sys
 import traceback
 
 from . import log
-from . import gdindex
+from . import gdindex, gdgenerate
 
 class GIDocGenApp:
     """
@@ -35,6 +35,10 @@ class GIDocGenApp:
                          add_args_func=gdindex.add_args,
                          run_func=gdindex.run,
                          help_msg=gdindex.HELP_MSG)
+        self.add_command('generate',
+                         add_args_func=gdgenerate.add_args,
+                         run_func=gdgenerate.run,
+                         help_msg=gdgenerate.HELP_MSG)
 
     def run(self, args):
         """

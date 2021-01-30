@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }} &ndash; {{ namespace.version }}: {{ content_title }}{% endblock %}
+
+{% block meta_other %}
+  <meta name="og:title" content="{{ namespace.name }}-{{ namespace.version }}: {{ content_title }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}-{{ namespace.version }}"/>
+{% endblock %}
+
+{% block navbar %}
+<nav class="sidebar">
+  <div class="namespace">
+    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  </div>
+  <div class="section">
+    <h5>Classes</h5>
+    <div class="links">
+    {% for class in symbols.classes %}
+      <a href="class.{{ class.name }}.html">{{ class.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Interfaces</h5>
+    <div class="links">
+    {% for iface in symbols.interfaces %}
+      <a href="iface.{{ iface.name }}.html">{{ iface.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h1>{{ content_title }}</h1>
+  </header>
+
+  <section>
+    {{ content_data|safe }}
+  </section>
+</section>
+{% endblock %}

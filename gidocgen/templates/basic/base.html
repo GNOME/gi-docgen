@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{% block title %}{{ LIBRARY_NAME }}{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta charset="utf-8" />
+
+  <meta property="og:site_name" content="{{ SITENAME }}"/>
+  <meta property="og:title" content="{{ SITENAME }}"/>
+  <meta property="og:url" content="{{ SITEURL }}"/>
+  <meta property="og:type" content="website"/>
+
+  {% if LOGO_FILE %}
+  <meta property="og:image:width" content="512"/>
+  <meta property="og:image:height" content="512"/>
+  <meta property="og:image:secure_url" content="{{ SITEURL }}/{{ LOGO_FILE }}"/>
+  <meta property="og:image:alt" content="{{ LIBRARY_NAME }}"/>
+  {% endif %}
+
+  {% block meta_other %}{% endblock %}
+
+  <meta name="twitter:title" content="{{ SITENAME }}"/>
+  <meta name="twitter:url" content="{{ SITEURL }}"/>
+  <meta name="twitter:card" content="summary"/>
+
+  <link rel="canonical" href="{{ SITEURL }}"/>
+
+  <link rel="stylesheet" href="style.css" type="text/css" />
+
+  {% block style_other %}{% endblock %}
+
+  <!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+
+<body>
+  <div id="body-wrapper" tabindex="-1">
+  {% block sidebar %}{% endblock %}
+
+  {% block navbar %}{% endblock %}
+
+  {% block content %}{% endblock %}
+
+  {% block footer %}{% endblock %}
+  </div>
+</body>
+</html>
