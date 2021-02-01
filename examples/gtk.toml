@@ -1,0 +1,69 @@
+[library]
+namespace = "Gtk"
+version = "4.0"
+browse_url = "https://gitlab.gnome.org/GNOME/gtk/"
+repository_url = "https://gitlab.gnome.org/GNOME/gtk.git"
+website_url = "https://www.gtk.org"
+authors = "GTK Development Team"
+logo_url = "https://www.gtk.org/"
+license = "GPL-2.1-or-later"
+description = "The GTK toolkit"
+dependencies = [ "GObject-2.0", "Graphene-1.0", "Pango-1.0", "Gdk-4.0", "Gsk-4.0" ]
+
+  [dependencies."GObject-2.0"]
+  name = "GObject"
+  description = "The base type system library"
+  docs_url = "https://developer.gnome.org/gobject/stable"
+
+  [dependencies."Graphene-1.0"]
+  name = "Graphene"
+  description = "A thin layer of mathematical types for 3D libraries"
+  docs_url = "https://ebassi.github.io/graphene/docs"
+
+  [dependencies."Pango-1.0"]
+  name = "Pango"
+  description = "Text shaping and rendering"
+  docs_url = "https://developer.gnome.org/pango/stable"
+
+  [dependencies."Gdk-4.0"]
+  name = "GDK"
+  description = "The GTK windowing system abstraction"
+  docs_url = "../../Gdk/4.0/"
+
+  [dependencies."Gsk-4.0"]
+  name = "GSK"
+  description = "The GTK rendering abstraction"
+  docs_url = "../../Gsk/4.0/"
+
+[theme]
+name = "basic"
+
+[source-location]
+base_url = "https://gitlab.gnome.org/GNOME/gtk/-/blob/master/"
+
+[extra]
+# The same order will be used when generating the index
+content_files = [
+  [ "getting_started.md", "Getting started with GTK" ],
+  [ "building.md", "Building GTK from source" ],
+  [ "compiling.md", "Compiling GTK applications" ],
+  [ "running.md", "Running GTK applications" ],
+  [ "question_index.md", "Frequently asked questions" ],
+  [ "resources.md", "Contact information and bug reports" ],
+  [ "actions.md", "Using Actions" ],
+  [ "input-handling.md", "Input handling" ],
+  [ "drawing-model.md", "The GTK Drawing Model" ],
+  [ "css-overview.md", "CSS Overview" ],
+  [ "css-properties.md", "CSS Properties" ],
+  [ "section-accessibility.md", "Accessibility in GTK" ],
+  [ "section-list-widget.md", "Introduction to list widgets" ],
+  [ "section-text-widget.md", "Introduction to GtkTextView" ],
+  [ "section-tree-widget.md", "Introduction to GtkTreeView" ],
+  [ "migrating-2to4.md", "Migrating from GTK 2.x to GTK 4.x" ],
+  [ "migrating-3to4.md", "Migrating from GTK 3.x to GTK 4.x" ],
+  [ "broadway.md", "The Broadway windowing system" ],
+  [ "osx.md", "Integration with macOS" ],
+  [ "wayland.md", "Integration with Wayland" ],
+  [ "windows.md", "Integration with Windows" ],
+  [ "x11.md", "Integration with X11" ],
+]
