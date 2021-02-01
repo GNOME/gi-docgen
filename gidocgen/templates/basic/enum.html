@@ -37,10 +37,10 @@
   </header>
 
   <section>
-    <div class="declaration">
+    <div class="declaration toggle-wrapper">
       <h4><a name="declaration">Declaration</a></h4>
 
-      <div class="collapse-toggle">
+      <div class="docblock">
         {% if enum.error %}
         <pre><code>error {{ namespace.name }}.{{ enum.name }}</code></pre>
         {% elif enum.bitfield %}
@@ -51,15 +51,18 @@
       </div>
     </div>
 
-    <div class="description collapse-toggle">
+    <div class="description toggle-wrapper">
       <h4><a name="description">Description</a></h4>
 
+      <div class="content">
       {{ enum.description|safe }}
+      </div>
     </div>
 
-    <div class="members">
+    <div class="members toggle-wrapper">
       <h4><a name="members">Members</a></h4>
 
+      <div class="content">
       <table>
       {% for member in enum.members %}
         <tr>
@@ -70,25 +73,33 @@
         </tr>
       {% endfor %}
       </table>
+      </div>
     </div>
 
     {% if enum.error_domain %}
-    <div class="error-domain">
+    <div class="error-domain toggle-wrapper">
       <h4><a name="error-domain">Error domain</a></h4>
 
-      <pre><code>&quot;{{ enum.domain }}&quot;</code></pre>
+      <div class="docblock">
+        <pre><code>&quot;{{ enum.domain }}&quot;</code></pre>
+      </div>
     </div>
     {% endif %}
 
     {% if enum.type_funcs %}
-    <div class="type-funcs">
+    <div class="type-funcs toggle-wrapper">
       <h4><a name="type-funcs">Type functions</a></h4>
 
-      <ul>
+      <div class="docblock">
       {% for func in enum.type_funcs %}
-        <li><a href="type_func.{{ enum.name }}.{{ func.name }}.html">{{ func.identifier }} ();</a></li>
+        <div class="toggle-wrapper">
+          <h6><a href="type_func.{{ enum.name }}.{{ func.name }}.html">{{ func.identifier }} ();</a></h6>
+
+          <div class="docblock">
+            {{ func.description|safe }}
+          </div>
+        </div>
       {% endfor %}
-      </ul>
     </div>
     {% endif %}
 

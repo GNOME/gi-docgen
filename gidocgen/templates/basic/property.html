@@ -69,22 +69,26 @@
   </header>
 
   <section>
-    <div class="declaration">
+    <div class="declaration toggle-wrapper">
       <h4><a name="declaration">Declaration</a></h4>
 
-      <div>
+      <div class="docblock">
         <pre><code>{{ property.name }}: {{ property.type_name }}</code></pre>
       </div>
     </div>
 
-    <div class="description">
+    <div class="description toggle-wrapper">
       <h4><a name="description">Description</a></h4>
 
-      {{ property.description|safe }}
+      <div class="docblock">
+        {{ property.description|safe }}
+      </div>
     </div>
 
-    <div class="flags">
+    <div class="flags toggle-wrapper">
       <h4><a name="Flags"</a></h4>
+
+      <div class="docblock">
       <table>
         <tr>
           <td>Readable</td><td>{% if property.readable %}<b>yes</b>{% else %}<b>no</b>{% endif %}</td>
@@ -99,6 +103,7 @@
           <td>Construct only</td><td>{% if property.construct_only %}<b>yes</b>{% else %}<b>no</b>{% endif %}</td>
         </tr>
       </table>
+      </div>
     </div>
 
   </section>

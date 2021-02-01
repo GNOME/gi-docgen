@@ -70,50 +70,67 @@
 
   <section>
     <summary>
-      <div class="collapse-toggle">
+      <div class="toggle-wrapper">
         <h4><a name="description">Description</a></h4>
 
         <pre><code>interface {{ namespace.name }}.{{ interface.name }} : {{ interface.requires }}</code></pre>
 
-        <div>
+        <div class="docblock">
           {{ interface.description|safe }}
         </div>
       </div>
     </summary>
 
     {% if interface.methods %}
-    <div class="methods">
+    <div class="methods toggle-wrapper">
       <h4><a name="methods">Instance methods</a></h4>
 
+      <div class="docblock">
       {% for method in interface.methods %}
-      <div>
+      <div class="toggle-wrapper">
         <h6><a href="method.{{ interface.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+
+        <div class="docblock">
+          {{ method.description|safe }}
+        </div>
       </div>
       {% endfor %}
+      </div>
 
     </div>
     {% endif %}
 
     {% if interface.properties %}
-    <div class="properties">
+    <div class="properties toggle-wrapper">
       <h4><a name="properties">Properties</a></h4>
 
+      <div class="docblock">
       {% for property in interface.properties %}
-      <div>
+      <div class="toggle-wrapper">
         <h6><a href="property.{{ interface.name }}.{{ property.name }}.html">{{ namespace.name }}.{{ interface.name }}:{{ property.name }}</a></h6>
+
+        <div class="docblock">
+          {{ property.description|safe }}
+        </div>
       </div>
       {% endfor %}
+      </div>
 
     </div>
     {% endif %}
 
     {% if interface.signals %}
-    <div class="signals">
+    <div class="signals toggle-wrapper">
       <h4><a name="signals">Signals</a></h4>
 
+      <div class="docblock">
       {% for signal in interface.signals %}
-      <div>
+      <div class="toggle-wrapper">
         <h6><a href="signal.{{ interface.name }}.{{ signal.name }}.html">{{ namespace.name }}.{{ interface.name }}::{{ signal.name }}</a></h6>
+
+        <div class="docblock">
+          {{ signal.description|safe }}
+        </div>
       </div>
       {% endfor %}
 
@@ -121,7 +138,7 @@
     {% endif %}
 
     {% if interface.class_name %}
-    <div class="class">
+    <div class="class toggle-wrapper">
       <h4><a name="class">Interface structure</a></h4>
 
       <pre><code>struct {{ namespace.name }}.{{ interface.class_name }} {
@@ -131,7 +148,7 @@
 }</code></pre>
 
       {% if interface.class_fields %}
-      <div>
+      <div class="docblock">
         <h6>Interface members</h6>
 
         <table>
@@ -147,26 +164,38 @@
     {% endif %}
 
     {% if interface.class_methods %}
-    <div class="methods">
+    <div class="methods toggle-wrapper">
       <h4><a name="class-functions">Class methods</a></h4>
 
+      <div class="docblock">
       {% for method in interface.class_methods %}
-      <div>
+      <div class="toggle-wrapper">
         <h6><a href="class_method.{{ interface.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+
+        <div class="docblock">
+          {{ method.description|safe }}
+        </div>
       </div>
       {% endfor %}
+      </div>
     </div>
     {% endif %} 
 
     {% if interface.functions %}
-    <div class="methods">
+    <div class="methods toggle-wrapper">
       <h4><a name="type-functions">Type functions</a></h4>
 
+      <div class="docblock">
       {% for func in interface.type_funcs %}
-      <div>
+      <div class="toggle-wrapper">
         <h6><a href="type_func.{{ interface.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
+
+        <div class="docblock">
+          {{ func.description|safe }}
+        </div>
       </div>
       {% endfor %}
+      </div>
     </div>
     {% endif %}
 

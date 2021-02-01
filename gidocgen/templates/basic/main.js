@@ -19,6 +19,10 @@ function removeClass(elem, className) {
     elem.classList.remove(className);
 }
 
+function insertAfter(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
 function onEach(arr, func, reversed) {
     if (arr && arr.length > 0 && func) {
         var length = arr.length;
@@ -52,10 +56,60 @@ function hasOwnProperty(obj, property) {
     return Object.prototype.hasOwnProperty.call(obj, property);
 }
 
-(function() {
+window.addEventListener("load", function() {
     "use strict;"
 
     var main = document.getElementById("main");
     var btnToTop = document.getElementById("btn-to-top");
 
-});
+    function labelForToggleButton(isCollapsed) {
+        if (isCollapsed) {
+            return "+";
+        }
+        return "\u2212";
+    }
+
+    function createToggle(isCollapsed) {
+        var toggle = document.createElement("a");
+        toggle.href = "javascript:void(0)";
+        toggle.className = "collapse-toggle";
+        toggle.innerHTML = "[<span class=\"inner\">"
+                         + labelForToggleButton(isCollapsed)
+                         + "</span>]";
+
+        return toggle;
+    }
+
+    function toggleClicked() {
+        if (hasClass(this, "collapsed")) {
+            removeClass(this, "collapsed");
+            this.innerHTML = "[<span class=\"inner\">"
+                           + labelForToggleButton(false)
+                           + "</span>]";
+            onEachLazy(this.parentNode.getElementsByClassName("docblock"), function(e) {
+                removeClass(e, "hidden");
+            });
+        } else {
+            addClass(this, "collapsed");
+            this.innerHTML = "[<span class=\"inner\">"
+                           + labelForToggleButton(true)
+                           + "</span>]";
+            onEachLazy(this.parentNode.getElementsByClassName("docblock"), function(e) {
+                addClass(e, "hidden");
+            });
+        }
+    }
+
+    onEachLazy(document.getElementsByClassName("toggle-wrapper"), function(e) {
+        collapsedByDefault = hasClass(e, "default-hide");
+        var toggle = createToggle(collapsedByDefault);
+        toggle.onclick = toggleClicked;
+        e.insertBefore(toggle, e.firstChild);
+        if (collapsedByDefault) {
+            addClass(toggle, "collapsed");
+            onEachLazy(e.getElementsByClassName("docblock"), function(d) {
+                addClass(d, "hidden");
+            });
+        }
+    });
+}, false);

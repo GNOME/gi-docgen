@@ -78,83 +78,109 @@
 
   <section>
     <summary>
-      <div class="collapse-toggle">
-        <h4><a name="description">Description</a></h4>
+      <div class="toggle-wrapper">
+        <h4 id="description">Description</a></h4>
 
         <pre><code>{% if not class.class_struct or not class.instance_struct %}final {% endif -%}class {{ namespace.name }}.{{ class.name }} : {{ class.parent }} { }</code></pre>
 
-        <div>
+        <div class="docblock">
           {{ class.description|safe }}
         </div>
       </div>
     </summary>
 
     {% if class.interfaces %}
-    <div>
-      <h4><a name="implements">Implements</a></h4>
+    <div class="toggle-wrapper">
+      <h4 id"implements">Implements</a></h4>
 
-      <ul>
+      <div class="docblock">
+        <ul>
         {% for iface in class.interfaces %}
-        <li class="interface"><a href="iface.{{ iface.name }}.html">{{ namespace.name }}.{{ iface.name }}</a></li>
+          <li class="interface"><a href="iface.{{ iface.name }}.html">{{ namespace.name }}.{{ iface.name }}</a></li>
         {% endfor %}
-      </ul>
+        </ul>
+      </li>
     </div>
     {% endif %}
 
     {% if class.ctors %}
-    <div class="constructors">
-      <h4><a name="constructors">Constructors</a></h4>
+    <div class="toggle-wrapper constructors">
+      <h4 id="constructors">Constructors</a></h4>
 
+      <div class="docblock">
       {% for ctor in class.ctors %}
-      <div>
-        <h6><a href="ctor.{{ class.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
-      </div>
+        <div class="toggle-wrapper default-hide">
+          <h6><a href="ctor.{{ class.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
+
+          <div class="docblock">
+            {{ ctor.description|safe }}
+          </div>
+        </div>
       {% endfor %}
+      </div>
     </div>
     {% endif %}
 
     {% if class.methods %}
-    <div class="methods">
-      <h4><a name="methods">Instance methods</a></h4>
+    <div class="toggle-wrapper methods">
+      <h4 id="methods">Instance methods</a></h4>
 
+      <div class="docblock">
       {% for method in class.methods %}
-      <div>
-        <h6><a href="method.{{ class.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
-      </div>
+        <div class="toggle-wrapper default-hide">
+          <h6><a href="method.{{ class.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+
+          <div class="docblock">
+            {{ method.description|safe }}
+          </div>
+        </div>
       {% endfor %}
+      </div>
 
     </div>
     {% endif %}
 
     {% if class.properties %}
-    <div class="properties">
-      <h4><a name="properties">Properties</a></h4>
+    <div class="toggle-wrapper properties">
+      <h4 id="properties">Properties</a></h4>
 
+      <div class="docblock">
       {% for property in class.properties %}
-      <div>
-        <h6><a href="property.{{ class.name }}.{{ property.name }}.html">{{ namespace.name }}.{{ class.name }}:{{ property.name }}</a></h6>
-      </div>
+        <div class="toggle-wrapper default-hide">
+          <h6><a href="property.{{ class.name }}.{{ property.name }}.html">{{ namespace.name }}.{{ class.name }}:{{ property.name }}</a></h6>
+
+          <div class="docblock">
+            {{ property.description|safe }}
+          </div>
+        </div>
       {% endfor %}
+      </div>
 
     </div>
     {% endif %}
 
     {% if class.signals %}
     <div class="signals">
-      <h4><a name="signals">Signals</a></h4>
+      <h4 id="signals">Signals</a></h4>
 
+      <div class="docblock">
       {% for signal in class.signals %}
-      <div>
-        <h6><a href="signal.{{ class.name }}.{{ signal.name }}.html">{{ namespace.name }}.{{ class.name }}::{{ signal.name }}</a></h6>
-      </div>
+        <div class="toggle-wrapper default-hide">
+          <h6><a href="signal.{{ class.name }}.{{ signal.name }}.html">{{ namespace.name }}.{{ class.name }}::{{ signal.name }}</a></h6>
+
+          <div class="docblock">
+            {{ signal.description|safe }}
+          </div>
+        </div>
       {% endfor %}
+      </div>
 
     </div>
     {% endif %}
 
     {% if class.class_name %}
-    <div class="class">
-      <h4><a name="class">Class structure</a></h4>
+    <div class="class toggle-wrapper">
+      <h4 id="class">Class structure</a></h4>
 
       <pre><code>struct {{ namespace.name}}.{{ class.class_name }} {
   {% for field in class.class_fields %}
@@ -163,7 +189,7 @@
 }</code></pre>
 
       {% if class.class_fields %}
-      <div>
+      <div class="docblock">
         <h6>Class members</h6>
 
         <table>
@@ -174,31 +200,44 @@
         </tr>
         {% endfor %}
         </table>
+      </div>
       {% endif %}
     </div>
     {% endif %}
 
     {% if class.class_methods %}
-    <div class="methods">
-      <h4><a name="class-functions">Class methods</a></h4>
+    <div class="toggle-wrapper methods">
+      <h4 id="class-functions">Class methods</a></h4>
 
+      <div class="docblock">
       {% for method in class.class_methods %}
-      <div>
+      <div class="toggle-wrapper default-hide">
         <h6><a href="class_method.{{ class.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+
+        <div class="docblock">
+          {{ method.description|safe }}
+        </div>
       </div>
       {% endfor %}
+      </div>
     </div>
     {% endif %} 
 
     {% if class.functions %}
-    <div class="methods">
-      <h4><a name="type-functions">Type functions</a></h4>
+    <div class="toggle-wrapper methods">
+      <h4 id="type-functions">Type functions</a></h4>
 
+      <div class="docblock">
       {% for func in class.type_funcs %}
-      <div>
+      <div class="toggle-wrapper default-hide">
         <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
+
+        <div class="docblock">
+          {{ func.description|safe }}
+        </div>
       </div>
       {% endfor %}
+      </div>
     </div>
     {% endif %}
 

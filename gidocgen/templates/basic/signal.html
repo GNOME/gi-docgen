@@ -69,10 +69,10 @@
   </header>
 
   <section>
-    <div class="declaration">
+    <div class="declaration toggle-wrapper">
       <h4><a name="declaration">Declaration</a></h4>
 
-      <div>
+      <div class="docblock">
         <pre><code>{% if signal.return_value %}{{ signal.return_value.type_cname }}{% else %}void{% endif %}
 {{ signal.name }} (
   {{ class.type_cname }}* self{% if signal.arguments|length != 0 %},{% endif %}
@@ -81,16 +81,19 @@
 )</code></pre>
     </div>
 
-    <div class="description">
+    <div class="description toggle-wrapper">
       <h4><a name="description">Description</a></h4>
 
-      {{ signal.description|safe }}
+      <div class="docblock">
+        {{ signal.description|safe }}
+      </div>
     </div>
 
     {% if signal.arguments|length != 0 %}
-    <div class="parameters">
+    <div class="parameters toggle-wrapper">
       <h4><a name="parameters">Parameters</a></h4>
 
+      <div class="docblock">
       <table>
         {% for arg in signal.arguments %}
         <tr>
@@ -99,14 +102,17 @@
         </tr>
         {% endfor %}
       </table>
+      </div>
     </div>
     {% endif %}
 
     {% if signal.return_value %}
-    <div class="returns">
+    <div class="returns toggle-wrapper">
       <h4><a name="returns">Return value</a></h4>
 
+      <div class="docblock">
       {{ signal.return_value.description|safe }}
+      </div>
     </div>
     {% endif %}
 

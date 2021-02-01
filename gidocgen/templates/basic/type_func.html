@@ -69,15 +69,15 @@
   </header>
 
   <section>
-    <div class="declaration">
+    <div class="declaration toggle-wrapper">
       <h4><a name="declaration">Declaration</a></h4>
 
-      <div>
+      <div class="docblock">
         <pre><code>{{ type_func.c_decl }}</code></pre>
       </div>
     </div>
 
-    <div class="description collapse-toggle">
+    <div class="description toggle-wrapper">
       <h4><a name="description">Description</a></h4>
 
       <div class="docblock">
@@ -86,10 +86,10 @@
     </div>
 
     {% if type_func.arguments|length != 0 %}
-    <div class="parameters collapse-toggle">
+    <div class="parameters toggle-wrapper">
       <h4><a name="parameters">Parameters</a></h4>
 
-      <div>
+      <div class="docblock">
         <table>
           {% for arg in type_func.arguments %}
           <tr>
@@ -110,10 +110,10 @@
     {% endif %}
 
     {% if type_func.return_value %}
-    <div class="returns collapse-toggle">
+    <div class="returns toggle-wrapper">
       <h4><a name="returns">Return value</a></h4>
 
-      <div>
+      <div class="docblock">
         {{ type_func.return_value.description|safe }}
 
         <table>

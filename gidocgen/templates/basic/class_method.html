@@ -70,15 +70,15 @@
 
   <section>
     <div class="declaration">
-      <h4><a name="declaration">Declaration</a></h4>
+      <h4 id="declaration">Declaration</a></h4>
 
       <div>
         <pre><code>{{ class_method.c_decl }}</code></pre>
       </div>
     </div>
 
-    <div class="description collapse-toggle">
-      <h4><a name="description">Description</a></h4>
+    <div class="description toggle-wrapper">
+      <h4 id="description">Description</a></h4>
 
       <div class="docblock">
         {{ class_method.description|safe }}
@@ -86,10 +86,10 @@
     </div>
 
     {% if class_method.arguments|length > 1 %}
-    <div class="parameters collapse-toggle">
+    <div class="parameters toggle-wrapper">
       <h4><a name="parameters">Parameters</a></h4>
 
-      <div>
+      <div class="docblock">
         <table>
           {% for arg in class_method.arguments %}
           <tr>
@@ -110,10 +110,10 @@
     {% endif %}
 
     {% if class_method.return_value %}
-    <div class="returns collapse-toggle">
+    <div class="returns toggle-wrapper">
       <h4><a name="returns">Return value</a></h4>
 
-      <div>
+      <div class="docblock">
         {{ class_method.return_value.description|safe }}
 
         <table>

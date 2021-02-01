@@ -16,7 +16,7 @@
     <h5>Sections</h5>
     <div class="links">
     {% for symbol in symbols %}
-      <a href="#{{ symbol }}">{{ symbol }}</a>
+      <a href="#{{ symbol }}">{{ symbol|capitalize }}</a>
     {% endfor %}
     </div>
   </div>
@@ -29,41 +29,38 @@
     <h3>Namespace</h3>
     <h1>{{ namespace.name }} &ndash; {{ namespace.version }}</h1>
 
-    <div>
-      <p>{{ CONFIG.description }}</p>
+    <div class="description">
+      <p>{{ CONFIG.description|escape }}</p>
     </div>
 
     <div class="meta">
       <table>
-        <tr><td>Authors</td><td>{{ CONFIG.authors }}</td></tr>
-        <tr><td>License</td><td>{{ CONFIG.license }}</td></tr>
-        <tr><td>Website</td><td><a href="{{ CONFIG.website_url }}" class="external">{{ CONFIG.website_url }}</a></td></tr>
-        <tr><td>Browse code</td><td><a href="{{ CONFIG.browse_url }}" class="external">{{ CONFIG.browse_url }}</a></td></tr>
+        <tr><td><em>Authors</em></td><td>{{ CONFIG.authors }}</td></tr>
+        <tr><td><em>License</em></td><td>{{ CONFIG.license }}</td></tr>
+        <tr><td><em>Website</em></td><td><a href="{{ CONFIG.website_url }}" class="external">{{ CONFIG.website_url }}</a></td></tr>
+        <tr><td><em>Browse code</em></td><td><a href="{{ CONFIG.browse_url }}" class="external">{{ CONFIG.browse_url }}</a></td></tr>
       </table>
     </div>
   </header>
 
   {% if CONFIG.dependencies|length > 0 %}
   <section>
-    <div class="collapse-toggle">
-      <h4><a name="dependencies">Dependencies</a></h4>
+    <div class="toggle-wrapper">
+      <h4 id="dependencies">Dependencies</a></h4>
 
       <div class="docblock">
-        <ul>
+        <table>
         {% for gir_name, dep in CONFIG.dependencies.items() %}
-          <li>
-            <table>
-              <tr>
-                <td>{{ dep.name }}</td>
-                <td>{{ dep.description }}</td>
-              </tr>
-              <tr>
-                <td colspan="2"><a href="{{ dep.docs_url }}">Browse documentation</a></td>
-              </tr>
-            </table>
-          </li>
+          <tr>
+            <td><strong>{{ dep.name }}</strong></td>
+            <td>{{ dep.description }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><a href="{{ dep.docs_url }}">Browse documentation</a></td>
+          </tr>
         {% endfor %}
-        </ul>
+        </table>
       </div>
     </div>
   </section>
@@ -71,7 +68,7 @@
 
   {% if content_files|length > 0 %}
   <section>
-    <div class="collapse-toggle">
+    <div class="toggle-wrapper">
       <h4 id="extra">Additional documentation</a></h4>
 
       <div class="docblock">
@@ -86,103 +83,113 @@
   {% endif %}
 
   <section>
-    <div class="collapse-toggle">
+    <div class="toggle-wrapper default-hide">
       <h4 id="classes">Classes</h4>
 
+      <div class="docblock">
       {% for class in symbols.classes %}
       {% if loop.first %}<ul>{% endif %}
-      <li><a href="class.{{ class.name }}.html">{{ class.name }}</a></li>
+        <li><a href="class.{{ class.name }}.html">{{ class.name }}</a></li>
       {% if loop.last %}</ul>{% endif %}
       {% else %}
-      <p><em>No classes available.</em></p>
+        <p><em>No classes available.</em></p>
       {% endfor %}
-    </div>
-  </section>
-
-  <section>
-    <div class="collapse-toggle">
-      <h4 id="interfaces">Interfaces</h4>
-
-      {% for iface in symbols.interfaces %}
-      {% if loop.first %}<ul>{% endif %}
-      <li><a href="iface.{{ iface.name }}.html">{{ iface.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-      <p><em>No interfaces available.</em></p>
-      {% endfor %}
-    </div>
-  </section>
-
-  <section>
-    <div class="collapse-toggle">
-      <h4 id="unions">Unions</h4>
-
-      {% for union in symbols.unions %}
-      {% if loop.first %}<ul>{% endif %}
-      <li><a href="union.{{ unionname }}.html">{{ union.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-      <p><em>No unions available.</em></p>
-      {% endfor %}
-    </div>
-  </section>
-
-  <section>
-    <div class="collapse-toggle">
-      <h4 id="enums">Enumerations</h4>
-
-      {% for enum in symbols.enums %}
-      {% if loop.first %}<ul>{% endif %}
-      <li><a href="enum.{{ enum.name }}.html">{{ enum.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-      <p><em>No enumerations available.</em></p>
-      {% endfor %}
-    </div>
-  </section>
-
-  <section>
-    <div class="collapse-toggle">
-      <h4 id="bitfields">Bitfields</h4>
-
-      {% for flag in symbols.bitfields %}
-      {% if loop.first %}<ul>{% endif %}
-      <li><a href="flags.{{ flag.name }}.html">{{ flag.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-      <p><em>No bitfields available.</em></p>
-      {% endfor %}
-    </div>
-  </section>
-
-  <section>
-    <div class="collapse-toggle">
-      <h4 id="domains">Error domains</h4>
-
-      <div class="docblock">
-        {% for error in symbols.domains %}
-        {% if loop.first %}<ul>{% endif %}
-        <li><a href="error.{{ error.name }}.html">{{ error.name }}</a></li>
-        {% if loop.last %}</ul>{% endif %}
-        {% else %}
-        <p><em>No error domains available.</em></p>
-        {% endfor %}
       </div>
     </div>
   </section>
 
   <section>
-    <div class="collapse-toggle">
+    <div class="toggle-wrapper default-hide">
+      <h4 id="interfaces">Interfaces</h4>
+
+      <div class="docblock">
+      {% for iface in symbols.interfaces %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="iface.{{ iface.name }}.html">{{ iface.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No interfaces available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
+      <h4 id="unions">Unions</h4>
+
+      <div class="docblock">
+      {% for union in symbols.unions %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="union.{{ unionname }}.html">{{ union.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No unions available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
+      <h4 id="enums">Enumerations</h4>
+      <div class="docblock">
+
+      {% for enum in symbols.enums %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="enum.{{ enum.name }}.html">{{ enum.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No enumerations available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
+      <h4 id="bitfields">Bitfields</h4>
+
+      <div class="docblock">
+      {% for flag in symbols.bitfields %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="flags.{{ flag.name }}.html">{{ flag.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No bitfields available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
+      <h4 id="domains">Error domains</h4>
+
+      <div class="docblock">
+      {% for error in symbols.domains %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="error.{{ error.name }}.html">{{ error.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No error domains available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
       <h4 id="constants">Constants</h4>
 
       <div class="docblock">
-        {% for constant in symbols.constants %}
-        {% if loop.first %}<ul>{% endif %}
+      {% for constant in symbols.constants %}
+      {% if loop.first %}<ul>{% endif %}
         <li><a href="const.{{ constant.name }}.html">{{ constant.name }}</a></li>
-        {% if loop.last %}</ul>{% endif %}
-        {% else %}
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
         <p><em>No constants available.</em></p>
-        {% endfor %}
+      {% endfor %}
       </div>
     </div>
   </section>

@@ -19,6 +19,7 @@ namespace = "namespace.html"
 error = "enum.html"
 flags = "enum.html"
 enum = "enum.html"
+constant = "constant.html"
 
 [css]
 style = "style.css"

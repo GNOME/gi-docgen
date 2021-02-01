@@ -26,11 +26,11 @@ h3 {
 .content h2, .content h3, .content h4 {
   color: #acacac;
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  padding-left: 0.5em;
 }
 
 .navbar h3, .navbar h4, .navbar h6 {
   text-align: center;
-  padding-left: 
 }
 
 ol, ul {
@@ -47,6 +47,11 @@ p {
 
 a {
   color: #3b86e2;
+}
+
+h4 > a, h5 > a, h6 > a {
+  text-decoration: none;
+  font-weight: 600;
 }
 
 summary {
@@ -67,6 +72,26 @@ pre {
 
 #main {
   position: relative;
+}
+
+.collapse-toggle {
+  position: absolute;
+  left: -25px;
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.25);
+  font-size: 0.8em;
+}
+
+.collapse-toggle > .inner {
+  display: inline-block;
+  width: 1.2ch;
+  text-align: center;
+}
+
+.docblock {
+  margin-left: 23px;
+  position: relative;
+  text-align: left;
 }
 
 .content {

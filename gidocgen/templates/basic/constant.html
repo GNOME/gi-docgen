@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ constant.name }}{% endblock %}
+
+{% block meta_other %}
+  <meta name="og:title" content="{{ namespace.name }}.{{ constant.name }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}.{{ constant.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="namespace">
+    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  </div>
+  <div class="section">
+    <h5>Constant</h5>
+    <div class="links">
+      <a class="current" href="const.{{ constant.name }}.html">{{ constant.name }}</a>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Constant</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.{{ constant.name }}</h1>
+  </header>
+
+  <section>
+    <div class="declaration toggle-wrapper">
+      <h4><a name="declaration">Declaration</a></h4>
+
+      <div class="docblock">
+        <pre><code>{{ constant.c_decls }}</code></pre>
+      </div>
+    </div>
+
+    <div class="description toggle-wrapper">
+      <h4><a name="description">Description</a></h4>
+
+      <div class="docblock">
+        {{ constant.description|safe }}
+      </div>
+    </div>
+
+  </section>
+</section>
+{% endblock %}
