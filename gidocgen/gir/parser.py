@@ -218,7 +218,7 @@ class GirParser:
         ns.add_constant(res)
 
     def _parse_return_value(self, node: ET.Element) -> ast.ReturnValue:
-        transfer = node.attrib.get('transfer-ownership')
+        transfer = node.attrib.get('transfer-ownership', 'none')
         nullable = node.attrib.get('nullable', '0') == '1'
         closure = int(node.attrib.get('closure', -1))
         destroy = int(node.attrib.get('destroy', -1))
@@ -235,8 +235,8 @@ class GirParser:
 
     def _parse_parameter(self, node: ET.Element, is_instance_param: bool = False) -> ast.Parameter:
         name = node.attrib.get('name')
-        direction = node.attrib.get('direction')
-        transfer = node.attrib.get('transfer-ownership')
+        direction = node.attrib.get('direction', 'in')
+        transfer = node.attrib.get('transfer-ownership', 'none')
         nullable = node.attrib.get('nullable', '0') == '1'
         optional = node.attrib.get('optional', '0') == '1'
         caller_allocates = node.attrib.get('caller-allocates', '1') == '1'
