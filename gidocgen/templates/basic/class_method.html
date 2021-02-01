@@ -73,41 +73,56 @@
       <h4><a name="declaration">Declaration</a></h4>
 
       <div>
-        <pre><code>{% if class_method.return_value %}{{ class_method.return_value.type_cname }}{% else %}void{% endif %}
-{{class_method.identifier }} (
-  {{ class.class_name }}* class_{% if class_method.arguments|length != 0 %},{% endif %}
-  {% for arg in class_method.arguments %}{{ arg.type_cname }} {{ arg.name }}{% if not loop.last %},{% endif %}{% endfor %}
-)</code></pre>
+        <pre><code>{{ class_method.c_decl }}</code></pre>
+      </div>
     </div>
 
-    {% if class_method.arguments|length != 0 %}
-    <div class="parameters">
+    <div class="description collapse-toggle">
+      <h4><a name="description">Description</a></h4>
+
+      <div class="docblock">
+        {{ class_method.description|safe }}
+      </div>
+    </div>
+
+    {% if class_method.arguments|length > 1 %}
+    <div class="parameters collapse-toggle">
       <h4><a name="parameters">Parameters</a></h4>
 
-      <table>
-        {% for arg in class_method.arguments %}
-        <tr>
-          <td><code>{{ arg.name }}: {{ arg.type_cname }}</code></td>
-          <td>{{ arg.description|safe }}</td>
-        </tr>
-        {% endfor %}
-      </table>
+      <div>
+        <table>
+          {% for arg in class_method.arguments %}
+          <tr>
+            <td><code>{{ arg.name }}</code></td><td><code>{{ arg.type_cname }}</code></td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>{{ arg.description|safe }}</td>
+          </tr>
+          {% if arg.direction != "in" %}<tr><td>&nbsp;</td><td>Direction: {{ arg.direction }}</td></tr>{% endif %}
+          {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if arg.direction == "out" and arg.optional %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if arg.is_pointer %}<tr><td>&nbsp;</td><td>{{ arg.transfer }}</td></tr>{% endif %}
+          {% endfor %}
+        </table>
+      </div>
     </div>
     {% endif %}
 
     {% if class_method.return_value %}
-    <div class="returns">
+    <div class="returns collapse-toggle">
       <h4><a name="returns">Return value</a></h4>
 
-      {{ class_method.return_value.description|safe }}
+      <div>
+        {{ class_method.return_value.description|safe }}
+
+        <table>
+          {% if class_method.return_value.is_pointer %}<tr><td>{{ class_method.return_value.transfer }}</td></tr>{% endif %}
+          {% if class_method.return_value.is_pointer and class_method.return_value.nullable %}Can be <code>NULL</code></td></tr>{% endif %}
+        </table>
+      </div>
     </div>
     {% endif %}
-
-    <div class="description">
-      <h4><a name="description">Description</a></h4>
-
-      {{ class_method.description|safe }}
-    </div>
   </section>
 </section>
 {% endblock %}

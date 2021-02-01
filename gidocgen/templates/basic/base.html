@@ -30,6 +30,8 @@
 
   {% block style_other %}{% endblock %}
 
+  <script src="main.js"></script>
+
   <!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 </head>
 
@@ -41,7 +43,11 @@
 
   {% block content %}{% endblock %}
 
-  {% block footer %}{% endblock %}
+    <footer>
+      <button id="btn-to-top"><i>Top</i></button>
+
+      {% block footer %}{% endblock %}
+    </footer>
   </div>
 </body>
 </html>

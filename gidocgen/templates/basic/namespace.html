@@ -45,34 +45,48 @@
 
   {% if CONFIG.dependencies|length > 0 %}
   <section>
-    <div>
+    <div class="collapse-toggle">
       <h4><a name="dependencies">Dependencies</a></h4>
 
-      <ul>
-      {% for dep in CONFIG.dependencies %}
-        <li><a href="{{ dep.docs_file }}" class="external-link">{{ dep.name }}</a> &mdash; {{ dep.description }}</a></li>
-      {% endfor %}
-      </ul>
+      <div class="docblock">
+        <ul>
+        {% for gir_name, dep in CONFIG.dependencies.items() %}
+          <li>
+            <table>
+              <tr>
+                <td>{{ dep.name }}</td>
+                <td>{{ dep.description }}</td>
+              </tr>
+              <tr>
+                <td colspan="2"><a href="{{ dep.docs_url }}">Browse documentation</a></td>
+              </tr>
+            </table>
+          </li>
+        {% endfor %}
+        </ul>
+      </div>
     </div>
   </section>
   {% endif %}
 
   {% if content_files|length > 0 %}
   <section>
-    <div>
+    <div class="collapse-toggle">
       <h4 id="extra">Additional documentation</a></h4>
 
-      <ul>
-      {% for abs_file_src, abs_file_dst, file_name, file_title in content_files %}
-        <li><a href="{{ file_name }}">{{ file_title }}</a></li>
-      {% endfor %}
-      </ul>
+      <div class="docblock">
+        <ul>
+        {% for abs_file_src, abs_file_dst, file_name, file_title in content_files %}
+          <li><a href="{{ file_name }}">{{ file_title }}</a></li>
+        {% endfor %}
+        </ul>
+      </div>
     </div>
   </section>
   {% endif %}
 
   <section>
-    <div>
+    <div class="collapse-toggle">
       <h4 id="classes">Classes</h4>
 
       {% for class in symbols.classes %}
@@ -86,7 +100,7 @@
   </section>
 
   <section>
-    <div>
+    <div class="collapse-toggle">
       <h4 id="interfaces">Interfaces</h4>
 
       {% for iface in symbols.interfaces %}
@@ -100,7 +114,21 @@
   </section>
 
   <section>
-    <div>
+    <div class="collapse-toggle">
+      <h4 id="unions">Unions</h4>
+
+      {% for union in symbols.unions %}
+      {% if loop.first %}<ul>{% endif %}
+      <li><a href="union.{{ unionname }}.html">{{ union.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+      <p><em>No unions available.</em></p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <div class="collapse-toggle">
       <h4 id="enums">Enumerations</h4>
 
       {% for enum in symbols.enums %}
@@ -114,7 +142,7 @@
   </section>
 
   <section>
-    <div>
+    <div class="collapse-toggle">
       <h4 id="bitfields">Bitfields</h4>
 
       {% for flag in symbols.bitfields %}
@@ -128,16 +156,34 @@
   </section>
 
   <section>
-    <div>
+    <div class="collapse-toggle">
       <h4 id="domains">Error domains</h4>
 
-      {% for error in symbols.domains %}
-      {% if loop.first %}<ul>{% endif %}
-      <li><a href="error.{{ error.name }}.html">{{ error.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-      <p><em>No error domains available.</em></p>
-      {% endfor %}
+      <div class="docblock">
+        {% for error in symbols.domains %}
+        {% if loop.first %}<ul>{% endif %}
+        <li><a href="error.{{ error.name }}.html">{{ error.name }}</a></li>
+        {% if loop.last %}</ul>{% endif %}
+        {% else %}
+        <p><em>No error domains available.</em></p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="collapse-toggle">
+      <h4 id="constants">Constants</h4>
+
+      <div class="docblock">
+        {% for constant in symbols.constants %}
+        {% if loop.first %}<ul>{% endif %}
+        <li><a href="const.{{ constant.name }}.html">{{ constant.name }}</a></li>
+        {% if loop.last %}</ul>{% endif %}
+        {% else %}
+        <p><em>No constants available.</em></p>
+        {% endfor %}
+      </div>
     </div>
   </section>
 

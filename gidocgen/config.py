@@ -38,19 +38,47 @@ class GIDocConfig:
         return library.get('website_url', default)
 
     @property
+    def namespace(self):
+        library = self._config.get('library', {})
+        namespace = library['namespace']
+        version = library['version']
+        return f"{namespace}-{version}"
+
+    @property
+    def authors(self):
+        library = self._config.get('library', {})
+        return library.get('authors', 'Unknown authors')
+
+    @property
+    def license(self):
+        library = self._config.get('library', {})
+        return library.get('license', 'All rights reserved')
+
+    @property
+    def website_url(self):
+        library = self._config.get('library', {})
+        return library.get('website_url', '')
+
+    @property
+    def browse_url(self):
+        library = self._config.get('library', {})
+        return library.get('browse_url', '')
+
+    @property
     def dependencies(self):
         library = self._config.get('library', None)
         if library is None:
-            return []
+            return {}
 
-        retval = []
+        retval = {}
         dependencies = self._config.get('dependencies', {})
-        for name, dep in dependencies.items():
+        for gir_name, dep in dependencies.items():
             res = {}
             res['name'] = dep.get('name', 'Unknown')
             res['description'] = dep.get('description', 'No description provided')
             res['docs_url'] = dep.get('docs_url', '#')
-            retval += [res]
+            retval[gir_name] = res
+            log.info(f"Found dependency {gir_name}: {res}")
 
         return retval
 

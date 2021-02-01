@@ -69,21 +69,20 @@
   </header>
 
   <section>
-    <div class="declaration">
+    <div class="declaration collapse-toggle">
       <h4><a name="declaration">Declaration</a></h4>
 
-      <div class="collapse-toggle">
-        <pre><code>{% if method.return_value %}{{ method.return_value.type_cname }}{% else %}void{% endif %}
-{{ method.identifier }} (
-  {{ class.type_cname }}* self{% if method.arguments|length != 0 %},{% endif %}
-  {% for arg in method.arguments %}{{ arg.type_cname }} {{ arg.name }}{% if not loop.last %},{% endif %}{%- endfor %}
-)</code></pre>
+      <div class="c-decl">
+        <pre><code>{{ method.c_decl }}</code></pre>
+      </div>
     </div>
 
     <div class="description collapse-toggle">
       <h4><a name="description">Description</a></h4>
 
-      {{ method.description|safe }}
+      <div class="docblock">
+        {{ method.description|safe }}
+      </div>
     </div>
 
     {% if method.arguments|length != 0 %}
@@ -94,12 +93,16 @@
         <table>
           {% for arg in method.arguments %}
           <tr>
-            <td><code>{{ arg.name }}: {{ arg.type_cname }}</code></td>
-            <td>{{ arg.direction }}</td>
-            <td>{{ arg.transfer }}</td>
-            <td>{% if arg.is_pointer and arg.nullable %}nullable{% endif %}</td>
+            <td><code>{{ arg.name }}</code></td><td><code>{{ arg.type_cname }}</code></td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
             <td>{{ arg.description|safe }}</td>
           </tr>
+          {% if arg.direction != "in" %}<tr><td>&nbsp;</td><td>Direction: {{ arg.direction }}</td></tr>{% endif %}
+          {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if arg.direction == "out" and arg.optional %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if arg.is_pointer %}<tr><td>&nbsp;</td><td>{{ arg.transfer }}</td></tr>{% endif %}
           {% endfor %}
         </table>
       </div>
@@ -114,10 +117,8 @@
         {{ method.return_value.description|safe }}
 
         <table>
-          <tr>
-            <td>{{ method.return_value.transfer }}</td>
-            <td>{% if method.return_value.is_pointer and method.return_value.nullable %}nullable{% endif %}</td>
-          </tr>
+          {% if method.return_value.is_pointer %}<tr><td>{{ method.return_value.transfer }}</td></tr>{% endif %}
+          {% if method.return_value.is_pointer and method.return_value.nullable %}Can be <code>NULL</code></td></tr>{% endif %}
         </table>
       </div>
     </div>

@@ -73,44 +73,56 @@
       <h4><a name="declaration">Declaration</a></h4>
 
       <div>
-        <pre><code>{% if type_func.return_value %}{{ type_func.return_value.type_cname }}{% else %}void{% endif %}
-{{type_func.identifier }} (
-  {% if type_func.arguments|length == 0 %}void{% else %}
-  {% for arg in type_func.arguments %}
-  {{ arg.type_cname }} {{ arg.name }}{% if not loop.last %},{% endif %}
-  {% endfor %}
-  {% endif %}
-)</code></pre>
+        <pre><code>{{ type_func.c_decl }}</code></pre>
+      </div>
+    </div>
+
+    <div class="description collapse-toggle">
+      <h4><a name="description">Description</a></h4>
+
+      <div class="docblock">
+        {{ type_func.description|safe }}
+      </div>
     </div>
 
     {% if type_func.arguments|length != 0 %}
-    <div class="parameters">
+    <div class="parameters collapse-toggle">
       <h4><a name="parameters">Parameters</a></h4>
 
-      <table>
-        {% for arg in type_func.arguments %}
-        <tr>
-          <td><code>{{ arg.name }}: {{ arg.type_cname }}</code></td>
-          <td>{{ arg.description|safe }}</td>
-        </tr>
-        {% endfor %}
-      </table>
+      <div>
+        <table>
+          {% for arg in type_func.arguments %}
+          <tr>
+            <td><code>{{ arg.name }}</code></td><td><code>{{ arg.type_cname }}</code></td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>{{ arg.description|safe }}</td>
+          </tr>
+          {% if arg.direction != "in" %}<tr><td>&nbsp;</td><td>Direction: {{ arg.direction }}</td></tr>{% endif %}
+          {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if arg.direction == "out" and arg.optional %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if arg.is_pointer %}<tr><td>&nbsp;</td><td>{{ arg.transfer }}</td></tr>{% endif %}
+          {% endfor %}
+        </table>
+      </div>
     </div>
     {% endif %}
 
     {% if type_func.return_value %}
-    <div class="returns">
+    <div class="returns collapse-toggle">
       <h4><a name="returns">Return value</a></h4>
 
-      {{ type_func.return_value.description|safe }}
+      <div>
+        {{ type_func.return_value.description|safe }}
+
+        <table>
+          {% if type_func.return_value.is_pointer %}<tr><td>{{ type_func.return_value.transfer }}</td></tr>{% endif %}
+          {% if type_func.return_value.is_pointer and type_func.return_value.nullable %}Can be <code>NULL</code></td></tr>{% endif %}
+        </table>
+      </div>
     </div>
     {% endif %}
-
-    <div class="description">
-      <h4><a name="description">Description</a></h4>
-
-      {{ type_func.description|safe }}
-    </div>
   </section>
 </section>
 {% endblock %}

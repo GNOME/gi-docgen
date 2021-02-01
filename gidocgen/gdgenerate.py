@@ -66,13 +66,12 @@ LANGUAGE_MAP = {
 
 TRANSFER_MODES = {
     'none': 'Ownership is not transferred',
-    'container': 'Ownership of the container type is transferred',
+    'container': 'Ownership of the container type is transferred, but not of the data',
     'full': 'Ownership of the data is transferred',
-    'floating': '',
+    'floating': 'Data has a floating reference',
 }
 
 DIRECTION_MODES = {
-    'none': '-',
     'in': 'in',
     'inout': 'in-out',
     'out': 'out',
@@ -169,8 +168,8 @@ class TemplateArgument:
         self.name = argument.name
         self.type_name = argument.target.name
         self.type_cname = argument.target.ctype
-        self.transfer = TRANSFER_MODES[argument.transfer or 'none']
-        self.direction = DIRECTION_MODES[argument.direction or 'none']
+        self.transfer = TRANSFER_MODES[argument.transfer]
+        self.direction = DIRECTION_MODES[argument.direction]
         self.nullable = argument.nullable
         self.scope = SCOPE_MODES[argument.scope or 'none']
         if argument.closure != -1:
@@ -205,7 +204,9 @@ class TemplateReturnValue:
 class TemplateSignal:
     def __init__(self, namespace, cls, signal):
         self.name = signal.name
+        self.class_type_cname = cls.type_cname
         self.description = "No description available."
+        self.identifier = signal.name.replace("-", "_")
 
         if signal.doc is not None:
             self.description = preprocess_gtkdoc(signal.doc.content)
@@ -218,11 +219,68 @@ class TemplateSignal:
         if not isinstance(signal.return_value.target, VoidType):
             self.return_value = TemplateReturnValue(signal, signal.return_value)
 
+    @property
+    def c_decl(self):
+        res = []
+        if self.return_value is None:
+            res += [ "void" ]
+        else:
+            res += [ f"{self.return_value.type_cname}" ]
+        res += [ f"{self.identifier} (" ]
+        res += [ f"  {self.class_type_cname} self," ]
+        for arg in self.arguments:
+            res += [ f"  {arg.type_cname} {arg.name}," ]
+        res += [  "  gpointer user_data" ]
+        res += [  ")" ]
+        return "\n".join(res)
+
 
 class TemplateMethod:
     def __init__(self, namespace, cls, method):
         self.name = method.name
         self.identifier = method.identifier
+        self.description = "No description available."
+
+        if method.doc is not None:
+            self.description = preprocess_gtkdoc(method.doc.content)
+
+        self.instance_parameter = TemplateArgument(method, method.instance_param)
+
+        self.arguments = []
+        for arg in method.parameters:
+            self.arguments.append(TemplateArgument(method, arg))
+
+        self.return_value = None
+        if not isinstance(method.return_value.target, VoidType):
+            self.return_value = TemplateReturnValue(method, method.return_value)
+
+    @property
+    def c_decl(self):
+        res = []
+        if self.return_value is None:
+            res += [ "void" ]
+        else:
+            res += [ f"{self.return_value.type_cname}" ]
+        res += [ f"{self.identifier} (" ]
+        n_args = len(self.arguments)
+        if n_args == 0:
+            res += [ f"  {self.instance_parameter.type_cname} self" ]
+        else:
+            res += [ f"  {self.instance_parameter.type_cname} self," ]
+            for (idx, arg) in enumerate(self.arguments):
+                if idx < n_args - 1:
+                    res += [ f"  {arg.type_cname} {arg.name}," ]
+                else:
+                    res += [ f"  {arg.type_cname} {arg.name}" ]
+        res += [ ")" ]
+        return "\n".join(res)
+
+
+class TemplateClassMethod:
+    def __init__(self, namespace, cls, method):
+        self.name = method.name
+        self.identifier = method.identifier
+        self.class_type_cname = cls.class_struct.type_struct
         self.description = "No description available."
 
         if method.doc is not None:
@@ -235,6 +293,27 @@ class TemplateMethod:
         self.return_value = None
         if not isinstance(method.return_value.target, VoidType):
             self.return_value = TemplateReturnValue(method, method.return_value)
+
+    @property
+    def c_decl(self):
+        res = []
+        if self.return_value is None:
+            res += [ "void" ]
+        else:
+            res += [ f"{self.return_value.type_cname}" ]
+        res += [ f"{self.identifier} (" ]
+        n_args = len(self.arguments)
+        if n_args == 1:
+            res += [ f"  {self.class_type_cname}* self" ]
+        else:
+            res += [ f"  {self.class_type_cname}* self," ]
+            for (idx, arg) in enumerate(self.arguments, start=1):
+                if idx < n_args - 1:
+                    res += [ f"  {arg.type_cname} {arg.name}," ]
+                else:
+                    res += [ f"  {arg.type_cname} {arg.name}" ]
+        res += [ ")" ]
+        return "\n".join(res)
 
 
 class TemplateFunction:
@@ -253,11 +332,32 @@ class TemplateFunction:
         if not isinstance(func.return_value.target, VoidType):
             self.return_value = TemplateReturnValue(func, func.return_value)
 
+    @property
+    def c_decl(self):
+        res = []
+        if self.return_value is None:
+            res += [ "void" ]
+        else:
+            res += [ f"{self.return_value.type_cname}" ]
+        res += [ f"{self.identifier} (" ]
+        n_args = len(self.arguments)
+        if n_args == 0:
+            res += [ "void" ]
+        else:
+            for (idx, arg) in enumerate(self.arguments):
+                if idx < n_args - 1:
+                    res += [ f"  {arg.type_cname} {arg.name}," ]
+                else:
+                    res += [ f"  {arg.type_cname} {arg.name}" ]
+        res += [ ")" ]
+        return "\n".join(res)
+
 
 class TemplateCallback:
     def __init__(self, cb):
         self.name = cb.name
         self.description = "No description available."
+        self.identifier = signal.name.replace("-", "_")
         if cb.doc is not None:
             self.description = preprocess_gtkdoc(cb.doc.content)
 
@@ -268,6 +368,26 @@ class TemplateCallback:
         self.return_value = None
         if not isinstance(cb.return_value.target, VoidType):
             self.return_value = TemplateReturnValue(cb, cb.return_value)
+
+    @property
+    def c_decl(self):
+        res = []
+        if self.return_value is None:
+            res += [ "void" ]
+        else:
+            res += [ f"{self.return_value.type_cname}" ]
+        res += [ f"{self.identifier} (" ]
+        n_args = len(self.arguments)
+        if n_args == 0:
+            res += [ "void" ]
+        else:
+            for (idx, arg) in enumerate(self.arguments):
+                if idx < n_args - 1:
+                    res += [ f"  {arg.type_cname} {arg.name}," ]
+                else:
+                    res += [ f"  {arg.type_cname} {arg.name}" ]
+        res += [ ")" ]
+        return "\n".join(res)
 
 
 class TemplateField:
@@ -316,7 +436,7 @@ class TemplateInterface:
                     self.class_fields.append(TemplateField(field))
 
             for meth in self.class_struct.methods:
-                self.class_methods.append(TemplateFunction(meth))
+                self.class_methods.append(TemplateClassMethod(namespace, self, meth))
 
         if len(interface.properties) != 0:
             self.properties = []
@@ -367,6 +487,11 @@ class TemplateClass:
             for sig in cls.signals:
                 self.signals.append(TemplateSignal(namespace, self, sig))
 
+        if len(cls.constructors) != 0:
+            self.ctors = []
+            for ctor in cls.constructors:
+                self.ctors.append(TemplateFunction(ctor))
+
         if len(cls.methods) != 0:
             self.methods = []
             for meth in cls.methods:
@@ -391,7 +516,7 @@ class TemplateClass:
                     self.class_fields.append(TemplateField(field))
 
             for meth in self.class_struct.methods:
-                self.class_methods.append(TemplateFunction(meth))
+                self.class_methods.append(TemplateClassMethod(namespace, self, meth))
 
         if len(cls.implements) != 0:
             self.interfaces = []
@@ -482,6 +607,18 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, namespace, all_cla
             })
 
             out.write(typogrify(content))
+
+        for ctor in getattr(tmpl, 'ctors', []):
+            ctor_file = os.path.join(ns_dir, f"ctor.{cls.name}.{ctor.name}.html")
+            log.debug(f"Creating ctor file for {namespace.name}.{cls.name}.{ctor.name}: {ctor_file}")
+
+            with open(ctor_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': ctor,
+                }))
 
         for method in getattr(tmpl, 'methods', []):
             method_file = os.path.join(ns_dir, f"method.{cls.name}.{method.name}.html")
@@ -804,6 +941,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     with open(ns_file, "w") as out:
         out.write(ns_tmpl.render({
             "CONFIG": config,
+            "repository": repository,
             "namespace": namespace,
             "symbols": symbols,
             "content_files": content_files,

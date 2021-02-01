@@ -19,6 +19,14 @@
     </div>
   </div>
   <div class="section">
+    <h5>Constructors</h5>
+    <div class="links">
+    {% for m in class.ctors %}
+      <a class="method" href="ctor.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
     <h5>Instance methods</h5>
     <div class="links">
     {% for m in class.methods %}
@@ -90,6 +98,18 @@
         <li class="interface"><a href="iface.{{ iface.name }}.html">{{ namespace.name }}.{{ iface.name }}</a></li>
         {% endfor %}
       </ul>
+    </div>
+    {% endif %}
+
+    {% if class.ctors %}
+    <div class="constructors">
+      <h4><a name="constructors">Constructors</a></h4>
+
+      {% for ctor in class.ctors %}
+      <div>
+        <h6><a href="ctor.{{ class.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
+      </div>
+      {% endfor %}
     </div>
     {% endif %}
 
