@@ -149,6 +149,21 @@ def preprocess_gtkdoc(text):
     return markdown.markdown(text, extensions=MD_EXTENSIONS)
 
 
+class TemplateConstant:
+    def __init__(self, namespace, const):
+        self.name = const.name
+        self.value = const.value
+        self.identifier = const.ctype
+        self.type_cname = const.target.ctype
+        self.description = "No description available."
+        if const.doc is not None:
+            self.description = preprocess_gtkdoc(const.doc.content)
+
+    @property
+    def c_decls(self):
+        return f"#define {self.identifier} {self.value}"
+
+
 class TemplateProperty:
     def __init__(self, namespace, cls, prop):
         self.name = prop.name
@@ -886,6 +901,25 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, namespace, all_enu
                 }))
 
 
+def _gen_constants(config, theme_config, output_dir, jinja_env, namespace, all_constants):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    const_tmpl = jinja_env.get_template('constant.html')
+
+    for const in all_constants:
+        const_file = os.path.join(ns_dir, f"const.{const.name}.html")
+        log.info(f"Creating constant file for {namespace.name}.{const.name}: {const_file}")
+
+        tmpl = TemplateConstant(namespace, const)
+
+        with open(const_file, "w") as out:
+            out.write(const_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'constant': const,
+            }))
+
+
 def _gen_content_files(config, content_dir, output_dir):
     content_files = []
 
@@ -922,11 +956,12 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     }
 
     all_indices = {
-        "classes": _gen_classes,
-        "interfaces": _gen_interfaces,
-        "enums": _gen_enums,
         "bitfields": _gen_bitfields,
+        "classes": _gen_classes,
+        "constants": _gen_constants,
         "domains": _gen_domains,
+        "enums": _gen_enums,
+        "interfaces": _gen_interfaces,
     }
 
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
