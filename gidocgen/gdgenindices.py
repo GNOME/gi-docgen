@@ -247,7 +247,7 @@ def gen_indices(repository, options, output_dir):
 
     If @output_dir is None, the current directory will be used.
     """
-    namespace = repository.get_namespace()
+    namespace = repository.namespace
 
     symbols = {
         "aliases": sorted(namespace.get_aliases(), key=lambda alias: alias.name.lower()),
@@ -275,7 +275,7 @@ def gen_indices(repository, options, output_dir):
     }
 
     if options.sections == [] or options.sections == ["all"]:
-        gen_indices = all_indices.keys()
+        gen_indices = list(all_indices.keys())
     else:
         gen_indices = options.sections
 

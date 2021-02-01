@@ -177,7 +177,7 @@ class VoidType(Type):
 
 class VarArgs(Type):
     def __init__(self):
-        super().__init__(name='none', ctype='args')
+        super().__init__(name='none', ctype='')
 
     def __str__(self):
         return "..."
@@ -505,6 +505,16 @@ class Record(Type):
         self.functions = []
         self.fields = []
 
+    @property
+    def type_struct(self) -> str:
+        return self.ctype
+
+    @property
+    def type_func(self) -> T.Optional[str]:
+        if self.gtype is not None:
+            return self.gtype.type_func
+        return None
+
     def set_constructors(self, ctors: T.List[Function]) -> None:
         self.constructors.extend(ctors)
 
@@ -669,28 +679,11 @@ class Repository:
         self.includes = []
         self.packages = []
         self.c_includes = []
-        self.namespaces = []
-
-    def add_include(self, name: str, version: str) -> None:
-        self.includes.append(Include(name, version))
-
-    def add_package(self, name: str) -> None:
-        self.package.append(Package(name))
-
-    def set_c_include(self, name: str) -> None:
-        self.c_includes.append(CInclude(name))
+        self._namespaces = []
 
     def add_namespace(self, ns: Namespace) -> None:
-        self.namespaces.append(ns)
+        self._namespaces.append(ns)
 
-    def get_includes(self) -> T.List[Include]:
-        return self.includes
-
-    def get_c_includes(self) -> T.List[CInclude]:
-        return self.c_includes
-
-    def get_packages(self) -> T.List[Package]:
-        return self.packages
-
-    def get_namespace(self) -> Namespace:
-        return self.namespaces[0]
+    @property
+    def namespace(self) -> Namespace:
+        return self._namespaces[0]

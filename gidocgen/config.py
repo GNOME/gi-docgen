@@ -7,7 +7,6 @@ import toml
 from . import log
 
 
-
 class GIDocConfig:
     """Load and represent the configuration for gidocgen"""
     def __init__(self, config_file = None):
@@ -78,7 +77,7 @@ class GIDocConfig:
             res['description'] = dep.get('description', 'No description provided')
             res['docs_url'] = dep.get('docs_url', '#')
             retval[gir_name] = res
-            log.info(f"Found dependency {gir_name}: {res}")
+            log.debug(f"Found dependency {gir_name}: {res}")
 
         return retval
 

@@ -29,7 +29,8 @@ def _cns(tag):
 class GirParser:
     def __init__(self, search_paths=[]):
         self._search_paths = search_paths
-        self._repositories = {}
+        self._repository = None
+        self._dependencies = {}
 
     def append_search_path(self, path: str) -> None:
         """Append a path to the list of search paths"""
@@ -39,19 +40,41 @@ class GirParser:
         """Prepend a path to the list of search paths"""
         self._search_paths = [path] + self._search_paths
 
-    def parse(self, girfile: str) -> None:
+    def parse(self, girfile) -> None:
         """Parse @girfile"""
-        log.debug(f"Loading GIR for dependency {girfile}")
+        log.debug(f"Loading GIR for {girfile}")
         tree = ET.parse(girfile)
-        self._parse_tree(tree.getroot())
-
-    def get_repository(self, name: str = None) -> T.Optional[ast.Repository]:
-        if name is None:
-            return list(self._repositories.keys())[0]
+        repository = self._parse_tree(tree.getroot())
+        if repository is None:
+            log.error(f"Could not parse GIR {girfile}")
         else:
-            return self._repositories.get(name)
+            self._repository = repository
 
-    def _parse_tree(self, root):
+    def get_repository(self, name: T.Optional[str] = None) -> T.Optional[ast.Repository]:
+        if name is None:
+            return self._repository
+        else:
+            return self._dependencies[name]
+
+    def _parse_dependency(self, include) -> None:
+        if self._dependencies.get(str(include), None) is not None:
+            log.debug(f"Dependency {include} already parsed")
+            return
+        repository = None
+        for base_path in self._search_paths:
+            girfile = os.path.join(base_path, f"{include}.gir")
+            if os.path.exists(girfile) and os.path.isfile(girfile):
+                log.debug(f"Loading GIR for dependency {include} at {girfile}")
+                tree = ET.parse(girfile)
+                repository = self._parse_tree(tree.getroot())
+                break
+        if repository is None:
+            log.error(f"Could not find GIR dependency in the search paths: {include}")
+        else:
+            ns = repository.namespace
+            self._dependencies[str(ns)] = repository
+
+    def _parse_tree(self, root) -> ast.Repository:
         assert root.tag == _corens('repository')
 
         includes = []
@@ -68,22 +91,6 @@ class GirParser:
             elif node.tag == _corens('package'):
                 package = self._parse_package(node)
                 packages.append(package)
-
-        for include in includes:
-            include_basename = f"{include.name}-{include.version}"
-            if self._repositories.get(include_basename, None) is not None:
-                continue
-
-            found = False
-            for base_path in self._search_paths:
-                include_file = os.path.join(base_path, f"{include_basename}.gir")
-                if os.path.exists(include_file) and os.path.isfile(include_file):
-                    found = True
-                    self.parse(include_file)
-                    break
-
-            if not found:
-                log.error(f"Could not find GIR dependency: {include_basename}")
 
         ns = root.find(_corens('namespace'))
         assert ns is not None
@@ -105,8 +112,10 @@ class GirParser:
         repository.packages = packages
 
         for include in includes:
-            include_basename = f"{include.name}-{include.version}"
-            repository.includes.append(self._repositories[include_basename])
+            log.debug(f"Parsing dependency {include}")
+            self._parse_dependency(include)
+
+        repository.includes.extend(self._dependencies.values())
 
         repository.add_namespace(namespace)
 
@@ -129,8 +138,7 @@ class GirParser:
             if parse_method:
                 parse_method(node, namespace)
 
-        log.info(f"Added repository for {namespace.name}-{namespace.version}")
-        self._repositories[f"{namespace.name}-{namespace.version}"] = repository
+        return repository
 
     def _parse_include(self, node: ET.Element) -> ast.Include:
         return ast.Include(node.attrib['name'], node.attrib['version'])

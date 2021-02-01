@@ -87,7 +87,7 @@
 
       <div class="docblock">
       {% for method in interface.methods %}
-      <div class="toggle-wrapper">
+      <div class="toggle-wrapper default-hide">
         <h6><a href="method.{{ interface.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
@@ -106,7 +106,7 @@
 
       <div class="docblock">
       {% for property in interface.properties %}
-      <div class="toggle-wrapper">
+      <div class="toggle-wrapper default-hide">
         <h6><a href="property.{{ interface.name }}.{{ property.name }}.html">{{ namespace.name }}.{{ interface.name }}:{{ property.name }}</a></h6>
 
         <div class="docblock">
@@ -125,7 +125,7 @@
 
       <div class="docblock">
       {% for signal in interface.signals %}
-      <div class="toggle-wrapper">
+      <div class="toggle-wrapper default-hide">
         <h6><a href="signal.{{ interface.name }}.{{ signal.name }}.html">{{ namespace.name }}.{{ interface.name }}::{{ signal.name }}</a></h6>
 
         <div class="docblock">
@@ -148,7 +148,7 @@
 }</code></pre>
 
       {% if interface.class_fields %}
-      <div class="docblock">
+      <div class="docblock default-hide">
         <h6>Interface members</h6>
 
         <table>
@@ -169,7 +169,7 @@
 
       <div class="docblock">
       {% for method in interface.class_methods %}
-      <div class="toggle-wrapper">
+      <div class="toggle-wrapper default-hide">
         <h6><a href="class_method.{{ interface.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
@@ -187,7 +187,7 @@
 
       <div class="docblock">
       {% for func in interface.type_funcs %}
-      <div class="toggle-wrapper">
+      <div class="toggle-wrapper default-hide">
         <h6><a href="type_func.{{ interface.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">

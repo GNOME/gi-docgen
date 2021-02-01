@@ -940,7 +940,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     fs_loader = jinja2.FileSystemLoader(theme_dir)
     jinja_env = jinja2.Environment(loader=fs_loader, autoescape=jinja2.select_autoescape(['html']))
 
-    namespace = repository.get_namespace()
+    namespace = repository.namespace
 
     symbols = {
         "aliases": sorted(namespace.get_aliases(), key=lambda alias: alias.name.lower()),
@@ -983,7 +983,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         }))
 
     if options.sections == [] or options.sections == ["all"]:
-        gen_indices = all_indices.keys()
+        gen_indices = list(all_indices.keys())
     else:
         gen_indices = options.sections
 
@@ -1070,9 +1070,10 @@ def run(options):
     theme_name = conf.get_theme_name(default=options.theme_name)
     theme_conf = config.GITemplateConfig(templates_dir, theme_name)
 
-    log.info(f"Search paths: {paths}")
-    log.info(f"Templates directory: {templates_dir}")
+    log.debug(f"Search paths: {paths}")
+    log.debug(f"Templates directory: {templates_dir}")
     log.info(f"Theme name: {theme_conf.name}")
+    log.info(f"Output directory: {output_dir}")
 
     log.info("Parsing GIR file")
     parser = GirParser(search_paths=paths)

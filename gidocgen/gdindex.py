@@ -339,9 +339,9 @@ def _print_class_functions(cls, sections=[], is_last_class=False):
 
 
 def gen_tree(repository):
-    includes = ', '.join([ str(x) for x in repository.get_includes() ])
-    c_includes = ', '.join(repository.get_c_includes())
-    packages = ', '.join(repository.get_packages())
+    includes = ', '.join([ str(r.namespace) for r in repository.includes ])
+    c_includes = ', '.join(repository.c_includes)
+    packages = ', '.join(repository.packages)
 
     title = str(log.color('Repository', 12))
     log.log(f'{title}')
@@ -349,7 +349,7 @@ def gen_tree(repository):
     log.log(f'├── C headers: {c_includes}') 
     log.log(f'├── Packages:  {packages}')
 
-    namespace = repository.get_namespace()
+    namespace = repository.namespace
     shlibs = ', '.join(namespace.get_shared_libraries())
 
     aliases = sorted(namespace.get_aliases(), key=lambda alias: alias.name.lower())
