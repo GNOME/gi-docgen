@@ -23,9 +23,11 @@ packages = [
     'gidocgen',
 ]
 
-package_data = []
+package_data = {}
 
 data_files = []
+
+requirements = []
 
 if __name__ == '__main__':
     setup(
