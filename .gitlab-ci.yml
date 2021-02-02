@@ -12,3 +12,4 @@ mypy:
   script:
     - dnf install -y python3-mypy
     - mypy --ignore-missing-imports --disallow-incomplete-defs gidocgen
+  allow_failure: true
