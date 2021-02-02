@@ -65,7 +65,8 @@ class Package:
 
 class Info:
     """Base information for most types"""
-    def __init__(self, introspectable: bool = True, deprecated: str = None, deprecated_version: str = None, version: str = None, stability: str = None):
+    def __init__(self, introspectable: bool = True, deprecated: str = None, deprecated_version: str = None,
+                 version: str = None, stability: str = None):
         self.introspectable = introspectable
         self.deprecated = deprecated
         self.deprecated_version = deprecated_version
@@ -142,7 +143,7 @@ class Type(GIRElement):
             return False
 
     def __cmp__(self, other):
-        return cmp(self.name, other.name)
+        return self.name == other.name
 
     def __repr__(self):
         return f"Type({self.name}, {self.ctype})"
@@ -150,7 +151,8 @@ class Type(GIRElement):
 
 class ArrayType(GIRElement):
     """Base class for Array nodes"""
-    def __init__(self, name: str, value_type: Type, ctype: str = None, zero_terminated: bool = False, fixed_size: int = -1, length: int = -1):
+    def __init__(self, name: str, value_type: Type, ctype: str = None, zero_terminated: bool = False,
+                 fixed_size: int = -1, length: int = -1):
         super().__init__(name)
         self.ctype = ctype
         self.zero_terminated = zero_terminated
@@ -161,7 +163,7 @@ class ArrayType(GIRElement):
 
 class GType:
     """Base class for GType information"""
-    def __init__(self, type_name: str, get_type: str, type_struct: str=None):
+    def __init__(self, type_name: str, get_type: str, type_struct: str = None):
         self.type_name = type_name
         self.get_type = get_type
         self.type_struct = type_struct
@@ -200,7 +202,9 @@ class Constant(Type):
 
 class Parameter(GIRElement):
     """A callable parameter"""
-    def __init__(self, name: str, direction: str, transfer: str, target: Type = None, caller_allocates: bool = False, optional: bool = False, nullable: bool = False, closure: int = -1, destroy: int = -1, scope: str = None):
+    def __init__(self, name: str, direction: str, transfer: str, target: Type = None, caller_allocates: bool = False,
+                 optional: bool = False, nullable: bool = False, closure: int = -1, destroy: int = -1,
+                 scope: str = None):
         super().__init__(name)
         self.direction = direction
         self.transfer = transfer
@@ -287,7 +291,7 @@ class VirtualMethod(Callable):
         self.instance_param = instance_param
         self.invoker = invoker
 
-    def __contains__(self, name):
+    def __contains__(self, param):
         if isinstance(param, Parameter) and param == self.instance_param:
             return True
         return super().__contains__(self, param)
@@ -353,7 +357,8 @@ class ErrorDomain(Enumeration):
 
 
 class Property(GIRElement):
-    def __init__(self, name: str, transfer: str, target: Type, writable: bool = True, readable: bool = True, construct: bool = False, construct_only: bool = False):
+    def __init__(self, name: str, transfer: str, target: Type, writable: bool = True, readable: bool = True, construct: bool = False,
+                 construct_only: bool = False):
         super().__init__(name)
         self.transfer = transfer
         self.writable = writable

@@ -14,6 +14,7 @@ GI_NAMESPACES = {
     'glib': "http://www.gtk.org/introspection/glib/1.0",
 }
 
+
 def _corens(tag):
     return f"{{{GI_NAMESPACES['core']}}}{tag}"
 
@@ -192,7 +193,7 @@ class GirParser:
             fixed_size = int(child.attrib.get('fixed-size', -1))
             length = int(child.attrib.get('length', -1))
             array_type = child.attrib.get(_cns('type'))
-            introspectable = child.attrib.get('introspectable', '1') != '0'
+            # introspectable = child.attrib.get('introspectable', '1') != '0'
 
             target = None
             child = node.find('core:type', GI_NAMESPACES)
@@ -206,7 +207,8 @@ class GirParser:
             else:
                 target = ast.VoidType()
 
-            ctype = ast.ArrayType(name=name, zero_terminated=zero_terminated, fixed_size=fixed_size, length=length, ctype=array_type, value_type=target)
+            ctype = ast.ArrayType(name=name, zero_terminated=zero_terminated, fixed_size=fixed_size, length=length,
+                                  ctype=array_type, value_type=target)
         else:
             child = node.find('core:type', GI_NAMESPACES)
             if child is not None:
@@ -267,7 +269,7 @@ class GirParser:
         ctype = self._parse_ctype(node)
 
         res = ast.ReturnValue(transfer=transfer, target=ctype, nullable=nullable, closure=closure,
-            destroy=destroy, scope=scope)
+                              destroy=destroy, scope=scope)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
 
@@ -287,8 +289,8 @@ class GirParser:
         ctype = self._parse_ctype(node)
 
         res = ast.Parameter(name=name, direction=direction, transfer=transfer, target=ctype,
-            optional=optional, nullable=nullable, caller_allocates=caller_allocates,
-            closure=closure, destroy=destroy, scope=scope)
+                            optional=optional, nullable=nullable, caller_allocates=caller_allocates,
+                            closure=closure, destroy=destroy, scope=scope)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
 
@@ -476,8 +478,8 @@ class GirParser:
         ctype = self._parse_ctype(node)
 
         res = ast.Property(name=name, transfer=transfer, target=ctype,
-            writable=writable, readable=readable,
-            construct=construct, construct_only=construct_only)
+                           writable=writable, readable=readable,
+                           construct=construct, construct_only=construct_only)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
 
@@ -528,7 +530,6 @@ class GirParser:
         self._maybe_parse_docs(node, res)
 
         return res
-
 
     def _parse_implements(self, node: ET.Element) -> str:
         return node.attrib['name']
