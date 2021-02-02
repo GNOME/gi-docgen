@@ -61,7 +61,10 @@ class GIDocGenApp:
 
         try:
             res = options.run_func(options)
-            report_res = log.report()
+            if 'help' not in args:
+                report_res = log.report()
+            else:
+                report_res = 0
             if res == 0:
                 return report_res
             return res
