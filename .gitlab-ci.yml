@@ -1,0 +1,14 @@
+stages:
+  - check
+
+flake8:
+  stage: check
+  script:
+    - dnf install -y python3-flake8
+    - flake8 --ignore E402,W503 --show-source gidocgen
+
+mypy:
+  stage: check
+  script:
+    - dnf install -y python3-mypy
+    - mypy --ignore-missing-imports --disallow-incomplete-defs gidocgen
