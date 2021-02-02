@@ -315,7 +315,7 @@ class Member(GIRElement):
 
 class Enumeration(Type):
     """An enumeration type"""
-    def __init__(self, name: str, ctype: str, gtype: GType):
+    def __init__(self, name: str, ctype: str, gtype: T.Optional[GType]):
         super().__init__(name, ctype)
         self.gtype = gtype
         self.members: T.List[Member] = []
@@ -345,13 +345,13 @@ class Enumeration(Type):
 
 class BitField(Enumeration):
     """An enumeration type of bit masks"""
-    def __init__(self, name: str, ctype: str, gtype: GType):
+    def __init__(self, name: str, ctype: str, gtype: T.Optional[GType]):
         super().__init__(name, ctype, gtype)
 
 
 class ErrorDomain(Enumeration):
     """An error domain for GError"""
-    def __init__(self, name: str, ctype: str, gtype: GType, domain: str):
+    def __init__(self, name: str, ctype: str, gtype: T.Optional[GType], domain: str):
         super().__init__(name, ctype, gtype)
         self.domain = domain
 
@@ -413,7 +413,7 @@ class Interface(Type):
     def type_struct(self) -> T.Optional[str]:
         if self.gtype is not None:
             return self.gtype.type_struct
-        return None
+        return self.ctype
 
     @property
     def type_func(self) -> str:
@@ -465,8 +465,10 @@ class Class(Type):
         return None
 
     @property
-    def type_func(self) -> str:
-        return self.gtype.get_type
+    def type_func(self) -> T.Optional[str]:
+        if self.gtype is not None:
+            return self.gtype.get_type
+        return self.ctype
 
     def set_constructors(self, ctors: T.List[Function]) -> None:
         self.constructors.extend(ctors)
@@ -505,7 +507,7 @@ class Boxed(Type):
 
 
 class Record(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType):
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType]):
         super().__init__(name, ctype)
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
@@ -516,6 +518,8 @@ class Record(Type):
 
     @property
     def type_struct(self) -> T.Optional[str]:
+        if self.gtype is not None:
+            return self.gtype.type_struct
         return self.ctype
 
     @property
@@ -538,7 +542,7 @@ class Record(Type):
 
 
 class Union(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType):
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType]):
         super().__init__(name, ctype)
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
@@ -546,6 +550,18 @@ class Union(Type):
         self.methods: T.List[Method] = []
         self.functions: T.List[Function] = []
         self.fields: T.List[Field] = []
+
+    @property
+    def type_struct(self) -> T.Optional[str]:
+        if self.gtype is not None:
+            return self.gtype.type_struct
+        return self.ctype
+
+    @property
+    def type_func(self) -> T.Optional[str]:
+        if self.gtype is not None:
+            return self.gtype.get_type
+        return None
 
     def set_constructors(self, ctors: T.List[Function]) -> None:
         self.constructors.extend(ctors)
