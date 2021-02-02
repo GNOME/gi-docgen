@@ -9,7 +9,7 @@ from . import log
 
 class GIDocConfig:
     """Load and represent the configuration for gidocgen"""
-    def __init__(self, config_file = None):
+    def __init__(self, config_file=None):
         self._config_file = config_file
 
         self._config = {}
@@ -20,19 +20,19 @@ class GIDocConfig:
             except toml.TomlDecodeError as err:
                 log.error(f"Invalid configuration file: {self._config_file}: {err}")
 
-    def get_templates_dir(self, default = None):
+    def get_templates_dir(self, default=None):
         theme = self._config.get('theme', {})
         return theme.get('templates_dir', default)
 
-    def get_theme_name(self, default = None):
+    def get_theme_name(self, default=None):
         theme = self._config.get('theme', {})
         return theme.get('name', default)
 
-    def get_library_name(self, default = None):
+    def get_library_name(self, default=None):
         library = self._config.get('library', {})
         return library.get('name', default)
 
-    def get_website_url(self, default = None):
+    def get_website_url(self, default=None):
         library = self._config.get('library', {})
         return library.get('website_url', default)
 
@@ -85,7 +85,6 @@ class GIDocConfig:
     def content_files(self):
         extra = self._config.get('extra', {})
         return extra.get('content_files', [])
-
 
 
 class GITemplateConfig:

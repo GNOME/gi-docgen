@@ -14,9 +14,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from typogrify.filters import typogrify
 
-from . import config, log
-
-from .gir import *
+from . import config, gir, log
 
 
 HELP_MSG = "Generates the reference"
@@ -89,6 +87,7 @@ MD_EXTENSIONS = [
     'fenced_code',
     'tables',
 ]
+
 
 def process_language(lang):
     if lang is None:
@@ -231,22 +230,22 @@ class TemplateSignal:
             self.arguments.append(TemplateArgument(signal, arg))
 
         self.return_value = None
-        if not isinstance(signal.return_value.target, VoidType):
+        if not isinstance(signal.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(signal, signal.return_value)
 
     @property
     def c_decl(self):
         res = []
         if self.return_value is None:
-            res += [ "void" ]
+            res += ["void"]
         else:
-            res += [ f"{self.return_value.type_cname}" ]
-        res += [ f"{self.identifier} (" ]
-        res += [ f"  {self.class_type_cname} self," ]
+            res += [f"{self.return_value.type_cname}"]
+        res += [f"{self.identifier} ("]
+        res += [f"  {self.class_type_cname} self,"]
         for arg in self.arguments:
-            res += [ f"  {arg.type_cname} {arg.name}," ]
-        res += [  "  gpointer user_data" ]
-        res += [  ")" ]
+            res += [f"  {arg.type_cname} {arg.name},"]
+        res += ["  gpointer user_data"]
+        res += [")"]
         return "\n".join(res)
 
 
@@ -266,28 +265,28 @@ class TemplateMethod:
             self.arguments.append(TemplateArgument(method, arg))
 
         self.return_value = None
-        if not isinstance(method.return_value.target, VoidType):
+        if not isinstance(method.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(method, method.return_value)
 
     @property
     def c_decl(self):
         res = []
         if self.return_value is None:
-            res += [ "void" ]
+            res += ["void"]
         else:
-            res += [ f"{self.return_value.type_cname}" ]
-        res += [ f"{self.identifier} (" ]
+            res += [f"{self.return_value.type_cname}"]
+        res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
         if n_args == 0:
-            res += [ f"  {self.instance_parameter.type_cname} self" ]
+            res += [f"  {self.instance_parameter.type_cname} self"]
         else:
-            res += [ f"  {self.instance_parameter.type_cname} self," ]
+            res += [f"  {self.instance_parameter.type_cname} self,"]
             for (idx, arg) in enumerate(self.arguments):
                 if idx < n_args - 1:
-                    res += [ f"  {arg.type_cname} {arg.name}," ]
+                    res += [f"  {arg.type_cname} {arg.name},"]
                 else:
-                    res += [ f"  {arg.type_cname} {arg.name}" ]
-        res += [ ")" ]
+                    res += [f"  {arg.type_cname} {arg.name}"]
+        res += [")"]
         return "\n".join(res)
 
 
@@ -306,28 +305,28 @@ class TemplateClassMethod:
             self.arguments.append(TemplateArgument(method, arg))
 
         self.return_value = None
-        if not isinstance(method.return_value.target, VoidType):
+        if not isinstance(method.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(method, method.return_value)
 
     @property
     def c_decl(self):
         res = []
         if self.return_value is None:
-            res += [ "void" ]
+            res += ["void"]
         else:
-            res += [ f"{self.return_value.type_cname}" ]
-        res += [ f"{self.identifier} (" ]
+            res += [f"{self.return_value.type_cname}"]
+        res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
         if n_args == 1:
-            res += [ f"  {self.class_type_cname}* self" ]
+            res += [f"  {self.class_type_cname}* self"]
         else:
-            res += [ f"  {self.class_type_cname}* self," ]
+            res += [f"  {self.class_type_cname}* self,"]
             for (idx, arg) in enumerate(self.arguments, start=1):
                 if idx < n_args - 1:
-                    res += [ f"  {arg.type_cname} {arg.name}," ]
+                    res += [f"  {arg.type_cname} {arg.name},"]
                 else:
-                    res += [ f"  {arg.type_cname} {arg.name}" ]
-        res += [ ")" ]
+                    res += [f"  {arg.type_cname} {arg.name}"]
+        res += [")"]
         return "\n".join(res)
 
 
@@ -344,27 +343,27 @@ class TemplateFunction:
             self.arguments.append(TemplateArgument(func, arg))
 
         self.return_value = None
-        if not isinstance(func.return_value.target, VoidType):
+        if not isinstance(func.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(func, func.return_value)
 
     @property
     def c_decl(self):
         res = []
         if self.return_value is None:
-            res += [ "void" ]
+            res += ["void"]
         else:
-            res += [ f"{self.return_value.type_cname}" ]
-        res += [ f"{self.identifier} (" ]
+            res += [f"{self.return_value.type_cname}"]
+        res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
         if n_args == 0:
-            res += [ "void" ]
+            res += ["void"]
         else:
             for (idx, arg) in enumerate(self.arguments):
                 if idx < n_args - 1:
-                    res += [ f"  {arg.type_cname} {arg.name}," ]
+                    res += [f"  {arg.type_cname} {arg.name},"]
                 else:
-                    res += [ f"  {arg.type_cname} {arg.name}" ]
-        res += [ ")" ]
+                    res += [f"  {arg.type_cname} {arg.name}"]
+        res += [")"]
         return "\n".join(res)
 
 
@@ -372,7 +371,7 @@ class TemplateCallback:
     def __init__(self, cb):
         self.name = cb.name
         self.description = "No description available."
-        self.identifier = signal.name.replace("-", "_")
+        self.identifier = cb.name.replace("-", "_")
         if cb.doc is not None:
             self.description = preprocess_gtkdoc(cb.doc.content)
 
@@ -381,27 +380,27 @@ class TemplateCallback:
             self.arguments.append(TemplateArgument(cb, arg))
 
         self.return_value = None
-        if not isinstance(cb.return_value.target, VoidType):
+        if not isinstance(cb.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(cb, cb.return_value)
 
     @property
     def c_decl(self):
         res = []
         if self.return_value is None:
-            res += [ "void" ]
+            res += ["void"]
         else:
-            res += [ f"{self.return_value.type_cname}" ]
-        res += [ f"{self.identifier} (" ]
+            res += [f"{self.return_value.type_cname}"]
+        res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
         if n_args == 0:
-            res += [ "void" ]
+            res += ["void"]
         else:
             for (idx, arg) in enumerate(self.arguments):
                 if idx < n_args - 1:
-                    res += [ f"  {arg.type_cname} {arg.name}," ]
+                    res += [f"  {arg.type_cname} {arg.name},"]
                 else:
-                    res += [ f"  {arg.type_cname} {arg.name}" ]
-        res += [ ")" ]
+                    res += [f"  {arg.type_cname} {arg.name}"]
+        res += [")"]
         return "\n".join(res)
 
 
@@ -569,10 +568,10 @@ class TemplateEnum:
         self.error = False
         self.domain = None
 
-        if isinstance(enum, BitField):
+        if isinstance(enum, gir.BitField):
             self.link_prefix = "flags"
             self.bitfield = True
-        elif isinstance(enum, ErrorDomain):
+        elif isinstance(enum, gir.ErrorDomain):
             self.link_prefix = "error"
             self.error = True
             self.domain = enum.domain
@@ -769,10 +768,10 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, namespace, all_
                 }))
 
         for cls_method in getattr(tmpl, 'class_methods', []):
-            iface_method_file = os.path.join(ns_dir, f"class_method.{iface.name}.{cls_method.name}.html")
-            log.debug(f"Creating class method file for {namespace.name}.{iface.name}.{cls_method.name}: {cls_method_file}")
+            class_method_file = os.path.join(ns_dir, f"class_method.{iface.name}.{cls_method.name}.html")
+            log.debug(f"Creating class method file for {namespace.name}.{iface.name}.{cls_method.name}: {class_method_file}")
 
-            with open(cls_method_file, "w") as out:
+            with open(class_method_file, "w") as out:
                 out.write(class_method_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -916,7 +915,7 @@ def _gen_constants(config, theme_config, output_dir, jinja_env, namespace, all_c
             out.write(const_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
-                'constant': const,
+                'constant': tmpl,
             }))
 
 
@@ -1039,7 +1038,8 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
 
 
 def add_args(parser):
-    parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[], help="include paths for other GIR files")
+    parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[],
+                        help="include paths for other GIR files")
     parser.add_argument("-C", "--config", metavar="FILE", help="the configuration file")
     parser.add_argument("--dry-run", action="store_true", help="parses the GIR file without generating files")
     parser.add_argument("--templates-dir", default=None, help="the base directory with the theme templates")
@@ -1047,7 +1047,8 @@ def add_args(parser):
     parser.add_argument("--theme-name", default="basic", help="the theme to use")
     parser.add_argument("--output-dir", default=None, help="the output directory for the index files")
     parser.add_argument("--section", action="append", dest="sections", default=[], help="the sections to generate, or 'all'")
-    parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'), default=sys.stdin, help="the GIR file to parse")
+    parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'),
+                        default=sys.stdin, help="the GIR file to parse")
 
 
 def run(options):
@@ -1057,7 +1058,7 @@ def run(options):
     paths = []
     paths.append(os.getcwd())
     paths.append(os.path.join(xdg_data_home, "gir-1.0"))
-    paths.extend([ os.path.join(x, "gir-1.0") for x in xdg_data_dirs ])
+    paths.extend([os.path.join(x, "gir-1.0") for x in xdg_data_dirs])
 
     log.info(f"Loading config file: {options.config}")
 
@@ -1076,7 +1077,7 @@ def run(options):
     log.info(f"Output directory: {output_dir}")
 
     log.info("Parsing GIR file")
-    parser = GirParser(search_paths=paths)
+    parser = gir.GirParser(search_paths=paths)
     parser.parse(options.infile)
 
     if not options.dry_run:

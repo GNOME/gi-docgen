@@ -5,9 +5,7 @@ import argparse
 import os
 import sys
 
-from . import log
-
-from .gir import *
+from . import gir, log
 
 
 HELP_MSG = "Generates the symbol indices"
@@ -31,8 +29,8 @@ def _gen_aliases(output_file, output_format, ns_name, ns_version, symbols):
             if output_format == "csv":
                 out.write(f"{alias_name},{alias_type},{target_type},{alias_link}\n")
             elif output_format == "json":
-                l = f'  {{ "name": "{alias_name}", "ctype": "{alias_type}", "target-ctype": "{target_type}", "link": "{alias_link}" }}'
-                out.write(l)
+                line = f'  {{ "name": "{alias_name}", "ctype": "{alias_type}", "target-ctype": "{target_type}", "link": "{alias_link}" }}'
+                out.write(line)
                 if i == n_aliases - 1:
                     out.write("\n")
                 else:
@@ -59,8 +57,8 @@ def _gen_classes(output_file, output_format, ns_name, ns_version, symbols):
             if output_format == "csv":
                 out.write(f"{class_name},{class_type},{class_link}\n")
             elif output_format == "json":
-                l = f'  {{ "name": "{class_name}", "ctype": "{class_type}", "link": "{class_link}" }}'
-                out.write(l)
+                line = f'  {{ "name": "{class_name}", "ctype": "{class_type}", "link": "{class_link}" }}'
+                out.write(line)
                 if i == n_classes - 1:
                     out.write("\n")
                 else:
@@ -87,8 +85,8 @@ def _gen_constants(output_file, output_format, ns_name, ns_version, symbols):
             if output_format == "csv":
                 out.write(f"{constant_name},{constant_type},{constant_link}\n")
             elif output_format == "json":
-                l = f'  {{ "name": "{constant_name}", "ctype": "{constant_type}", "link": "{constant_link}"  }}'
-                out.write(l)
+                line = f'  {{ "name": "{constant_name}", "ctype": "{constant_type}", "link": "{constant_link}"  }}'
+                out.write(line)
                 if i == n_constants - 1:
                     out.write("\n")
                 else:
@@ -115,8 +113,8 @@ def _gen_enums(output_file, output_format, ns_name, ns_version, symbols):
             if output_format == "csv":
                 out.write(f"{enum_name},{enum_type},{enum_link}\n")
             elif output_format == "json":
-                l = f'  {{ "name": "{enum_name}", "ctype": "{enum_type}", "link": "{enum_link}" }}'
-                out.write(l)
+                line = f'  {{ "name": "{enum_name}", "ctype": "{enum_type}", "link": "{enum_link}" }}'
+                out.write(line)
                 if i == n_enums - 1:
                     out.write("\n")
                 else:
@@ -138,14 +136,14 @@ def _gen_domains(output_file, output_format, ns_name, ns_version, symbols):
         for (i, enum) in enumerate(symbols):
             domain_name = f"{ns_name}.{enum.name}"
             domain_type = enum.ctype
-            domain_quark = enum.domain 
+            domain_quark = enum.domain
             domain_link = f"[error.{enum.name}]"
 
             if output_format == "csv":
                 out.write(f"{domain_name},{domain_type},{domain_link},{domain_quark}\n")
             elif output_format == "json":
-                l = f'  {{ "name": "{domain_name}", "ctype": "{domain_type}", "domain": "{domain_quark}", "link": "{domain_link}" }}'
-                out.write(l)
+                line = f'  {{ "name": "{domain_name}", "ctype": "{domain_type}", "domain": "{domain_quark}", "link": "{domain_link}" }}'
+                out.write(line)
                 if i == n_enums - 1:
                     out.write("\n")
                 else:
@@ -172,8 +170,8 @@ def _gen_interfaces(output_file, output_format, ns_name, ns_version, symbols):
             if output_format == "csv":
                 out.write(f"{iface_name},{iface_type},{iface_link}\n")
             elif output_format == "json":
-                l = f'  {{ "name": "{iface_name}", "ctype": "{iface_type}", "link": "{iface_link}" }}'
-                out.write(l)
+                line = f'  {{ "name": "{iface_name}", "ctype": "{iface_type}", "link": "{iface_link}" }}'
+                out.write(line)
                 if i == n_interfaces - 1:
                     out.write("\n")
                 else:
@@ -200,8 +198,8 @@ def _gen_records(output_file, output_format, ns_name, ns_version, symbols):
             if output_format == "csv":
                 out.write(f"{record_name},{record_type},{record_link}\n")
             elif output_format == "json":
-                l = f'  {{ "name": "{record_name}", "ctype": "{record_type}", "link": "{record_link}" }}'
-                out.write(l)
+                line = f'  {{ "name": "{record_name}", "ctype": "{record_type}", "link": "{record_link}" }}'
+                out.write(line)
                 if i == n_records - 1:
                     out.write("\n")
                 else:
@@ -228,8 +226,8 @@ def _gen_unions(output_file, output_format, ns_name, ns_version, symbols):
             if output_format == "csv":
                 out.write(f"{union_name},{union_type},{union_link}\n")
             elif output_format == "json":
-                l = f'  {{ "name": "{union_name}", "ctype": "{union_type}", "link": "{union_link}" }}'
-                out.write(l)
+                line = f'  {{ "name": "{union_name}", "ctype": "{union_type}", "link": "{union_link}" }}'
+                out.write(line)
                 if i == n_unions - 1:
                     out.write("\n")
                 else:
@@ -297,12 +295,15 @@ def gen_indices(repository, options, output_dir):
 
 
 def add_args(parser):
-    parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[], help="include paths for other GIR files")
+    parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[],
+                        help="include paths for other GIR files")
     parser.add_argument("--dry-run", action="store_true", help="parses the GIR file without generating files")
     parser.add_argument("--format", default="json", choices=["csv", "json"], help="output format")
-    parser.add_argument("--section", action="append", dest="sections", default=[], help="the sections to generate, or 'all'")
+    parser.add_argument("--section", action="append", dest="sections", default=[],
+                        help="the sections to generate, or 'all'")
     parser.add_argument("--output-dir", default=None, help="the output directory for the index files")
-    parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'), default=sys.stdin, help="the GIR file to parse")
+    parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'),
+                        default=sys.stdin, help="the GIR file to parse")
 
 
 def run(options):
@@ -312,13 +313,13 @@ def run(options):
     paths = []
     paths.append(os.getcwd())
     paths.append(os.path.join(xdg_data_home, "gir-1.0"))
-    paths.extend([ os.path.join(x, "gir-1.0") for x in xdg_data_dirs ])
+    paths.extend([os.path.join(x, "gir-1.0") for x in xdg_data_dirs])
 
     log.info(f"Search paths: {paths}")
 
     output_dir = options.output_dir or os.getcwd()
 
-    parser = GirParser(search_paths=paths)
+    parser = gir.GirParser(search_paths=paths)
     parser.parse(options.infile)
 
     if not options.dry_run:

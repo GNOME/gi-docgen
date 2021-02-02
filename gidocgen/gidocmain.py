@@ -9,6 +9,7 @@ import traceback
 from . import log
 from . import gdindex, gdgenerate, gdgenindices
 
+
 class GIDocGenApp:
     """
     The main GIDocGen application, working as a multiplexer for different

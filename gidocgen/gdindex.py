@@ -5,18 +5,18 @@ import argparse
 import os
 import sys
 
-from . import log
-
-from .gir import *
+from . import gir, log
 
 
 HELP_MSG = "Generates an index of all the symbols"
 
 
 def add_args(parser):
-    parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[], help="include paths for other GIR files")
+    parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[],
+                        help="include paths for other GIR files")
     parser.add_argument("-q", "--quiet", action="store_true", help="suppress messages except warnings")
-    parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'), default=sys.stdin, help="the GIR file to parse")
+    parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'),
+                        default=sys.stdin, help="the GIR file to parse")
 
 
 def _print_function(function):
@@ -25,7 +25,7 @@ def _print_function(function):
 
     params = []
     for param in function.parameters:
-        params += [ f"{param.name}: {log.color(param.target.ctype, 40)}" ]
+        params += [f"{param.name}: {log.color(param.target.ctype, 40)}"]
 
     params = ', '.join(params)
 
@@ -38,7 +38,7 @@ def _print_method(method):
 
     params = ['self']
     for param in method.parameters:
-        params += [ f"{param.name}: {log.color(param.target.ctype, 40)}" ]
+        params += [f"{param.name}: {log.color(param.target.ctype, 40)}"]
 
     params = ', '.join(params)
 
@@ -67,7 +67,7 @@ def _print_signal(signal):
 
     params = ['self']
     for param in signal.parameters:
-        params += [ f"{param.name}: {log.color(param.target.ctype, 40)}" ]
+        params += [f"{param.name}: {log.color(param.target.ctype, 40)}"]
 
     params = ', '.join(params)
 
@@ -339,21 +339,20 @@ def _print_class_functions(cls, sections=[], is_last_class=False):
 
 
 def gen_tree(repository):
-    includes = ', '.join([ str(r.namespace) for r in repository.includes ])
+    includes = ', '.join([str(r.namespace) for r in repository.includes])
     c_includes = ', '.join(repository.c_includes)
     packages = ', '.join(repository.packages)
 
     title = str(log.color('Repository', 12))
     log.log(f'{title}')
     log.log(f'├── Includes:  {includes}')
-    log.log(f'├── C headers: {c_includes}') 
+    log.log(f'├── C headers: {c_includes}')
     log.log(f'├── Packages:  {packages}')
 
     namespace = repository.namespace
     shlibs = ', '.join(namespace.get_shared_libraries())
 
     aliases = sorted(namespace.get_aliases(), key=lambda alias: alias.name.lower())
-    boxeds = sorted(namespace.get_boxeds(), key=lambda boxed: boxed.name.lower())
     classes = sorted(namespace.get_classes(), key=lambda cls: cls.name.lower())
     constants = sorted(namespace.get_constants(), key=lambda const: const.name.lower())
     domains = sorted(namespace.get_error_domains(), key=lambda domain: domain.name.lower())
@@ -371,7 +370,7 @@ def gen_tree(repository):
     log.log(f'    ├── {title}')
 
     if len(classes) == 0:
-        log.log( '    │   └── None')
+        log.log('    │   └── None')
     else:
         for i, cls in enumerate(classes):
             is_last_class = i == len(classes) - 1
@@ -417,7 +416,7 @@ def gen_tree(repository):
     log.log(f'    ├── {title}')
 
     if len(interfaces) == 0:
-        log.log( '    │   └── None')
+        log.log('    │   └── None')
     else:
         for i, iface in enumerate(interfaces):
             is_last_iface = i == len(interfaces) - 1
@@ -453,7 +452,7 @@ def gen_tree(repository):
     log.log(f'    ├── {title}')
 
     if len(records) == 0:
-        log.log( '    │   └── None')
+        log.log('    │   └── None')
     else:
         for i, record in enumerate(records):
             is_last_record = i == len(records) - 1
@@ -484,7 +483,7 @@ def gen_tree(repository):
     log.log(f'    ├── {title}')
 
     if len(records) == 0:
-        log.log( '    │   └── None')
+        log.log('    │   └── None')
     else:
         for i, union in enumerate(unions):
             is_last_union = i == len(unions) - 1
@@ -515,7 +514,7 @@ def gen_tree(repository):
     log.log(f'    ├── {title}')
 
     if len(aliases) == 0:
-        log.log( '    │   └── None')
+        log.log('    │   └── None')
     else:
         for i, func in enumerate(functions):
             is_last_func = i == len(functions) - 1
@@ -529,7 +528,7 @@ def gen_tree(repository):
     log.log(f'    ├── {title}')
 
     if len(aliases) == 0:
-        log.log( '    │   └── None')
+        log.log('    │   └── None')
     else:
         for i in range(len(aliases)):
             alias = aliases[i]
@@ -542,7 +541,7 @@ def gen_tree(repository):
     log.log(f'    ├── {title}')
 
     if len(constants) == 0:
-        log.log( '    │   └── None')
+        log.log('    │   └── None')
     else:
         for i in range(len(constants)):
             const = constants[i]
@@ -555,7 +554,7 @@ def gen_tree(repository):
     log.log(f'    ├── {title}')
 
     if len(enums) == 0:
-        log.log( '    │   └── None')
+        log.log('    │   └── None')
     else:
         for i, enum in enumerate(enums):
             is_last_enum = i == len(enums) - 1
@@ -581,7 +580,7 @@ def gen_tree(repository):
     log.log(f'    └── {title}')
 
     if len(domains) == 0:
-        log.log( '        └── None')
+        log.log('        └── None')
     else:
         for i, domain in enumerate(domains):
             is_last_domain = i == len(domains) - 1
@@ -611,13 +610,13 @@ def run(options):
     paths = []
     paths.append(os.getcwd())
     paths.append(os.path.join(xdg_data_home, 'gir-1.0'))
-    paths.extend([ os.path.join(x, 'gir-1.0') for x in xdg_data_dirs ])
+    paths.extend([os.path.join(x, 'gir-1.0') for x in xdg_data_dirs])
 
     log.info(f"Search paths: {paths}")
 
-    parser = GirParser(search_paths=paths)
+    parser = gir.GirParser(search_paths=paths)
     parser.parse(options.infile)
 
-    gen_tree (parser.get_repository())
+    gen_tree(parser.get_repository())
 
     return 0

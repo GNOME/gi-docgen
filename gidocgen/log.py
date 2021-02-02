@@ -128,7 +128,7 @@ def set_fatal_warnings(fatal_warnings):
     log_fatal_warnings = fatal_warnings
 
 
-def set_log_epoch(epoch = 0):
+def set_log_epoch(epoch=0):
     global log_epoch
     if epoch == 0:
         log_epoch = time.monotonic()
@@ -194,9 +194,9 @@ def report():
 
     elapsed = (time.monotonic() - log_epoch)
 
-    report =  [""]
-    report += [ f"Elapsed time: {elapsed:.3f} seconds" ]
-    report += [ f"Total warnings: {log_warnings_counter}" ]
+    report = [""]
+    report += [f"Elapsed time: {elapsed:.3f} seconds"]
+    report += [f"Total warnings: {log_warnings_counter}"]
 
     print("\n".join(report))
 
