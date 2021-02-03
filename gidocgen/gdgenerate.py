@@ -599,12 +599,12 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, namespace, all_cla
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     class_tmpl = jinja_env.get_template(theme_config.class_template)
-    method_tmpl = jinja_env.get_template('method.html')
-    property_tmpl = jinja_env.get_template('property.html')
-    signal_tmpl = jinja_env.get_template('signal.html')
-    class_method_tmpl = jinja_env.get_template('class_method.html')
-    type_func_tmpl = jinja_env.get_template('type_func.html')
-    vfunc_tmpl = jinja_env.get_template('vfunc.html')
+    method_tmpl = jinja_env.get_template(theme_config.method_template)
+    property_tmpl = jinja_env.get_template(theme_config.property_template)
+    signal_tmpl = jinja_env.get_template(theme_config.signal_template)
+    class_method_tmpl = jinja_env.get_template(theme_config.class_method_template)
+    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
+    vfunc_tmpl = jinja_env.get_template(theme_config.vfunc_template)
 
     for cls in all_classes:
         class_file = os.path.join(ns_dir, f"class.{cls.name}.html")
@@ -710,12 +710,12 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, namespace, all_
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     iface_tmpl = jinja_env.get_template(theme_config.interface_template)
-    method_tmpl = jinja_env.get_template('method.html')
-    property_tmpl = jinja_env.get_template('property.html')
-    signal_tmpl = jinja_env.get_template('signal.html')
-    class_method_tmpl = jinja_env.get_template('class_method.html')
-    type_func_tmpl = jinja_env.get_template('type_func.html')
-    vfunc_tmpl = jinja_env.get_template('vfunc.html')
+    method_tmpl = jinja_env.get_template(theme_config.method_template)
+    property_tmpl = jinja_env.get_template(theme_config.property_template)
+    signal_tmpl = jinja_env.get_template(theme_config.signal_template)
+    class_method_tmpl = jinja_env.get_template(theme_config.class_method_template)
+    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
+    vfunc_tmpl = jinja_env.get_template(theme_config.vfunc_template)
 
     for iface in all_interfaces:
         iface_file = os.path.join(ns_dir, f"iface.{iface.name}.html")
@@ -807,7 +807,7 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, namespace, all_enums
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     enum_tmpl = jinja_env.get_template(theme_config.enum_template)
-    type_func_tmpl = jinja_env.get_template('type_func.html')
+    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
 
     for enum in all_enums:
         enum_file = os.path.join(ns_dir, f"enum.{enum.name}.html")
@@ -839,7 +839,7 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, namespace, all_e
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     enum_tmpl = jinja_env.get_template(theme_config.flags_template)
-    type_func_tmpl = jinja_env.get_template('type_func.html')
+    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
 
     for enum in all_enums:
         enum_file = os.path.join(ns_dir, f"flags.{enum.name}.html")
@@ -871,7 +871,7 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, namespace, all_enu
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     enum_tmpl = jinja_env.get_template(theme_config.error_template)
-    type_func_tmpl = jinja_env.get_template('type_func.html')
+    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
 
     for enum in all_enums:
         enum_file = os.path.join(ns_dir, f"error.{enum.name}.html")
@@ -902,7 +902,7 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, namespace, all_enu
 def _gen_constants(config, theme_config, output_dir, jinja_env, namespace, all_constants):
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
-    const_tmpl = jinja_env.get_template('constant.html')
+    const_tmpl = jinja_env.get_template(theme_config.constant_template)
 
     for const in all_constants:
         const_file = os.path.join(ns_dir, f"const.{const.name}.html")
