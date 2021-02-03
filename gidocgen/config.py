@@ -122,35 +122,56 @@ class GITemplateConfig:
 
     @property
     def class_template(self):
-        templates = self._config.get('templates', {})
-        return templates.get('class', 'class.html')
+        return self.templates.get('class', 'class.html')
+
+    @property
+    def method_template(self):
+        return self.templates.get('method', 'method.html')
+
+    @property
+    def class_method_template(self):
+        return self.templates.get('class_method', 'class_method.html')
+
+    @property
+    def vfunc_template(self):
+        return self.templates.get('vfunc', 'vfunc.html')
+
+    @property
+    def property_template(self):
+        return self.templates.get('property', 'property.html')
+
+    @property
+    def signal_template(self):
+        return self.templates.get('signal', 'signal.html')
+
+    @property
+    def type_func_template(self):
+        return self.templates.get('type_func', 'type_func.html')
+
+    @property
+    def constant_template(self):
+        return self.templates.get('constant', 'constant.html')
 
     @property
     def interface_template(self):
-        templates = self._config.get('templates', {})
-        return templates.get('interface', 'interface.html')
+        return self.templates.get('interface', 'interface.html')
 
     @property
     def namespace_template(self):
-        templates = self._config.get('templates', {})
-        return templates.get('namespace', 'namespace.html')
+        return self.templates.get('namespace', 'namespace.html')
 
     @property
     def content_template(self):
-        templates = self._config.get('templates', {})
-        return templates.get('content', 'content.html')
+        return self.templates.get('content', 'content.html')
 
     @property
     def enum_template(self):
-        templates = self._config.get('templates', {})
-        return templates.get('enum', 'enum.html')
+        return self.templates.get('enum', 'enum.html')
 
     @property
     def flags_template(self):
-        templates = self._config.get('templates', {})
-        return templates.get('flags', 'flags.html')
+        return self.templates.get('flags', 'flags.html')
 
     @property
     def error_template(self):
-        templates = self._config.get('templates', {})
-        return templates.get('error', 'error.html')
+        return self.templates.get('error', 'error.html')
