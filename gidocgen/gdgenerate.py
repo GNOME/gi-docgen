@@ -141,11 +141,11 @@ def preprocess_gtkdoc(text):
             processed_line = re.sub(r'#([A-Z][A-Za-z0-9:]+)', r'<code>\1</code>', processed_line)
             processed_line = re.sub(r'@(\w+)', r'<code>\1</code>', processed_line)
             processed_line = re.sub(r'%([A-Za-z0-9_]+)', r'<code>\1</code>', processed_line)
-            processed_line = re.sub(r'#\s+([\w\-_\s]+)(#+\s+[\w\{\}#-_]+)?', r'##### \1', processed_line)
+            processed_line = re.sub(r'#+\s+([\w\-_\s]+)(#+\s+[\w\{\}#-_]+)?', r'##### \1', processed_line)
             processed_text += [processed_line]
 
-    text = "\n".join(processed_text)
-    return markdown.markdown(text, extensions=MD_EXTENSIONS)
+    text = markdown.markdown("\n".join(processed_text), extensions=MD_EXTENSIONS)
+    return typogrify(text)
 
 
 class TemplateConstant:
@@ -620,7 +620,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, namespace, all_cla
                 'class': tmpl,
             })
 
-            out.write(typogrify(content))
+            out.write(content)
 
         for ctor in getattr(tmpl, 'ctors', []):
             ctor_file = os.path.join(ns_dir, f"ctor.{cls.name}.{ctor.name}.html")
