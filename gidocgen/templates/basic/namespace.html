@@ -21,6 +21,16 @@
     {% endfor %}
     </div>
   </div>
+  {% if CONFIG.dependencies|length > 0 %}
+  <div class="section">
+    <h5>Dependencies</h5>
+    <div class="links">
+    {% for gir_name, dep in CONFIG.dependencies.items() %}
+      <a href="{{ dep.docs_url }}" class="external">{{ dep.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 </nav>
 {% endblock %}
 
