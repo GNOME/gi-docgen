@@ -124,8 +124,22 @@ pre {
   margin-right: -10px;
 }
 
-.sidebar .namespace {
-  padding-left: 12px;
+.sidebar .section h3, .sidebar .section h5 {
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.65);
+  margin-right: 12px;
+}
+
+.sidebar .namespace > h3 > a {
+  font-weight: 800;
+  font-size: 1.2em;
+  text-decoration: none;
+}
+
+.sidebar .namespace > p {
+  font-size: 0.8em;
+  text-align: center;
+  margin-right: 12px;
 }
 
 .sidebar .section {
