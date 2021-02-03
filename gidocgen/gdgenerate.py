@@ -356,7 +356,7 @@ class TemplateFunction:
         res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
         if n_args == 0:
-            res += ["void"]
+            res += ["  void"]
         else:
             for (idx, arg) in enumerate(self.arguments):
                 if idx < n_args - 1:
