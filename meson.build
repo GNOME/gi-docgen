@@ -22,3 +22,26 @@ configure_file(
 )
 
 install_subdir('gidocgen', install_dir: py.get_install_dir())
+
+flake8 = find_program('flake8', required: false)
+if flake8.found()
+  test('flake8',
+    flake8,
+    args: [
+      '--show-source',
+      meson.current_source_dir() / 'gidocgen',
+    ],
+  )
+endif
+
+mypy = find_program('mypy', required: false)
+if mypy.found()
+  test('mypy',
+    mypy,
+    args: [
+      '--ignore-missing-imports',
+      '--disallow-incomplete-defs',
+      meson.current_source_dir() / 'gidocgen',
+    ],
+  )
+endif
