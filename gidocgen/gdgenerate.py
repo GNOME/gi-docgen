@@ -1067,7 +1067,13 @@ def run(options):
     output_dir = options.output_dir or os.getcwd()
     content_dir = options.content_dir or os.getcwd()
 
-    templates_dir = conf.get_templates_dir(default=(options.templates_dir or os.getcwd()))
+    if options.templates_dir is not None:
+        templates_dir = options.templates_dir
+    else:
+        templates_dir = conf.get_templates_dir()
+        if templates_dir is None:
+            templates_dir = os.path.join(os.path.dirname(__file__), 'templates')
+
     theme_name = conf.get_theme_name(default=options.theme_name)
     theme_conf = config.GITemplateConfig(templates_dir, theme_name)
 
