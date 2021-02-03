@@ -555,8 +555,7 @@ class TemplateMember:
         self.value = member.value
         self.description = "No description available."
         if member.doc is not None:
-            text = preprocess_gtkdoc(member.doc.content)
-            self.description = markdown.markdown(text, extensions=['fenced_code'])
+            self.description = preprocess_gtkdoc(member.doc.content)
 
 
 class TemplateEnum:
