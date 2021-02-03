@@ -1012,7 +1012,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
                     source += [line]
                 src_data = "".join(source)
 
-            dst_data = markdown.markdown(src_data, extensions=['fenced_code'])
+            dst_data = preprocess_gtkdoc(src_data)
             with open(dst, "w") as outfile:
                 outfile.write(content_tmpl.render({
                     "CONFIG": config,
