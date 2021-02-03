@@ -9,8 +9,9 @@
 
 {% block sidebar %}
 <nav class="sidebar">
-  <div class="namespace">
-    <h3><a href="index.html">{{ namespace.name }} &mdash; {{ namespace.version }}</a></h3>
+  <div class="section namespace">
+    <h3><a href="index.html">{{ namespace.name }}</a></h3>
+    <p>Version: {{ namespace.version }}</p>
   </div>
   <div class="section">
     <h5>Constant</h5>
