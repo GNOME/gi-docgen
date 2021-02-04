@@ -175,3 +175,7 @@ class GITemplateConfig:
     @property
     def error_template(self):
         return self.templates.get('error', 'error.html')
+
+    @property
+    def record_template(self):
+        return self.templates.get('record', 'record.html')

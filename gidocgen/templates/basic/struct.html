@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ record.name }}{% endblock %}
+
+{% block meta_other %}
+  <meta name="og:title" content="{{ namespace.name }}.{{ record.name }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}.{{ record.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="section namespace">
+    <h3><a href="index.html">{{ namespace.name }}</a></h3>
+    <p>Version: {{ namespace.version }}</p>
+  </div>
+  <div class="section">
+    <h5>Struct</h5>
+    <div class="links">
+      <a class="current" href="record.{{ record.name }}.html#description">{{ record.name }}</a>
+    </div>
+  </div>
+  <div class="section">
+    <h5>Constructors</h5>
+    <div class="links">
+    {% for m in record.ctors %}
+      <a class="method" href="ctor.{{ record.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Instance methods</h5>
+    <div class="links">
+    {% for m in record.methods %}
+      <a class="method" href="method.{{ record.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Type functions</h5>
+    <div class="links">
+    {% for m in record.type_funcs %}
+      <a class="method" href="type_func.{{ record.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Properties</h5>
+    <div class="links">
+    {% for p in record.properties %}
+      <a href="property.{{ record.name }}.{{ p.name }}.html">{{ p.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Signals</h5>
+    <div class="links">
+    {% for s in record.signals %}
+      <a href="signal.{{ record.name }}.{{ s.name }}.html">{{ s.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Struct</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.{{ record.name }}</h1>
+  </header>
+
+  <section>
+    <summary>
+      <div class="toggle-wrapper">
+        <h4 id="description">Description</a></h4>
+
+        <pre><code>struct {{ namespace.name }}.{{ record.name }} { {% if record.fields %}{% for field in record.fields %}
+  {{ field.name }}: {{ field.type_name }}{% if not loop.last %},{% endif %}{% endfor %}
+{% else %}/* No available fields */ {% endif %}}</code></pre>
+
+        <div class="docblock">
+          {{ record.description|safe }}
+        </div>
+
+        {% if record.fields %}
+        <div class="toggle-wrapper">
+          <h6>Structure members</h6>
+
+          <div class="docblock">
+            <table>
+            {% for field in record.fields %}
+              <tr>
+                <td><code>{{ field.name }}</code></td>
+                <td>{{ field.description|safe }}</td>
+              </tr>
+            {% endfor %}
+            </table>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </summary>
+
+    {% if record.ctors %}
+    <div class="toggle-wrapper constructors">
+      <h4 id="constructors">Constructors</a></h4>
+
+      <div class="docblock">
+      {% for ctor in record.ctors %}
+        <div class="toggle-wrapper default-hide">
+          <h6><a href="ctor.{{ record.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
+
+          <div class="docblock">
+            {{ ctor.description|safe }}
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if record.methods %}
+    <div class="toggle-wrapper methods">
+      <h4 id="methods">Instance methods</a></h4>
+
+      <div class="docblock">
+      {% for method in record.methods %}
+        <div class="toggle-wrapper default-hide">
+          <h6><a href="method.{{ record.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+
+          <div class="docblock">
+            {{ method.description|safe }}
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+
+    </div>
+    {% endif %}
+
+    {% if record.functions %}
+    <div class="toggle-wrapper methods">
+      <h4 id="type-functions">Type functions</a></h4>
+
+      <div class="docblock">
+      {% for func in record.type_funcs %}
+      <div class="toggle-wrapper default-hide">
+        <h6><a href="type_func.{{ record.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
+
+        <div class="docblock">
+          {{ func.description|safe }}
+        </div>
+      </div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </section>
+</section>
+{% endblock %}
