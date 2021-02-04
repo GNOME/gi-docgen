@@ -36,6 +36,14 @@ class GIDocConfig:
         library = self._config.get('library', {})
         return library.get('website_url', default)
 
+    def get_logo_url(self, default=None):
+        library = self._config.get('library', {})
+        return library.get('logo_url', default)
+
+    def get_description(self, default=None):
+        library = self._config.get('library', {})
+        return library.get('description', default)
+
     @property
     def namespace(self):
         library = self._config.get('library', {})
@@ -62,6 +70,16 @@ class GIDocConfig:
     def browse_url(self):
         library = self._config.get('library', {})
         return library.get('browse_url', '')
+
+    @property
+    def logo_url(self):
+        library = self._config.get('library', {})
+        return library.get('logo_url', '')
+
+    @property
+    def description(self):
+        library = self._config.get('library', {})
+        return library.get('description', '')
 
     @property
     def dependencies(self):
