@@ -491,6 +491,12 @@ class TemplateClass:
         if cls.doc is not None:
             self.description = preprocess_gtkdoc(cls.doc.content)
 
+        if len(cls.fields) != 0:
+            self.fields = []
+            for field in cls.fields:
+                if not field.private:
+                    self.fields.append(TemplateField(field))
+
         if len(cls.properties) != 0:
             self.properties = []
             for prop in cls.properties:
@@ -1104,6 +1110,27 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, namespace, all_unio
                 }))
 
 
+def _gen_functions(config, theme_config, output_dir, jinja_env, namespace, all_functions):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    func_tmpl = jinja_env.get_template(theme_config.func_template)
+
+    for func in all_functions:
+        func_file = os.path.join(ns_dir, f"func.{func.name}.html")
+        log.info(f"Creating function file for {namespace.name}.{func.name}: {func_file}")
+
+        tmpl = TemplateFunction(func)
+
+        with open(func_file, "w") as out:
+            content = func_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'func': tmpl,
+            })
+
+            out.write(content)
+
+
 def _gen_content_files(config, content_dir, output_dir):
     content_files = []
 
@@ -1145,6 +1172,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         "constants": _gen_constants,
         "domains": _gen_domains,
         "enums": _gen_enums,
+        "functions": _gen_functions,
         "interfaces": _gen_interfaces,
         "records": _gen_records,
         "unions": _gen_unions,

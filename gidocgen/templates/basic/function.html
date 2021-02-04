@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ func.name }}{% endblock %}
+
+{% block meta_other %}
+<meta name="og:title" content="{{ namespace.name }}.{{ func.name }}"/>
+<meta name="og:description" content="Reference for {{ namespace.name }}.{{ func.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="section namespace">
+    <h3><a href="index.html">{{ namespace.name }}</a></h3>
+    <p>Version: {{ namespace.version }}</p>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Function</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.{{ func.name }}</h1>
+  </header>
+
+  <section>
+    <div class="declaration toggle-wrapper">
+      <h4><a name="declaration">Declaration</a></h4>
+
+      <div class="docblock">
+        <pre><code>{{ func.c_decl }}</code></pre>
+      </div>
+    </div>
+
+    <div class="description toggle-wrapper">
+      <h4><a name="description">Description</a></h4>
+
+      <div class="docblock">
+        {{ func.description|safe }}
+      </div>
+    </div>
+
+    {% if func.arguments|length != 0 %}
+    <div class="parameters toggle-wrapper">
+      <h4><a name="parameters">Parameters</a></h4>
+
+      <div class="docblock">
+        <table>
+          {% for arg in func.arguments %}
+          <tr>
+            <td><code>{{ arg.name }}</code></td><td><code>{{ arg.type_cname }}</code></td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>{{ arg.description|safe }}</td>
+          </tr>
+          {% if arg.direction != "in" %}<tr><td>&nbsp;</td><td>Direction: {{ arg.direction }}</td></tr>{% endif %}
+          {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if arg.direction == "out" and arg.optional %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if arg.is_pointer %}<tr><td>&nbsp;</td><td>{{ arg.transfer }}</td></tr>{% endif %}
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if func.return_value %}
+    <div class="returns toggle-wrapper">
+      <h4><a name="returns">Return value</a></h4>
+
+      <div class="docblock">
+        {{ func.return_value.description|safe }}
+
+        <table>
+          {% if func.return_value.is_pointer %}<tr><td>{{ func.return_value.transfer }}</td></tr>{% endif %}
+          {% if func.return_value.is_pointer and func.return_value.nullable %}Can be <code>NULL</code></td></tr>{% endif %}
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}
