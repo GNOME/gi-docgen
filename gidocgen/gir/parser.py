@@ -711,12 +711,13 @@ class GirParser:
         type_name: T.Optional[str] = node.attrib.get(_glibns('type-name'))
         get_type: T.Optional[str] = node.attrib.get(_glibns('get-type'))
         type_struct: T.Optional[str] = node.attrib.get(_glibns('type-struct'))
+        gtype_struct_for: T.Optional[str] = node.attrib.get(_glibns('is-gtype-struct-for'))
 
         gtype = None
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        res = ast.Record(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
+        res = ast.Record(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype, struct_for=gtype_struct_for)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
 

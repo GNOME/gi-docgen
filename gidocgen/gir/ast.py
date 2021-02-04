@@ -507,10 +507,11 @@ class Boxed(Type):
 
 
 class Record(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType]):
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType] = None, struct_for: T.Optional[str] = None):
         super().__init__(name, ctype)
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
+        self.struct_for = struct_for
         self.constructors: T.List[Function] = []
         self.methods: T.List[Method] = []
         self.functions: T.List[Function] = []
