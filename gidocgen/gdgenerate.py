@@ -548,6 +548,40 @@ class TemplateClass:
                 self.type_funcs.append(TemplateFunction(func))
 
 
+class TemplateRecord:
+    def __init__(self, namespace, record):
+        self.name = record.name
+        self.symbol_prefix = f"{namespace.symbol_prefix}_{record.symbol_prefix}"
+        self.type_cname = record.ctype
+        self.link_prefix = "struct"
+
+        self.description = "No description available."
+
+        if record.doc is not None:
+            self.description = preprocess_gtkdoc(record.doc.content)
+
+        if len(record.fields) != 0:
+            self.fields = []
+            for field in record.fields:
+                if not field.private:
+                    self.fields.append(TemplateField(field))
+
+        if len(record.constructors) != 0:
+            self.ctors = []
+            for ctor in record.constructors:
+                self.ctors.append(TemplateFunction(ctor))
+
+        if len(record.methods) != 0:
+            self.methods = []
+            for meth in record.methods:
+                self.methods.append(TemplateMethod(namespace, self, meth))
+
+        if len(record.functions) != 0:
+            self.type_funcs = []
+            for func in record.functions:
+                self.type_funcs.append(TemplateFunction(func))
+
+
 class TemplateMember:
     def __init__(self, enum, member):
         self.name = member.identifier
@@ -918,6 +952,65 @@ def _gen_constants(config, theme_config, output_dir, jinja_env, namespace, all_c
             }))
 
 
+def _gen_records(config, theme_config, output_dir, jinja_env, namespace, all_records):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    record_tmpl = jinja_env.get_template(theme_config.record_template)
+    method_tmpl = jinja_env.get_template(theme_config.method_template)
+    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
+
+    for record in all_records:
+        record_file = os.path.join(ns_dir, f"struct.{record.name}.html")
+        log.info(f"Creating record file for {namespace.name}.{record.name}: {record_file}")
+
+        tmpl = TemplateRecord(namespace, record)
+
+        with open(record_file, "w") as out:
+            content = record_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'record': tmpl,
+            })
+
+            out.write(content)
+
+        for ctor in getattr(tmpl, 'ctors', []):
+            ctor_file = os.path.join(ns_dir, f"ctor.{record.name}.{ctor.name}.html")
+            log.debug(f"Creating ctor file for {namespace.name}.{record.name}.{ctor.name}: {ctor_file}")
+
+            with open(ctor_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': ctor,
+                }))
+
+        for method in getattr(tmpl, 'methods', []):
+            method_file = os.path.join(ns_dir, f"method.{record.name}.{method.name}.html")
+            log.debug(f"Creating method file for {namespace.name}.{record.name}.{method.name}: {method_file}")
+
+            with open(method_file, "w") as out:
+                out.write(method_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'method': method,
+                }))
+
+        for type_func in getattr(tmpl, 'type_funcs', []):
+            type_func_file = os.path.join(ns_dir, f"type_func.{record.name}.{type_func.name}.html")
+            log.debug(f"Creating type func file for {namespace.name}.{record.name}.{type_func.name}: {type_func_file}")
+
+            with open(type_func_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': type_func,
+                }))
+
+
 def _gen_content_files(config, content_dir, output_dir):
     content_files = []
 
@@ -949,7 +1042,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         "enums": sorted(namespace.get_enumerations(), key=lambda enum: enum.name.lower()),
         "functions": sorted(namespace.get_functions(), key=lambda func: func.name.lower()),
         "interfaces": sorted(namespace.get_interfaces(), key=lambda interface: interface.name.lower()),
-        "records": sorted(namespace.get_records(), key=lambda record: record.name.lower()),
+        "records": sorted(namespace.get_effective_records(), key=lambda record: record.name.lower()),
         "unions": sorted(namespace.get_unions(), key=lambda union: union.name.lower()),
     }
 
@@ -960,6 +1053,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         "domains": _gen_domains,
         "enums": _gen_enums,
         "interfaces": _gen_interfaces,
+        "records": _gen_records,
     }
 
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
