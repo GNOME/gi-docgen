@@ -1050,7 +1050,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         shutil.copyfile(style_src, style_dst)
 
     for extra_file in theme_config.extra_files:
-        log.debug(f"Copying extra file {extra_file} from {theme_dir} to {ns_dir}")
+        log.info(f"Copying extra file {extra_file} from {theme_dir} to {ns_dir}")
         src = os.path.join(theme_dir, extra_file)
         dst = os.path.join(ns_dir, extra_file)
         shutil.copyfile(src, dst)
