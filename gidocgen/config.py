@@ -179,3 +179,7 @@ class GITemplateConfig:
     @property
     def record_template(self):
         return self.templates.get('record', 'record.html')
+
+    @property
+    def union_template(self):
+        return self.templates.get('record', 'union.html')

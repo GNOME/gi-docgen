@@ -582,6 +582,40 @@ class TemplateRecord:
                 self.type_funcs.append(TemplateFunction(func))
 
 
+class TemplateUnion:
+    def __init__(self, namespace, union):
+        self.name = union.name
+        self.symbol_prefix = f"{namespace.symbol_prefix}_{union.symbol_prefix}"
+        self.type_cname = union.ctype
+        self.link_prefix = "union"
+
+        self.description = "No description available."
+
+        if union.doc is not None:
+            self.description = preprocess_gtkdoc(union.doc.content)
+
+        if len(union.fields) != 0:
+            self.fields = []
+            for field in union.fields:
+                if not field.private:
+                    self.fields.append(TemplateField(field))
+
+        if len(union.constructors) != 0:
+            self.ctors = []
+            for ctor in union.constructors:
+                self.ctors.append(TemplateFunction(ctor))
+
+        if len(union.methods) != 0:
+            self.methods = []
+            for meth in union.methods:
+                self.methods.append(TemplateMethod(namespace, self, meth))
+
+        if len(union.functions) != 0:
+            self.type_funcs = []
+            for func in union.functions:
+                self.type_funcs.append(TemplateFunction(func))
+
+
 class TemplateMember:
     def __init__(self, enum, member):
         self.name = member.identifier
@@ -1011,6 +1045,65 @@ def _gen_records(config, theme_config, output_dir, jinja_env, namespace, all_rec
                 }))
 
 
+def _gen_unions(config, theme_config, output_dir, jinja_env, namespace, all_unions):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    union_tmpl = jinja_env.get_template(theme_config.union_template)
+    method_tmpl = jinja_env.get_template(theme_config.method_template)
+    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
+
+    for union in all_unions:
+        union_file = os.path.join(ns_dir, f"union.{union.name}.html")
+        log.info(f"Creating union file for {namespace.name}.{union.name}: {union_file}")
+
+        tmpl = TemplateUnion(namespace, union)
+
+        with open(union_file, "w") as out:
+            content = union_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'union': tmpl,
+            })
+
+            out.write(content)
+
+        for ctor in getattr(tmpl, 'ctors', []):
+            ctor_file = os.path.join(ns_dir, f"ctor.{union.name}.{ctor.name}.html")
+            log.debug(f"Creating ctor file for {namespace.name}.{union.name}.{ctor.name}: {ctor_file}")
+
+            with open(ctor_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': ctor,
+                }))
+
+        for method in getattr(tmpl, 'methods', []):
+            method_file = os.path.join(ns_dir, f"method.{union.name}.{method.name}.html")
+            log.debug(f"Creating method file for {namespace.name}.{union.name}.{method.name}: {method_file}")
+
+            with open(method_file, "w") as out:
+                out.write(method_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'method': method,
+                }))
+
+        for type_func in getattr(tmpl, 'type_funcs', []):
+            type_func_file = os.path.join(ns_dir, f"type_func.{union.name}.{type_func.name}.html")
+            log.debug(f"Creating type func file for {namespace.name}.{union.name}.{type_func.name}: {type_func_file}")
+
+            with open(type_func_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': type_func,
+                }))
+
+
 def _gen_content_files(config, content_dir, output_dir):
     content_files = []
 
@@ -1054,6 +1147,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         "enums": _gen_enums,
         "interfaces": _gen_interfaces,
         "records": _gen_records,
+        "unions": _gen_unions,
     }
 
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")

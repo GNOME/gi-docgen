@@ -21,6 +21,7 @@ flags = "enum.html"
 enum = "enum.html"
 constant = "constant.html"
 record = "struct.html"
+union = "struct.html"
 
 [css]
 style = "style.css"
