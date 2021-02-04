@@ -507,11 +507,13 @@ class Boxed(Type):
 
 
 class Record(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType] = None, struct_for: T.Optional[str] = None):
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType] = None,
+                 struct_for: T.Optional[str] = None, disguised: bool = False):
         super().__init__(name, ctype)
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
         self.struct_for = struct_for
+        self.disguised = disguised
         self.constructors: T.List[Function] = []
         self.methods: T.List[Method] = []
         self.functions: T.List[Function] = []
@@ -674,6 +676,16 @@ class Namespace:
 
     def get_records(self) -> T.List[Record]:
         return self._records
+
+    def get_effective_records(self) -> T.List[Record]:
+        def is_effective(r):
+            if "Private" in r.name and r.disguised:
+                return False
+            if r.struct_for is not None:
+                return False
+            return True
+
+        return [x for x in self._records if is_effective(x)]
 
     def get_unions(self) -> T.List[Union]:
         return self._unions
