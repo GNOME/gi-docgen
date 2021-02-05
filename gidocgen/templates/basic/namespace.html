@@ -159,6 +159,22 @@
 
   <section>
     <div class="toggle-wrapper default-hide">
+      <h4 id="aliases">Aliases</h4>
+
+      <div class="docblock">
+      {% for alias in symbols.aliases %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="alias.{{ alias.name }}.html">{{ alias.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No aliases available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
       <h4 id="enums">Enumerations</h4>
       <div class="docblock">
 

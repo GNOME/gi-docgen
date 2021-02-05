@@ -22,6 +22,7 @@ enum = "enum.html"
 constant = "constant.html"
 record = "struct.html"
 union = "struct.html"
+alias = "struct.html"
 function = "function.html"
 
 [css]

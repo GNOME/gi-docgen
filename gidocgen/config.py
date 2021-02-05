@@ -186,4 +186,8 @@ class GITemplateConfig:
 
     @property
     def union_template(self):
-        return self.templates.get('record', 'union.html')
+        return self.templates.get('union', 'union.html')
+
+    @property
+    def alias_template(self):
+        return self.templates.get('alias', 'alias.html')
