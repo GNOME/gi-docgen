@@ -223,6 +223,22 @@
 
   <section>
     <div class="toggle-wrapper default-hide">
+      <h4 id="callbacks">Callbacks</h4>
+
+      <div class="docblock">
+      {% for func in symbols.callbacks %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="callback.{{ func.name }}.html">{{ func.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No callbacks available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
       <h4 id="functions">Functions</h4>
 
       <div class="docblock">

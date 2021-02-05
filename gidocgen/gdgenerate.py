@@ -1256,6 +1256,27 @@ def _gen_functions(config, theme_config, output_dir, jinja_env, namespace, all_f
             out.write(content)
 
 
+def _gen_callbacks(config, theme_config, output_dir, jinja_env, namespace, all_callbacks):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    func_tmpl = jinja_env.get_template(theme_config.func_template)
+
+    for func in all_callbacks:
+        func_file = os.path.join(ns_dir, f"callback.{func.name}.html")
+        log.info(f"Creating callback file for {namespace.name}.{func.name}: {func_file}")
+
+        tmpl = TemplateCallback(func)
+
+        with open(func_file, "w") as out:
+            content = func_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'func': tmpl,
+            })
+
+            out.write(content)
+
+
 def _gen_content_files(config, content_dir, output_dir):
     content_files = []
 
@@ -1281,6 +1302,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     symbols = {
         "aliases": sorted(namespace.get_aliases(), key=lambda alias: alias.name.lower()),
         "bitfields": sorted(namespace.get_bitfields(), key=lambda bitfield: bitfield.name.lower()),
+        "callbacks": sorted(namespace.get_callbacks(), key=lambda callback: callback.name.lower()),
         "classes": sorted(namespace.get_classes(), key=lambda cls: cls.name.lower()),
         "constants": sorted(namespace.get_constants(), key=lambda const: const.name.lower()),
         "domains": sorted(namespace.get_error_domains(), key=lambda domain: domain.name.lower()),
@@ -1294,6 +1316,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     all_indices = {
         "aliases": _gen_aliases,
         "bitfields": _gen_bitfields,
+        "callbacks": _gen_callbacks,
         "classes": _gen_classes,
         "constants": _gen_constants,
         "domains": _gen_domains,
