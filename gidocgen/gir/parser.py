@@ -169,7 +169,7 @@ class GirParser:
         if child is None:
             return None
 
-        return node.text
+        return "".join(child.itertext())
 
     def _maybe_parse_docs(self, node: ET.Element, element: ast.GIRElement) -> None:
         doc = self._maybe_parse_doc(node)
