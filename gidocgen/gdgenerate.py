@@ -161,10 +161,9 @@ class TemplateConstant:
         self.stability = const.stability or "stable"
         self.annotations = const.annotations
         self.available_since = const.available_since or namespace.version
-        self.deprecated_since = const.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if const.deprecated_since is not None:
+            (version, msg) = const.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
     @property
     def c_decl(self):
@@ -187,10 +186,9 @@ class TemplateProperty:
         self.stability = prop.stability or "stable"
         self.annotations = prop.annotations
         self.available_since = prop.available_since or namespace.version
-        self.deprecated_since = prop.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if prop.deprecated_since is not None:
+            (version, msg) = prop.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
 
 class TemplateArgument:
@@ -252,10 +250,9 @@ class TemplateSignal:
         self.stability = signal.stability or "stable"
         self.annotations = signal.annotations
         self.available_since = signal.available_since or namespace.version
-        self.deprecated_since = signal.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if signal.deprecated_since is not None:
+            (version, msg) = signal.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
     @property
     def c_decl(self):
@@ -295,10 +292,9 @@ class TemplateMethod:
         self.stability = method.stability or "stable"
         self.annotations = method.annotations
         self.available_since = method.available_since or namespace.version
-        self.deprecated_since = method.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if method.deprecated_since is not None:
+            (version, msg) = method.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
     @property
     def c_decl(self):
@@ -381,10 +377,9 @@ class TemplateFunction:
         self.stability = func.stability or "stable"
         self.annotations = func.annotations
         self.available_since = func.available_since or namespace.version
-        self.deprecated_since = func.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if func.deprecated_since is not None:
+            (version, msg) = func.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
     @property
     def c_decl(self):
@@ -426,10 +421,9 @@ class TemplateCallback:
         self.stability = cb.stability or "stable"
         self.annotations = cb.annotations
         self.available_since = cb.available_since or namespace.version
-        self.deprecated_since = cb.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if cb.deprecated_since is not None:
+            (version, msg) = cb.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
     @property
     def c_decl(self):
@@ -490,10 +484,9 @@ class TemplateInterface:
         self.stability = interface.stability or "stable"
         self.annotations = interface.annotations
         self.available_since = interface.available_since or namespace.version
-        self.deprecated_since = interface.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if interface.deprecated_since is not None:
+            (version, msg) = interface.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
         self.class_name = interface.type_struct
 
@@ -555,10 +548,9 @@ class TemplateClass:
         self.stability = cls.stability or "stable"
         self.annotations = cls.annotations
         self.available_since = cls.available_since or namespace.version
-        self.deprecated_since = cls.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if cls.deprecated_since is not None:
+            (version, msg) = cls.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
         self.fields = []
         for field in cls.fields:
@@ -654,10 +646,9 @@ class TemplateRecord:
         self.stability = record.stability or "stable"
         self.annotations = record.annotations
         self.available_since = record.available_since or namespace.version
-        self.deprecated_since = record.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if record.deprecated_since is not None:
+            (version, msg) = record.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
         self.fields = []
         for field in record.fields:
@@ -709,10 +700,9 @@ class TemplateUnion:
         self.stability = union.stability or "stable"
         self.annotations = union.annotations
         self.available_since = union.available_since or namespace.version
-        self.deprecated_since = union.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if union.deprecated_since is not None:
+            (version, msg) = union.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
         self.fields = []
         for field in union.fields:
@@ -765,9 +755,9 @@ class TemplateAlias:
         self.annotations = alias.annotations
         self.available_since = alias.available_since or namespace.version
         self.deprecated_since = alias.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if alias.deprecated_since is not None:
+            (version, msg) = alias.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
     @property
     def c_decl(self):
@@ -801,9 +791,9 @@ class TemplateEnum:
         self.annotations = enum.annotations
         self.available_since = enum.available_since or namespace.version
         self.deprecated_since = enum.deprecated_since
-        if self.deprecated_since is not None:
-            msg = self.deprecated_since[1]
-            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+        if enum.deprecated_since is not None:
+            (version, msg) = enum.deprecated_since
+            self.deprecated_since = (version, preprocess_gtkdoc(msg))
 
         if isinstance(enum, gir.BitField):
             self.link_prefix = "flags"
