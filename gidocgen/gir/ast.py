@@ -65,10 +65,11 @@ class Package:
 
 class Info:
     """Base information for most types"""
-    def __init__(self, introspectable: bool = True, deprecated: str = None, deprecated_version: str = None,
-                 version: str = None, stability: str = None):
+    def __init__(self, introspectable: bool = True, deprecated: T.Optional[str] = None,
+                 deprecated_version: T.Optional[str] = None, version: str = None,
+                 stability: str = None):
         self.introspectable = introspectable
-        self.deprecated = deprecated
+        self.deprecated_msg = deprecated
         self.deprecated_version = deprecated_version
         self.version = version
         self.stability = stability
@@ -118,14 +119,32 @@ class GIRElement:
         """Set the position in the source code for the element"""
         self.info.source_position = pos
 
-    def set_deprecated(self, doc: str = None, since_version: str = None) -> None:
+    def set_deprecated(self, doc: T.Optional[str] = None, since_version: T.Optional[str] = None) -> None:
         """Set the deprecation annotations for the element"""
-        self.info.deprecated = doc
+        self.info.deprecated_msg = doc
         self.info.deprecated_version = since_version
 
     def add_annotation(self, name: str, value: T.Optional[str] = None) -> None:
         """Add an annotation to the symbol"""
         self.info.add_annotation(Annotation(name, value))
+
+    @property
+    def annotations(self) -> T.List[T.Tuple[str, T.Optional[str]]]:
+        return self.info.annotations
+
+    @property
+    def available_since(self) -> T.Optional[str]:
+        return self.info.version
+
+    @property
+    def deprecated_since(self) -> T.Optional[T.Tuple[str, str]]:
+        if not self.info.deprecated_msg:
+            return None
+        version = self.info.deprecated_version
+        message = self.info.deprecated_msg
+        if message is None:
+            message = "Please do not use it in newly written code"
+        return (version, message)
 
 
 class Type(GIRElement):
