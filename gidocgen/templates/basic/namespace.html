@@ -17,7 +17,9 @@
     <h5>Sections</h5>
     <div class="links">
     {% for symbol in symbols %}
+    {% if symbols[symbol]|length > 0 %}
       <a href="#{{ symbol }}">{{ symbol|capitalize }}</a>
+    {% endif %}
     {% endfor %}
     </div>
   </div>
