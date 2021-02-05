@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}{{ namespace.name }}.{{ struct.name }}{% endblock %}
+
+{% block meta_other %}
+  <meta name="og:title" content="{{ namespace.name }}.{{ struct.name }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}.{{ struct.name }}"/>
+{% endblock %}
+
+{% block sidebar %}
+<nav class="sidebar">
+  <div class="section namespace">
+    <h3><a href="index.html">{{ namespace.name }}</a></h3>
+    <p>Version: {{ namespace.version }}</p>
+  </div>
+  <div class="section">
+    <h5>Struct</h5>
+    <div class="links">
+      <a class="current" href="struct.{{ struct.name }}.html#description">{{ struct.name }}</a>
+    </div>
+  </div>
+  <div class="section">
+    <h5>Constructors</h5>
+    <div class="links">
+    {% for m in struct.ctors %}
+      <a class="method" href="ctor.{{ struct.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Instance methods</h5>
+    <div class="links">
+    {% for m in struct.methods %}
+      <a class="method" href="method.{{ struct.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Type functions</h5>
+    <div class="links">
+    {% for m in struct.type_funcs %}
+      <a class="method" href="type_func.{{ struct.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Properties</h5>
+    <div class="links">
+    {% for p in struct.properties %}
+      <a href="property.{{ struct.name }}.{{ p.name }}.html">{{ p.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="section">
+    <h5>Signals</h5>
+    <div class="links">
+    {% for s in struct.signals %}
+      <a href="signal.{{ struct.name }}.{{ s.name }}.html">{{ s.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="content">
+  <header>
+    <h3>Struct</h3>
+    <h1><a href="index.html">{{ namespace.name }}</a>.{{ struct.name }}</h1>
+  </header>
+
+  <section>
+    <summary>
+      <div class="toggle-wrapper">
+        <h4 id="description">Description</a></h4>
+
+        <pre><code>{{ struct.c_decl }}</code></pre>
+
+        <div class="docblock">
+          {{ struct.description|safe }}
+        </div>
+
+        {% if struct.fields %}
+        <div class="toggle-wrapper">
+          <h6>Structure members</h6>
+
+          <div class="docblock">
+            <table>
+            {% for field in struct.fields %}
+              <tr>
+                <td><code>{{ field.name }}</code></td>
+                <td>{{ field.description|safe }}</td>
+              </tr>
+            {% endfor %}
+            </table>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </summary>
+
+    {% if struct.ctors %}
+    <div class="toggle-wrapper constructors">
+      <h4 id="constructors">Constructors</a></h4>
+
+      <div class="docblock">
+      {% for ctor in struct.ctors %}
+        <div class="toggle-wrapper default-hide">
+          <h6><a href="ctor.{{ struct.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
+
+          <div class="docblock">
+            {{ ctor.description|safe }}
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if struct.methods %}
+    <div class="toggle-wrapper methods">
+      <h4 id="methods">Instance methods</a></h4>
+
+      <div class="docblock">
+      {% for method in struct.methods %}
+        <div class="toggle-wrapper default-hide">
+          <h6><a href="method.{{ struct.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+
+          <div class="docblock">
+            {{ method.description|safe }}
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+
+    </div>
+    {% endif %}
+
+    {% if struct.functions %}
+    <div class="toggle-wrapper methods">
+      <h4 id="type-functions">Type functions</a></h4>
+
+      <div class="docblock">
+      {% for func in struct.type_funcs %}
+      <div class="toggle-wrapper default-hide">
+        <h6><a href="type_func.{{ struct.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
+
+        <div class="docblock">
+          {{ func.description|safe }}
+        </div>
+      </div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </section>
+</section>
+{% endblock %}

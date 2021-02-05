@@ -167,6 +167,10 @@ class GITemplateConfig:
         return self.templates.get('type_func', 'type_func.html')
 
     @property
+    def func_template(self):
+        return self.templates.get('function', 'function.html')
+
+    @property
     def constant_template(self):
         return self.templates.get('constant', 'constant.html')
 
@@ -193,3 +197,15 @@ class GITemplateConfig:
     @property
     def error_template(self):
         return self.templates.get('error', 'error.html')
+
+    @property
+    def record_template(self):
+        return self.templates.get('record', 'record.html')
+
+    @property
+    def union_template(self):
+        return self.templates.get('union', 'union.html')
+
+    @property
+    def alias_template(self):
+        return self.templates.get('alias', 'alias.html')

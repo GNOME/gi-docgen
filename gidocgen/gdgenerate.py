@@ -159,7 +159,7 @@ class TemplateConstant:
             self.description = preprocess_gtkdoc(const.doc.content)
 
     @property
-    def c_decls(self):
+    def c_decl(self):
         return f"#define {self.identifier} {self.value}"
 
 
@@ -472,6 +472,10 @@ class TemplateInterface:
             for vfunc in self.virtual_methods:
                 self.virtual_methods.append(TemplateMethod(namespace, self, vfunc))
 
+    @property
+    def c_decl(self):
+        return f"interface {self.type_cname} : {self.requires}"
+
 
 class TemplateClass:
     def __init__(self, namespace, cls):
@@ -490,6 +494,11 @@ class TemplateClass:
 
         if cls.doc is not None:
             self.description = preprocess_gtkdoc(cls.doc.content)
+
+        self.fields = []
+        for field in cls.fields:
+            if not field.private:
+                self.fields.append(TemplateField(field))
 
         if len(cls.properties) != 0:
             self.properties = []
@@ -546,6 +555,137 @@ class TemplateClass:
             self.type_funcs = []
             for func in cls.functions:
                 self.type_funcs.append(TemplateFunction(func))
+
+    @property
+    def c_decl(self):
+        if not self.class_struct or not self.instance_struct:
+            res = [f"final class {self.type_cname} : {self.parent} {{"]
+        else:
+            res = [f"class {self.type_cname} : {self.parent} {{"]
+        n_fields = len(self.fields)
+        if n_fields > 0:
+            for (idx, field) in enumerate(self.fields):
+                if idx < n_fields - 1:
+                    res += [f"  {field.name}: {field.type_cname},"]
+                else:
+                    res += [f"  {field.name}: {field.type_cname}"]
+        else:
+            res += ["  /* No available fields */"]
+        res += ["}"]
+        return "\n".join(res)
+
+
+class TemplateRecord:
+    def __init__(self, namespace, record):
+        self.name = record.name
+        self.symbol_prefix = f"{namespace.symbol_prefix}_{record.symbol_prefix}"
+        self.type_cname = record.ctype
+        self.link_prefix = "struct"
+
+        self.description = "No description available."
+
+        if record.doc is not None:
+            self.description = preprocess_gtkdoc(record.doc.content)
+
+        self.fields = []
+        for field in record.fields:
+            if not field.private:
+                self.fields.append(TemplateField(field))
+
+        if len(record.constructors) != 0:
+            self.ctors = []
+            for ctor in record.constructors:
+                self.ctors.append(TemplateFunction(ctor))
+
+        if len(record.methods) != 0:
+            self.methods = []
+            for meth in record.methods:
+                self.methods.append(TemplateMethod(namespace, self, meth))
+
+        if len(record.functions) != 0:
+            self.type_funcs = []
+            for func in record.functions:
+                self.type_funcs.append(TemplateFunction(func))
+
+    @property
+    def c_decl(self):
+        res = [f"struct {self.type_cname} {{"]
+        n_fields = len(self.fields)
+        if n_fields > 0:
+            for (idx, field) in enumerate(self.fields):
+                if idx < n_fields - 1:
+                    res += [f"  {field.name}: {field.type_cname},"]
+                else:
+                    res += [f"  {field.name}: {field.type_cname}"]
+        else:
+            res += ["  /* No available fields */"]
+        res += ["}"]
+        return "\n".join(res)
+
+
+class TemplateUnion:
+    def __init__(self, namespace, union):
+        self.name = union.name
+        self.symbol_prefix = f"{namespace.symbol_prefix}_{union.symbol_prefix}"
+        self.type_cname = union.ctype
+        self.link_prefix = "union"
+
+        self.description = "No description available."
+
+        if union.doc is not None:
+            self.description = preprocess_gtkdoc(union.doc.content)
+
+        self.fields = []
+        for field in union.fields:
+            if not field.private:
+                self.fields.append(TemplateField(field))
+
+        if len(union.constructors) != 0:
+            self.ctors = []
+            for ctor in union.constructors:
+                self.ctors.append(TemplateFunction(ctor))
+
+        if len(union.methods) != 0:
+            self.methods = []
+            for meth in union.methods:
+                self.methods.append(TemplateMethod(namespace, self, meth))
+
+        if len(union.functions) != 0:
+            self.type_funcs = []
+            for func in union.functions:
+                self.type_funcs.append(TemplateFunction(func))
+
+    @property
+    def c_decl(self):
+        res = [f"union {self.type_cname} {{"]
+        n_fields = len(self.fields)
+        if n_fields > 0:
+            for (idx, field) in enumerate(self.fields):
+                if idx < n_fields - 1:
+                    res += [f"  {field.name}: {field.type_cname},"]
+                else:
+                    res += [f"  {field.name}: {field.type_cname}"]
+        else:
+            res += ["  /* No available fields */"]
+        res += ["}"]
+        return "\n".join(res)
+
+
+class TemplateAlias:
+    def __init__(self, namespace, alias):
+        self.name = alias.name
+        self.type_cname = alias.ctype
+        self.target_ctype = alias.target.ctype
+        self.link_prefix = "alias"
+
+        self.description = "No description available."
+
+        if alias.doc is not None:
+            self.description = preprocess_gtkdoc(alias.doc.content)
+
+    @property
+    def c_decl(self):
+        return f"typedef {self.target_ctype} {self.type_cname}"
 
 
 class TemplateMember:
@@ -918,6 +1058,225 @@ def _gen_constants(config, theme_config, output_dir, jinja_env, namespace, all_c
             }))
 
 
+def _gen_aliases(config, theme_config, output_dir, jinja_env, namespace, all_aliases):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    alias_tmpl = jinja_env.get_template(theme_config.alias_template)
+    method_tmpl = jinja_env.get_template(theme_config.method_template)
+    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
+
+    for alias in all_aliases:
+        alias_file = os.path.join(ns_dir, f"alias.{alias.name}.html")
+        log.info(f"Creating alias file for {namespace.name}.{alias.name}: {alias_file}")
+
+        tmpl = TemplateAlias(namespace, alias)
+
+        with open(alias_file, "w") as out:
+            content = alias_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'struct': tmpl,
+            })
+
+            out.write(content)
+
+        for ctor in getattr(tmpl, 'ctors', []):
+            ctor_file = os.path.join(ns_dir, f"ctor.{alias.name}.{ctor.name}.html")
+            log.debug(f"Creating ctor file for {namespace.name}.{alias.name}.{ctor.name}: {ctor_file}")
+
+            with open(ctor_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': ctor,
+                }))
+
+        for method in getattr(tmpl, 'methods', []):
+            method_file = os.path.join(ns_dir, f"method.{alias.name}.{method.name}.html")
+            log.debug(f"Creating method file for {namespace.name}.{alias.name}.{method.name}: {method_file}")
+
+            with open(method_file, "w") as out:
+                out.write(method_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'method': method,
+                }))
+
+        for type_func in getattr(tmpl, 'type_funcs', []):
+            type_func_file = os.path.join(ns_dir, f"type_func.{alias.name}.{type_func.name}.html")
+            log.debug(f"Creating type func file for {namespace.name}.{alias.name}.{type_func.name}: {type_func_file}")
+
+            with open(type_func_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': type_func,
+                }))
+
+
+def _gen_records(config, theme_config, output_dir, jinja_env, namespace, all_records):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    record_tmpl = jinja_env.get_template(theme_config.record_template)
+    method_tmpl = jinja_env.get_template(theme_config.method_template)
+    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
+
+    for record in all_records:
+        record_file = os.path.join(ns_dir, f"struct.{record.name}.html")
+        log.info(f"Creating record file for {namespace.name}.{record.name}: {record_file}")
+
+        tmpl = TemplateRecord(namespace, record)
+
+        with open(record_file, "w") as out:
+            content = record_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'struct': tmpl,
+            })
+
+            out.write(content)
+
+        for ctor in getattr(tmpl, 'ctors', []):
+            ctor_file = os.path.join(ns_dir, f"ctor.{record.name}.{ctor.name}.html")
+            log.debug(f"Creating ctor file for {namespace.name}.{record.name}.{ctor.name}: {ctor_file}")
+
+            with open(ctor_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': ctor,
+                }))
+
+        for method in getattr(tmpl, 'methods', []):
+            method_file = os.path.join(ns_dir, f"method.{record.name}.{method.name}.html")
+            log.debug(f"Creating method file for {namespace.name}.{record.name}.{method.name}: {method_file}")
+
+            with open(method_file, "w") as out:
+                out.write(method_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'method': method,
+                }))
+
+        for type_func in getattr(tmpl, 'type_funcs', []):
+            type_func_file = os.path.join(ns_dir, f"type_func.{record.name}.{type_func.name}.html")
+            log.debug(f"Creating type func file for {namespace.name}.{record.name}.{type_func.name}: {type_func_file}")
+
+            with open(type_func_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': type_func,
+                }))
+
+
+def _gen_unions(config, theme_config, output_dir, jinja_env, namespace, all_unions):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    union_tmpl = jinja_env.get_template(theme_config.union_template)
+    method_tmpl = jinja_env.get_template(theme_config.method_template)
+    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
+
+    for union in all_unions:
+        union_file = os.path.join(ns_dir, f"union.{union.name}.html")
+        log.info(f"Creating union file for {namespace.name}.{union.name}: {union_file}")
+
+        tmpl = TemplateUnion(namespace, union)
+
+        with open(union_file, "w") as out:
+            content = union_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'struct': tmpl,
+            })
+
+            out.write(content)
+
+        for ctor in getattr(tmpl, 'ctors', []):
+            ctor_file = os.path.join(ns_dir, f"ctor.{union.name}.{ctor.name}.html")
+            log.debug(f"Creating ctor file for {namespace.name}.{union.name}.{ctor.name}: {ctor_file}")
+
+            with open(ctor_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': ctor,
+                }))
+
+        for method in getattr(tmpl, 'methods', []):
+            method_file = os.path.join(ns_dir, f"method.{union.name}.{method.name}.html")
+            log.debug(f"Creating method file for {namespace.name}.{union.name}.{method.name}: {method_file}")
+
+            with open(method_file, "w") as out:
+                out.write(method_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'method': method,
+                }))
+
+        for type_func in getattr(tmpl, 'type_funcs', []):
+            type_func_file = os.path.join(ns_dir, f"type_func.{union.name}.{type_func.name}.html")
+            log.debug(f"Creating type func file for {namespace.name}.{union.name}.{type_func.name}: {type_func_file}")
+
+            with open(type_func_file, "w") as out:
+                out.write(type_func_tmpl.render({
+                    'CONFIG': config,
+                    'namespace': namespace,
+                    'class': tmpl,
+                    'type_func': type_func,
+                }))
+
+
+def _gen_functions(config, theme_config, output_dir, jinja_env, namespace, all_functions):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    func_tmpl = jinja_env.get_template(theme_config.func_template)
+
+    for func in all_functions:
+        func_file = os.path.join(ns_dir, f"func.{func.name}.html")
+        log.info(f"Creating function file for {namespace.name}.{func.name}: {func_file}")
+
+        tmpl = TemplateFunction(func)
+
+        with open(func_file, "w") as out:
+            content = func_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'func': tmpl,
+            })
+
+            out.write(content)
+
+
+def _gen_callbacks(config, theme_config, output_dir, jinja_env, namespace, all_callbacks):
+    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+
+    func_tmpl = jinja_env.get_template(theme_config.func_template)
+
+    for func in all_callbacks:
+        func_file = os.path.join(ns_dir, f"callback.{func.name}.html")
+        log.info(f"Creating callback file for {namespace.name}.{func.name}: {func_file}")
+
+        tmpl = TemplateCallback(func)
+
+        with open(func_file, "w") as out:
+            content = func_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'func': tmpl,
+            })
+
+            out.write(content)
+
+
 def _gen_content_files(config, content_dir, output_dir):
     content_files = []
 
@@ -943,23 +1302,29 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     symbols = {
         "aliases": sorted(namespace.get_aliases(), key=lambda alias: alias.name.lower()),
         "bitfields": sorted(namespace.get_bitfields(), key=lambda bitfield: bitfield.name.lower()),
+        "callbacks": sorted(namespace.get_callbacks(), key=lambda callback: callback.name.lower()),
         "classes": sorted(namespace.get_classes(), key=lambda cls: cls.name.lower()),
         "constants": sorted(namespace.get_constants(), key=lambda const: const.name.lower()),
         "domains": sorted(namespace.get_error_domains(), key=lambda domain: domain.name.lower()),
         "enums": sorted(namespace.get_enumerations(), key=lambda enum: enum.name.lower()),
         "functions": sorted(namespace.get_functions(), key=lambda func: func.name.lower()),
         "interfaces": sorted(namespace.get_interfaces(), key=lambda interface: interface.name.lower()),
-        "records": sorted(namespace.get_records(), key=lambda record: record.name.lower()),
+        "records": sorted(namespace.get_effective_records(), key=lambda record: record.name.lower()),
         "unions": sorted(namespace.get_unions(), key=lambda union: union.name.lower()),
     }
 
     all_indices = {
+        "aliases": _gen_aliases,
         "bitfields": _gen_bitfields,
+        "callbacks": _gen_callbacks,
         "classes": _gen_classes,
         "constants": _gen_constants,
         "domains": _gen_domains,
         "enums": _gen_enums,
+        "functions": _gen_functions,
         "interfaces": _gen_interfaces,
+        "records": _gen_records,
+        "unions": _gen_unions,
     }
 
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")

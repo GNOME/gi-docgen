@@ -121,6 +121,7 @@ class GirParser:
             _corens('alias'): self._parse_alias,
             _corens('bitfield'): self._parse_bitfield,
             _glibns('boxed'): self._parse_boxed,
+            _corens('callback'): self._parse_callback,
             _corens('class'): self._parse_class,
             _corens('constant'): self._parse_constant,
             _corens('enumeration'): self._parse_enumeration,
@@ -242,6 +243,29 @@ class GirParser:
         self._maybe_parse_docs(node, res)
 
         ns.add_alias(res)
+
+    def _parse_callback(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+        name = node.attrib.get('name')
+        ctype = node.attrib.get(_cns('type'))
+
+        child = node.find('core:return-value', GI_NAMESPACES)
+        return_value = self._parse_return_value(child)
+
+        children = node.findall('./core:parameters/core:parameter', GI_NAMESPACES)
+        params = []
+        for child in children:
+            params.append(self._parse_parameter(child))
+
+        res = ast.Callback(name=name, ctype=ctype)
+        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_parameters(params)
+        res.set_return_value(return_value)
+        self._maybe_parse_docs(node, res)
+
+        if ns is not None:
+            ns.add_callback(res)
+
+        return res
 
     def _parse_constant(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
         child = node.find('core:type', GI_NAMESPACES)
@@ -711,12 +735,15 @@ class GirParser:
         type_name: T.Optional[str] = node.attrib.get(_glibns('type-name'))
         get_type: T.Optional[str] = node.attrib.get(_glibns('get-type'))
         type_struct: T.Optional[str] = node.attrib.get(_glibns('type-struct'))
+        gtype_struct_for: T.Optional[str] = node.attrib.get(_glibns('is-gtype-struct-for'))
+        disguised: bool = node.attrib.get('disguised', '0') == '1'
 
         gtype = None
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        res = ast.Record(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
+        res = ast.Record(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype,
+                         struct_for=gtype_struct_for, disguised=disguised)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
 

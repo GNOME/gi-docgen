@@ -74,7 +74,7 @@
       <div class="toggle-wrapper">
         <h4><a name="description">Description</a></h4>
 
-        <pre><code>interface {{ namespace.name }}.{{ interface.name }} : {{ interface.requires }}</code></pre>
+        <pre><code>{{ interface.c_decl }}</code></pre>
 
         <div class="docblock">
           {{ interface.description|safe }}

@@ -127,15 +127,47 @@
 
   <section>
     <div class="toggle-wrapper default-hide">
+      <h4 id="records">Records</h4>
+
+      <div class="docblock">
+      {% for record in symbols.records %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="struct.{{ record.name }}.html">{{ record.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No records available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
       <h4 id="unions">Unions</h4>
 
       <div class="docblock">
       {% for union in symbols.unions %}
       {% if loop.first %}<ul>{% endif %}
-        <li><a href="union.{{ unionname }}.html">{{ union.name }}</a></li>
+        <li><a href="union.{{ union.name }}.html">{{ union.name }}</a></li>
       {% if loop.last %}</ul>{% endif %}
       {% else %}
         <p><em>No unions available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
+      <h4 id="aliases">Aliases</h4>
+
+      <div class="docblock">
+      {% for alias in symbols.aliases %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="alias.{{ alias.name }}.html">{{ alias.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No aliases available.</em></p>
       {% endfor %}
       </div>
     </div>
@@ -184,6 +216,38 @@
       {% if loop.last %}</ul>{% endif %}
       {% else %}
         <p><em>No error domains available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
+      <h4 id="callbacks">Callbacks</h4>
+
+      <div class="docblock">
+      {% for func in symbols.callbacks %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="callback.{{ func.name }}.html">{{ func.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No callbacks available.</em></p>
+      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toggle-wrapper default-hide">
+      <h4 id="functions">Functions</h4>
+
+      <div class="docblock">
+      {% for func in symbols.functions %}
+      {% if loop.first %}<ul>{% endif %}
+        <li><a href="func.{{ func.name }}.html">{{ func.name }}</a></li>
+      {% if loop.last %}</ul>{% endif %}
+      {% else %}
+        <p><em>No functions available.</em></p>
       {% endfor %}
       </div>
     </div>

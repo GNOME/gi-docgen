@@ -20,6 +20,10 @@ error = "enum.html"
 flags = "enum.html"
 enum = "enum.html"
 constant = "constant.html"
+record = "struct.html"
+union = "struct.html"
+alias = "struct.html"
+function = "function.html"
 
 [css]
 style = "style.css"

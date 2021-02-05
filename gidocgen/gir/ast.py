@@ -298,7 +298,7 @@ class VirtualMethod(Callable):
 
 
 class Callback(Callable):
-    def __init__(self, name: str, ctype: str, throws: bool):
+    def __init__(self, name: str, ctype: T.Optional[str], throws: bool = False):
         super().__init__(name, None)
         self.ctype = ctype
         self.throws = throws
@@ -507,10 +507,13 @@ class Boxed(Type):
 
 
 class Record(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType]):
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType] = None,
+                 struct_for: T.Optional[str] = None, disguised: bool = False):
         super().__init__(name, ctype)
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
+        self.struct_for = struct_for
+        self.disguised = disguised
         self.constructors: T.List[Function] = []
         self.methods: T.List[Method] = []
         self.functions: T.List[Function] = []
@@ -586,6 +589,7 @@ class Namespace:
         self._aliases: T.List[Alias] = []
         self._bitfields: T.List[BitField] = []
         self._boxeds: T.List[Boxed] = []
+        self._callbacks: T.List[Callback] = []
         self._classes: T.List[Class] = []
         self._constants: T.List[Constant] = []
         self._enumerations: T.List[Enumeration] = []
@@ -650,6 +654,9 @@ class Namespace:
     def add_function_macro(self, function: FunctionMacro) -> None:
         self._function_macros.append(function)
 
+    def add_callback(self, callback: Callback) -> None:
+        self._callbacks.append(callback)
+
     def get_classes(self) -> T.List[Class]:
         return self._classes
 
@@ -674,6 +681,16 @@ class Namespace:
     def get_records(self) -> T.List[Record]:
         return self._records
 
+    def get_effective_records(self) -> T.List[Record]:
+        def is_effective(r):
+            if "Private" in r.name and r.disguised:
+                return False
+            if r.struct_for is not None:
+                return False
+            return True
+
+        return [x for x in self._records if is_effective(x)]
+
     def get_unions(self) -> T.List[Union]:
         return self._unions
 
@@ -685,6 +702,9 @@ class Namespace:
 
     def get_function_macros(self) -> T.List[FunctionMacro]:
         return self._function_macros
+
+    def get_callbacks(self) -> T.List[Callback]:
+        return self._callbacks
 
     def find_record(self, record: str) -> T.Optional[Record]:
         for r in self._records:
