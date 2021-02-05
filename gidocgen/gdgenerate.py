@@ -1290,6 +1290,18 @@ def _gen_content_files(config, content_dir, output_dir):
     return content_files
 
 
+def _gen_content_images(config, content_dir, output_dir):
+    content_images = []
+
+    for image_file in config.content_images:
+        infile = os.path.join(content_dir, image_file)
+        outfile = os.path.join(output_dir, os.path.basename(image_file))
+        log.debug(f"Adding extra content image: {infile} -> {outfile}")
+        content_images += [(infile, outfile)]
+
+    return content_images
+
+
 def gen_reference(config, options, repository, templates_dir, theme_config, content_dir, output_dir):
     theme_dir = os.path.join(templates_dir, theme_config.name.lower())
     log.debug(f"Loading jinja templates from {theme_dir}")
@@ -1332,6 +1344,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     os.makedirs(ns_dir, exist_ok=True)
 
     content_files = _gen_content_files(config, content_dir, ns_dir)
+    content_images = _gen_content_images(config, content_dir, ns_dir)
 
     ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
     ns_file = os.path.join(ns_dir, "index.html")
@@ -1388,6 +1401,13 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
                     "content_data": dst_data,
                 }))
 
+    if len(content_images) != 0:
+        for (src, dst) in content_images:
+            log.info(f"Copying content image {src}: {dst}")
+            dst_dir = os.path.dirname(dst)
+            os.makedirs(dst_dir, exist_ok=True)
+            shutil.copyfile(src, dst)
+
     if theme_config.css is not None:
         log.info(f"Copying style from {theme_dir} to {ns_dir}")
         style_src = os.path.join(theme_dir, theme_config.css)
@@ -1395,7 +1415,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         shutil.copyfile(style_src, style_dst)
 
     for extra_file in theme_config.extra_files:
-        log.debug(f"Copying extra file {extra_file} from {theme_dir} to {ns_dir}")
+        log.info(f"Copying extra file {extra_file} from {theme_dir} to {ns_dir}")
         src = os.path.join(theme_dir, extra_file)
         dst = os.path.join(ns_dir, extra_file)
         shutil.copyfile(src, dst)
