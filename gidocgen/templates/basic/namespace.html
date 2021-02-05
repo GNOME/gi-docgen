@@ -56,7 +56,7 @@
     </div>
 
     <div class="meta build toggle-wrapper">
-      <h5>Build</h5>
+      <h4>Build</h4>
 
       <div class="docblock default-hide">
       <table>
@@ -106,181 +106,44 @@
   </section>
   {% endif %}
 
+  {% macro section_block(elements, section_id, section_title, section_fragment) -%}
+  {% if elements|length > 0 %}
   <section>
     <div class="toggle-wrapper default-hide">
-      <h4 id="classes">Classes</h4>
+      <h4 id="{{ section_id }}">{{ section_title }}</h4>
 
       <div class="docblock">
-      {% for class in symbols.classes %}
+      {% for element in elements %}
       {% if loop.first %}<ul>{% endif %}
-        <li><a href="class.{{ class.name }}.html">{{ class.name }}</a></li>
+        <li><a href="{{ section_fragment }}.{{ element.name }}.html">{{ element.name }}</a></li>
       {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No classes available.</em></p>
       {% endfor %}
       </div>
     </div>
   </section>
+  {% endif %}
+  {%- endmacro %}
 
-  <section>
-    <div class="toggle-wrapper default-hide">
-      <h4 id="interfaces">Interfaces</h4>
+  {{ section_block(symbols.classes, "classes", "Classes", "class") }}
 
-      <div class="docblock">
-      {% for iface in symbols.interfaces %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="iface.{{ iface.name }}.html">{{ iface.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No interfaces available.</em></p>
-      {% endfor %}
-      </div>
-    </div>
-  </section>
+  {{ section_block(symbols.interfaces, "interfaces", "Interfaces", "iface") }}
 
-  <section>
-    <div class="toggle-wrapper default-hide">
-      <h4 id="records">Records</h4>
+  {{ section_block(symbols.records, "records", "Records", "struct") }}
 
-      <div class="docblock">
-      {% for record in symbols.records %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="struct.{{ record.name }}.html">{{ record.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No records available.</em></p>
-      {% endfor %}
-      </div>
-    </div>
-  </section>
+  {{ section_block(symbols.unions, "unions", "Unions", "union") }}
 
-  <section>
-    <div class="toggle-wrapper default-hide">
-      <h4 id="unions">Unions</h4>
+  {{ section_block(symbols.aliases, "aliases", "Aliases", "alias") }}
 
-      <div class="docblock">
-      {% for union in symbols.unions %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="union.{{ union.name }}.html">{{ union.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No unions available.</em></p>
-      {% endfor %}
-      </div>
-    </div>
-  </section>
+  {{ section_block(symbols.enums, "enums", "Enumerations", "enum") }}
 
-  <section>
-    <div class="toggle-wrapper default-hide">
-      <h4 id="aliases">Aliases</h4>
+  {{ section_block(symbols.bitfields, "bitfields", "Bitfields", "flags") }}
 
-      <div class="docblock">
-      {% for alias in symbols.aliases %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="alias.{{ alias.name }}.html">{{ alias.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No aliases available.</em></p>
-      {% endfor %}
-      </div>
-    </div>
-  </section>
+  {{ section_block(symbols.domains, "domains", "Error domains", "error") }}
 
-  <section>
-    <div class="toggle-wrapper default-hide">
-      <h4 id="enums">Enumerations</h4>
-      <div class="docblock">
+  {{ section_block(symbols.callbacks, "callbacks", "Callbacks", "callback") }}
 
-      {% for enum in symbols.enums %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="enum.{{ enum.name }}.html">{{ enum.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No enumerations available.</em></p>
-      {% endfor %}
-      </div>
-    </div>
-  </section>
+  {{ section_block(symbols.functions, "functions", "Functions", "func") }}
 
-  <section>
-    <div class="toggle-wrapper default-hide">
-      <h4 id="bitfields">Bitfields</h4>
-
-      <div class="docblock">
-      {% for flag in symbols.bitfields %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="flags.{{ flag.name }}.html">{{ flag.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No bitfields available.</em></p>
-      {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="toggle-wrapper default-hide">
-      <h4 id="domains">Error domains</h4>
-
-      <div class="docblock">
-      {% for error in symbols.domains %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="error.{{ error.name }}.html">{{ error.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No error domains available.</em></p>
-      {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="toggle-wrapper default-hide">
-      <h4 id="callbacks">Callbacks</h4>
-
-      <div class="docblock">
-      {% for func in symbols.callbacks %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="callback.{{ func.name }}.html">{{ func.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No callbacks available.</em></p>
-      {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="toggle-wrapper default-hide">
-      <h4 id="functions">Functions</h4>
-
-      <div class="docblock">
-      {% for func in symbols.functions %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="func.{{ func.name }}.html">{{ func.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No functions available.</em></p>
-      {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="toggle-wrapper default-hide">
-      <h4 id="constants">Constants</h4>
-
-      <div class="docblock">
-      {% for constant in symbols.constants %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="const.{{ constant.name }}.html">{{ constant.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% else %}
-        <p><em>No constants available.</em></p>
-      {% endfor %}
-      </div>
-    </div>
-  </section>
-
+  {{ section_block(symbols.constants, "constants", "Constants", "const") }}
 </section>
 {% endblock %}
