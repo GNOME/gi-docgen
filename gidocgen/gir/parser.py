@@ -178,6 +178,9 @@ class GirParser:
         source_pos = self._maybe_parse_source_position(node)
         if source_pos is not None:
             element.set_source_position(source_pos)
+        stability = node.attrib.get('stability')
+        if stability is not None:
+            element.set_stability(stability)
         deprecated = node.attrib.get('deprecated')
         if deprecated is not None:
             deprecated_since = node.attrib.get('deprecated-version')
