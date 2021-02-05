@@ -84,6 +84,35 @@
       <div class="docblock">
         {{ class_method.description|safe }}
       </div>
+
+      <div class="docblock">
+        <table>
+          <tr>
+            <td>Stability:</td><td>{{ class_method.stability }}</td>
+          </tr>
+          <tr>
+            <td>Available since:</td><td>{{ class_method.available_since }}</td>
+          </tr>
+          {% if class_method.deprecated_since %}
+          <tr>
+            <td>Deprecated since:</td><td>{{ class_method.deprecated_since.version }}</td>
+          </tr>
+          <tr>
+            <td colspan="2">{{ class_method.deprecated_since.message|safe }}</td>
+          </tr>
+          {% endif %}
+        </table>
+      </div>
+
+      {% if class_method.annotations %}
+      <div class="docblock">
+        <table>
+        {% for (key, value) in class_method.annotations %}
+          <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
+        {% endfor %}
+        </table>
+      </div>
+      {% endif %}
     </div>
 
     {% if class_method.arguments|length > 1 %}

@@ -95,10 +95,10 @@
           </tr>
           {% if type_func.deprecated_since %}
           <tr>
-            <td>Deprecated since:</td><td>{{ type_func.deprecated_since[0] }}</td>
+            <td>Deprecated since:</td><td>{{ type_func.deprecated_since.version }}</td>
           </tr>
           <tr>
-            <td colspan="2">{{ type_func.deprecated_since[1] }}</td>
+            <td colspan="2">{{ type_func.deprecated_since.message|safe }}</td>
           </tr>
           {% endif %}
         </table>
