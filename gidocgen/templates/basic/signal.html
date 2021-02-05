@@ -87,19 +87,15 @@
 
       <div class="docblock">
         <table>
-          <tr>
-            <td>Stability:</td><td>{{ signal.stability }}</td>
-          </tr>
-          <tr>
-            <td>Available since:</td><td>{{ signal.available_since }}</td>
-          </tr>
+          {% if signal.stability %}
+          <tr><td>Stability:</td><td>{{ signal.stability }}</td></tr>
+          {% endif %}
+          {% if signal.available_since %}
+          <tr><td>Available since:</td><td>{{ signal.available_since }}</td></tr>
+          {% endif %}
           {% if signal.deprecated_since %}
-          <tr>
-            <td>Deprecated since:</td><td>{{ signal.deprecated_since.version }}</td>
-          </tr>
-          <tr>
-            <td colspan="2">{{ signal.deprecated_since.message|safe }}</td>
-          </tr>
+          <tr><td>Deprecated since:</td><td>{{ signal.deprecated_since.version }}</td></tr>
+          <tr><td colspan="2">{{ signal.deprecated_since.message|safe }}</td></tr>
           {% endif %}
         </table>
       </div>

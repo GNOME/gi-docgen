@@ -87,19 +87,15 @@
 
       <div class="docblock">
         <table>
-          <tr>
-            <td>Stability:</td><td>{{ property.stability }}</td>
-          </tr>
-          <tr>
-            <td>Available since:</td><td>{{ property.available_since }}</td>
-          </tr>
+          {% if property.stability %}
+          <tr><td>Stability:</td><td>{{ property.stability }}</td></tr>
+          {% endif %}
+          {% if property.available_since %}
+          <tr><td>Available since:</td><td>{{ property.available_since }}</td></tr>
+          {% endif %}
           {% if property.deprecated_since %}
-          <tr>
-            <td>Deprecated since:</td><td>{{ property.deprecated_since.version }}</td>
-          </tr>
-          <tr>
-            <td colspan="2">{{ property.deprecated_since.message|safe }}</td>
-          </tr>
+          <tr><td>Deprecated since:</td><td>{{ property.deprecated_since.version }}</td></tr>
+          <tr><td colspan="2">{{ property.deprecated_since.message|safe }}</td></tr>
           {% endif %}
         </table>
       </div>

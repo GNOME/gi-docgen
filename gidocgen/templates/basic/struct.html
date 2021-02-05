@@ -99,8 +99,12 @@
 
         <div class="docblock">
           <table>
+            {% if struct.stability %}
             <tr><td>Stability:</td><td>{{ struct.stability }}</td></tr>
+            {% endif %}
+            {% if struct.available_since %}
             <tr><td>Available since:</td><td>{{ struct.available_since }}</td></tr>
+            {% endif %}
             {% if struct.deprecated_since %}
             <tr><td>Deprecated since:</td><td>{{ struct.deprecated_since.version }}</td></tr>
             <tr><td colspan="2">{{ struct.deprecated_since.message|safe }}</td></tr>

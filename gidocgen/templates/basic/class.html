@@ -90,8 +90,12 @@
 
         <div class="docblock">
           <table>
+            {% if class.stability %}
             <tr><td>Stability:</td><td>{{ class.stability }}</td></tr>
+            {% endif %}
+            {% if class.available_since %}
             <tr><td>Available since:</td><td>{{ class.available_since }}</td></tr>
+            {% endif %}
             {% if class.deprecated_since %}
             <tr><td>Deprecated since:</td><td>{{ class.deprecated_since.version }}</td></tr>
             <tr><td colspan="2">{{ class.deprecated_since.message|safe }}</td></tr>

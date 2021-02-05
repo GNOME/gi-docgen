@@ -158,9 +158,9 @@ class TemplateConstant:
         if const.doc is not None:
             self.description = preprocess_gtkdoc(const.doc.content)
 
-        self.stability = const.stability or "stable"
+        self.stability = const.stability
         self.annotations = const.annotations
-        self.available_since = const.available_since or namespace.version
+        self.available_since = const.available_since
         if const.deprecated_since is not None:
             (version, msg) = const.deprecated_since
             self.deprecated_since = {
@@ -186,9 +186,9 @@ class TemplateProperty:
         if prop.doc is not None:
             self.description = preprocess_gtkdoc(prop.doc.content)
 
-        self.stability = prop.stability or "stable"
+        self.stability = prop.stability
         self.annotations = prop.annotations
-        self.available_since = prop.available_since or namespace.version
+        self.available_since = prop.available_since
         if prop.deprecated_since is not None:
             (version, msg) = prop.deprecated_since
             self.deprecated_since = {
@@ -253,9 +253,9 @@ class TemplateSignal:
         if not isinstance(signal.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(signal, signal.return_value)
 
-        self.stability = signal.stability or "stable"
+        self.stability = signal.stability
         self.annotations = signal.annotations
-        self.available_since = signal.available_since or namespace.version
+        self.available_since = signal.available_since
         if signal.deprecated_since is not None:
             (version, msg) = signal.deprecated_since
             self.deprecated_since = {
@@ -298,9 +298,9 @@ class TemplateMethod:
         if not isinstance(method.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(method, method.return_value)
 
-        self.stability = method.stability or "stable"
+        self.stability = method.stability
         self.annotations = method.annotations
-        self.available_since = method.available_since or namespace.version
+        self.available_since = method.available_since
         if method.deprecated_since is not None:
             (version, msg) = method.deprecated_since
             self.deprecated_since = {
@@ -386,9 +386,9 @@ class TemplateFunction:
         if not isinstance(func.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(func, func.return_value)
 
-        self.stability = func.stability or "stable"
+        self.stability = func.stability
         self.annotations = func.annotations
-        self.available_since = func.available_since or namespace.version
+        self.available_since = func.available_since
         if func.deprecated_since is not None:
             (version, msg) = func.deprecated_since
             self.deprecated_since = {
@@ -433,9 +433,9 @@ class TemplateCallback:
         if not isinstance(cb.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(cb, cb.return_value)
 
-        self.stability = cb.stability or "stable"
+        self.stability = cb.stability
         self.annotations = cb.annotations
-        self.available_since = cb.available_since or namespace.version
+        self.available_since = cb.available_since
         if cb.deprecated_since is not None:
             (version, msg) = cb.deprecated_since
             self.deprecated_since = {
@@ -499,9 +499,9 @@ class TemplateInterface:
         if interface.doc is not None:
             self.description = preprocess_gtkdoc(interface.doc.content)
 
-        self.stability = interface.stability or "stable"
+        self.stability = interface.stability
         self.annotations = interface.annotations
-        self.available_since = interface.available_since or namespace.version
+        self.available_since = interface.available_since
         if interface.deprecated_since is not None:
             (version, msg) = interface.deprecated_since
             self.deprecated_since = {
@@ -566,9 +566,9 @@ class TemplateClass:
         if cls.doc is not None:
             self.description = preprocess_gtkdoc(cls.doc.content)
 
-        self.stability = cls.stability or "stable"
+        self.stability = cls.stability
         self.annotations = cls.annotations
-        self.available_since = cls.available_since or namespace.version
+        self.available_since = cls.available_since
         if cls.deprecated_since is not None:
             (version, msg) = cls.deprecated_since
             self.deprecated_since = {
@@ -667,9 +667,9 @@ class TemplateRecord:
         if record.doc is not None:
             self.description = preprocess_gtkdoc(record.doc.content)
 
-        self.stability = record.stability or "stable"
+        self.stability = record.stability
         self.annotations = record.annotations
-        self.available_since = record.available_since or namespace.version
+        self.available_since = record.available_since
         if record.deprecated_since is not None:
             (version, msg) = record.deprecated_since
             self.deprecated_since = {
@@ -724,9 +724,9 @@ class TemplateUnion:
         if union.doc is not None:
             self.description = preprocess_gtkdoc(union.doc.content)
 
-        self.stability = union.stability or "stable"
+        self.stability = union.stability
         self.annotations = union.annotations
-        self.available_since = union.available_since or namespace.version
+        self.available_since = union.available_since
         if union.deprecated_since is not None:
             (version, msg) = union.deprecated_since
             self.deprecated_since = {
@@ -781,9 +781,9 @@ class TemplateAlias:
         if alias.doc is not None:
             self.description = preprocess_gtkdoc(alias.doc.content)
 
-        self.stability = alias.stability or "stable"
+        self.stability = alias.stability
         self.annotations = alias.annotations
-        self.available_since = alias.available_since or namespace.version
+        self.available_since = alias.available_since
         self.deprecated_since = alias.deprecated_since
         if alias.deprecated_since is not None:
             (version, msg) = alias.deprecated_since
@@ -820,9 +820,9 @@ class TemplateEnum:
         if enum.doc is not None:
             self.description = preprocess_gtkdoc(enum.doc.content)
 
-        self.stability = enum.stability or "stable"
+        self.stability = enum.stability
         self.annotations = enum.annotations
-        self.available_since = enum.available_since or namespace.version
+        self.available_since = enum.available_since
         self.deprecated_since = enum.deprecated_since
         if enum.deprecated_since is not None:
             (version, msg) = enum.deprecated_since

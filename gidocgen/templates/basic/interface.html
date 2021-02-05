@@ -82,8 +82,12 @@
 
         <div class="docblock">
           <table>
+            {% if interface.stability %}
             <tr><td>Stability:</td><td>{{ interface.stability }}</td></tr>
+            {% endif %}
+            {% if interface.available_since %}
             <tr><td>Available since:</td><td>{{ interface.available_since }}</td></tr>
+            {% endif %}
             {% if interface.deprecated_since %}
             <tr><td>Deprecated since:</td><td>{{ interface.deprecated_since.version }}</td></tr>
             <tr><td colspan="2">{{ interface.deprecated_since.message|safe }}</td></tr>

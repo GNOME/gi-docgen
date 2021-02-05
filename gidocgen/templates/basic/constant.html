@@ -47,19 +47,15 @@
 
       <div class="docblock">
         <table>
-          <tr>
-            <td>Stability:</td><td>{{ constant.stability }}</td>
-          </tr>
-          <tr>
-            <td>Available since:</td><td>{{ constant.available_since }}</td>
-          </tr>
+          {% if constant.stability %}
+          <tr><td>Stability:</td><td>{{ constant.stability }}</td></tr>
+          {% endif %}
+          {% if constant.available_since %}
+          <tr><td>Available since:</td><td>{{ constant.available_since }}</td></tr>
+          {% endif %}
           {% if constant.deprecated_since %}
-          <tr>
-            <td>Deprecated since:</td><td>{{ constant.deprecated_since.version }}</td>
-          </tr>
-          <tr>
-            <td colspan="2">{{ constant.deprecated_since.message|safe }}</td>
-          </tr>
+          <tr><td>Deprecated since:</td><td>{{ constant.deprecated_since.version }}</td></tr>
+          <tr><td colspan="2">{{ constant.deprecated_since.message|safe }}</td></tr>
           {% endif %}
         </table>
       </div>

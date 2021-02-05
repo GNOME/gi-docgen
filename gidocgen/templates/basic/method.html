@@ -87,19 +87,15 @@
 
       <div class="docblock">
         <table>
-          <tr>
-            <td>Stability:</td><td>{{ method.stability }}</td>
-          </tr>
-          <tr>
-            <td>Available since:</td><td>{{ method.available_since }}</td>
-          </tr>
+          {% if method.stability %}
+          <tr><td>Stability:</td><td>{{ method.stability }}</td></tr>
+          {% endif %}
+          {% if method.available_since %}
+          <tr><td>Available since:</td><td>{{ method.available_since }}</td></tr>
+          {% endif %}
           {% if method.deprecated_since %}
-          <tr>
-            <td>Deprecated since:</td><td>{{ method.deprecated_since.version }}</td>
-          </tr>
-          <tr>
-            <td colspan="2">{{ method.deprecated_since.message|safe }}</td>
-          </tr>
+          <tr><td>Deprecated since:</td><td>{{ method.deprecated_since.version }}</td></tr>
+          <tr><td colspan="2">{{ method.deprecated_since.message|safe }}</td></tr>
           {% endif %}
         </table>
       </div>

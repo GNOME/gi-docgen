@@ -61,19 +61,15 @@
 
       <div class="docblock">
         <table>
-          <tr>
-            <td>Stability:</td><td>{{ enum.stability }}</td>
-          </tr>
-          <tr>
-            <td>Available since:</td><td>{{ enum.available_since }}</td>
-          </tr>
+          {% if enum.stability %}
+          <tr><td>Stability:</td><td>{{ enum.stability }}</td></tr>
+          {% endif %}
+          {% if enum.available_since %}
+          <tr><td>Available since:</td><td>{{ enum.available_since }}</td></tr>
+          {% endif %}
           {% if enum.deprecated_since %}
-          <tr>
-            <td>Deprecated since:</td><td>{{ enum.deprecated_since.version }}</td>
-          </tr>
-          <tr>
-            <td colspan="2">{{ enum.deprecated_since.message|safe }}</td>
-          </tr>
+          <tr><td>Deprecated since:</td><td>{{ enum.deprecated_since.version }}</td></tr>
+          <tr><td colspan="2">{{ enum.deprecated_since.message|safe }}</td></tr>
           {% endif %}
         </table>
       </div>
