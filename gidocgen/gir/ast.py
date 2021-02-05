@@ -298,7 +298,7 @@ class VirtualMethod(Callable):
 
 
 class Callback(Callable):
-    def __init__(self, name: str, ctype: str, throws: bool):
+    def __init__(self, name: str, ctype: T.Optional[str], throws: bool = False):
         super().__init__(name, None)
         self.ctype = ctype
         self.throws = throws
@@ -589,6 +589,7 @@ class Namespace:
         self._aliases: T.List[Alias] = []
         self._bitfields: T.List[BitField] = []
         self._boxeds: T.List[Boxed] = []
+        self._callbacks: T.List[Callback] = []
         self._classes: T.List[Class] = []
         self._constants: T.List[Constant] = []
         self._enumerations: T.List[Enumeration] = []
@@ -653,6 +654,9 @@ class Namespace:
     def add_function_macro(self, function: FunctionMacro) -> None:
         self._function_macros.append(function)
 
+    def add_callback(self, callback: Callback) -> None:
+        self._callbacks.append(callback)
+
     def get_classes(self) -> T.List[Class]:
         return self._classes
 
@@ -698,6 +702,9 @@ class Namespace:
 
     def get_function_macros(self) -> T.List[FunctionMacro]:
         return self._function_macros
+
+    def get_callbacks(self) -> T.List[Callback]:
+        return self._callbacks
 
     def find_record(self, record: str) -> T.Optional[Record]:
         for r in self._records:
