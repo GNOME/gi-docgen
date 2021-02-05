@@ -74,12 +74,8 @@
       <h4><a name="declaration">Declaration</a></h4>
 
       <div class="docblock">
-        <pre><code>{% if signal.return_value %}{{ signal.return_value.type_cname }}{% else %}void{% endif %}
-{{ signal.name }} (
-  {{ class.type_cname }}* self{% if signal.arguments|length != 0 %},{% endif %}
-  {% for arg in signal.arguments %}{{ arg.type_cname }} {{ arg.name }}{% if not loop.last %},{% endif %}{% endfor %}
-  gpointer user_data
-)</code></pre>
+        <pre><code>{{ signal.c_decl }}</code></pre>
+      </div>
     </div>
 
     <div class="description toggle-wrapper">
@@ -88,6 +84,35 @@
       <div class="docblock">
         {{ signal.description|safe }}
       </div>
+
+      <div class="docblock">
+        <table>
+          <tr>
+            <td>Stability:</td><td>{{ signal.stability }}</td>
+          </tr>
+          <tr>
+            <td>Available since:</td><td>{{ signal.available_since }}</td>
+          </tr>
+          {% if signal.deprecated_since %}
+          <tr>
+            <td>Deprecated since:</td><td>{{ signal.deprecated_since[0] }}</td>
+          </tr>
+          <tr>
+            <td colspan="2">{{ signal.deprecated_since[1] }}</td>
+          </tr>
+          {% endif %}
+        </table>
+      </div>
+
+      {% if signal.annotations %}
+      <div class="docblock">
+        <table>
+        {% for (key, value) in signal.annotations %}
+          <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
+        {% endfor %}
+        </table>
+      </div>
+      {% endif %}
     </div>
 
     {% if signal.arguments|length != 0 %}

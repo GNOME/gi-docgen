@@ -55,15 +55,44 @@
     <div class="description toggle-wrapper">
       <h4><a name="description">Description</a></h4>
 
-      <div class="content">
+      <div class="docblock">
       {{ enum.description|safe }}
       </div>
+
+      <div class="docblock">
+        <table>
+          <tr>
+            <td>Stability:</td><td>{{ enum.stability }}</td>
+          </tr>
+          <tr>
+            <td>Available since:</td><td>{{ enum.available_since }}</td>
+          </tr>
+          {% if enum.deprecated_since %}
+          <tr>
+            <td>Deprecated since:</td><td>{{ enum.deprecated_since[0] }}</td>
+          </tr>
+          <tr>
+            <td colspan="2">{{ enum.deprecated_since[1] }}</td>
+          </tr>
+          {% endif %}
+        </table>
+      </div>
+
+      {% if enum.annotations %}
+      <div class="docblock">
+        <table>
+        {% for (key, value) in enum.annotations %}
+          <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
+        {% endfor %}
+        </table>
+      </div>
+      {% endif %}
     </div>
 
     <div class="members toggle-wrapper">
       <h4><a name="members">Members</a></h4>
 
-      <div class="content">
+      <div class="docblock">
       <table>
       {% for member in enum.members %}
         <tr>

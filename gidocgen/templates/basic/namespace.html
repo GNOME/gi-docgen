@@ -44,13 +44,24 @@
       <p>{{ CONFIG.description|escape }}</p>
     </div>
 
-    <div class="meta">
+    <div class="meta info">
       <table>
         <tr><td><em>Authors</em></td><td>{{ CONFIG.authors }}</td></tr>
         <tr><td><em>License</em></td><td>{{ CONFIG.license }}</td></tr>
         <tr><td><em>Website</em></td><td><a href="{{ CONFIG.website_url }}" class="external">{{ CONFIG.website_url }}</a></td></tr>
         <tr><td><em>Browse code</em></td><td><a href="{{ CONFIG.browse_url }}" class="external">{{ CONFIG.browse_url }}</a></td></tr>
       </table>
+    </div>
+
+    <div class="meta build toggle-wrapper">
+      <h5>Build</h5>
+
+      <div class="docblock default-hide">
+      <table>
+        <tr><td>C headers</td><td><code>{{ repository.c_includes|join(', ') }}</code></td></tr>
+        <tr><td>pkg-config files</td><td><code>{{ repository.packages|join(', ') }}</code></td></tr>
+      </table>
+      </div>
     </div>
   </header>
 

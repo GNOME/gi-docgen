@@ -158,6 +158,14 @@ class TemplateConstant:
         if const.doc is not None:
             self.description = preprocess_gtkdoc(const.doc.content)
 
+        self.stability = const.stability or "stable"
+        self.annotations = const.annotations
+        self.available_since = const.available_since or namespace.version
+        self.deprecated_since = const.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+
     @property
     def c_decl(self):
         return f"#define {self.identifier} {self.value}"
@@ -175,6 +183,14 @@ class TemplateProperty:
         self.construct_only = prop.construct_only
         if prop.doc is not None:
             self.description = preprocess_gtkdoc(prop.doc.content)
+
+        self.stability = prop.stability or "stable"
+        self.annotations = prop.annotations
+        self.available_since = prop.available_since or namespace.version
+        self.deprecated_since = prop.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
 
 
 class TemplateArgument:
@@ -233,6 +249,14 @@ class TemplateSignal:
         if not isinstance(signal.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(signal, signal.return_value)
 
+        self.stability = signal.stability or "stable"
+        self.annotations = signal.annotations
+        self.available_since = signal.available_since or namespace.version
+        self.deprecated_since = signal.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+
     @property
     def c_decl(self):
         res = []
@@ -267,6 +291,14 @@ class TemplateMethod:
         self.return_value = None
         if not isinstance(method.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(method, method.return_value)
+
+        self.stability = method.stability or "stable"
+        self.annotations = method.annotations
+        self.available_since = method.available_since or namespace.version
+        self.deprecated_since = method.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
 
     @property
     def c_decl(self):
@@ -331,7 +363,7 @@ class TemplateClassMethod:
 
 
 class TemplateFunction:
-    def __init__(self, func):
+    def __init__(self, namespace, func):
         self.name = func.name
         self.identifier = func.identifier
         self.description = "No description available."
@@ -345,6 +377,14 @@ class TemplateFunction:
         self.return_value = None
         if not isinstance(func.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(func, func.return_value)
+
+        self.stability = func.stability or "stable"
+        self.annotations = func.annotations
+        self.available_since = func.available_since or namespace.version
+        self.deprecated_since = func.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
 
     @property
     def c_decl(self):
@@ -368,7 +408,7 @@ class TemplateFunction:
 
 
 class TemplateCallback:
-    def __init__(self, cb):
+    def __init__(self, namespace, cb):
         self.name = cb.name
         self.description = "No description available."
         self.identifier = cb.name.replace("-", "_")
@@ -382,6 +422,14 @@ class TemplateCallback:
         self.return_value = None
         if not isinstance(cb.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(cb, cb.return_value)
+
+        self.stability = cb.stability or "stable"
+        self.annotations = cb.annotations
+        self.available_since = cb.available_since or namespace.version
+        self.deprecated_since = cb.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
 
     @property
     def c_decl(self):
@@ -422,6 +470,7 @@ class TemplateInterface:
             self.name = iface_name
             self.requires = "GObject.Object"
             self.link_prefix = "iface"
+            self.description = "No description available."
             return
 
         self.name = interface.name
@@ -437,6 +486,14 @@ class TemplateInterface:
         self.description = "No description available."
         if interface.doc is not None:
             self.description = preprocess_gtkdoc(interface.doc.content)
+
+        self.stability = interface.stability or "stable"
+        self.annotations = interface.annotations
+        self.available_since = interface.available_since or namespace.version
+        self.deprecated_since = interface.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
 
         self.class_name = interface.type_struct
 
@@ -495,6 +552,14 @@ class TemplateClass:
         if cls.doc is not None:
             self.description = preprocess_gtkdoc(cls.doc.content)
 
+        self.stability = cls.stability or "stable"
+        self.annotations = cls.annotations
+        self.available_since = cls.available_since or namespace.version
+        self.deprecated_since = cls.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+
         self.fields = []
         for field in cls.fields:
             if not field.private:
@@ -513,7 +578,7 @@ class TemplateClass:
         if len(cls.constructors) != 0:
             self.ctors = []
             for ctor in cls.constructors:
-                self.ctors.append(TemplateFunction(ctor))
+                self.ctors.append(TemplateFunction(namespace, ctor))
 
         if len(cls.methods) != 0:
             self.methods = []
@@ -554,7 +619,7 @@ class TemplateClass:
         if len(cls.functions) != 0:
             self.type_funcs = []
             for func in cls.functions:
-                self.type_funcs.append(TemplateFunction(func))
+                self.type_funcs.append(TemplateFunction(namespace, func))
 
     @property
     def c_decl(self):
@@ -583,9 +648,16 @@ class TemplateRecord:
         self.link_prefix = "struct"
 
         self.description = "No description available."
-
         if record.doc is not None:
             self.description = preprocess_gtkdoc(record.doc.content)
+
+        self.stability = record.stability or "stable"
+        self.annotations = record.annotations
+        self.available_since = record.available_since or namespace.version
+        self.deprecated_since = record.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
 
         self.fields = []
         for field in record.fields:
@@ -595,7 +667,7 @@ class TemplateRecord:
         if len(record.constructors) != 0:
             self.ctors = []
             for ctor in record.constructors:
-                self.ctors.append(TemplateFunction(ctor))
+                self.ctors.append(TemplateFunction(namespace, ctor))
 
         if len(record.methods) != 0:
             self.methods = []
@@ -605,7 +677,7 @@ class TemplateRecord:
         if len(record.functions) != 0:
             self.type_funcs = []
             for func in record.functions:
-                self.type_funcs.append(TemplateFunction(func))
+                self.type_funcs.append(TemplateFunction(namespace, func))
 
     @property
     def c_decl(self):
@@ -631,9 +703,16 @@ class TemplateUnion:
         self.link_prefix = "union"
 
         self.description = "No description available."
-
         if union.doc is not None:
             self.description = preprocess_gtkdoc(union.doc.content)
+
+        self.stability = union.stability or "stable"
+        self.annotations = union.annotations
+        self.available_since = union.available_since or namespace.version
+        self.deprecated_since = union.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
 
         self.fields = []
         for field in union.fields:
@@ -643,7 +722,7 @@ class TemplateUnion:
         if len(union.constructors) != 0:
             self.ctors = []
             for ctor in union.constructors:
-                self.ctors.append(TemplateFunction(ctor))
+                self.ctors.append(TemplateFunction(namespace, ctor))
 
         if len(union.methods) != 0:
             self.methods = []
@@ -653,7 +732,7 @@ class TemplateUnion:
         if len(union.functions) != 0:
             self.type_funcs = []
             for func in union.functions:
-                self.type_funcs.append(TemplateFunction(func))
+                self.type_funcs.append(TemplateFunction(namespace, func))
 
     @property
     def c_decl(self):
@@ -679,9 +758,16 @@ class TemplateAlias:
         self.link_prefix = "alias"
 
         self.description = "No description available."
-
         if alias.doc is not None:
             self.description = preprocess_gtkdoc(alias.doc.content)
+
+        self.stability = alias.stability or "stable"
+        self.annotations = alias.annotations
+        self.available_since = alias.available_since or namespace.version
+        self.deprecated_since = alias.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
 
     @property
     def c_decl(self):
@@ -707,6 +793,18 @@ class TemplateEnum:
         self.error = False
         self.domain = None
 
+        self.description = "No description available."
+        if enum.doc is not None:
+            self.description = preprocess_gtkdoc(enum.doc.content)
+
+        self.stability = enum.stability or "stable"
+        self.annotations = enum.annotations
+        self.available_since = enum.available_since or namespace.version
+        self.deprecated_since = enum.deprecated_since
+        if self.deprecated_since is not None:
+            msg = self.deprecated_since[1]
+            self.deprecated_since[1] = preprocess_gtkdoc(msg)
+
         if isinstance(enum, gir.BitField):
             self.link_prefix = "flags"
             self.bitfield = True
@@ -725,7 +823,7 @@ class TemplateEnum:
         if len(enum.functions) != 0:
             self.type_funcs = []
             for func in enum.functions:
-                self.type_funcs.append(TemplateFunction(func))
+                self.type_funcs.append(TemplateFunction(namespace, func))
 
 
 class TemplateNamespace:
@@ -1244,7 +1342,7 @@ def _gen_functions(config, theme_config, output_dir, jinja_env, namespace, all_f
         func_file = os.path.join(ns_dir, f"func.{func.name}.html")
         log.info(f"Creating function file for {namespace.name}.{func.name}: {func_file}")
 
-        tmpl = TemplateFunction(func)
+        tmpl = TemplateFunction(namespace, func)
 
         with open(func_file, "w") as out:
             content = func_tmpl.render({
@@ -1265,7 +1363,7 @@ def _gen_callbacks(config, theme_config, output_dir, jinja_env, namespace, all_c
         func_file = os.path.join(ns_dir, f"callback.{func.name}.html")
         log.info(f"Creating callback file for {namespace.name}.{func.name}: {func_file}")
 
-        tmpl = TemplateCallback(func)
+        tmpl = TemplateCallback(namespace, func)
 
         with open(func_file, "w") as out:
             content = func_tmpl.render({

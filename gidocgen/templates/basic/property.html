@@ -84,6 +84,35 @@
       <div class="docblock">
         {{ property.description|safe }}
       </div>
+
+      <div class="docblock">
+        <table>
+          <tr>
+            <td>Stability:</td><td>{{ property.stability }}</td>
+          </tr>
+          <tr>
+            <td>Available since:</td><td>{{ property.available_since }}</td>
+          </tr>
+          {% if property.deprecated_since %}
+          <tr>
+            <td>Deprecated since:</td><td>{{ property.deprecated_since[0] }}</td>
+          </tr>
+          <tr>
+            <td colspan="2">{{ property.deprecated_since[1] }}</td>
+          </tr>
+          {% endif %}
+        </table>
+      </div>
+
+      {% if property.annotations %}
+      <div class="docblock">
+        <table>
+        {% for (key, value) in property.annotations %}
+          <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
+        {% endfor %}
+        </table>
+      </div>
+      {% endif %}
     </div>
 
     <div class="flags toggle-wrapper">
