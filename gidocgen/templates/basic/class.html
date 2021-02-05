@@ -82,7 +82,7 @@
       <div class="toggle-wrapper">
         <h4 id="description">Description</a></h4>
 
-        <pre><code>{% if not class.class_struct or not class.instance_struct %}final {% endif -%}class {{ namespace.name }}.{{ class.name }} : {{ class.parent }} { }</code></pre>
+        <pre><code>{{ class.c_decl }}</pre></code>
 
         <div class="docblock">
           {{ class.description|safe }}

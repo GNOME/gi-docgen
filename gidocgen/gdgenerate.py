@@ -472,6 +472,10 @@ class TemplateInterface:
             for vfunc in self.virtual_methods:
                 self.virtual_methods.append(TemplateMethod(namespace, self, vfunc))
 
+    @property
+    def c_decl(self):
+        return f"interface {self.type_cname} : {self.requires}"
+
 
 class TemplateClass:
     def __init__(self, namespace, cls):
@@ -551,6 +555,24 @@ class TemplateClass:
             self.type_funcs = []
             for func in cls.functions:
                 self.type_funcs.append(TemplateFunction(func))
+
+    @property
+    def c_decl(self):
+        if not self.class_struct or not self.instance_struct:
+            res = [f"final class {self.type_cname} : {self.parent} {{"]
+        else:
+            res = [f"class {self.type_cname} : {self.parent} {{"]
+        n_fields = len(self.fields)
+        if n_fields > 0:
+            for (idx, field) in enumerate(self.fields):
+                if idx < n_fields - 1:
+                    res += [f"  {field.name}: {field.type_cname},"]
+                else:
+                    res += [f"  {field.name}: {field.type_cname}"]
+        else:
+            res += ["  /* No available fields */"]
+        res += ["}"]
+        return "\n".join(res)
 
 
 class TemplateRecord:
