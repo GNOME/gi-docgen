@@ -103,7 +103,7 @@ def process_language(lang):
     return LANGUAGE_MAP[language.lower()]
 
 
-def preprocess_gtkdoc(text):
+def preprocess_gtkdoc(text, md=None):
     processed_text = []
 
     code_block_text = []
@@ -140,7 +140,11 @@ def preprocess_gtkdoc(text):
         else:
             processed_text.append(line)
 
-    text = markdown.markdown("\n".join(processed_text), extensions=MD_EXTENSIONS)
+    if md is None:
+        text = markdown.markdown("\n".join(processed_text), extensions=MD_EXTENSIONS)
+    else:
+        text = md.convert("\n".join(processed_text))
+
     return typogrify(text)
 
 
