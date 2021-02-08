@@ -85,6 +85,7 @@ SCOPE_MODES = {
 MD_EXTENSIONS = [
     'def_list',
     'fenced_code',
+    'meta',
     'tables',
     mdext.GtkDocExtension(),
 ]
@@ -1503,6 +1504,8 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         generator(config, theme_config, output_dir, jinja_env, namespace, s)
 
     if len(content_files) != 0:
+        md = markdown.Markdown(extensions=MD_EXTENSIONS)
+
         content_tmpl = jinja_env.get_template(theme_config.content_template)
         for (src, dst, filename, title) in content_files:
             log.info(f"Generating content file {filename} for '{title}': {dst}")
@@ -1514,16 +1517,19 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
                     source += [line]
                 src_data = "".join(source)
 
-            dst_data = preprocess_gtkdoc(src_data)
+            dst_data = preprocess_gtkdoc(src_data, md)
             with open(dst, "w") as outfile:
                 outfile.write(content_tmpl.render({
                     "CONFIG": config,
                     "namespace": namespace,
                     "symbols": symbols,
+                    "content_meta": md.Meta,
                     "content_files": content_files,
                     "content_title": title,
                     "content_data": dst_data,
                 }))
+
+            md.reset()
 
     if len(content_images) != 0:
         for (src, dst) in content_images:
