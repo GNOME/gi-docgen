@@ -151,10 +151,13 @@ def preprocess_gtkdoc(text, md=None):
 
 class TemplateConstant:
     def __init__(self, namespace, const):
-        self.name = const.name
         self.value = const.value
         self.identifier = const.ctype
         self.type_cname = const.target.ctype
+        self.namespace = namespace.name
+        self.name = const.name
+        self.fqtn = f"{namespace.name}.{const.name}"
+
         self.description = "No description available."
         if const.doc is not None:
             self.description = preprocess_gtkdoc(const.doc.content)
@@ -373,8 +376,10 @@ class TemplateClassMethod:
 
 class TemplateFunction:
     def __init__(self, namespace, func):
-        self.name = func.name
         self.identifier = func.identifier
+        self.name = func.name
+        self.namespace = namespace.name
+
         self.description = "No description available."
         if func.doc is not None:
             self.description = preprocess_gtkdoc(func.doc.content)
@@ -480,13 +485,23 @@ class TemplateInterface:
     def __init__(self, namespace, iface_name):
         interface = namespace.find_interface(iface_name)
         if interface is None:
+            self.namespace = namespace.name
             self.name = iface_name
+            self.fqtn = f"{namespace.name}.{iface_name}"
             self.requires = "GObject.Object"
             self.link_prefix = "iface"
             self.description = "No description available."
             return
 
-        self.name = interface.name
+        if '.' in interface.name:
+            self.namespace = interface.name.split('.')[0]
+            self.name = interface.name.split('.')[1]
+            self.fqtn = interface.name
+        else:
+            self.namespace = namespace.name
+            self.name = interface.name
+            self.fqtn = f"{namespace.name}.{interface.name}"
+
         self.requires = interface.prerequisite
         if self.requires is None:
             self.requires = "GObject.Object"
@@ -551,19 +566,46 @@ class TemplateInterface:
 
 class TemplateClass:
     def __init__(self, namespace, cls):
-        self.name = cls.name
         self.symbol_prefix = f"{namespace.symbol_prefix}_{cls.symbol_prefix}"
         self.type_cname = cls.ctype
         self.link_prefix = "class"
+        self.fundamental = cls.fundamental
+        self.abstract = cls.abstract
 
-        self.description = "No description available."
-        if cls.parent is None:
+        if '.' in cls.name:
+            self.namespace = cls.name.split('.')[0]
+            self.name = cls.name.split('.')[1]
+            self.fqtn = cls.name
+        else:
+            self.namespace = namespace.name
+            self.name = cls.name
+            self.fqtn = f"{namespace.name}.{self.name}"
+
+        if cls.parent is None or cls.fundamental:
             self.parent = 'GObject.TypeInstance'
         elif '.' in cls.parent:
             self.parent = cls.parent
         else:
             self.parent = f"{namespace.name}.{cls.parent}"
 
+        self.class_name = cls.type_struct
+
+        self.instance_struct = None
+        if len(cls.fields) != 0:
+            self.instance_struct = self.class_name
+
+        self.class_struct = namespace.find_record(cls.type_struct)
+
+        # "Final", in the absence of an actual flag or annotation,
+        # is determined through an heuristic; if either the instance
+        # or the class structures are missing or disguised, then the
+        # type cannot be derived
+        if self.instance_struct is None or self.class_struct is None or self.class_struct.disguised:
+            self.final = True
+        else:
+            self.final = False
+
+        self.description = "No description available."
         if cls.doc is not None:
             self.description = preprocess_gtkdoc(cls.doc.content)
 
@@ -602,16 +644,6 @@ class TemplateClass:
             for meth in cls.methods:
                 self.methods.append(TemplateMethod(namespace, self, meth))
 
-        self.class_name = cls.type_struct
-
-        self.instance_struct = None
-        if len(cls.fields) != 0:
-            self.instance_struct = self.class_name
-
-        self.class_struct = namespace.find_record(cls.type_struct)
-        if self.class_struct is None:
-            return
-
         if self.class_struct:
             self.class_fields = []
             self.class_methods = []
@@ -640,7 +672,9 @@ class TemplateClass:
 
     @property
     def c_decl(self):
-        if not self.class_struct or not self.instance_struct:
+        if self.abstract:
+            res = [f"abstract class {self.type_cname} : {self.parent} {{"]
+        elif self.final:
             res = [f"final class {self.type_cname} : {self.parent} {{"]
         else:
             res = [f"class {self.type_cname} : {self.parent} {{"]
@@ -659,10 +693,13 @@ class TemplateClass:
 
 class TemplateRecord:
     def __init__(self, namespace, record):
-        self.name = record.name
         self.symbol_prefix = f"{namespace.symbol_prefix}_{record.symbol_prefix}"
         self.type_cname = record.ctype
         self.link_prefix = "struct"
+
+        self.name = record.name
+        self.namespace = namespace.name
+        self.fqtn = f"{namespace.name}.{record.name}"
 
         self.description = "No description available."
         if record.doc is not None:
@@ -716,10 +753,12 @@ class TemplateRecord:
 
 class TemplateUnion:
     def __init__(self, namespace, union):
-        self.name = union.name
         self.symbol_prefix = f"{namespace.symbol_prefix}_{union.symbol_prefix}"
         self.type_cname = union.ctype
         self.link_prefix = "union"
+        self.name = union.name
+        self.namespace = namespace.name
+        self.fqtn = f"{namespace.name}.{union.name}"
 
         self.description = "No description available."
         if union.doc is not None:
@@ -773,10 +812,13 @@ class TemplateUnion:
 
 class TemplateAlias:
     def __init__(self, namespace, alias):
-        self.name = alias.name
         self.type_cname = alias.ctype
         self.target_ctype = alias.target.ctype
         self.link_prefix = "alias"
+
+        self.namespace = namespace.name
+        self.name = alias.name
+        self.fqtn = f"{namespace.name}.{alias.name}"
 
         self.description = "No description available."
         if alias.doc is not None:
@@ -810,12 +852,15 @@ class TemplateMember:
 
 class TemplateEnum:
     def __init__(self, namespace, enum):
-        self.name = enum.name
         self.symbol_prefix = None
         self.type_cname = enum.ctype
         self.bitfield = False
         self.error = False
         self.domain = None
+
+        self.namespace = namespace.name
+        self.name = enum.name
+        self.fqtn = f"{namespace.name}.{enum.name}"
 
         self.description = "No description available."
         if enum.doc is not None:
