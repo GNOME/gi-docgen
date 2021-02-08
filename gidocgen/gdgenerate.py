@@ -1518,15 +1518,23 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
                 src_data = "".join(source)
 
             dst_data = preprocess_gtkdoc(src_data, md)
+
+            content = {
+                "abs_input_file": src,
+                "abs_output_file": dst,
+                "data": dst_data,
+                "output_file": filename,
+                "meta": md.Meta,
+                "title": title,
+            }
+
             with open(dst, "w") as outfile:
                 outfile.write(content_tmpl.render({
                     "CONFIG": config,
                     "namespace": namespace,
                     "symbols": symbols,
-                    "content_meta": md.Meta,
                     "content_files": content_files,
-                    "content_title": title,
-                    "content_data": dst_data,
+                    "content": content,
                 }))
 
             md.reset()
