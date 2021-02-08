@@ -14,7 +14,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from typogrify.filters import typogrify
 
-from . import config, gir, log
+from . import config, gir, log, mdext
 
 
 HELP_MSG = "Generates the reference"
@@ -86,6 +86,7 @@ MD_EXTENSIONS = [
     'def_list',
     'fenced_code',
     'tables',
+    mdext.GtkDocExtension(),
 ]
 
 
@@ -135,14 +136,9 @@ def preprocess_gtkdoc(text):
             continue
 
         if inside_code_block:
-            code_block_text += [line]
+            code_block_text.append(line)
         else:
-            processed_line = line
-            processed_line = re.sub(r'#([A-Z][A-Za-z0-9:]+)', r'<code>\1</code>', processed_line)
-            processed_line = re.sub(r'@(\w+)', r'<code>\1</code>', processed_line)
-            processed_line = re.sub(r'%([A-Za-z0-9_]+)', r'<code>\1</code>', processed_line)
-            processed_line = re.sub(r'#+\s+([\w\-_\s]+)(#+\s+[\w\{\}#-_]+)?', r'##### \1', processed_line)
-            processed_text += [processed_line]
+            processed_text.append(line)
 
     text = markdown.markdown("\n".join(processed_text), extensions=MD_EXTENSIONS)
     return typogrify(text)
