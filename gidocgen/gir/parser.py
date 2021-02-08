@@ -576,13 +576,17 @@ class GirParser:
         type_name = node.attrib.get(_glibns('type-name'))
         get_type = node.attrib.get(_glibns('get-type'))
         type_struct = node.attrib.get(_glibns('type-struct'))
-        abstract = node.attrib.get('abstract') == '1'
+        abstract = node.attrib.get('abstract', '0') == '1'
+        fundamental = node.attrib.get(_glibns('fundamental'), '0') == '1'
+        ref_func = node.attrib.get(_glibns('ref-func'))
+        unref_func = node.attrib.get(_glibns('unref-func'))
 
         gtype = None
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        res = ast.Class(name=name, symbol_prefix=symbol_prefix, ctype=ctype, parent=parent, abstract=abstract, gtype=gtype)
+        res = ast.Class(name=name, symbol_prefix=symbol_prefix, ctype=ctype, parent=parent, gtype=gtype,
+                        abstract=abstract, fundamental=fundamental, ref_func=ref_func, unref_func=unref_func)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
 

@@ -461,11 +461,15 @@ class Interface(Type):
 
 
 class Class(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType, parent: str = 'GObject.Object', abstract: bool = False):
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType, parent: T.Optional[str] = None, abstract: bool = False,
+                 fundamental: bool = False, ref_func: T.Optional[str] = None, unref_func: T.Optional[str] = None):
         super().__init__(name, ctype)
         self.symbol_prefix = symbol_prefix
         self.parent = parent
         self.abstract = abstract
+        self.fundamental = fundamental
+        self.ref_func = ref_func
+        self.unref_func = unref_func
         self.gtype = gtype
         self.implements: T.List[str] = []
         self.constructors: T.List[Function] = []
