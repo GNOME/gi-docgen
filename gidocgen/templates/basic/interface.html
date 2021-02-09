@@ -9,7 +9,7 @@
 
 {% block sidebar %}
 <nav class="sidebar">
-  <div class="namespace">
+  <div class="section namespace">
     <h3><a href="index.html">{{ namespace.name }}</a></h3>
     <p>Version: {{ namespace.version }}</p>
   </div>
@@ -81,7 +81,7 @@
         </div>
 
         <div class="docblock">
-          <table>
+          <table class="attributes">
             {% if interface.stability %}
             <tr><td>Stability:</td><td>{{ interface.stability }}</td></tr>
             {% endif %}
@@ -97,7 +97,7 @@
 
         {% if interface.annotations %}
         <div class="docblock">
-          <table>
+          <table class="annotations">
           {% for (key, value) in interface.annotations %}
             <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
           {% endfor %}
@@ -119,6 +119,10 @@
         <div class="docblock">
           {{ method.description|safe }}
         </div>
+
+        {% if method.deprecated_since %}
+        <div class="docblock"><p>Deprecated since: {{ method.deprecated_since.version }}</p></div>
+        {% endif %}
       </div>
       {% endfor %}
       </div>
@@ -191,7 +195,7 @@
 
     {% if interface.class_methods %}
     <div class="methods toggle-wrapper">
-      <h4><a name="class-functions">Class methods</a></h4>
+      <h4><a name="class-functions">Interface methods</a></h4>
 
       <div class="docblock">
       {% for method in interface.class_methods %}

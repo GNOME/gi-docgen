@@ -89,7 +89,7 @@
         </div>
 
         <div class="docblock">
-          <table>
+          <table class="attributes">
             {% if class.stability %}
             <tr><td>Stability:</td><td>{{ class.stability }}</td></tr>
             {% endif %}
@@ -105,7 +105,7 @@
 
         {% if class.annotations %}
         <div class="docblock">
-          <table>
+          <table class="annotations">
           {% for (key, value) in class.annotations %}
             <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
           {% endfor %}
@@ -135,12 +135,16 @@
 
       <div class="docblock">
       {% for ctor in class.ctors %}
-        <div class="toggle-wrapper default-hide">
+        <div class="toggle-wrapper default-hide {% if ctor.deprecated_since %}deprecated{% endif %}">
           <h6><a href="ctor.{{ class.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
 
           <div class="docblock">
             {{ ctor.description|safe }}
           </div>
+
+          {% if ctor.deprecated_since %}
+          <div class="docblock"><p>Deprecated since: {{ ctor.deprecated_since.version }}</p></div>
+          {% endif %}
         </div>
       {% endfor %}
       </div>
@@ -153,12 +157,16 @@
 
       <div class="docblock">
       {% for method in class.methods %}
-        <div class="toggle-wrapper default-hide">
+        <div class="toggle-wrapper default-hide {% if method.deprecated_since %}deprecated{% endif %}">
           <h6><a href="method.{{ class.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
           <div class="docblock">
             {{ method.description|safe }}
           </div>
+
+          {% if method.deprecated_since %}
+          <div class="docblock"><p>Deprecated since: {{ method.deprecated_since.version }}</p></div>
+          {% endif %}
         </div>
       {% endfor %}
       </div>
@@ -218,7 +226,7 @@
       <div class="docblock">
         <h6>Class members</h6>
 
-        <table>
+        <table class="members">
         {% for field in class.class_fields %}
         <tr>
           <td><code>{{ field.name }}</code></td>
@@ -237,12 +245,16 @@
 
       <div class="docblock">
       {% for method in class.class_methods %}
-      <div class="toggle-wrapper default-hide">
+      <div class="toggle-wrapper default-hide {% if method.deprecated_since %}deprecated{% endif %}">
         <h6><a href="class_method.{{ class.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
           {{ method.description|safe }}
         </div>
+
+        {% if method.deprecated_since %}
+        <div class="docblock"><p>Deprecated since: {{ method.deprecated_since.version }}</p></div>
+        {% endif %}
       </div>
       {% endfor %}
       </div>
@@ -255,12 +267,16 @@
 
       <div class="docblock">
       {% for func in class.type_funcs %}
-      <div class="toggle-wrapper default-hide">
+      <div class="toggle-wrapper default-hide {% if func.deprecated_since %}deprecated{% endif %}">
         <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">
           {{ func.description|safe }}
         </div>
+
+        {% if func.deprecated_since %}
+        <div class="docblock"><p>Deprecated since: {{ func.deprecated_since.version }}</p></div>
+        {% endif %}
       </div>
       {% endfor %}
       </div>

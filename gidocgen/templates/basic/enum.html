@@ -60,7 +60,7 @@
       </div>
 
       <div class="docblock">
-        <table>
+        <table class="attributes">
           {% if enum.stability %}
           <tr><td>Stability:</td><td>{{ enum.stability }}</td></tr>
           {% endif %}
@@ -76,7 +76,7 @@
 
       {% if enum.annotations %}
       <div class="docblock">
-        <table>
+        <table class="annotations">
         {% for (key, value) in enum.annotations %}
           <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
         {% endfor %}
@@ -118,12 +118,16 @@
 
       <div class="docblock">
       {% for func in enum.type_funcs %}
-        <div class="toggle-wrapper">
+        <div class="toggle-wrapper default-hide {% if func.deprecated_since %}deprecated{% endif %}">
           <h6><a href="type_func.{{ enum.name }}.{{ func.name }}.html">{{ func.identifier }} ();</a></h6>
 
           <div class="docblock">
             {{ func.description|safe }}
           </div>
+
+          {% if func.deprecated_since %}
+          <div class="docblock"><p>Deprecated since: {{ func.deprecated_since.version }}</p></div>
+          {% endif %}
         </div>
       {% endfor %}
     </div>
