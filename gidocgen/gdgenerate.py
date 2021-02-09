@@ -83,10 +83,14 @@ SCOPE_MODES = {
 }
 
 MD_EXTENSIONS = [
+    # Standard extensions
     'def_list',
     'fenced_code',
     'meta',
     'tables',
+    'toc',
+
+    # Local extensions
     mdext.GtkDocExtension(),
 ]
 
@@ -1447,15 +1451,52 @@ def _gen_callbacks(config, theme_config, output_dir, jinja_env, namespace, all_c
             out.write(content)
 
 
-def _gen_content_files(config, content_dir, output_dir):
+def _gen_content_files(config, theme_config, content_dir, output_dir, jinja_env, namespace):
     content_files = []
 
-    for (file_name, content_title) in config.content_files:
-        content_file = file_name.replace('.md', '.html')
-        infile = os.path.join(content_dir, file_name)
-        outfile = os.path.join(output_dir, content_file)
-        log.debug(f"Adding extra content file: {infile} -> {outfile} ('{content_title}')")
-        content_files += [(infile, outfile, content_file, content_title)]
+    content_tmpl = jinja_env.get_template(theme_config.content_template)
+    md = markdown.Markdown(extensions=MD_EXTENSIONS)
+
+    for file_name in config.content_files:
+        content_file = file_name.replace(".md", ".html")
+        src_file = os.path.join(content_dir, file_name)
+        dst_file = os.path.join(output_dir, content_file)
+
+        log.info(f"Generating content file {file_name}: {dst_file}")
+
+        src_data = ""
+        with open(src_file, "r") as infile:
+            source = []
+            for line in infile:
+                source += [line]
+            src_data = "".join(source)
+
+        dst_data = preprocess_gtkdoc(src_data, md)
+        title = "\n".join(md.Meta.get("title", ["Unknown document"]))
+
+        content = {
+            "abs_input_file": src_file,
+            "abs_output_file": dst_file,
+            "source_file": file_name,
+            "output_file": content_file,
+            "meta": md.Meta,
+            "title": title,
+            "data": dst_data,
+        }
+
+        with open(dst_file, "w") as outfile:
+            outfile.write(content_tmpl.render({
+                "CONFIG": config,
+                "namespace": namespace,
+                "content": content,
+            }))
+
+        content_files.append({
+            "title": title,
+            "href": content_file,
+        })
+
+        md.reset()
 
     return content_files
 
@@ -1513,20 +1554,8 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     log.debug(f"Creating output path for the namespace: {ns_dir}")
     os.makedirs(ns_dir, exist_ok=True)
 
-    content_files = _gen_content_files(config, content_dir, ns_dir)
+    content_files = _gen_content_files(config, theme_config, content_dir, ns_dir, jinja_env, namespace)
     content_images = _gen_content_images(config, content_dir, ns_dir)
-
-    ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
-    ns_file = os.path.join(ns_dir, "index.html")
-    log.info(f"Creating namespace index file for {namespace.name}.{namespace.version}: {ns_file}")
-    with open(ns_file, "w") as out:
-        out.write(ns_tmpl.render({
-            "CONFIG": config,
-            "repository": repository,
-            "namespace": namespace,
-            "symbols": symbols,
-            "content_files": content_files,
-        }))
 
     if options.sections == [] or options.sections == ["all"]:
         gen_indices = list(all_indices.keys())
@@ -1548,48 +1577,17 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
 
         generator(config, theme_config, output_dir, jinja_env, namespace, s)
 
-    if len(content_files) != 0:
-        md = markdown.Markdown(extensions=MD_EXTENSIONS)
-
-        content_tmpl = jinja_env.get_template(theme_config.content_template)
-        for (src, dst, filename, title) in content_files:
-            log.info(f"Generating content file {filename} for '{title}': {dst}")
-
-            src_data = ""
-            with open(src, "r") as infile:
-                source = []
-                for line in infile:
-                    source += [line]
-                src_data = "".join(source)
-
-            dst_data = preprocess_gtkdoc(src_data, md)
-
-            content = {
-                "abs_input_file": src,
-                "abs_output_file": dst,
-                "data": dst_data,
-                "output_file": filename,
-                "meta": md.Meta,
-                "title": title,
-            }
-
-            with open(dst, "w") as outfile:
-                outfile.write(content_tmpl.render({
-                    "CONFIG": config,
-                    "namespace": namespace,
-                    "symbols": symbols,
-                    "content_files": content_files,
-                    "content": content,
-                }))
-
-            md.reset()
-
-    if len(content_images) != 0:
-        for (src, dst) in content_images:
-            log.info(f"Copying content image {src}: {dst}")
-            dst_dir = os.path.dirname(dst)
-            os.makedirs(dst_dir, exist_ok=True)
-            shutil.copyfile(src, dst)
+    ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
+    ns_file = os.path.join(ns_dir, "index.html")
+    log.info(f"Creating namespace index file for {namespace.name}.{namespace.version}: {ns_file}")
+    with open(ns_file, "w") as out:
+        out.write(ns_tmpl.render({
+            "CONFIG": config,
+            "repository": repository,
+            "namespace": namespace,
+            "symbols": symbols,
+            "content_files": content_files,
+        }))
 
     if theme_config.css is not None:
         log.info(f"Copying style from {theme_dir} to {ns_dir}")
@@ -1601,6 +1599,12 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         log.info(f"Copying extra file {extra_file} from {theme_dir} to {ns_dir}")
         src = os.path.join(theme_dir, extra_file)
         dst = os.path.join(ns_dir, extra_file)
+        shutil.copyfile(src, dst)
+
+    for (src, dst) in content_images:
+        log.info(f"Copying content image {src}: {dst}")
+        dst_dir = os.path.dirname(dst)
+        os.makedirs(dst_dir, exist_ok=True)
         shutil.copyfile(src, dst)
 
 

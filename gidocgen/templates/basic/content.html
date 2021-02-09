@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}{{ namespace.name }} &ndash; {{ namespace.version }}: {{ content_title }}{% endblock %}
+{% block title %}{{ namespace.name }} &ndash; {{ namespace.version }}: {{ content.title }}{% endblock %}
 
 {% block meta_other %}
-  <meta name="og:title" content="{{ namespace.name }}-{{ namespace.version }}: {{ content_title }}"/>
+  <meta name="og:title" content="{{ namespace.name }}-{{ namespace.version }}: {{ content.title }}"/>
   <meta name="og:description" content="Reference for {{ namespace.name }}-{{ namespace.version }}"/>
 {% endblock %}
 
@@ -12,14 +12,6 @@
   <div class="section namespace">
     <h3><a href="index.html">{{ namespace.name }}</a></h3>
     <p>Version: {{ namespace.version }}</p>
-  </div>
-  <div class="section">
-    <h5>Additional documentation</h5>
-    <div class="links">
-    {% for abs_file_src, abs_file_dst, file_name, file_title in content_files %}
-      <a href="{{ file_name }}">{{ file_title }}</a>
-    {% endfor %}
-    </div>
   </div>
 </nav>
 {% endblock %}
