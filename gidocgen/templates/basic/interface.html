@@ -137,7 +137,7 @@
       <div class="docblock">
       {% for property in interface.properties %}
       <div class="toggle-wrapper default-hide">
-        <h6><a href="property.{{ interface.name }}.{{ property.name }}.html">{{ namespace.name }}.{{ interface.name }}:{{ property.name }}</a></h6>
+        <h6><a href="property.{{ interface.name }}.{{ property.name }}.html">{{ interface.fqtn }}:{{ property.name }}</a></h6>
 
         <div class="docblock">
           {{ property.description|safe }}
@@ -156,7 +156,7 @@
       <div class="docblock">
       {% for signal in interface.signals %}
       <div class="toggle-wrapper default-hide">
-        <h6><a href="signal.{{ interface.name }}.{{ signal.name }}.html">{{ namespace.name }}.{{ interface.name }}::{{ signal.name }}</a></h6>
+        <h6><a href="signal.{{ interface.name }}.{{ signal.name }}.html">{{ interface.fqtn }}::{{ signal.name }}</a></h6>
 
         <div class="docblock">
           {{ signal.description|safe }}
@@ -171,7 +171,7 @@
     <div class="class toggle-wrapper">
       <h4><a name="class">Interface structure</a></h4>
 
-      <pre><code>struct {{ namespace.name }}.{{ interface.class_name }} {
+      <pre><code>struct {{ namespace.name }}.{{ interface.type_cname }} {
   {% for field in interface.class_fields %}
   {{ field.name }}: {{ field.type_name }};
   {% else %}/* no available fields */{% endfor %}

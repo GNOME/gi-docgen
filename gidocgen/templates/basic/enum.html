@@ -42,13 +42,7 @@
       <h4><a name="declaration">Declaration</a></h4>
 
       <div class="docblock">
-        {% if enum.error %}
-        <pre><code>error {{ namespace.name }}.{{ enum.name }}</code></pre>
-        {% elif enum.bitfield %}
-        <pre><code>flags {{ namespace.name }}.{{ enum.name }}</code></pre>
-        {% else %}
-        <pre><code>enum {{ namespace.name }}.{{ enum.name }}</code></pre>
-        {% endif %}
+        <pre><code>{{ enum.c_decl }}</code></pre>
       </div>
     </div>
 
@@ -91,6 +85,12 @@
       <div class="docblock">
       <table>
       {% for member in enum.members %}
+        <tr>
+          <th>Name</th>
+          <th>Nickname</th>
+          <th>Value</th>
+          <th>Description</th>
+        </tr>
         <tr>
           <td><code>{{ member.name }}</code></td>
           <td><code>{{ member.value }}</code></td>

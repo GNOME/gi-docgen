@@ -729,6 +729,12 @@ class Namespace:
     def get_callbacks(self) -> T.List[Callback]:
         return self._callbacks
 
+    def find_class(self, cls: str) -> T.Optional[Class]:
+        for c in self._classes:
+            if c.name == cls:
+                return c
+        return None
+
     def find_record(self, record: str) -> T.Optional[Record]:
         for r in self._records:
             if r.name == record:

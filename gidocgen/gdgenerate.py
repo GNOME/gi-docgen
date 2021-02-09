@@ -586,11 +586,20 @@ class TemplateClass:
             self.fqtn = f"{namespace.name}.{self.name}"
 
         if cls.parent is None or cls.fundamental:
-            self.parent = 'GObject.TypeInstance'
+            self.parent_fqtn = 'GObject.TypeInstance'
+            self.parent_name = 'TypeInstance'
+            self.parent_namespace = 'GObject'
+            self.parent_cname = 'GTypeInstance*'
         elif '.' in cls.parent:
-            self.parent = cls.parent
+            self.parent_fqtn = cls.parent
+            self.parent_namespace = cls.parent.split('.')[0]
+            self.parent_name = cls.parent.split('.')[1]
+            self.parent_cname = cls.parent
         else:
-            self.parent = f"{namespace.name}.{cls.parent}"
+            self.parent_fqtn = f"{namespace.name}.{cls.parent}"
+            self.parent_name = cls.parent
+            self.parent_namespace = namespace.name
+            self.parent_cname = namespace.find_class(cls.parent).ctype
 
         self.class_name = cls.type_struct
 
@@ -677,11 +686,11 @@ class TemplateClass:
     @property
     def c_decl(self):
         if self.abstract:
-            res = [f"abstract class {self.type_cname} : {self.parent} {{"]
+            res = [f"abstract class {self.type_cname} : {self.parent_cname} {{"]
         elif self.final:
-            res = [f"final class {self.type_cname} : {self.parent} {{"]
+            res = [f"final class {self.type_cname} : {self.parent_cname} {{"]
         else:
-            res = [f"class {self.type_cname} : {self.parent} {{"]
+            res = [f"class {self.type_cname} : {self.parent_cname} {{"]
         n_fields = len(self.fields)
         if n_fields > 0:
             for (idx, field) in enumerate(self.fields):
@@ -900,6 +909,15 @@ class TemplateEnum:
             self.type_funcs = []
             for func in enum.functions:
                 self.type_funcs.append(TemplateFunction(namespace, func))
+
+    @property
+    def c_decl(self):
+        if self.error:
+            return f"error-domain {self.namespace}.{self.name}"
+        elif self.bitfield:
+            return f"flags {self.namespace}.{self.name}"
+        else:
+            return f"enum {self.namespace}.{self.name}"
 
 
 class TemplateNamespace:

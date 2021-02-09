@@ -122,7 +122,7 @@
       <div class="docblock">
         <ul>
         {% for iface in class.interfaces %}
-          <li class="interface"><a href="iface.{{ iface.name }}.html">{{ namespace.name }}.{{ iface.name }}</a></li>
+          <li class="interface"><a href="iface.{{ iface.name }}.html">{{ iface.fqtn }}</a></li>
         {% endfor %}
         </ul>
       </li>
@@ -180,12 +180,16 @@
 
       <div class="docblock">
       {% for property in class.properties %}
-        <div class="toggle-wrapper default-hide">
-          <h6><a href="property.{{ class.name }}.{{ property.name }}.html">{{ namespace.name }}.{{ class.name }}:{{ property.name }}</a></h6>
+        <div class="toggle-wrapper default-hide {% if property.deprecated_since %}deprecated{% endif %}">
+          <h6><a href="property.{{ class.name }}.{{ property.name }}.html">{{ class.fqtn }}:{{ property.name }}</a></h6>
 
           <div class="docblock">
             {{ property.description|safe }}
           </div>
+
+          {% if property.deprecated_since %}
+          <div class="docblock"><p>Deprecated since: {{ property.deprecated_since.version }}</p></div>
+          {% endif %}
         </div>
       {% endfor %}
       </div>
@@ -199,12 +203,16 @@
 
       <div class="docblock">
       {% for signal in class.signals %}
-        <div class="toggle-wrapper default-hide">
-          <h6><a href="signal.{{ class.name }}.{{ signal.name }}.html">{{ namespace.name }}.{{ class.name }}::{{ signal.name }}</a></h6>
+        <div class="toggle-wrapper default-hide {% if signal.deprecated_since %}deprecated{% endif %}">
+          <h6><a href="signal.{{ class.name }}.{{ signal.name }}.html">{{ class.fqtn }}::{{ signal.name }}</a></h6>
 
           <div class="docblock">
             {{ signal.description|safe }}
           </div>
+
+          {% if signal.deprecated_since %}
+          <div class="docblock"><p>Deprecated since: {{ signal.deprecated_since.version }}</p></div>
+          {% endif %}
         </div>
       {% endfor %}
       </div>
