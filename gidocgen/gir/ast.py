@@ -83,7 +83,7 @@ class Info:
 
 class GIRElement:
     """Base type for elements inside the GIR"""
-    def __init__(self, name: str = None):
+    def __init__(self, name: T.Optional[str] = None):
         self.name = name
         self.info = Info()
 
@@ -609,19 +609,19 @@ class Namespace:
 
         self._shared_libraries: T.List[str] = []
 
-        self._aliases: T.List[Alias] = []
-        self._bitfields: T.List[BitField] = []
-        self._boxeds: T.List[Boxed] = []
+        self._aliases: T.Mapping[str, Alias] = {}
+        self._bitfields: T.Mapping[str, BitField] = {}
+        self._boxeds: T.Mapping[str, Boxed] = {}
         self._callbacks: T.List[Callback] = []
-        self._classes: T.List[Class] = []
-        self._constants: T.List[Constant] = []
-        self._enumerations: T.List[Enumeration] = []
-        self._error_domains: T.List[ErrorDomain] = []
-        self._functions: T.List[Function] = []
-        self._function_macros: T.List[FunctionMacro] = []
-        self._interfaces: T.List[Interface] = []
-        self._records: T.List[Record] = []
-        self._unions: T.List[Union] = []
+        self._classes: T.Mapping[str, Class] = {}
+        self._constants: T.Mapping[str, Constant] = {}
+        self._enumerations: T.Mapping[str, Enumeration] = {}
+        self._error_domains: T.Mapping[str, ErrorDomain] = {}
+        self._functions: T.Mapping[str, Function] = {}
+        self._function_macros: T.Mapping[str, FunctionMacro] = {}
+        self._interfaces: T.Mapping[str, Interface] = {}
+        self._records: T.Mapping[str, Record] = {}
+        self._unions: T.Mapping[str, Union] = {}
 
         if identifier_prefix:
             self.identifier_prefix = identifier_prefix
@@ -642,67 +642,67 @@ class Namespace:
         return self._shared_libraries
 
     def add_alias(self, alias: Alias) -> None:
-        self._aliases.append(alias)
+        self._aliases[alias.name] = alias
 
     def add_enumeration(self, enum: Enumeration) -> None:
-        self._enumerations.append(enum)
+        self._enumerations[enum.name] = enum
 
     def add_error_domain(self, domain: ErrorDomain) -> None:
-        self._error_domains.append(domain)
+        self._error_domains[domain.name] = domain
 
     def add_class(self, cls: Class) -> None:
-        self._classes.append(cls)
+        self._classes[cls.name] = cls
 
     def add_constant(self, constant: Constant) -> None:
-        self._constants.append(constant)
+        self._constants[constant.name] = constant
 
     def add_interface(self, interface: Interface) -> None:
-        self._interfaces.append(interface)
+        self._interfaces[interface.name] = interface
 
     def add_boxed(self, boxed: Boxed) -> None:
-        self._boxeds.append(boxed)
+        self._boxeds[boxed.name] = boxed
 
     def add_record(self, record: Record) -> None:
-        self._records.append(record)
+        self._records[record.name] = record
 
     def add_union(self, union: Union) -> None:
-        self._unions.append(union)
+        self._unions[union.name] = union
 
     def add_function(self, function: Function) -> None:
-        self._functions.append(function)
+        self._functions[function.name] = function
 
     def add_bitfield(self, bitfield: BitField) -> None:
-        self._bitfields.append(bitfield)
+        self._bitfields[bitfield.name] = bitfield
 
     def add_function_macro(self, function: FunctionMacro) -> None:
-        self._function_macros.append(function)
+        self._function_macros[function.name] = function
 
     def add_callback(self, callback: Callback) -> None:
         self._callbacks.append(callback)
 
     def get_classes(self) -> T.List[Class]:
-        return self._classes
+        return self._classes.values()
 
     def get_constants(self) -> T.List[Constant]:
-        return self._constants
+        return self._constants.values()
 
     def get_enumerations(self) -> T.List[Enumeration]:
-        return self._enumerations
+        return self._enumerations.values()
 
     def get_error_domains(self) -> T.List[ErrorDomain]:
-        return self._error_domains
+        return self._error_domains.values()
 
     def get_aliases(self) -> T.List[Alias]:
-        return self._aliases
+        return self._aliases.values()
 
     def get_interfaces(self) -> T.List[Interface]:
-        return self._interfaces
+        return self._interfaces.values()
 
     def get_boxeds(self) -> T.List[Boxed]:
-        return self._boxeds
+        return self._boxeds.values()
 
     def get_records(self) -> T.List[Record]:
-        return self._records
+        return self._records.values()
 
     def get_effective_records(self) -> T.List[Record]:
         def is_effective(r):
@@ -712,40 +712,31 @@ class Namespace:
                 return False
             return True
 
-        return [x for x in self._records if is_effective(x)]
+        return [x for x in self._records.values() if is_effective(x)]
 
     def get_unions(self) -> T.List[Union]:
-        return self._unions
+        return self._unions.values()
 
     def get_functions(self) -> T.List[Function]:
-        return self._functions
+        return self._functions.values()
 
     def get_bitfields(self) -> T.List[BitField]:
-        return self._bitfields
+        return self._bitfields.values()
 
     def get_function_macros(self) -> T.List[FunctionMacro]:
-        return self._function_macros
+        return self._function_macros.values()
 
     def get_callbacks(self) -> T.List[Callback]:
         return self._callbacks
 
     def find_class(self, cls: str) -> T.Optional[Class]:
-        for c in self._classes:
-            if c.name == cls:
-                return c
-        return None
+        return self._classes.get(cls)
 
     def find_record(self, record: str) -> T.Optional[Record]:
-        for r in self._records:
-            if r.name == record:
-                return r
-        return None
+        return self._records.get(record)
 
     def find_interface(self, iface: str) -> T.Optional[Interface]:
-        for i in self._interfaces:
-            if i.name == iface:
-                return i
-        return None
+        return self._interfaces.get(iface)
 
 
 class Repository:
