@@ -701,11 +701,11 @@ class TemplateClass:
     @property
     def c_decl(self):
         if self.abstract:
-            res = [f"abstract class {self.type_cname} : {self.parent_cname} {{"]
+            res = [f"abstract class {self.fqtn} : {self.parent_fqtn} {{"]
         elif self.final:
-            res = [f"final class {self.type_cname} : {self.parent_cname} {{"]
+            res = [f"final class {self.fqtn} : {self.parent_fqtn} {{"]
         else:
-            res = [f"class {self.type_cname} : {self.parent_cname} {{"]
+            res = [f"class {self.fqtn} : {self.parent_fqtn} {{"]
         n_fields = len(self.fields)
         if n_fields > 0:
             for (idx, field) in enumerate(self.fields):
@@ -765,7 +765,7 @@ class TemplateRecord:
 
     @property
     def c_decl(self):
-        res = [f"struct {self.type_cname} {{"]
+        res = [f"struct {self.fqtn} {{"]
         n_fields = len(self.fields)
         if n_fields > 0:
             for (idx, field) in enumerate(self.fields):
@@ -824,7 +824,7 @@ class TemplateUnion:
 
     @property
     def c_decl(self):
-        res = [f"union {self.type_cname} {{"]
+        res = [f"union {self.fqtn} {{"]
         n_fields = len(self.fields)
         if n_fields > 0:
             for (idx, field) in enumerate(self.fields):
@@ -865,7 +865,7 @@ class TemplateAlias:
 
     @property
     def c_decl(self):
-        return f"typedef {self.target_ctype} {self.type_cname}"
+        return f"alias {self.target_ctype} {self.fqtn}"
 
 
 class TemplateMember:
@@ -928,11 +928,11 @@ class TemplateEnum:
     @property
     def c_decl(self):
         if self.error:
-            return f"error-domain {self.namespace}.{self.name}"
+            return f"error-domain {self.fqtn}"
         elif self.bitfield:
-            return f"flags {self.namespace}.{self.name}"
+            return f"flags {self.fqtn}"
         else:
-            return f"enum {self.namespace}.{self.name}"
+            return f"enum {self.fqtn}"
 
 
 class TemplateNamespace:
