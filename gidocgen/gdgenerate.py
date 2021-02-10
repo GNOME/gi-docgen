@@ -607,7 +607,10 @@ class TemplateClass:
             self.parent_fqtn = f"{namespace.name}.{cls.parent}"
             self.parent_name = cls.parent
             self.parent_namespace = namespace.name
-            self.parent_cname = namespace.find_class(cls.parent).ctype
+            parent = namespace.find_class(cls.parent)
+            if parent is None:
+                log.error(f"Unable to find parent {cls.parent} for class {cls.name}")
+            self.parent_cname = parent.ctype
 
         self.class_name = cls.type_struct
 
