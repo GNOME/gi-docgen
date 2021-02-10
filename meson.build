@@ -24,6 +24,7 @@ configure_file(
 install_subdir('gidocgen', install_dir: py.get_install_dir())
 
 # When using gi-docgen as a sub-project
+dummy_dep = declare_dependency()
 meson.override_find_program('gi-docgen', find_program('gi-docgen.py'))
 
 flake8 = find_program('flake8', required: false)
