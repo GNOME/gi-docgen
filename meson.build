@@ -1,5 +1,5 @@
 project('gi-docgen',
-  version: '0.0.1',
+  version: '2021.1',
   meson_version: '>= 0.55.0',
 )
 
