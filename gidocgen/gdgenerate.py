@@ -942,7 +942,9 @@ class TemplateNamespace:
         self.prefix = f"{namespace.symbol_prefix}"
 
 
-def _gen_classes(config, theme_config, output_dir, jinja_env, namespace, all_classes):
+def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_classes):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     class_tmpl = jinja_env.get_template(theme_config.class_template)
@@ -1053,7 +1055,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, namespace, all_cla
                 }))
 
 
-def _gen_interfaces(config, theme_config, output_dir, jinja_env, namespace, all_interfaces):
+def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all_interfaces):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     iface_tmpl = jinja_env.get_template(theme_config.interface_template)
@@ -1150,7 +1154,9 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, namespace, all_
                 }))
 
 
-def _gen_enums(config, theme_config, output_dir, jinja_env, namespace, all_enums):
+def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enums):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     enum_tmpl = jinja_env.get_template(theme_config.enum_template)
@@ -1182,7 +1188,9 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, namespace, all_enums
                 }))
 
 
-def _gen_bitfields(config, theme_config, output_dir, jinja_env, namespace, all_enums):
+def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_enums):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     enum_tmpl = jinja_env.get_template(theme_config.flags_template)
@@ -1214,7 +1222,9 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, namespace, all_e
                 }))
 
 
-def _gen_domains(config, theme_config, output_dir, jinja_env, namespace, all_enums):
+def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_enums):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     enum_tmpl = jinja_env.get_template(theme_config.error_template)
@@ -1246,7 +1256,9 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, namespace, all_enu
                 }))
 
 
-def _gen_constants(config, theme_config, output_dir, jinja_env, namespace, all_constants):
+def _gen_constants(config, theme_config, output_dir, jinja_env, repository, all_constants):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     const_tmpl = jinja_env.get_template(theme_config.constant_template)
@@ -1265,7 +1277,9 @@ def _gen_constants(config, theme_config, output_dir, jinja_env, namespace, all_c
             }))
 
 
-def _gen_aliases(config, theme_config, output_dir, jinja_env, namespace, all_aliases):
+def _gen_aliases(config, theme_config, output_dir, jinja_env, repository, all_aliases):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     alias_tmpl = jinja_env.get_template(theme_config.alias_template)
@@ -1324,7 +1338,9 @@ def _gen_aliases(config, theme_config, output_dir, jinja_env, namespace, all_ali
                 }))
 
 
-def _gen_records(config, theme_config, output_dir, jinja_env, namespace, all_records):
+def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_records):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     record_tmpl = jinja_env.get_template(theme_config.record_template)
@@ -1383,7 +1399,9 @@ def _gen_records(config, theme_config, output_dir, jinja_env, namespace, all_rec
                 }))
 
 
-def _gen_unions(config, theme_config, output_dir, jinja_env, namespace, all_unions):
+def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_unions):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     union_tmpl = jinja_env.get_template(theme_config.union_template)
@@ -1442,7 +1460,9 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, namespace, all_unio
                 }))
 
 
-def _gen_functions(config, theme_config, output_dir, jinja_env, namespace, all_functions):
+def _gen_functions(config, theme_config, output_dir, jinja_env, repository, all_functions):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     func_tmpl = jinja_env.get_template(theme_config.func_template)
@@ -1463,7 +1483,9 @@ def _gen_functions(config, theme_config, output_dir, jinja_env, namespace, all_f
             out.write(content)
 
 
-def _gen_callbacks(config, theme_config, output_dir, jinja_env, namespace, all_callbacks):
+def _gen_callbacks(config, theme_config, output_dir, jinja_env, repository, all_callbacks):
+    namespace = repository.namespace
+
     ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
 
     func_tmpl = jinja_env.get_template(theme_config.func_template)
@@ -1608,7 +1630,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
             log.debug(f"No symbols for section {section}")
             continue
 
-        generator(config, theme_config, output_dir, jinja_env, namespace, s)
+        generator(config, theme_config, output_dir, jinja_env, repository, s)
 
     ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
     ns_file = os.path.join(ns_dir, "index.html")
