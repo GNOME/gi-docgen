@@ -117,7 +117,7 @@ class GirParser:
 
         repository.add_namespace(namespace)
 
-        parse_methods: T.Mapping[str, T.Callable[[ET.Element, T.Optional[ast.Namespace]], T.Any]] = {
+        parse_sections: T.Mapping[str, T.Callable[[ET.Element, ast.Repository, ast.Namespace], T.Any]] = {
             _corens('alias'): self._parse_alias,
             _corens('bitfield'): self._parse_bitfield,
             _glibns('boxed'): self._parse_boxed,
@@ -133,9 +133,9 @@ class GirParser:
         }
 
         for node in ns:
-            parse_method = parse_methods.get(node.tag, None)
-            if parse_method is not None:
-                parse_method(node, namespace)
+            parser_method = parse_sections.get(node.tag, None)
+            if parser_method is not None:
+                parser_method(node, repository, namespace)
 
         return repository
 
@@ -232,7 +232,7 @@ class GirParser:
 
         return ctype
 
-    def _parse_alias(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_alias(self, node: ET.Element, repo: ast.Repository, ns: T.Optional[ast.Namespace]) -> None:
         child = node.find('core:type', GI_NAMESPACES)
         assert child is not None
 
@@ -247,7 +247,7 @@ class GirParser:
 
         ns.add_alias(res)
 
-    def _parse_callback(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_callback(self, node: ET.Element, repo: ast.Repository, ns: T.Optional[ast.Namespace]) -> None:
         name = node.attrib.get('name')
         ctype = node.attrib.get(_cns('type'))
 
@@ -270,7 +270,7 @@ class GirParser:
 
         return res
 
-    def _parse_constant(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_constant(self, node: ET.Element, repo: ast.Repository, ns: T.Optional[ast.Namespace]) -> None:
         child = node.find('core:type', GI_NAMESPACES)
         assert child is not None
 
@@ -323,7 +323,7 @@ class GirParser:
 
         return res
 
-    def _parse_function(self, node: ET.Element, ns: T.Optional[ast.Namespace] = None) -> ast.Function:
+    def _parse_type_function(self, node: ET.Element) -> ast.Function:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
 
@@ -340,13 +340,13 @@ class GirParser:
         res.set_return_value(return_value)
         res.set_parameters(params)
         self._maybe_parse_docs(node, res)
-
-        if ns is not None:
-            ns.add_function(res)
-
         return res
 
-    def _parse_function_macro(self, node: ET.Element, ns: T.Optional[ast.Namespace] = None) -> ast.FunctionMacro:
+    def _parse_function(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
+        res = self._parse_type_function(node)
+        ns.add_function(res)
+
+    def _parse_function_macro(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
 
@@ -359,13 +359,9 @@ class GirParser:
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_parameters(params)
         self._maybe_parse_docs(node, res)
+        ns.add_function_macro(res)
 
-        if ns is not None:
-            ns.add_function_macro(res)
-
-        return res
-
-    def _parse_method(self, node: ET.Element, cls: T.Optional[ast.Class] = None) -> ast.Method:
+    def _parse_method(self, node: ET.Element) -> ast.Method:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
 
@@ -385,13 +381,9 @@ class GirParser:
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
-
-        if cls is not None:
-            cls.methods.append(res)
-
         return res
 
-    def _parse_virtual_method(self, node: ET.Element, cls: T.Optional[ast.Class] = None) -> ast.VirtualMethod:
+    def _parse_virtual_method(self, node: ET.Element) -> ast.VirtualMethod:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
         invoker = node.attrib.get('invoker')
@@ -412,10 +404,6 @@ class GirParser:
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
-
-        if cls is not None:
-            cls.virtual_methods.append(res)
-
         return res
 
     def _parse_enum_member(self, node: ET.Element) -> ast.Member:
@@ -428,7 +416,7 @@ class GirParser:
         self._maybe_parse_docs(node, res)
         return res
 
-    def _parse_enumeration(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_enumeration(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         children = node.findall('core:member', GI_NAMESPACES)
         if children is None or len(children) == 0:
             return
@@ -440,7 +428,7 @@ class GirParser:
         children = node.findall('core:function', GI_NAMESPACES)
         functions = []
         for child in children:
-            functions.append(self._parse_function(child))
+            functions.append(self._parse_type_function(child))
 
         name: str = node.attrib['name']
         ctype: str = node.attrib[_cns('type')]
@@ -465,7 +453,7 @@ class GirParser:
         res.set_functions(functions)
         self._maybe_parse_docs(node, res)
 
-    def _parse_bitfield(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_bitfield(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         children = node.findall('core:member', GI_NAMESPACES)
         if children is None or len(children) == 0:
             return
@@ -477,7 +465,7 @@ class GirParser:
         children = node.findall('core:function', GI_NAMESPACES)
         functions = []
         for child in children:
-            functions.append(self._parse_function(child))
+            functions.append(self._parse_type_function(child))
 
         name = node.attrib.get('name')
         ctype = node.attrib.get(_cns('type'))
@@ -489,13 +477,12 @@ class GirParser:
             gtype = ast.GType(type_name, get_type)
 
         res = ast.BitField(name, ctype, gtype)
-        ns.add_bitfield(res)
-
         res.set_members(members)
         res.set_functions(functions)
         self._maybe_parse_docs(node, res)
+        ns.add_bitfield(res)
 
-    def _parse_property(self, node: ET.Element, cls: T.Optional[ast.Class] = None) -> ast.Property:
+    def _parse_property(self, node: ET.Element) -> ast.Property:
         name = node.attrib.get('name')
         writable = node.attrib.get('writable', '0') == '1'
         readable = node.attrib.get('readable', '1') == '1'
@@ -510,10 +497,9 @@ class GirParser:
                            construct=construct, construct_only=construct_only)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
-
         return res
 
-    def _parse_signal(self, node: ET.Element, cls: T.Optional[ast.Class] = None) -> ast.Signal:
+    def _parse_signal(self, node: ET.Element) -> ast.Signal:
         name = node.attrib.get('name')
         when = node.attrib.get('when')
         detailed = node.attrib.get('detailed') == '1'
@@ -537,10 +523,6 @@ class GirParser:
         self._maybe_parse_docs(node, res)
         if return_value is not None:
             res.set_return_value(return_value)
-
-        if cls is not None:
-            cls.signals.append(res)
-
         return res
 
     def _parse_field(self, node: ET.Element) -> ast.Field:
@@ -562,13 +544,12 @@ class GirParser:
         res = ast.Field(name=name, writable=writable, readable=readable, private=private, bits=bits, target=ctype)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
-
         return res
 
-    def _parse_implements(self, node: ET.Element) -> str:
+    def _parse_implements(self, node: ET.Element) -> ast.Interface:
         return node.attrib['name']
 
-    def _parse_class(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_class(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         name = node.attrib.get('name')
         symbol_prefix = node.attrib.get(_cns('symbol-prefix'))
         ctype = node.attrib.get(_cns('type'))
@@ -585,70 +566,61 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        res = ast.Class(name=name, symbol_prefix=symbol_prefix, ctype=ctype, parent=parent, gtype=gtype,
-                        abstract=abstract, fundamental=fundamental, ref_func=ref_func, unref_func=unref_func)
-        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
-        self._maybe_parse_docs(node, res)
-
         fields = []
         children = node.findall('core:field', GI_NAMESPACES)
         for child in children:
             fields.append(self._parse_field(child))
-
-        res.set_fields(fields)
 
         ifaces = []
         children = node.findall('core:implements', GI_NAMESPACES)
         for child in children:
             ifaces.append(self._parse_implements(child))
 
-        res.set_implements(ifaces)
-
         ctors = []
         children = node.findall('core:constructor', GI_NAMESPACES)
         for child in children:
-            ctors.append(self._parse_function(child))
-
-        res.set_constructors(ctors)
+            ctors.append(self._parse_type_function(child))
 
         methods = []
         children = node.findall('core:method', GI_NAMESPACES)
         for child in children:
             methods.append(self._parse_method(child))
 
-        res.set_methods(methods)
-
         vmethods = []
         children = node.findall('core:virtual-method', GI_NAMESPACES)
         for child in children:
             vmethods.append(self._parse_virtual_method(child))
 
-        res.set_virtual_methods(vmethods)
-
         functions = []
         children = node.findall('core:function', GI_NAMESPACES)
         for child in children:
-            functions.append(self._parse_function(child))
-
-        res.set_functions(functions)
+            functions.append(self._parse_type_function(child))
 
         properties = []
         children = node.findall('core:property', GI_NAMESPACES)
         for child in children:
             properties.append(self._parse_property(child))
 
-        res.set_properties(properties)
-
         signals = []
         children = node.findall('glib:signal', GI_NAMESPACES)
         for child in children:
             signals.append(self._parse_signal(child))
 
+        res = ast.Class(name=name, symbol_prefix=symbol_prefix, ctype=ctype, parent=parent, gtype=gtype,
+                        abstract=abstract, fundamental=fundamental, ref_func=ref_func, unref_func=unref_func)
+        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_fields(fields)
+        res.set_implements(ifaces)
+        res.set_constructors(ctors)
+        res.set_methods(methods)
+        res.set_virtual_methods(vmethods)
+        res.set_functions(functions)
+        res.set_properties(properties)
         res.set_signals(signals)
-
+        self._maybe_parse_docs(node, res)
         ns.add_class(res)
 
-    def _parse_interface(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_interface(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         name = node.attrib.get('name')
         symbol_prefix = node.attrib.get(_cns('symbol-prefix'))
         ctype = node.attrib.get(_cns('type'))
@@ -660,59 +632,54 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        res = ast.Interface(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
-        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
-        self._maybe_parse_docs(node, res)
-
+        prerequisite = None
         child = node.find('core:prerequisite', GI_NAMESPACES)
         if child is not None:
-            res.set_prerequisite(child.attrib['name'])
+            prerequisite = child.attrib['name']
 
         fields = []
         children = node.findall('core:field', GI_NAMESPACES)
         for child in children:
             fields.append(self._parse_field(child))
 
-        res.set_fields(fields)
-
         methods = []
         children = node.findall('core:method', GI_NAMESPACES)
         for child in children:
             methods.append(self._parse_method(child))
-
-        res.set_methods(methods)
 
         vmethods = []
         children = node.findall('core:virtual-method', GI_NAMESPACES)
         for child in children:
             vmethods.append(self._parse_virtual_method(child))
 
-        res.set_virtual_methods(vmethods)
-
         functions = []
         children = node.findall('core:function', GI_NAMESPACES)
         for child in children:
-            functions.append(self._parse_function(child))
-
-        res.set_functions(functions)
+            functions.append(self._parse_type_function(child))
 
         properties = []
         children = node.findall('core:property', GI_NAMESPACES)
         for child in children:
             properties.append(self._parse_property(child))
 
-        res.set_properties(properties)
-
         signals = []
         children = node.findall('glib:signal', GI_NAMESPACES)
         for child in children:
             signals.append(self._parse_signal(child))
 
+        res = ast.Interface(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
+        res.set_prerequisite(prerequisite)
+        res.set_fields(fields)
+        res.set_virtual_methods(vmethods)
+        res.set_properties(properties)
         res.set_signals(signals)
-
+        res.set_methods(methods)
+        res.set_functions(functions)
+        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        self._maybe_parse_docs(node, res)
         ns.add_interface(res)
 
-    def _parse_boxed(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_boxed(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         name = node.attrib.get(_glibns('name'))
         symbol_prefix = node.attrib.get(_cns('symbol-prefix'))
         type_name = node.attrib.get(_glibns('type-name'))
@@ -722,20 +689,18 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type)
 
-        res = ast.Boxed(name=name, symbol_prefix=symbol_prefix, gtype=gtype)
-        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
-        self._maybe_parse_docs(node, res)
-
         functions = []
         children = node.findall('core:function', GI_NAMESPACES)
         for child in children:
-            functions.append(self._parse_function(child))
+            functions.append(self._parse_type_function(child))
 
+        res = ast.Boxed(name=name, symbol_prefix=symbol_prefix, gtype=gtype)
+        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_functions(functions)
-
+        self._maybe_parse_docs(node, res)
         ns.add_boxed(res)
 
-    def _parse_record(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_record(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         name: str = node.attrib['name']
         symbol_prefix: str = node.attrib.get(_cns('symbol-prefix'), '')
         ctype: str = node.attrib[_cns('type')]
@@ -749,42 +714,37 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        res = ast.Record(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype,
-                         struct_for=gtype_struct_for, disguised=disguised)
-        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
-        self._maybe_parse_docs(node, res)
-
         fields = []
         children = node.findall('core:field', GI_NAMESPACES)
         for child in children:
             fields.append(self._parse_field(child))
 
-        res.set_fields(fields)
-
         ctors = []
         children = node.findall('core:constructor', GI_NAMESPACES)
         for child in children:
-            ctors.append(self._parse_function(child))
-
-        res.set_constructors(ctors)
+            ctors.append(self._parse_type_function(child))
 
         methods = []
         children = node.findall('core:method', GI_NAMESPACES)
         for child in children:
             methods.append(self._parse_method(child))
 
-        res.set_methods(methods)
-
         functions = []
         children = node.findall('core:function', GI_NAMESPACES)
         for child in children:
-            functions.append(self._parse_function(child))
+            functions.append(self._parse_type_function(child))
 
+        res = ast.Record(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype,
+                         struct_for=gtype_struct_for, disguised=disguised)
+        res.set_fields(fields)
+        res.set_constructors(ctors)
+        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_methods(methods)
         res.set_functions(functions)
-
+        self._maybe_parse_docs(node, res)
         ns.add_record(res)
 
-    def _parse_union(self, node: ET.Element, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_union(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         name = node.attrib.get('name')
         symbol_prefix = node.attrib.get(_cns('symbol-prefix'))
         ctype = node.attrib.get(_cns('type'))
@@ -796,36 +756,31 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name=type_name, get_type=get_type, type_struct=type_struct)
 
-        res = ast.Union(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
-        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
-        self._maybe_parse_docs(node, res)
-
         fields = []
         children = node.findall('core:field', GI_NAMESPACES)
         for child in children:
             fields.append(self._parse_field(child))
 
-        res.set_fields(fields)
-
         ctors = []
         children = node.findall('core:constructor', GI_NAMESPACES)
         for child in children:
-            ctors.append(self._parse_function(child))
-
-        res.set_constructors(ctors)
+            ctors.append(self._parse_type_function(child))
 
         methods = []
         children = node.findall('core:method', GI_NAMESPACES)
         for child in children:
             methods.append(self._parse_method(child))
 
-        res.set_methods(methods)
-
         functions = []
         children = node.findall('core:function', GI_NAMESPACES)
         for child in children:
-            functions.append(self._parse_function(child))
+            functions.append(self._parse_type_function(child))
 
+        res = ast.Union(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
+        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_fields(fields)
+        res.set_constructors(ctors)
+        res.set_methods(methods)
         res.set_functions(functions)
-
+        self._maybe_parse_docs(node, res)
         ns.add_union(res)
