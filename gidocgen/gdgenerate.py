@@ -486,12 +486,12 @@ class TemplateField:
 
 
 class TemplateInterface:
-    def __init__(self, namespace, iface_name):
-        interface = namespace.find_interface(iface_name)
-        if interface is None:
+    def __init__(self, namespace, interface):
+        if isinstance(interface, str):
+            log.debug(f"Creating template for unknown interface name '{interface}'")
             self.namespace = namespace.name
-            self.name = iface_name
-            self.fqtn = f"{namespace.name}.{iface_name}"
+            self.name = interface
+            self.fqtn = f"{namespace.name}.{interface}"
             self.requires = "GObject.Object"
             self.link_prefix = "iface"
             self.description = "No description available."
@@ -506,9 +506,17 @@ class TemplateInterface:
             self.name = interface.name
             self.fqtn = f"{namespace.name}.{interface.name}"
 
-        self.requires = interface.prerequisite
-        if self.requires is None:
-            self.requires = "GObject.Object"
+        requires = interface.prerequisite
+        if requires is None:
+            self.requires_namespace = "GObject"
+            self.requires_name = "Object"
+        elif '.' in requires:
+            self.requires_namespace, self.requires_name = requires.split('.')
+        else:
+            self.requires_namespace = namespace.name
+            self.requires_name = requires
+
+        self.requires_fqtn = f"{self.requires_namespace}.{self.requires_name}"
 
         self.symbol_prefix = f"{namespace.symbol_prefix}_{interface.symbol_prefix}"
         self.type_cname = interface.ctype
@@ -565,7 +573,7 @@ class TemplateInterface:
 
     @property
     def c_decl(self):
-        return f"interface {self.type_cname} : {self.requires}"
+        return f"interface {self.fqtn} : {self.requires_fqtn}"
 
 
 class TemplateClass:
@@ -670,8 +678,12 @@ class TemplateClass:
 
         if len(cls.implements) != 0:
             self.interfaces = []
-            for iface in cls.implements:
-                self.interfaces.append(TemplateInterface(namespace, iface))
+            for iface_name in cls.implements:
+                iface = namespace.find_interface(iface_name)
+                if iface is None:
+                    self.interfaces.append(TemplateInterface(namespace, iface_name))
+                else:
+                    self.interfaces.append(TemplateInterface(namespace, iface))
 
         if len(cls.virtual_methods) != 0:
             self.virtual_methods = []
