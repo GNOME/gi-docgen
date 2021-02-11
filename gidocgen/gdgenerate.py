@@ -62,11 +62,16 @@ LANGUAGE_MAP = {
     'xml': 'xml',
 }
 
+STRING_TYPES = {
+    'utf8': 'The string is a NUL terminated UTF-8 string',
+    'filename': 'The string is a file system path, using the OS encoding',
+}
+
 TRANSFER_MODES = {
     'none': 'Ownership is not transferred',
     'container': 'Ownership of the container type is transferred, but not of the data',
     'full': 'Ownership of the data is transferred',
-    'floating': 'Data has a floating reference',
+    'floating': 'Object has a floating reference',
 }
 
 DIRECTION_MODES = {
@@ -93,6 +98,16 @@ MD_EXTENSIONS = [
     # Local extensions
     mdext.GtkDocExtension(),
 ]
+
+
+def type_name_to_cname(fqtn, is_pointer=False):
+    ns, name = fqtn.split('.')
+    res = []
+    res.append(ns)
+    res.append(name)
+    if is_pointer:
+        res.append('*')
+    return "".join(res)
 
 
 def process_language(lang):
@@ -210,10 +225,14 @@ class TemplateArgument:
         self.name = argument.name
         self.type_name = argument.target.name
         self.type_cname = argument.target.ctype
+        if self.type_cname is None:
+            self.type_cname = type_name_to_cname(argument.target.name, True)
         self.transfer = TRANSFER_MODES[argument.transfer]
         self.direction = DIRECTION_MODES[argument.direction]
         self.nullable = argument.nullable
         self.scope = SCOPE_MODES[argument.scope or 'none']
+        if self.type_name in ['utf8', 'filename']:
+            self.string_note = STRING_TYPES[self.type_name]
         if argument.closure != -1:
             self.closure = call.parameters[argument.closure]
         else:
@@ -232,9 +251,13 @@ class TemplateReturnValue:
         self.name = retval.name
         self.type_name = retval.target.name
         self.type_cname = retval.target.ctype
+        if self.type_cname is None:
+            self.type_cname = type_name_to_cname(retval.target.name, True)
         self.transfer = TRANSFER_MODES[retval.transfer or 'none']
         self.nullable = retval.nullable
         self.description = "No description available."
+        if self.type_name in ['utf8', 'filename']:
+            self.string_note = STRING_TYPES[self.type_name]
         if retval.doc is not None:
             self.description = preprocess_gtkdoc(retval.doc.content)
 
@@ -487,34 +510,28 @@ class TemplateField:
 
 class TemplateInterface:
     def __init__(self, namespace, interface):
-        if isinstance(interface, str):
-            log.debug(f"Creating template for unknown interface name '{interface}'")
-            self.namespace = namespace.name
-            self.name = interface
-            self.fqtn = f"{namespace.name}.{interface}"
+        if isinstance(interface, gir.Interface):
+            if '.' in interface.name:
+                self.namespace, self.name = interface.name.split('.')
+                self.fqtn = interface.name
+            else:
+                self.namespace = namespace.name
+                self.name = interface.name
+                self.fqtn = f"{namespace.name}.{interface.name}"
+        elif isinstance(interface, gir.Type):
+            self.namespace, self.name = interface.name.split('.')
+            self.fqtn = interface.name
             self.requires = "GObject.Object"
             self.link_prefix = "iface"
             self.description = "No description available."
             return
 
-        if '.' in interface.name:
-            self.namespace = interface.name.split('.')[0]
-            self.name = interface.name.split('.')[1]
-            self.fqtn = interface.name
-        else:
-            self.namespace = namespace.name
-            self.name = interface.name
-            self.fqtn = f"{namespace.name}.{interface.name}"
-
         requires = interface.prerequisite
         if requires is None:
             self.requires_namespace = "GObject"
             self.requires_name = "Object"
-        elif '.' in requires:
-            self.requires_namespace, self.requires_name = requires.split('.')
         else:
-            self.requires_namespace = namespace.name
-            self.requires_name = requires
+            self.requires_namespace, self.requires_name = requires.name.split('.')
 
         self.requires_fqtn = f"{self.requires_namespace}.{self.requires_name}"
 
@@ -595,19 +612,20 @@ class TemplateClass:
 
         if cls.parent is None or cls.fundamental:
             self.parent_fqtn = 'GObject.TypeInstance'
+            self.parent_cname = 'GTypeInstance*'
             self.parent_name = 'TypeInstance'
             self.parent_namespace = 'GObject'
-            self.parent_cname = 'GTypeInstance*'
-        elif '.' in cls.parent:
-            self.parent_fqtn = cls.parent
-            self.parent_namespace = cls.parent.split('.')[0]
-            self.parent_name = cls.parent.split('.')[1]
-            self.parent_cname = cls.parent
+        elif '.' in cls.parent.name:
+            self.parent_fqtn = cls.parent.name
+            self.parent_cname = cls.parent.ctype
+            self.parent_namespace = self.parent_fqtn.split('.')[0]
+            self.parent_name = self.parent_fqtn.split('.')[1]
         else:
+            log.error(f"Unqualified parent type name {cls.parent} for class {cls.name}")
             self.parent_fqtn = f"{namespace.name}.{cls.parent}"
-            self.parent_name = cls.parent
+            self.parent_name = cls.parent.name
             self.parent_namespace = namespace.name
-            parent = namespace.find_class(cls.parent)
+            parent = namespace.find_class(cls.parent.name)
             if parent is None:
                 log.error(f"Unable to find parent {cls.parent} for class {cls.name}")
             self.parent_cname = parent.ctype
@@ -681,10 +699,11 @@ class TemplateClass:
 
         if len(cls.implements) != 0:
             self.interfaces = []
-            for iface_name in cls.implements:
-                iface = namespace.find_interface(iface_name)
+            for iface_type in cls.implements:
+                iface = namespace.find_interface(iface_type.name)
                 if iface is None:
-                    self.interfaces.append(TemplateInterface(namespace, iface_name))
+                    log.debug(f"Unable to find interface {iface_type.name}")
+                    self.interfaces.append(TemplateInterface(namespace, iface_type))
                 else:
                     self.interfaces.append(TemplateInterface(namespace, iface))
 

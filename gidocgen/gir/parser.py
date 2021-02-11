@@ -14,6 +14,32 @@ GI_NAMESPACES = {
     'glib': "http://www.gtk.org/introspection/glib/1.0",
 }
 
+FUNDAMENTAL_TYPES = [
+    'gint8', 'guint8', 'int8_t',
+    'gint16', 'guint16', 'int16_t',
+    'gint32', 'guint32', 'int32_t',
+    'gint64', 'guint64', 'int64_t',
+    'gint', 'guint', 'int', 'unsigned', 'unsigned int',
+    'gfloat', 'float',
+    'gdouble', 'double', 'long double',
+    'gchar', 'guchar', 'char', 'unsigned char',
+    'gshort', 'gushort', 'short', 'unsigned short',
+    'glong', 'gulong', 'long', 'unsigned long',
+    'utf8', 'filename',
+    'gunichar',
+    'gpointer', 'gconstpointer',
+    'gchar*', 'char*', 'guchar*',
+    'gsize', 'gssize', 'size_t',
+    'gboolean', 'bool',
+    'va_list',
+]
+
+FUNDAMENTAL_CTYPES = {
+    'GObject.Object': 'GObject*',
+    'GObject.InitiallyUnowned': 'GObject*',
+    'GObject.ParamSpec': 'GObject.ParamSpec*',
+}
+
 
 def _corens(tag: str) -> str:
     return f"{{{GI_NAMESPACES['core']}}}{tag}"
@@ -32,6 +58,8 @@ class GirParser:
         self._search_paths = search_paths
         self._repository = None
         self._dependencies = {}
+        self._types_register = {}
+        self._current_namespace = []
 
     def append_search_path(self, path: str) -> None:
         """Append a path to the list of search paths"""
@@ -50,12 +78,52 @@ class GirParser:
             log.error(f"Could not parse GIR {girfile}")
         else:
             self._repository = repository
+            self._repository.resolve_empty_ctypes()
+            self._repository.resolve_class_ancestors()
 
     def get_repository(self, name: T.Optional[str] = None) -> T.Optional[ast.Repository]:
         if name is None:
             return self._repository
         else:
             return self._dependencies[name]
+
+    def _push_namespace(self, ns: ast.Namespace) -> None:
+        assert(ns not in self._current_namespace)
+        self._current_namespace.append(ns)
+
+    def _pop_namespace(self) -> None:
+        self._current_namespace.pop()
+
+    def _get_namespace(self) -> T.Optional[ast.Namespace]:
+        if len(self._current_namespace) == 0:
+            return None
+        return self._current_namespace[len(self._current_namespace) - 1]
+
+    def _lookup_type(self, name: str, ctype: T.Optional[str] = None) -> ast.Type:
+        """Look up a type, and if not found, register it"""
+        if name in FUNDAMENTAL_TYPES:
+            fqtn = name
+        elif name == 'GType':
+            # This is messy, because GType is part of GObject, but GLib ends up
+            # registering it first
+            fqtn = 'GObject.Type'
+        elif '.' in name:
+            fqtn = name
+        else:
+            ns = self._get_namespace()
+            if ns is not None:
+                fqtn = f"{ns.name}.{name}"
+            else:
+                log.debug(f"Unqualified type name {name} found")
+                fqtn = name
+        if fqtn not in self._types_register:
+            if ctype is None and fqtn in FUNDAMENTAL_CTYPES:
+                ctype = FUNDAMENTAL_CTYPES[fqtn]
+            t = ast.Type(name=fqtn, ctype=ctype)
+            self._types_register[fqtn] = t
+            log.debug(f"Adding type {fqtn} for {t}")
+        res = self._types_register[fqtn]
+        return res
 
     def _parse_dependency(self, include: ast.Include) -> None:
         if self._dependencies.get(str(include), None) is not None:
@@ -132,10 +200,16 @@ class GirParser:
             _corens('union'): self._parse_union,
         }
 
+        self._push_namespace(namespace)
+
         for node in ns:
             parser_method = parse_sections.get(node.tag, None)
             if parser_method is not None:
                 parser_method(node, repository, namespace)
+
+        self._pop_namespace()
+
+        repository.types = self._types_register
 
         return repository
 
@@ -207,7 +281,7 @@ class GirParser:
                 if tname == 'none' and ttype == 'void':
                     target = ast.VoidType()
                 else:
-                    target = ast.Type(name=tname, ctype=ctype)
+                    target = self._lookup_type(name=tname, ctype=ctype)
             else:
                 target = ast.VoidType()
 
@@ -221,7 +295,7 @@ class GirParser:
                 if tname == 'none' and ttype == 'void':
                     ctype = ast.VoidType()
                 else:
-                    ctype = ast.Type(name=tname, ctype=ttype)
+                    ctype = self._lookup_type(name=tname, ctype=ttype)
             else:
                 child = node.find('core:varargs', GI_NAMESPACES)
                 if child is not None:
@@ -547,7 +621,7 @@ class GirParser:
         return res
 
     def _parse_implements(self, node: ET.Element) -> ast.Interface:
-        return node.attrib['name']
+        return self._lookup_type(node.attrib['name'])
 
     def _parse_class(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         name = node.attrib.get('name')
@@ -561,6 +635,10 @@ class GirParser:
         fundamental = node.attrib.get(_glibns('fundamental'), '0') == '1'
         ref_func = node.attrib.get(_glibns('ref-func'))
         unref_func = node.attrib.get(_glibns('unref-func'))
+
+        parent_type = None
+        if parent is not None:
+            parent_type = self._lookup_type(parent)
 
         gtype = None
         if type_name is not None:
@@ -606,7 +684,7 @@ class GirParser:
         for child in children:
             signals.append(self._parse_signal(child))
 
-        res = ast.Class(name=name, symbol_prefix=symbol_prefix, ctype=ctype, parent=parent, gtype=gtype,
+        res = ast.Class(name=name, symbol_prefix=symbol_prefix, ctype=ctype, parent=parent_type, gtype=gtype,
                         abstract=abstract, fundamental=fundamental, ref_func=ref_func, unref_func=unref_func)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_fields(fields)
@@ -635,7 +713,7 @@ class GirParser:
         prerequisite = None
         child = node.find('core:prerequisite', GI_NAMESPACES)
         if child is not None:
-            prerequisite = child.attrib['name']
+            prerequisite = self._lookup_type(child.attrib['name'])
 
         fields = []
         children = node.findall('core:field', GI_NAMESPACES)

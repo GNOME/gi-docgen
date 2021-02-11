@@ -83,8 +83,9 @@ class Info:
 
 class GIRElement:
     """Base type for elements inside the GIR"""
-    def __init__(self, name: T.Optional[str] = None):
+    def __init__(self, name: T.Optional[str] = None, namespace: T.Optional[str] = None):
         self.name = name
+        self.namespace = namespace
         self.info = Info()
 
     def set_introspectable(self, introspectable: bool) -> None:
@@ -149,19 +150,29 @@ class GIRElement:
 
 class Type(GIRElement):
     """Base class for all Type nodes"""
-    def __init__(self, name: str, ctype: str = None):
+    def __init__(self, name: str, ctype: T.Optional[str] = None):
         super().__init__(name)
         self.ctype = ctype
+        self.namespace = None
+        if '.' in self.name:
+            self.namespace = self.name.split('.')[0]
 
     def __eq__(self, other):
         if isinstance(other, Type):
-            return self.name == other.name
+            if self.namespace is not None:
+                return self.namespace == other.namespace and self.name == self.name
+            elif self.ctype is not None:
+                return self.name == other.name and self.ctype == other.ctype
+            else:
+                return self.name == other.name
         elif isinstance(other, str):
             return self.name == other
         else:
             return False
 
     def __cmp__(self, other):
+        if self.ctype is not None:
+            return self.name == other.name and self.ctype == other.ctype
         return self.name == other.name
 
     def __repr__(self):
@@ -461,7 +472,7 @@ class Interface(Type):
 
 
 class Class(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType, parent: T.Optional[str] = None, abstract: bool = False,
+    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType, parent: T.Optional[Type] = None, abstract: bool = False,
                  fundamental: bool = False, ref_func: T.Optional[str] = None, unref_func: T.Optional[str] = None):
         super().__init__(name, ctype)
         self.symbol_prefix = symbol_prefix
@@ -471,7 +482,7 @@ class Class(Type):
         self.ref_func = ref_func
         self.unref_func = unref_func
         self.gtype = gtype
-        self.implements: T.List[str] = []
+        self.implements: T.List[Type] = []
         self.constructors: T.List[Function] = []
         self.methods: T.List[Method] = []
         self.virtual_methods: T.List[VirtualMethod] = []
@@ -511,7 +522,7 @@ class Class(Type):
     def set_functions(self, functions: T.List[Function]) -> None:
         self.functions.extend(functions)
 
-    def set_implements(self, ifaces: T.List[str]) -> None:
+    def set_implements(self, ifaces: T.List[Type]) -> None:
         self.implements.extend(ifaces)
 
     def set_fields(self, fields: T.List[Field]) -> None:
@@ -738,17 +749,96 @@ class Namespace:
     def find_interface(self, iface: str) -> T.Optional[Interface]:
         return self._interfaces.get(iface)
 
+    def find_real_type(self, name: str) -> T.Optional[Type]:
+        if name in self._aliases:
+            return self._aliases[name]
+        if name in self._bitfields:
+            return self._bitfields[name]
+        if name in self._enumerations:
+            return self._enumerations[name]
+        if name in self._error_domains:
+            return self._error_domains[name]
+        if name in self._classes:
+            return self._classes[name]
+        if name in self._interfaces:
+            return self._interfaces[name]
+        if name in self._records:
+            return self._records[name]
+        if name in self._unions:
+            return self._unions[name]
+        return None
+
 
 class Repository:
     def __init__(self):
         self.includes: T.List[Repository] = []
         self.packages: T.List[Package] = []
         self.c_includes: T.List[CInclude] = []
+        self.types: T.Mapping[str, Type] = {}
         self._namespaces: T.List[Namespace] = []
 
     def add_namespace(self, ns: Namespace) -> None:
         self._namespaces.append(ns)
 
+    def resolve_empty_ctypes(self):
+        def find_real_type(includes, ns, name):
+            for repo in self.includes:
+                if repo.namespace.name != name:
+                    continue
+                real_type = repo.namespace.find_real_type(name)
+                if real_type is not None:
+                    return real_type
+            return None
+
+        for t in self.types.values():
+            if t.ctype is not None:
+                continue
+            real_type = None
+            if '.' in t.name:
+                ns, name = t.name.split('.')
+                if ns == self.namespace.name:
+                    real_type = self.namespace.find_real_type(name)
+                else:
+                    real_type = find_real_type(self.includes, ns, name)
+            else:
+                pass
+            if real_type is not None:
+                t.ctype = real_type.ctype
+
+    def resolve_class_ancestors(self):
+        def find_parent_class(includes, ns, name):
+            for repo in self.includes:
+                if repo.namespace.name != name:
+                    continue
+                parent = repo.namespace.find_class(name)
+                if parent is not None:
+                    return parent
+            return None
+
+        classes = self.namespace.get_classes()
+        for cls in classes:
+            if cls.parent is None:
+                continue
+            ancestors = []
+            parent = cls.parent
+            while parent is not None:
+                ancestors.append(parent)
+                if '.' in parent.name:
+                    ns, name = parent.name.split('.')
+                    if ns == self.namespace.name:
+                        parent = self.namespace.find_class(name)
+                    else:
+                        parent = find_parent_class(self.includes, ns, name)
+                else:
+                    parent = self.namespace.find_class(parent.name)
+                if parent is not None:
+                    parent = parent.parent
+            cls.ancestors = ancestors
+            cls.parent = ancestors[0]
+
     @property
     def namespace(self) -> T.Optional[Namespace]:
         return self._namespaces[0]
+
+    def find_type(self, name: str) -> T.Optional[Type]:
+        return self._types.get(name)
