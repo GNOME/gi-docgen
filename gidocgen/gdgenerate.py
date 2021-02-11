@@ -1602,7 +1602,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         "unions": _gen_unions,
     }
 
-    ns_dir = os.path.join(output_dir, f"{namespace.name}", f"{namespace.version}")
+    ns_dir = os.path.join(output_dir, f"{namespace.name}-{namespace.version}")
     log.debug(f"Creating output path for the namespace: {ns_dir}")
     os.makedirs(ns_dir, exist_ok=True)
 
