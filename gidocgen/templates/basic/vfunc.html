@@ -74,11 +74,8 @@
       <h4><a name="declaration">Declaration</a></h4>
 
       <div class="docblock">
-        <pre><code>{% if vfunc.return_value %}{{ vfunc.return_value.type_cname }}{% else %}void{% endif %}
-{{ vfunc.identifier }} (
-  {{ class.type_cname }}* self{% if vfunc.arguments|length != 0 %},{% endif %}
-  {% for arg in vfunc.arguments %}{{ arg.type_cname }} {{ arg.name }}{% if not loop.last %},{% endif %}{%- endfor %}
-)</code></pre>
+        <pre><code>{{ vfunc.c_decl }}</code></pre>
+      </div>
     </div>
 
     <div class="description toggle-wrapper">
@@ -87,6 +84,31 @@
       <div class="docblock">
       {{ vfunc.description|safe }}
       </div>
+
+      <div class="docblock">
+        <table>
+          {% if vfunc.stability %}
+          <tr><td>Stability:</td><td>{{ vfunc.stability }}</td></tr>
+          {% endif %}
+          {% if vfunc.available_since %}
+          <tr><td>Available since:</td><td>{{ vfunc.available_since }}</td></tr>
+          {% endif %}
+          {% if vfunc.deprecated_since %}
+          <tr><td>Deprecated since:</td><td>{{ vfunc.deprecated_since.version }}</td></tr>
+          <tr><td colspan="2">{{ vfunc.deprecated_since.message|safe }}</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      {% if vfunc.annotations %}
+      <div class="docblock">
+        <table>
+        {% for (key, value) in vfunc.annotations %}
+          <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
+        {% endfor %}
+        </table>
+      </div>
+      {% endif %}
     </div>
 
     {% if vfunc.arguments|length != 0 %}
@@ -97,12 +119,17 @@
         <table>
           {% for arg in vfunc.arguments %}
           <tr>
-            <td><code>{{ arg.name }}: {{ arg.type_cname }}</code></td>
-            <td>{{ arg.direction }}</td>
-            <td>{{ arg.transfer }}</td>
-            <td>{%- if arg.nullable %}nullable{% else %}not nullable{% endif -%}</td>
+            <td><code>{{ arg.name }}</code></td><td><code>{{ arg.type_cname }}</code></td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
             <td>{{ arg.description|safe }}</td>
           </tr>
+          {% if arg.direction != "in" %}<tr><td>&nbsp;</td><td>Direction: {{ arg.direction }}</td></tr>{% endif %}
+          {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if arg.direction == "out" and arg.optional %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if arg.is_pointer %}<tr><td>&nbsp;</td><td>{{ arg.transfer }}</td></tr>{% endif %}
+          {% if arg.string_note %}<tr><td>&nbsp;</td><td>{{ arg.string_note }}</td></tr>{% endif %}
           {% endfor %}
         </table>
       </div>
@@ -117,10 +144,9 @@
         {{ vfunc.return_value.description|safe }}
 
         <table>
-          <tr>
-            <td>{{ vfunc.return_value.transfer }}</td>
-            <td>{%- if vfunc.return_value.nullable %}nullable{% else %}not nullable{% endif -%}</td>
-          </tr>
+          {% if vfunc.return_value.is_pointer %}<tr><td>{{ vfunc.return_value.transfer }}</td></tr>{% endif %}
+          {% if vfunc.return_value.is_pointer and vfunc.return_value.nullable %}<tr><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if vfunc.return_value.string_note %}<tr><td>{{ vfunc.return_value.string_note }}</td></tr>{% endif %}
         </table>
       </div>
     </div>

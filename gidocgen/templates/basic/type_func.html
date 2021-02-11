@@ -129,6 +129,7 @@
           {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
           {% if arg.direction == "out" and arg.optional %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
           {% if arg.is_pointer %}<tr><td>&nbsp;</td><td>{{ arg.transfer }}</td></tr>{% endif %}
+          {% if arg.string_note %}<tr><td>&nbsp;</td><td>{{ arg.string_note }}</td></tr>{% endif %}
           {% endfor %}
         </table>
       </div>
@@ -144,7 +145,8 @@
 
         <table>
           {% if type_func.return_value.is_pointer %}<tr><td>{{ type_func.return_value.transfer }}</td></tr>{% endif %}
-          {% if type_func.return_value.is_pointer and type_func.return_value.nullable %}Can be <code>NULL</code></td></tr>{% endif %}
+          {% if type_func.return_value.is_pointer and type_func.return_value.nullable %}<tr><td>Can be <code>NULL</code></td></tr>{% endif %}
+          {% if type_func.return_value.string_note %}<tr><td>{{ type_func.return_value.string_note }}</td></tr>{% endif %}
         </table>
       </div>
     </div>
