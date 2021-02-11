@@ -1602,7 +1602,11 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         "unions": _gen_unions,
     }
 
-    ns_dir = os.path.join(output_dir, f"{namespace.name}-{namespace.version}")
+    if options.no_namespace_dir:
+        ns_dir = output_dir
+    else:
+        ns_dir = os.path.join(output_dir, f"{namespace.name}-{namespace.version}")
+
     log.debug(f"Creating output path for the namespace: {ns_dir}")
     os.makedirs(ns_dir, exist_ok=True)
 
@@ -1669,6 +1673,7 @@ def add_args(parser):
     parser.add_argument("--content-dir", default=None, help="the base directory with the extra content")
     parser.add_argument("--theme-name", default="basic", help="the theme to use")
     parser.add_argument("--output-dir", default=None, help="the output directory for the index files")
+    parser.add_argument("--no-namespace-dir", action="store_true", help="do not create a namespace directory under the output directory")
     parser.add_argument("--section", action="append", dest="sections", default=[], help="the sections to generate, or 'all'")
     parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'),
                         default=sys.stdin, help="the GIR file to parse")
