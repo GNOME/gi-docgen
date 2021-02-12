@@ -97,6 +97,7 @@ MD_EXTENSIONS = [
 
     # Local extensions
     mdext.GtkDocExtension(),
+    mdext.LinkExtension(),
 ]
 
 
