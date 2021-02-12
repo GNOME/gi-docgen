@@ -29,8 +29,8 @@ h3 {
   padding-left: 0.5em;
 }
 
-.navbar h3, .navbar h4, .navbar h6 {
-  text-align: center;
+.sidebar .logo {
+  margin: 12px auto;
 }
 
 ol, ul {

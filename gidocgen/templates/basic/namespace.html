@@ -9,6 +9,11 @@
 
 {% block navbar %}
 <nav class="sidebar">
+  {% if CONFIG.logo_url %}
+  <div class="section">
+    <img src="{{ CONFIG.logo_url }}" class="logo"/>
+  </div>
+  {% endif %}
   <div class="section namespace">
     <h3><a href="index.html">{{ namespace.name }}</a></h3>
     <p>Version: {{ namespace.version }}</p>
