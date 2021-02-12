@@ -96,7 +96,7 @@ class LinkInlineProcessor(InlineProcessor):
             'class': self._handle_class,
             'enum': self._handle_enum,
             'iface': self._handle_iface,
-            'prop': self._handle_property,
+            'property': self._handle_property,
             'signal': self._handle_signal,
         }
 
