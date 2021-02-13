@@ -48,7 +48,6 @@ MD_EXTENSIONS = [
 
     # Local extensions
     mdext.GtkDocExtension(),
-    mdext.LinkExtension(),
 ]
 
 
@@ -73,7 +72,7 @@ class TemplateConstant:
 
         self.description = "No description available."
         if const.doc is not None:
-            self.description = utils.preprocess_docs(const.doc.content)
+            self.description = utils.preprocess_docs(const.doc.content, namespace)
 
         self.stability = const.stability
         self.annotations = const.annotations
@@ -82,7 +81,7 @@ class TemplateConstant:
             (version, msg) = const.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
     @property
@@ -101,7 +100,7 @@ class TemplateProperty:
         self.construct = prop.construct
         self.construct_only = prop.construct_only
         if prop.doc is not None:
-            self.description = utils.preprocess_docs(prop.doc.content)
+            self.description = utils.preprocess_docs(prop.doc.content, namespace)
 
         self.stability = prop.stability
         self.annotations = prop.annotations
@@ -110,7 +109,7 @@ class TemplateProperty:
             (version, msg) = prop.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
 
@@ -168,7 +167,7 @@ class TemplateSignal:
         self.identifier = signal.name.replace("-", "_")
 
         if signal.doc is not None:
-            self.description = utils.preprocess_docs(signal.doc.content)
+            self.description = utils.preprocess_docs(signal.doc.content, namespace)
 
         self.arguments = []
         for arg in signal.parameters:
@@ -185,7 +184,7 @@ class TemplateSignal:
             (version, msg) = signal.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
     @property
@@ -211,7 +210,7 @@ class TemplateMethod:
         self.description = "No description available."
 
         if method.doc is not None:
-            self.description = utils.preprocess_docs(method.doc.content)
+            self.description = utils.preprocess_docs(method.doc.content, namespace)
 
         self.instance_parameter = TemplateArgument(method, method.instance_param)
 
@@ -230,7 +229,7 @@ class TemplateMethod:
             (version, msg) = method.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
     @property
@@ -263,7 +262,7 @@ class TemplateClassMethod:
         self.description = "No description available."
 
         if method.doc is not None:
-            self.description = utils.preprocess_docs(method.doc.content)
+            self.description = utils.preprocess_docs(method.doc.content, namespace)
 
         self.arguments = []
         for arg in method.parameters:
@@ -303,7 +302,7 @@ class TemplateFunction:
 
         self.description = "No description available."
         if func.doc is not None:
-            self.description = utils.preprocess_docs(func.doc.content)
+            self.description = utils.preprocess_docs(func.doc.content, namespace)
 
         self.arguments = []
         for arg in func.parameters:
@@ -320,7 +319,7 @@ class TemplateFunction:
             (version, msg) = func.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
     @property
@@ -350,7 +349,7 @@ class TemplateCallback:
         self.description = "No description available."
         self.identifier = cb.name.replace("-", "_")
         if cb.doc is not None:
-            self.description = utils.preprocess_docs(cb.doc.content)
+            self.description = utils.preprocess_docs(cb.doc.content, namespace)
 
         self.arguments = []
         for arg in cb.parameters:
@@ -367,7 +366,7 @@ class TemplateCallback:
             (version, msg) = cb.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
     @property
@@ -436,7 +435,7 @@ class TemplateInterface:
 
         self.description = "No description available."
         if interface.doc is not None:
-            self.description = utils.preprocess_docs(interface.doc.content)
+            self.description = utils.preprocess_docs(interface.doc.content, namespace)
 
         self.stability = interface.stability
         self.annotations = interface.annotations
@@ -445,7 +444,7 @@ class TemplateInterface:
             (version, msg) = interface.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
         self.class_name = interface.type_struct
@@ -543,7 +542,7 @@ class TemplateClass:
 
         self.description = "No description available."
         if cls.doc is not None:
-            self.description = utils.preprocess_docs(cls.doc.content)
+            self.description = utils.preprocess_docs(cls.doc.content, namespace)
 
         self.stability = cls.stability
         self.annotations = cls.annotations
@@ -552,7 +551,7 @@ class TemplateClass:
             (version, msg) = cls.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
         self.fields = []
@@ -644,7 +643,7 @@ class TemplateRecord:
 
         self.description = "No description available."
         if record.doc is not None:
-            self.description = utils.preprocess_docs(record.doc.content)
+            self.description = utils.preprocess_docs(record.doc.content, namespace)
 
         self.stability = record.stability
         self.annotations = record.annotations
@@ -653,7 +652,7 @@ class TemplateRecord:
             (version, msg) = record.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
         self.fields = []
@@ -703,7 +702,7 @@ class TemplateUnion:
 
         self.description = "No description available."
         if union.doc is not None:
-            self.description = utils.preprocess_docs(union.doc.content)
+            self.description = utils.preprocess_docs(union.doc.content, namespace)
 
         self.stability = union.stability
         self.annotations = union.annotations
@@ -712,7 +711,7 @@ class TemplateUnion:
             (version, msg) = union.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
         self.fields = []
@@ -763,7 +762,7 @@ class TemplateAlias:
 
         self.description = "No description available."
         if alias.doc is not None:
-            self.description = utils.preprocess_docs(alias.doc.content)
+            self.description = utils.preprocess_docs(alias.doc.content, namespace)
 
         self.stability = alias.stability
         self.annotations = alias.annotations
@@ -773,7 +772,7 @@ class TemplateAlias:
             (version, msg) = alias.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
     @property
@@ -805,7 +804,7 @@ class TemplateEnum:
 
         self.description = "No description available."
         if enum.doc is not None:
-            self.description = utils.preprocess_docs(enum.doc.content)
+            self.description = utils.preprocess_docs(enum.doc.content, namespace)
 
         self.stability = enum.stability
         self.annotations = enum.annotations
@@ -815,7 +814,7 @@ class TemplateEnum:
             (version, msg) = enum.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg),
+                "message": utils.preprocess_docs(msg, namespace),
             }
 
         if isinstance(enum, gir.BitField):
@@ -1417,7 +1416,7 @@ def _gen_content_files(config, theme_config, content_dir, output_dir, jinja_env,
                 source += [line]
             src_data = "".join(source)
 
-        dst_data = utils.preprocess_docs(src_data, md)
+        dst_data = utils.preprocess_docs(src_data, namespace, md)
         title = "\n".join(md.Meta.get("title", ["Unknown document"]))
 
         content = {
