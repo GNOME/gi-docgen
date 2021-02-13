@@ -158,7 +158,7 @@ class LinkGenerator:
             else:
                 self._func = "".join([self._ns.lower(), '_', self._name.lower(), '_', self._func_name])
         else:
-            log.warning(f"Unknown fragment 'f{self._fragment}' in link")
+            log.warning(f"Unknown fragment '{self._fragment}' in link")
 
     def __str__(self):
         if self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
