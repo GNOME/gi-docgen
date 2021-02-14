@@ -9,7 +9,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from typogrify.filters import typogrify
 
-from . import log, mdext
+from . import gir, log, mdext
 
 
 # The beginning of a gtk-doc code block:
@@ -64,7 +64,7 @@ LINK_RE = re.compile(
     r'''
     \[
     (`)?
-    (?P<fragment>alias|class|const|ctor|enum|error|flags|func|iface|method|property|struct|vfunc)
+    (?P<fragment>alias|class|const|ctor|enum|error|flags|func|id|iface|method|property|struct|vfunc)
     @
     (?P<endpoint>[\w\-_:\.]+)
     (`)?
@@ -112,19 +112,38 @@ def process_language(lang):
 
 class LinkGenerator:
     def __init__(self, **kwargs):
-        self._namespace = kwargs.get('namespace', '')
+        self._namespace = kwargs.get('namespace')
         self._fragment = kwargs.get('fragment', '')
         self._endpoint = kwargs.get('endpoint', '')
+
         if '.' in self._endpoint:
             self._ns, self._rest = self._endpoint.split('.', maxsplit=1)
         else:
             self._ns = ''
             self._rest = self._endpoint
 
-        if self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
+        if self._namespace is not None:
+            self._ns = self._namespace.name
+
+        if self._fragment == 'id':
+            if self._namespace is not None:
+                t = self._namespace.find_symbol(self._endpoint)
+                if isinstance(t, gir.Class) or \
+                   isinstance(t, gir.Interface) or \
+                   isinstance(t, gir.Record):
+                    self._fragment = 'method'
+                    self._func = f"{self._endpoint}()"
+                    self._name = t.name
+                    self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
+                    self._func_name = self._func_name.replace(t.symbol_prefix + '_', '')
+                else:
+                    self._fragment = None
+            else:
+                self._fragment = None
+        elif self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
             self._name = self._rest
             if self._namespace is not None:
-                t = self._namespace.find_real_type(self._name)
+                t = self._namespace.find_real_type(f"{self._ns}.{self._name}")
                 if t is not None:
                     self._type = t.ctype
                 else:
@@ -144,7 +163,7 @@ class LinkGenerator:
         elif self._fragment == 'signal':
             self._name, self._signal_name = self._rest.split('::')
             if self._namespace is not None:
-                t = self._namespace.find_real_type(self._name)
+                t = self._namespace.find_real_type(f"{self._ns}.{self._name}")
                 if t is not None:
                     self._type = t.ctype
                 else:
@@ -160,9 +179,14 @@ class LinkGenerator:
                 else:
                     self._func = f"{self._namespace.symbol_prefix[0]}_{self._func_name}()"
             else:
-                self._func = "".join([self._ns.lower(), '_', self._name.lower(), '_', self._func_name])
+                self._func = "".join([self._ns.lower(), '_', self._name.lower(), '_', self._func_name, '()'])
+        elif self._fragment == 'func':
+            if self._namespace is not None:
+                self._func = f"{self._namespace.symbol_prefix[0]}_{self._rest}()"
+            else:
+                self._func = "".join([self._ns.lower(), '_', self._rest.lower(), '()'])
         else:
-            log.warning(f"Unknown fragment '{self._fragment}' in link")
+            log.warning(f"Unknown fragment '{self._fragment}' in link [{self._fragment}@{self._endpoint}]")
 
     def __str__(self):
         if self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
@@ -173,6 +197,8 @@ class LinkGenerator:
             return f"[`{self._type}::{self._signal_name}`](signal.{self._name}.{self._signal_name}.html)"
         elif self._fragment in ['ctor', 'method']:
             return f"[`{self._func}`]({self._fragment}.{self._name}.{self._func_name}.html)"
+        elif self._fragment == 'func':
+            return f"[`{self._func}`](func.{self._func_name}.html)"
         else:
             return f"`{self._ns}.{self._rest}`"
 
