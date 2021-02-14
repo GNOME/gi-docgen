@@ -255,7 +255,7 @@ def preprocess_docs(text, namespace=None, md=None, extensions=[]):
                 replacement = re.sub(LINK_RE, str(link), line[start:end])
                 new_line.append(left_pad)
                 new_line.append(replacement)
-                idx += end
+                idx = end
             new_line.append(line[idx:])
 
             if len(new_line) == 0:
