@@ -72,6 +72,14 @@
     {% endfor %}
     </div>
   </div>
+  <div class="section">
+    <h5>Virtual methods</h5>
+    <div class="links">
+    {% for m in class.virtual_methods %}
+      <a class="method" href="vfunc.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
 </nav>
 {% endblock %}
 
@@ -229,7 +237,7 @@
     <div class="class toggle-wrapper default-hide">
       <h4 id="class">Class structure</a></h4>
 
-      <pre><code>struct {{ namespace.name}}.{{ class.class_name }} {
+      <pre><code>struct {{ class.class_ctype }} {
   {% for field in class.class_fields %}
   {{ field.name }}: {{ field.type_name }};
   {% else %}/* no available fields */{% endfor %}
@@ -243,12 +251,35 @@
         {% for field in class.class_fields %}
         <tr>
           <td><code>{{ field.name }}</code></td>
+          <td>{{ field.type_cname|safe }}</td>
           <td>{{ field.description|safe }}</td>
         </tr>
         {% endfor %}
         </table>
       </div>
       {% endif %}
+    </div>
+    {% endif %}
+
+    {% if class.virtual_methods %}
+    <div class="toggle-wrapper methods">
+      <h4 id="virtual-methods">Virtual methods</a></h4>
+
+      <div class="docblock">
+      {% for method in class.virtual_methods %}
+      <div class="toggle-wrapper default-hide {% if method.deprecated_since %}deprecated{% endif %}">
+        <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ class.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ class.class_name }}.{{ method.name }}</a> ();</h6>
+
+        <div class="docblock">
+          {{ method.description|safe }}
+        </div>
+
+        {% if method.deprecated_since %}
+        <div class="docblock"><p>Deprecated since: {{ method.deprecated_since.version }}</p></div>
+        {% endif %}
+      </div>
+      {% endfor %}
+      </div>
     </div>
     {% endif %}
 
