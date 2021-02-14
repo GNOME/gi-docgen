@@ -8,7 +8,7 @@ import os
 import shutil
 import sys
 
-from . import config, gir, log, mdext, utils
+from . import config, gir, log, utils
 
 
 HELP_MSG = "Generates the reference"
@@ -37,18 +37,6 @@ SCOPE_MODES = {
     'notified': 'Arguments are valid until the notify function is called',
     'async': 'Arguments are valid until the call is completed',
 }
-
-MD_EXTENSIONS = [
-    # Standard extensions
-    'def_list',
-    'fenced_code',
-    'meta',
-    'tables',
-    'toc',
-
-    # Local extensions
-    mdext.GtkDocExtension(),
-]
 
 
 def type_name_to_cname(fqtn, is_pointer=False):
@@ -86,7 +74,7 @@ class TemplateConstant:
 
     @property
     def c_decl(self):
-        return f"#define {self.identifier} {self.value}"
+        return utils.code_highlight(f"#define {self.identifier} {self.value}")
 
 
 class TemplateProperty:
@@ -200,7 +188,7 @@ class TemplateSignal:
             res += [f"  {arg.type_cname} {arg.name},"]
         res += ["  gpointer user_data"]
         res += [")"]
-        return "\n".join(res)
+        return utils.code_highlight("\n".join(res))
 
 
 class TemplateMethod:
@@ -239,7 +227,10 @@ class TemplateMethod:
             res += ["void"]
         else:
             res += [f"{self.return_value.type_cname}"]
-        res += [f"{self.identifier} ("]
+        if self.identifier is not None:
+            res += [f"{self.identifier} ("]
+        else:
+            res += [f"{self.name} ("]
         n_args = len(self.arguments)
         if n_args == 0:
             res += [f"  {self.instance_parameter.type_cname} self"]
@@ -251,7 +242,7 @@ class TemplateMethod:
                 else:
                     res += [f"  {arg.type_cname} {arg.name}"]
         res += [")"]
-        return "\n".join(res)
+        return utils.code_highlight("\n".join(res))
 
 
 class TemplateClassMethod:
@@ -291,7 +282,7 @@ class TemplateClassMethod:
                 else:
                     res += [f"  {arg.type_cname} {arg.name}"]
         res += [")"]
-        return "\n".join(res)
+        return utils.code_highlight("\n".join(res))
 
 
 class TemplateFunction:
@@ -340,7 +331,7 @@ class TemplateFunction:
                 else:
                     res += [f"  {arg.type_cname} {arg.name}"]
         res += [")"]
-        return "\n".join(res)
+        return utils.code_highlight("\n".join(res))
 
 
 class TemplateCallback:
@@ -1400,7 +1391,7 @@ def _gen_content_files(config, theme_config, content_dir, output_dir, jinja_env,
     content_files = []
 
     content_tmpl = jinja_env.get_template(theme_config.content_template)
-    md = markdown.Markdown(extensions=MD_EXTENSIONS)
+    md = markdown.Markdown(extensions=utils.MD_EXTENSIONS, extension_configs=utils.MD_EXTENSIONS_CONF)
 
     for file_name in config.content_files:
         content_file = file_name.replace(".md", ".html")

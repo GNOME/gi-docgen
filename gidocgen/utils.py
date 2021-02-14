@@ -92,6 +92,10 @@ MD_EXTENSIONS = [
     mdext.GtkDocExtension(),
 ]
 
+MD_EXTENSIONS_CONF = {
+    'codehilite': {'guess_lang': False},
+}
+
 
 def process_language(lang):
     if lang is None:
@@ -231,8 +235,16 @@ def preprocess_docs(text, namespace=None, md=None, extensions=[]):
     if md is None:
         md_ext = extensions.copy()
         md_ext.extend(MD_EXTENSIONS)
-        text = markdown.markdown("\n".join(processed_text), extensions=md_ext)
+        text = markdown.markdown("\n".join(processed_text),
+                                 extensions=md_ext,
+                                 extension_configs=MD_EXTENSIONS_CONF)
     else:
         text = md.convert("\n".join(processed_text))
 
     return typogrify(text)
+
+
+def code_highlight(text, language='c'):
+    lexer = get_lexer_by_name(language)
+    formatter = HtmlFormatter()
+    return highlight(text, lexer, formatter)
