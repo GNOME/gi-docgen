@@ -5,8 +5,10 @@ __all__ = [
     'GirParser',
 
     'Alias',
+    'ArrayType',
     'BitField',
     'Callable',
+    'Callback',
     'Class',
     'Constant',
     'Doc',
@@ -32,8 +34,10 @@ __all__ = [
 
 from .ast import (
     Alias,
+    ArrayType,
     BitField,
     Callable,
+    Callback,
     Class,
     Constant,
     Doc,
