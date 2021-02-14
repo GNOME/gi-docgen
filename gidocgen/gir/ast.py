@@ -841,14 +841,20 @@ class Repository:
 
     def resolve_symbols(self):
         symbols: T.Mapping[str, Type] = {}
+        for func in self.namespace.get_functions():
+            symbols[func.identifier] = func
         for cls in self.namespace.get_classes():
             for m in cls.methods:
-                identifier = f"{self.namespace.symbol_prefix[0]}_{cls.symbol_prefix}_{m.name}"
-                symbols[identifier] = cls
+                symbols[m.identifier] = cls
         for iface in self.namespace.get_interfaces():
             for m in iface.methods:
-                identifier = f"{self.namespace.symbol_prefix[0]}_{iface.symbol_prefix}_{m.name}"
-                symbols[identifier] = iface
+                symbols[m.identifier] = iface
+        for record in self.namespace.get_records():
+            for m in record.methods:
+                symbols[m.identifier] = record
+        for union in self.namespace.get_unions():
+            for m in union.methods:
+                symbols[m.identifier] = record
         self.namespace._symbols = symbols
 
     @property
