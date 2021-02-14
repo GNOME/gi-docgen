@@ -25,42 +25,10 @@
     </div>
   </div>
   <div class="section">
-    <h5>Instance methods</h5>
+    <h5>Virtual methods</h5>
     <div class="links">
-    {% for m in class.methods %}
-      <a class="method" href="method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Class methods</h5>
-    <div class="links">
-    {% for m in class.class_methods %}
-      <a class="method" href="class_vfunc.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Type functions</h5>
-    <div class="links">
-    {% for m in class.type_funcs %}
-      <a class="vfunc" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Properties</h5>
-    <div class="links">
-    {% for p in class.properties %}
-      <a href="property.{{ class.name }}.{{ p.name }}.html">{{ p.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Signals</h5>
-    <div class="links">
-    {% for s in class.signals %}
-      <a href="signal.{{ class.name }}.{{ s.name }}.html">{{ s.name }}</a>
+    {% for m in class.virtual_methods %}
+      <a class="method{% if vfunc.name == m.name %} current{% endif %}" href="vfunc.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
     {% endfor %}
     </div>
   </div>
@@ -70,7 +38,7 @@
 {% block content %}
 <section id="main" class="content">
   <header>
-    <h3>Virtual function</h3>
+    <h3>Virtual Method</h3>
     <h1><a href="index.html">{{ namespace.name }}</a>.<a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>.{{ vfunc.name }}</h1>
   </header>
 

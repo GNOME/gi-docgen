@@ -25,42 +25,10 @@
     </div>
   </div>
   <div class="section">
-    <h5>Instance methods</h5>
-    <div class="links">
-    {% for m in class.methods %}
-      <a class="method" href="method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Class methods</h5>
-    <div class="links">
-    {% for m in class.class_methods %}
-      <a class="method" href="class_method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
     <h5>Type functions</h5>
     <div class="links">
     {% for m in class.type_funcs %}
       <a class="method{% if type_func.name == m.name %} current{% endif %}" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Properties</h5>
-    <div class="links">
-    {% for p in class.properties %}
-      <a href="property.{{ class.name }}.{{ p.name }}.html">{{ p.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Signals</h5>
-    <div class="links">
-    {% for s in class.signals %}
-      <a href="signal.{{ class.name }}.{{ s.name }}.html">{{ s.name }}</a>
     {% endfor %}
     </div>
   </div>
