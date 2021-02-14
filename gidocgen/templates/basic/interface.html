@@ -64,6 +64,14 @@
     {% endfor %}
     </div>
   </div>
+  <div class="section">
+    <h5>Virtual methods</h5>
+    <div class="links">
+    {% for m in interface.virtual_methods %}
+      <a class="method" href="vfunc.{{ interface.name }}.{{ m.name }}.html">{{ m.name }}</a>
+    {% endfor %}
+    </div>
+  </div>
 </nav>
 {% endblock %}
 
@@ -176,7 +184,7 @@
     <div class="class toggle-wrapper">
       <h4><a name="class">Interface structure</a></h4>
 
-      <pre><code>struct {{ namespace.name }}.{{ interface.type_cname }} {
+      <pre><code>struct {{ interface.type_cname }} {
   {% for field in interface.class_fields %}
   {{ field.name }}: {{ field.type_name }};
   {% else %}/* no available fields */{% endfor %}
@@ -190,6 +198,7 @@
         {% for field in interface.class_fields %}
         <tr>
           <td><code>{{ field.name }}</code></td>
+          <td><code>{{ field.type_cname|safe }}</code></td>
           <td>{{ field.description|safe }}</td>
         </tr>
         {% endfor %}
@@ -228,6 +237,28 @@
         <div class="docblock">
           {{ func.description|safe }}
         </div>
+      </div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if interface.virtual_methods %}
+    <div class="toggle-wrapper methods">
+      <h4 id="virtual-methods">Virtual methods</a></h4>
+
+      <div class="docblock">
+      {% for method in interface.virtual_methods %}
+      <div class="toggle-wrapper default-hide {% if method.deprecated_since %}deprecated{% endif %}">
+        <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ interface.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ interface.name }}.{{ method.name }}</a> ();</h6>
+
+        <div class="docblock">
+          {{ method.description|safe }}
+        </div>
+
+        {% if method.deprecated_since %}
+        <div class="docblock"><p>Deprecated since: {{ method.deprecated_since.version }}</p></div>
+        {% endif %}
       </div>
       {% endfor %}
       </div>
