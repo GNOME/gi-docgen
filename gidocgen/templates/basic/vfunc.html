@@ -78,8 +78,8 @@
     <div class="declaration toggle-wrapper">
       <h4><a name="declaration">Declaration</a></h4>
 
-      <div class="docblock">
-        <pre><code>{{ vfunc.c_decl }}</code></pre>
+      <div class="docblock c-decl">
+        <pre><code>{{ vfunc.c_decl|safe }}</code></pre>
       </div>
     </div>
 
@@ -87,7 +87,7 @@
       <h4><a name="description">Description</a></h4>
 
       <div class="docblock">
-      {{ vfunc.description|safe }}
+        {{ vfunc.description|safe }}
       </div>
 
       <div class="docblock">
