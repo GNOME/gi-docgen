@@ -185,6 +185,7 @@ class LinkGenerator:
             else:
                 self._func = "".join([self._ns.lower(), '_', self._name.lower(), '_', self._func_name, '()'])
         elif self._fragment == 'func':
+            self._func_name = self._rest
             if self._namespace is not None:
                 self._func = f"{self._namespace.symbol_prefix[0]}_{self._rest}()"
             else:
