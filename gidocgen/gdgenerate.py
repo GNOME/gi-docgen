@@ -389,18 +389,26 @@ class TemplateCallback:
                 else:
                     res += [f"  {arg.type_cname} {arg.name}"]
         res += [")"]
-        return "\n".join(res)
+        return utils.code_highlight("\n".join(res))
 
 
 class TemplateField:
-    def __init__(self, field):
+    def __init__(self, namespace, field):
         self.name = field.name
-        self.type_name = field.target and field.target.name or 'none'
-        self.type_cname = field.target and field.target.ctype or 'none'
+        if field.target is not None:
+            if isinstance(field.target, gir.Callback):
+                self.type_name: field.target.name
+                self.type_cname = TemplateCallback(namespace, field.target).c_decl
+            else:
+                self.type_name = field.target.name
+                self.type_cname = field.target.ctype
+        else:
+            self.type_name = 'none'
+            self.type_cname = 'void*'
         self.private = field.private
         self.description = "No description available."
         if field.doc is not None:
-            self.description = utils.preprocess_docs(field.doc.content)
+            self.description = utils.preprocess_docs(field.doc.content, namespace)
 
 
 class TemplateInterface:
@@ -430,7 +438,7 @@ class TemplateInterface:
 
         self.requires_fqtn = f"{self.requires_namespace}.{self.requires_name}"
 
-        self.symbol_prefix = f"{namespace.symbol_prefix}_{interface.symbol_prefix}"
+        self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{interface.symbol_prefix}"
         self.type_cname = interface.ctype
 
         self.link_prefix = "iface"
@@ -458,7 +466,7 @@ class TemplateInterface:
 
             for field in self.class_struct.fields:
                 if not field.private:
-                    self.class_fields.append(TemplateField(field))
+                    self.class_fields.append(TemplateField(namespace, field))
 
             for meth in self.class_struct.methods:
                 self.class_methods.append(TemplateClassMethod(namespace, self, meth))
@@ -490,7 +498,7 @@ class TemplateInterface:
 
 class TemplateClass:
     def __init__(self, namespace, cls):
-        self.symbol_prefix = f"{namespace.symbol_prefix}_{cls.symbol_prefix}"
+        self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{cls.symbol_prefix}"
         self.type_cname = cls.ctype
         self.link_prefix = "class"
         self.fundamental = cls.fundamental
@@ -559,7 +567,7 @@ class TemplateClass:
         self.fields = []
         for field in cls.fields:
             if not field.private:
-                self.fields.append(TemplateField(field))
+                self.fields.append(TemplateField(namespace, field))
 
         if len(cls.properties) != 0:
             self.properties = []
@@ -581,13 +589,14 @@ class TemplateClass:
             for meth in cls.methods:
                 self.methods.append(TemplateMethod(namespace, self, meth))
 
-        if self.class_struct:
+        if self.class_struct is not None:
+            self.class_ctype = self.class_struct.ctype
             self.class_fields = []
             self.class_methods = []
 
             for field in self.class_struct.fields:
                 if not field.private:
-                    self.class_fields.append(TemplateField(field))
+                    self.class_fields.append(TemplateField(namespace, field))
 
             for meth in self.class_struct.methods:
                 self.class_methods.append(TemplateClassMethod(namespace, self, meth))
@@ -635,7 +644,7 @@ class TemplateClass:
 
 class TemplateRecord:
     def __init__(self, namespace, record):
-        self.symbol_prefix = f"{namespace.symbol_prefix}_{record.symbol_prefix}"
+        self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{record.symbol_prefix}"
         self.type_cname = record.ctype
         self.link_prefix = "struct"
 
@@ -660,7 +669,7 @@ class TemplateRecord:
         self.fields = []
         for field in record.fields:
             if not field.private:
-                self.fields.append(TemplateField(field))
+                self.fields.append(TemplateField(namespace, field))
 
         if len(record.constructors) != 0:
             self.ctors = []
@@ -695,7 +704,7 @@ class TemplateRecord:
 
 class TemplateUnion:
     def __init__(self, namespace, union):
-        self.symbol_prefix = f"{namespace.symbol_prefix}_{union.symbol_prefix}"
+        self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{union.symbol_prefix}"
         self.type_cname = union.ctype
         self.link_prefix = "union"
         self.name = union.name
@@ -719,7 +728,7 @@ class TemplateUnion:
         self.fields = []
         for field in union.fields:
             if not field.private:
-                self.fields.append(TemplateField(field))
+                self.fields.append(TemplateField(namespace, field))
 
         if len(union.constructors) != 0:
             self.ctors = []
@@ -853,7 +862,7 @@ class TemplateNamespace:
     def __init__(self, namespace):
         self.name = namespace.name
         self.version = namespace.version
-        self.prefix = f"{namespace.symbol_prefix}"
+        self.prefix = f"{namespace.symbol_prefix[0]}"
 
 
 def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_classes):
