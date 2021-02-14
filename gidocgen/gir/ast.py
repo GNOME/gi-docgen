@@ -768,6 +768,9 @@ class Namespace:
             return self._unions[name]
         return None
 
+    def find_symbol(self, name: str) -> T.Optional[Type]:
+        return self._symbols.get(name)
+
 
 class Repository:
     def __init__(self):
@@ -835,6 +838,18 @@ class Repository:
                     parent = parent.parent
             cls.ancestors = ancestors
             cls.parent = ancestors[0]
+
+    def resolve_symbols(self):
+        symbols: T.Mapping[str, Type] = {}
+        for cls in self.namespace.get_classes():
+            for m in cls.methods:
+                identifier = f"{self.namespace.symbol_prefix[0]}_{cls.symbol_prefix}_{m.name}"
+                symbols[identifier] = cls
+        for iface in self.namespace.get_interfaces():
+            for m in iface.methods:
+                identifier = f"{self.namespace.symbol_prefix[0]}_{iface.symbol_prefix}_{m.name}"
+                symbols[identifier] = iface
+        self.namespace._symbols = symbols
 
     @property
     def namespace(self) -> T.Optional[Namespace]:

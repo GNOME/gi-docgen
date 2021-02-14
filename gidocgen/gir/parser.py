@@ -80,6 +80,7 @@ class GirParser:
             self._repository = repository
             self._repository.resolve_empty_ctypes()
             self._repository.resolve_class_ancestors()
+            self._repository.resolve_symbols()
 
     def get_repository(self, name: T.Optional[str] = None) -> T.Optional[ast.Repository]:
         if name is None:
