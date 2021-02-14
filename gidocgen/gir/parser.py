@@ -275,10 +275,10 @@ class GirParser:
             array_type = child.attrib.get(_cns('type'))
 
             target: T.Optional[ast.Type] = None
-            child = node.find('core:type', GI_NAMESPACES)
-            if child is not None:
-                ttype = child.attrib.get(_cns('type'), 'void')
-                tname = child.attrib.get('name', ttype.replace('*', ''))
+            child_type = child.find('core:type', GI_NAMESPACES)
+            if child_type is not None:
+                ttype = child_type.attrib.get(_cns('type'), 'void')
+                tname = child_type.attrib.get('name', ttype.replace('*', ''))
                 if tname == 'none' and ttype == 'void':
                     target = ast.VoidType()
                 else:
@@ -307,7 +307,7 @@ class GirParser:
 
         return ctype
 
-    def _parse_alias(self, node: ET.Element, repo: ast.Repository, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_alias(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         child = node.find('core:type', GI_NAMESPACES)
         assert child is not None
 
@@ -322,7 +322,7 @@ class GirParser:
 
         ns.add_alias(res)
 
-    def _parse_callback(self, node: ET.Element, repo: ast.Repository, ns: T.Optional[ast.Namespace]) -> None:
+    def _parse_callback_field(self, node: ET.Element) -> ast.Callback:
         name = node.attrib.get('name')
         ctype = node.attrib.get(_cns('type'))
 
@@ -339,11 +339,26 @@ class GirParser:
         res.set_parameters(params)
         res.set_return_value(return_value)
         self._maybe_parse_docs(node, res)
-
-        if ns is not None:
-            ns.add_callback(res)
-
         return res
+
+    def _parse_callback(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
+        name = node.attrib.get('name')
+        ctype = node.attrib.get(_cns('type'))
+
+        child = node.find('core:return-value', GI_NAMESPACES)
+        return_value = self._parse_return_value(child)
+
+        children = node.findall('./core:parameters/core:parameter', GI_NAMESPACES)
+        params = []
+        for child in children:
+            params.append(self._parse_parameter(child))
+
+        res = ast.Callback(name=name, ctype=ctype)
+        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_parameters(params)
+        res.set_return_value(return_value)
+        self._maybe_parse_docs(node, res)
+        ns.add_callback(res)
 
     def _parse_constant(self, node: ET.Element, repo: ast.Repository, ns: T.Optional[ast.Namespace]) -> None:
         child = node.find('core:type', GI_NAMESPACES)
@@ -608,8 +623,8 @@ class GirParser:
         bits = int(node.attrib.get('bits', '0'))
 
         child = node.find('core:callback', GI_NAMESPACES)
-        if child is not None and child.attrib.get(_cns('type'), None) is not None:
-            ctype = self._parse_ctype(child)
+        if child is not None:
+            ctype = self._parse_callback_field(child)
         else:
             ctype = self._parse_ctype(node)
 
