@@ -7,6 +7,19 @@
   <meta name="og:description" content="Reference for {{ namespace.name }}.{{ struct.name }}"/>
 {% endblock %}
 
+{% macro sidebar_block(elements, struct_name, section_title, section_class, section_fragment) -%}
+{% if elements|length > 0 %}
+<div class="section">
+  <h5>{{ section_title }}</h5>
+  <div class="links">
+  {% for m in elements %}
+    <a class="{{ section_class }}" href="{{ section_fragment }}.{{ struct_name }}.{{ m.name }}.html">{{ m.name }}</a>
+  {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endmacro %}
+
 {% block sidebar %}
 <nav class="sidebar">
   {% if CONFIG.logo_url %}
@@ -18,52 +31,17 @@
     <h3><a href="index.html">{{ namespace.name }}</a></h3>
     <p>Version: {{ namespace.version }}</p>
   </div>
+
   <div class="section">
     <h5>Struct</h5>
     <div class="links">
       <a class="current" href="struct.{{ struct.name }}.html#description">{{ struct.name }}</a>
     </div>
   </div>
-  <div class="section">
-    <h5>Constructors</h5>
-    <div class="links">
-    {% for m in struct.ctors %}
-      <a class="method" href="ctor.{{ struct.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Instance methods</h5>
-    <div class="links">
-    {% for m in struct.methods %}
-      <a class="method" href="method.{{ struct.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Type functions</h5>
-    <div class="links">
-    {% for m in struct.type_funcs %}
-      <a class="method" href="type_func.{{ struct.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Properties</h5>
-    <div class="links">
-    {% for p in struct.properties %}
-      <a href="property.{{ struct.name }}.{{ p.name }}.html">{{ p.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Signals</h5>
-    <div class="links">
-    {% for s in struct.signals %}
-      <a href="signal.{{ struct.name }}.{{ s.name }}.html">{{ s.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
+
+  {{ sidebar_block(struct.ctors, struct.name, "Constructors", "ctor", "ctor") }}
+  {{ sidebar_block(struct.methods, struct.name, "Instance methods", "method", "method") }}
+  {{ sidebar_block(struct.type_funcs, struct.name, "Type functions", "func", "type_func") }}
 </nav>
 {% endblock %}
 
