@@ -136,6 +136,10 @@ class LinkGenerator:
                     self._name = t.name
                     self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
                     self._func_name = self._func_name.replace(t.symbol_prefix + '_', '')
+                elif isinstance(t, gir.Function):
+                    self._fragment = 'func'
+                    self._func = f"{self._endpoint}()"
+                    self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
                 else:
                     self._fragment = None
             else:
