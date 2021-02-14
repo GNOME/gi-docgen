@@ -488,7 +488,7 @@ class TemplateInterface:
 
         if len(interface.virtual_methods) != 0:
             self.virtual_methods = []
-            for vfunc in self.virtual_methods:
+            for vfunc in interface.virtual_methods:
                 self.virtual_methods.append(TemplateMethod(namespace, self, vfunc))
 
     @property
