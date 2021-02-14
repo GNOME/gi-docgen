@@ -206,7 +206,7 @@
 
       <pre><code>struct {{ class.class_ctype }} {
   {% for field in class.class_fields %}
-  {{ field.name }}: {{ field.type_name }};
+  {{ field.name }};
   {% else %}/* no available fields */{% endfor %}
 }</code></pre>
 
@@ -217,9 +217,9 @@
         <table class="members">
         {% for field in class.class_fields %}
         <tr>
-          <td><code>{{ field.name }}</code></td>
-          <td>{{ field.type_cname|safe }}</td>
-          <td>{{ field.description|safe }}</td>
+          <td style="vertical-align:top"><code>{{ field.name }}</code></td>
+          <td style="vertical-align:top">{{ field.type_cname|safe }}</td>
+          <td style="vertical-align:top">{{ field.description|safe }}</td>
         </tr>
         {% endfor %}
         </table>
