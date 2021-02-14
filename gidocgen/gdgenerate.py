@@ -108,6 +108,7 @@ class TemplateArgument:
         self.type_cname = argument.target.ctype
         if self.type_cname is None:
             self.type_cname = type_name_to_cname(argument.target.name, True)
+        self.is_array = isinstance(argument.target, gir.ArrayType)
         self.transfer = TRANSFER_MODES[argument.transfer]
         self.direction = DIRECTION_MODES[argument.direction]
         self.nullable = argument.nullable
@@ -118,6 +119,10 @@ class TemplateArgument:
             self.closure = call.parameters[argument.closure]
         else:
             self.closure = None
+        if self.is_array:
+            self.fixed_size = argument.target.fixed_size
+            self.zero_terminated = argument.target.zero_terminated
+            self.len_arg = argument.target.length != -1 and call.parameters[argument.target.length].name
         self.description = "No description available."
         if argument.doc is not None:
             self.description = utils.preprocess_docs(argument.doc.content)
@@ -134,8 +139,14 @@ class TemplateReturnValue:
         self.type_cname = retval.target.ctype
         if self.type_cname is None:
             self.type_cname = type_name_to_cname(retval.target.name, True)
+        self.is_array = isinstance(retval.target, gir.ArrayType)
         self.transfer = TRANSFER_MODES[retval.transfer or 'none']
         self.nullable = retval.nullable
+        if self.is_array:
+            self.value_type = retval.target.value_type.ctype
+            self.fixed_size = retval.target.fixed_size
+            self.zero_terminated = retval.target.zero_terminated
+            self.len_arg = retval.target.length != -1 and call.parameters[retval.target.length].name
         self.description = "No description available."
         if self.type_name in ['utf8', 'filename']:
             self.string_note = STRING_TYPES[self.type_name]
