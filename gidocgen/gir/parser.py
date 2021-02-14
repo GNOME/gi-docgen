@@ -15,10 +15,10 @@ GI_NAMESPACES = {
 }
 
 FUNDAMENTAL_TYPES = [
-    'gint8', 'guint8', 'int8_t',
-    'gint16', 'guint16', 'int16_t',
-    'gint32', 'guint32', 'int32_t',
-    'gint64', 'guint64', 'int64_t',
+    'gint8', 'guint8', 'int8_t', 'uint8_t',
+    'gint16', 'guint16', 'int16_t', 'uint16_t',
+    'gint32', 'guint32', 'int32_t', 'uint32_t',
+    'gint64', 'guint64', 'int64_t', 'uint64_t',
     'gint', 'guint', 'int', 'unsigned', 'unsigned int',
     'gfloat', 'float',
     'gdouble', 'double', 'long double',
@@ -117,13 +117,13 @@ class GirParser:
             else:
                 log.debug(f"Unqualified type name {name} found")
                 fqtn = name
-        if fqtn not in self._types_register:
+        if (fqtn, ctype) not in self._types_register:
             if ctype is None and fqtn in FUNDAMENTAL_CTYPES:
                 ctype = FUNDAMENTAL_CTYPES[fqtn]
             t = ast.Type(name=fqtn, ctype=ctype)
-            self._types_register[fqtn] = t
+            self._types_register[(fqtn, ctype)] = t
             log.debug(f"Adding type {fqtn} for {t}")
-        res = self._types_register[fqtn]
+        res = self._types_register[(fqtn, ctype)]
         return res
 
     def _parse_dependency(self, include: ast.Include) -> None:

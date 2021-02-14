@@ -856,4 +856,7 @@ class Repository:
         return self._namespaces[0]
 
     def find_type(self, name: str) -> T.Optional[Type]:
-        return self._types.get(name)
+        for (fqtn, ctype) in self._types.keys():
+            if fqtn == name:
+                return self._types.get((fqtn, ctype))
+            return None
