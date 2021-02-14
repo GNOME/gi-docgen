@@ -1488,7 +1488,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         "enums": sorted(namespace.get_enumerations(), key=lambda enum: enum.name.lower()),
         "functions": sorted(namespace.get_functions(), key=lambda func: func.name.lower()),
         "interfaces": sorted(namespace.get_interfaces(), key=lambda interface: interface.name.lower()),
-        "records": sorted(namespace.get_effective_records(), key=lambda record: record.name.lower()),
+        "structs": sorted(namespace.get_effective_records(), key=lambda record: record.name.lower()),
         "unions": sorted(namespace.get_unions(), key=lambda union: union.name.lower()),
     }
 
@@ -1502,7 +1502,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         "enums": _gen_enums,
         "functions": _gen_functions,
         "interfaces": _gen_interfaces,
-        "records": _gen_records,
+        "structs": _gen_records,
         "unions": _gen_unions,
     }
 
