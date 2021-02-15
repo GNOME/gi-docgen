@@ -94,6 +94,7 @@ MD_EXTENSIONS = [
 
 MD_EXTENSIONS_CONF = {
     'codehilite': {'guess_lang': False},
+    'toc': {'permalink_class': 'md-anchor', 'permalink': '§'},
 }
 
 
