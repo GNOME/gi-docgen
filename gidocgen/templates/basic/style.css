@@ -47,10 +47,10 @@ p {
 
 a {
   color: rgb(59, 134, 226);
+  text-decoration: none;
 }
 
 h4 > a, h5 > a, h6 > a {
-  text-decoration: none;
   font-weight: 600;
 }
 
@@ -72,6 +72,40 @@ pre {
 
 #main {
   position: relative;
+}
+
+.anchor {
+  display: none;
+  text-decoration: none;
+  background: transparent;
+  position: absolute;
+  left: -7px;
+}
+
+.anchor:before {
+  content: '§';
+}
+
+.md-anchor {
+  display: none;
+  text-decoration: none;
+  background: transparent;
+  padding-left: 7px;
+}
+
+h1:hover > .anchor,
+h2:hover > .anchor,
+h3:hover > .anchor,
+h4:hover > .anchor,
+h5:hover > .anchor {
+  display: initial;
+}
+
+h1:hover > .md-anchor,
+h2:hover > .md-anchor,
+h3:hover > .md-anchor,
+h4:hover > .md-anchor {
+  display: initial;
 }
 
 .collapse-toggle {
@@ -137,7 +171,6 @@ pre {
 .sidebar .namespace > h3 > a {
   font-weight: 800;
   font-size: 1.2em;
-  text-decoration: none;
 }
 
 .sidebar .namespace > p {
@@ -160,7 +193,11 @@ pre {
   overflow: hidden;
   font-size: 14px;
   font-weight: 300;
-  transition: border 500ms ease-out;
+  transition: background-color 250ms ease-out;
+}
+
+.sidebar .section a:hover {
+  background-color: white;
 }
 
 .sidebar .section a.current {
