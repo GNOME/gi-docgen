@@ -45,8 +45,8 @@
   <section>
     <div class="declaration toggle-wrapper">
       <h4 style="display:flex;">
-        <a name="declaration"/>
         Declaration
+        <a class="anchor" name="declaration"/>
         {% if CONFIG.source_location_url and method.source_location %}
         <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ method.source_location }}">[src]</a>
         {% endif %}
@@ -59,8 +59,8 @@
 
     <div class="description toggle-wrapper">
       <h4 style="display:flex;">
-        <a name="description"/>
         Description
+        <a class="anchor" name="description"/>
         {% if CONFIG.source_location_url and method.docs_location %}
         <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ method.docs_location }}">[src]</a>
         {% endif %}
@@ -98,7 +98,10 @@
 
     {% if method.arguments|length != 0 %}
     <div class="parameters toggle-wrapper">
-      <h4><a name="parameters">Parameters</a></h4>
+      <h4 id="parameters">
+        Parameters
+        <a href="#parameters" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         <table>
@@ -125,8 +128,11 @@
     {% endif %}
 
     {% if method.return_value %}
-    <div class="returns toggle-wrapper">
-      <h4><a name="returns">Return value</a></h4>
+    <div class="return-value toggle-wrapper">
+      <h4 id="return-value">
+        Return value
+        <a href="#return-value" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         {{ method.return_value.description|safe }}

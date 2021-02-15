@@ -60,7 +60,13 @@
   <section>
     <summary>
       <div class="toggle-wrapper">
-        <h4 id="description">Description</a></h4>
+        <h4 id="description" style="display:flex;">
+          Description
+          <a href="#description" class="anchor"></a>
+          {% if CONFIG.source_location_url and class.docs_location %}
+          <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ class.docs_location }}">[src]</a>
+          {% endif %}
+        </h4>
 
         <pre><code>{{ class.c_decl }}</pre></code>
 
@@ -97,7 +103,10 @@
 
     {% if class.interfaces %}
     <div class="toggle-wrapper">
-      <h4 id"implements">Implements</a></h4>
+      <h4 id="implements">
+        Implements
+        <a href="#implements" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         <ul>
@@ -111,11 +120,14 @@
 
     {% if class.ctors %}
     <div class="toggle-wrapper constructors">
-      <h4 id="constructors">Constructors</a></h4>
+      <h4 id="constructors">
+        Constructors
+        <a href="#constructors" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for ctor in class.ctors %}
-        <div class="toggle-wrapper {% if ctor.deprecated_since %}deprecated{% endif %}">
+        <div class="{% if ctor.deprecated_since %}deprecated{% endif %}">
           <h6><a href="ctor.{{ class.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
 
           <div class="docblock">
@@ -133,11 +145,14 @@
 
     {% if class.methods %}
     <div class="toggle-wrapper methods">
-      <h4 id="methods">Instance methods</a></h4>
+      <h4 id="methods">
+        Instance methods
+        <a href="#methods" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for method in class.methods %}
-        <div class="toggle-wrapper {% if method.deprecated_since %}deprecated{% endif %}">
+        <div class="{% if method.deprecated_since %}deprecated{% endif %}">
           <h6><a href="method.{{ class.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
           <div class="docblock">
@@ -156,11 +171,14 @@
 
     {% if class.properties %}
     <div class="toggle-wrapper properties">
-      <h4 id="properties">Properties</a></h4>
+      <h4 id="properties">
+        Properties
+        <a href="#properties" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for property in class.properties %}
-        <div class="toggle-wrapper {% if property.deprecated_since %}deprecated{% endif %}">
+        <div class="{% if property.deprecated_since %}deprecated{% endif %}">
           <h6><a href="property.{{ class.name }}.{{ property.name }}.html">{{ class.fqtn }}:{{ property.name }}</a></h6>
 
           <div class="docblock">
@@ -178,12 +196,15 @@
     {% endif %}
 
     {% if class.signals %}
-    <div class="signals">
-      <h4 id="signals">Signals</a></h4>
+    <div class="signals toggle-wrapper">
+      <h4 id="signals">
+        Signals
+        <a href="#signals" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for signal in class.signals %}
-        <div class="toggle-wrapper {% if signal.deprecated_since %}deprecated{% endif %}">
+        <div class="{% if signal.deprecated_since %}deprecated{% endif %}">
           <h6><a href="signal.{{ class.name }}.{{ signal.name }}.html">{{ class.fqtn }}::{{ signal.name }}</a></h6>
 
           <div class="docblock">
@@ -202,13 +223,18 @@
 
     {% if class.class_name %}
     <div class="class toggle-wrapper default-hide">
-      <h4 id="class">Class structure</a></h4>
+      <h4 id="class-struct">
+        Class structure
+        <a href="#class-struct" class="anchor"></a>
+      </h4>
 
-      <pre><code>struct {{ class.class_ctype }} {
+      <div class="docblock">
+        <pre><code>struct {{ class.class_ctype }} {
   {% for field in class.class_fields %}
   {{ field.name }};
   {% else %}/* no available fields */{% endfor %}
 }</code></pre>
+      </div>
 
       {% if class.class_fields %}
       <div class="docblock">
@@ -230,11 +256,14 @@
 
     {% if class.virtual_methods %}
     <div class="toggle-wrapper methods">
-      <h4 id="virtual-methods">Virtual methods</a></h4>
+      <h4 id="virtual-methods">
+        Virtual methods
+        <a href="#virtual-methods" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for method in class.virtual_methods %}
-      <div class="toggle-wrapper {% if method.deprecated_since %}deprecated{% endif %}">
+      <div class="{% if method.deprecated_since %}deprecated{% endif %}">
         <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ class.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ class.class_name }}.{{ method.name }}</a> ();</h6>
 
         <div class="docblock">
@@ -252,11 +281,14 @@
 
     {% if class.class_methods %}
     <div class="toggle-wrapper methods">
-      <h4 id="class-functions">Class methods</a></h4>
+      <h4 id="class-methods">
+        Class methods
+        <a href="#class-methods" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for method in class.class_methods %}
-      <div class="toggle-wrapper {% if method.deprecated_since %}deprecated{% endif %}">
+      <div class="{% if method.deprecated_since %}deprecated{% endif %}">
         <h6><a href="class_method.{{ class.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
@@ -274,11 +306,14 @@
 
     {% if class.functions %}
     <div class="toggle-wrapper methods">
-      <h4 id="type-functions">Type functions</a></h4>
+      <h4 id="type-functions">
+        Type functions
+        <a href="#type-functions" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for func in class.type_funcs %}
-      <div class="toggle-wrapper {% if func.deprecated_since %}deprecated{% endif %}">
+      <div class="{% if func.deprecated_since %}deprecated{% endif %}">
         <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">

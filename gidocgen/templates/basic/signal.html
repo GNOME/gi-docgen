@@ -25,38 +25,6 @@
     </div>
   </div>
   <div class="section">
-    <h5>Instance methods</h5>
-    <div class="links">
-    {% for m in class.methods %}
-      <a class="method" href="method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Class methods</h5>
-    <div class="links">
-    {% for m in class.class_methods %}
-      <a class="method" href="class_method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Type functions</h5>
-    <div class="links">
-    {% for m in class.type_funcs %}
-      <a class="method" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Properties</h5>
-    <div class="links">
-    {% for p in class.properties %}
-      <a class="property" href="property.{{ class.name }}.{{ p.name }}.html">{{ p.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
     <h5>Signals</h5>
     <div class="links">
     {% for s in class.signals %}
@@ -76,7 +44,10 @@
 
   <section>
     <div class="declaration toggle-wrapper">
-      <h4><a name="declaration">Declaration</a></h4>
+      <h4 id="declaration">
+        Declaration
+        <a href="#declaration" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         <pre><code>{{ signal.c_decl|safe }}</code></pre>
@@ -84,7 +55,13 @@
     </div>
 
     <div class="description toggle-wrapper">
-      <h4><a name="description">Description</a></h4>
+      <h4 id="description" style="display:flex;">\
+        Description
+        <a href="#description" class="anchor"></a>
+        {% if CONFIG.source_location_url and signal.docs_location %}
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ signal.docs_location }}">[src]</a>
+        {% endif %}
+      </h4>
 
       <div class="docblock">
         {{ signal.description|safe }}
@@ -92,6 +69,19 @@
 
       <div class="docblock">
         <table>
+          <tr><td>Default handler:</td><td> {{ signal.when|safe }}</td></tr>
+          {% if signal.no_recurse %}
+          <tr><td colspan="2">Signal emission will restart instead of recursing</td></tr>
+          {% endif %}
+          {% if signal.is_action %}
+          <tr><td colspan="2">The signal can be emitted directly</td></tr>
+          {% endif %}
+          {% if signal.is_detailed %}
+          <tr><td colspan="2">The signal can be detailed</td></tr>
+          {% endif %}
+          {% if signal.no_hooks %}
+          <tr><td colspan="2">Hooks are disabled for this signal</td></tr>
+          {% endif %}
           {% if signal.stability %}
           <tr><td>Stability:</td><td>{{ signal.stability }}</td></tr>
           {% endif %}
@@ -118,7 +108,10 @@
 
     {% if signal.arguments|length != 0 %}
     <div class="parameters toggle-wrapper">
-      <h4><a name="parameters">Parameters</a></h4>
+      <h4 id="parameters">
+        Parameters
+        <a href="#parameters" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         <table>
@@ -142,8 +135,11 @@
     {% endif %}
 
     {% if signal.return_value %}
-    <div class="returns toggle-wrapper">
-      <h4><a name="returns">Return value</a></h4>
+    <div class="return-value toggle-wrapper">
+      <h4 id="return-value">
+        Return value
+        <a href="#return-value" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         {{ signal.return_value.description|safe }}

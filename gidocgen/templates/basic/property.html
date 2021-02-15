@@ -25,42 +25,10 @@
     </div>
   </div>
   <div class="section">
-    <h5>Instance methods</h5>
-    <div class="links">
-    {% for m in class.methods %}
-      <a class="method" href="method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Class methods</h5>
-    <div class="links">
-    {% for m in class.class_methods %}
-      <a class="method" href="class_method.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Type functions</h5>
-    <div class="links">
-    {% for m in class.type_funcs %}
-      <a class="method" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
     <h5>Properties</h5>
     <div class="links">
     {% for p in class.properties %}
       <a class="property{% if p.name == property.name %} current{% endif %}"href="property.{{ class.name }}.{{ p.name }}.html">{{ p.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  <div class="section">
-    <h5>Signals</h5>
-    <div class="links">
-    {% for s in class.signals %}
-      <a href="signal.{{ class.name }}.{{ s.name }}.html">{{ s.name }}</a>
     {% endfor %}
     </div>
   </div>
@@ -76,7 +44,10 @@
 
   <section>
     <div class="declaration toggle-wrapper">
-      <h4><a name="declaration">Declaration</a></h4>
+      <h4 id="declaration">
+        Declaration
+        <a href="#declaration" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         <pre><code>{{ property.name }}: {{ property.type_name }}</code></pre>
@@ -84,7 +55,13 @@
     </div>
 
     <div class="description toggle-wrapper">
-      <h4><a name="description">Description</a></h4>
+      <h4 id="description">
+        Description
+        <a href="#description" class="anchor"></a>
+        {% if CONFIG.source_location_url and property.docs_location %}
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ property.docs_location }}">[src]</a>
+        {% endif %}
+      </h4>
 
       <div class="docblock">
         {{ property.description|safe }}
@@ -117,7 +94,10 @@
     </div>
 
     <div class="flags toggle-wrapper">
-      <h4><a name="Flags"</a></h4>
+      <h4 id="flags">
+        Flags
+        <a href="#flags" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       <table>

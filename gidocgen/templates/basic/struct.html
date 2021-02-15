@@ -55,7 +55,13 @@
   <section>
     <summary>
       <div class="toggle-wrapper">
-        <h4 id="description">Description</a></h4>
+        <h4 style="display:flex;" id="description">
+          Description
+          <a href="#description" class="anchor"></a>
+          {% if CONFIG.source_location_url and struct.docs_location %}
+          <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ struct.docs_location }}">[src]</a>
+          {% endif %}
+        </h4>
 
         <pre><code>{{ struct.c_decl }}</code></pre>
 
@@ -65,7 +71,12 @@
 
         {% if struct.fields %}
         <div class="toggle-wrapper">
-          <h6>Structure members</h6>
+          <h6 style="display:flex;">
+            Structure members
+            {% if CONFIG.source_location_url and struct.source_location %}
+            <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ struct.source_location }}">[src]</a>
+            {% endif %}
+          </h6>
 
           <div class="docblock">
             <table>
@@ -109,11 +120,14 @@
 
     {% if struct.ctors %}
     <div class="toggle-wrapper constructors">
-      <h4 id="constructors">Constructors</a></h4>
+      <h4 id="constructors">
+        Constructors
+        <a href="#constructors" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for ctor in struct.ctors %}
-        <div class="toggle-wrapper default-hide {% if ctor.deprecated_since %}deprecated{% endif %}">
+        <div class="{% if ctor.deprecated_since %}deprecated{% endif %}">
           <h6><a href="ctor.{{ struct.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
 
           <div class="docblock">
@@ -131,11 +145,14 @@
 
     {% if struct.methods %}
     <div class="toggle-wrapper methods">
-      <h4 id="methods">Instance methods</a></h4>
+      <h4 id="methods">
+        Instance methods
+        <a href="#methods" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for method in struct.methods %}
-        <div class="toggle-wrapper default-hide {% if method.deprecated_since %}deprecated{% endif %}">
+        <div class="{% if method.deprecated_since %}deprecated{% endif %}">
           <h6><a href="method.{{ struct.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
           <div class="docblock">
@@ -154,11 +171,14 @@
 
     {% if struct.type_funcs %}
     <div class="toggle-wrapper methods">
-      <h4 id="type-functions">Type functions</a></h4>
+      <h4 id="type-functions">
+        Type functions
+        <a href="#type-functions" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for func in struct.type_funcs %}
-      <div class="toggle-wrapper default-hide {% if func.deprecated_since %}deprecated{% endif %}">
+      <div class="{% if func.deprecated_since %}deprecated{% endif %}">
         <h6><a href="type_func.{{ struct.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">

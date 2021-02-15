@@ -78,8 +78,7 @@ pre {
   display: none;
   text-decoration: none;
   background: transparent;
-  position: absolute;
-  left: -7px;
+  padding-left: 7px;
 }
 
 .anchor:before {

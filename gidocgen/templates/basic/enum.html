@@ -52,7 +52,13 @@
 
   <section>
     <div class="declaration toggle-wrapper">
-      <h4><a name="declaration">Declaration</a></h4>
+      <h4 style="display:flex;" id="declaration">
+        Declaration
+        <a href="#declaration" class="anchor"></a>
+        {% if CONFIG.source_location_url and enum.source_location %}
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ enum.source_location }}">[src]</a>
+        {% endif %}
+      </h4>
 
       <div class="docblock">
         <pre><code>{{ enum.c_decl }}</code></pre>
@@ -60,7 +66,13 @@
     </div>
 
     <div class="description toggle-wrapper">
-      <h4><a name="description">Description</a></h4>
+      <h4 style="display:flex;" id="description">
+        Description
+        <a href="#description" class="anchor"></a>
+        {% if CONFIG.source_location_url and enum.docs_location %}
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ enum.docs_location }}">[src]</a>
+        {% endif %}
+      </h4>
 
       <div class="docblock">
       {{ enum.description|safe }}
@@ -93,17 +105,20 @@
     </div>
 
     <div class="members toggle-wrapper">
-      <h4><a name="members">Members</a></h4>
+      <h4 id="members">
+        Members
+        <a href="#members" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       <table>
-      {% for member in enum.members %}
         <tr>
           <th>Name</th>
           <th>Nickname</th>
           <th>Value</th>
           <th>Description</th>
         </tr>
+      {% for member in enum.members %}
         <tr>
           <td><code>{{ member.name }}</code></td>
           <td><code>&quot;{{ member.nick }}&quot;</code></td>
@@ -117,7 +132,10 @@
 
     {% if enum.error_domain %}
     <div class="error-domain toggle-wrapper">
-      <h4><a name="error-domain">Error domain</a></h4>
+      <h4 id="error-domain">
+        Error domain
+        <a href="#error-domain" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         <pre><code>&quot;{{ enum.domain }}&quot;</code></pre>
@@ -127,11 +145,14 @@
 
     {% if enum.type_funcs %}
     <div class="type-funcs toggle-wrapper">
-      <h4><a name="type-funcs">Type functions</a></h4>
+      <h4 id="type-functions">
+        Type functions
+        <a href="#type-functions" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for func in enum.type_funcs %}
-        <div class="toggle-wrapper default-hide {% if func.deprecated_since %}deprecated{% endif %}">
+        <div class="{% if func.deprecated_since %}deprecated{% endif %}">
           <h6><a href="type_func.{{ enum.name }}.{{ func.name }}.html">{{ func.identifier }} ();</a></h6>
 
           <div class="docblock">

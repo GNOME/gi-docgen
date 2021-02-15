@@ -57,7 +57,13 @@
   <section>
     <summary>
       <div class="toggle-wrapper">
-        <h4><a name="description">Description</a></h4>
+        <h4 id="description" style="display:flex;">
+          Description
+          <a href="#description" class="anchor"/>
+          {% if CONFIG.source_location_url and interface.docs_location %}
+          <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ interface.docs_location }}">[src]</a>
+          {% endif %}
+        </h4>
 
         <pre><code>{{ interface.c_decl }}</code></pre>
 
@@ -94,11 +100,14 @@
 
     {% if interface.methods %}
     <div class="methods toggle-wrapper">
-      <h4><a name="methods">Instance methods</a></h4>
+      <h4 id="methods">
+        Instance methods
+        <a href="#methods" class="anchor"/>
+      </h4>
 
       <div class="docblock">
       {% for method in interface.methods %}
-      <div class="toggle-wrapper default-hide">
+      <div class="{% if method.deprecated_since %}deprecated{% endif %}">
         <h6><a href="method.{{ interface.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
@@ -117,16 +126,23 @@
 
     {% if interface.properties %}
     <div class="properties toggle-wrapper">
-      <h4><a name="properties">Properties</a></h4>
+      <h4 id="properties">
+        Properties
+        <a href="#properties" class="anchor"/>
+      </h4>
 
       <div class="docblock">
       {% for property in interface.properties %}
-      <div class="toggle-wrapper default-hide">
+      <div class="{% if property.deprecated_since %}deprecated{% endif %}">
         <h6><a href="property.{{ interface.name }}.{{ property.name }}.html">{{ interface.fqtn }}:{{ property.name }}</a></h6>
 
         <div class="docblock">
           {{ property.description|safe }}
         </div>
+
+        {% if property.deprecated_since %}
+        <div class="docblock"><p>Deprecated since: {{ property.deprecated_since.version }}</p></div>
+        {% endif %}
       </div>
       {% endfor %}
       </div>
@@ -136,16 +152,23 @@
 
     {% if interface.signals %}
     <div class="signals toggle-wrapper">
-      <h4><a name="signals">Signals</a></h4>
+      <h4 id="signals">
+        Signals
+        <a href="#signals" class="anchor"/>
+      </h4>
 
       <div class="docblock">
       {% for signal in interface.signals %}
-      <div class="toggle-wrapper default-hide">
+      <div class="{% if signal.deprecated_since %}deprecated{% endif %}">
         <h6><a href="signal.{{ interface.name }}.{{ signal.name }}.html">{{ interface.fqtn }}::{{ signal.name }}</a></h6>
 
         <div class="docblock">
           {{ signal.description|safe }}
         </div>
+
+        {% if signal.deprecated_since %}
+        <div class="docblock"><p>Deprecated since: {{ signal.deprecated_since.version }}</p></div>
+        {% endif %}
       </div>
       {% endfor %}
 
@@ -153,8 +176,14 @@
     {% endif %}
 
     {% if interface.class_name %}
-    <div class="class toggle-wrapper">
-      <h4><a name="class">Interface structure</a></h4>
+    <div class="interface toggle-wrapper default-hide">
+      <h4 style="display:flex;" id="interface-struct">
+        Interface structure
+        <a href="#interface-struct" class="anchor"></a>
+        {% if CONFIG.source_location_url and interface.source_location %}
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ interface.source_location }}">[src]</a>
+        {% endif %}
+      </h4>
 
       <pre><code>struct {{ interface.type_cname }} {
   {% for field in interface.class_fields %}
@@ -163,7 +192,7 @@
 }</code></pre>
 
       {% if interface.class_fields %}
-      <div class="docblock default-hide">
+      <div class="docblock">
         <h6>Interface members</h6>
 
         <table>
@@ -181,16 +210,23 @@
 
     {% if interface.class_methods %}
     <div class="methods toggle-wrapper">
-      <h4><a name="class-functions">Interface methods</a></h4>
+      <h4 id="interface-functions">
+        Interface functions
+        <a href="#interface-functions" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for method in interface.class_methods %}
-      <div class="toggle-wrapper default-hide">
+      <div class="{% if method.deprecated_since %}deprecated{% endif %}">
         <h6><a href="class_method.{{ interface.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
           {{ method.description|safe }}
         </div>
+
+        {% if method.deprecated_since %}
+        <div class="docblock"><p>Deprecated since: {{ method.deprecated_since.version }}</p></div>
+        {% endif %}
       </div>
       {% endfor %}
       </div>
@@ -199,16 +235,23 @@
 
     {% if interface.functions %}
     <div class="methods toggle-wrapper">
-      <h4><a name="type-functions">Type functions</a></h4>
+      <h4 id="type-functions">
+        Type functions
+        <a href="#type-functions" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for func in interface.type_funcs %}
-      <div class="toggle-wrapper default-hide">
+      <div class="{% if func.deprecated_since %}deprecated{% endif %}">
         <h6><a href="type_func.{{ interface.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">
           {{ func.description|safe }}
         </div>
+
+        {% if func.deprecated_since %}
+        <div class="docblock"><p>Deprecated since: {{ func.deprecated_since.version }}</p></div>
+        {% endif %}
       </div>
       {% endfor %}
       </div>
@@ -217,11 +260,14 @@
 
     {% if interface.virtual_methods %}
     <div class="toggle-wrapper methods">
-      <h4 id="virtual-methods">Virtual methods</a></h4>
+      <h4 id="virtual-methods">
+        Virtual methods
+        <a href="#virtual-methods" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
       {% for method in interface.virtual_methods %}
-      <div class="toggle-wrapper default-hide {% if method.deprecated_since %}deprecated{% endif %}">
+      <div class="{% if method.deprecated_since %}deprecated{% endif %}">
         <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ interface.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ interface.name }}.{{ method.name }}</a> ();</h6>
 
         <div class="docblock">
