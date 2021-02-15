@@ -44,7 +44,13 @@
 
   <section>
     <div class="declaration toggle-wrapper">
-      <h4><a name="declaration">Declaration</a></h4>
+      <h4 style="display:flex;">
+        <a name="declaration"/>
+        Declaration
+        {% if CONFIG.source_location_url and method.source_location %}
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ method.source_location }}">[src]</a>
+        {% endif %}
+      </h4>
 
       <div class="docblock c-decl">
         <pre><code>{{ method.c_decl|safe }}</code></pre>
@@ -52,7 +58,13 @@
     </div>
 
     <div class="description toggle-wrapper">
-      <h4><a name="description">Description</a></h4>
+      <h4 style="display:flex;">
+        <a name="description"/>
+        Description
+        {% if CONFIG.source_location_url and method.docs_location %}
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ method.docs_location }}">[src]</a>
+        {% endif %}
+      </h4>
 
       <div class="docblock">
         {{ method.description|safe }}

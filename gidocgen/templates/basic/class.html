@@ -115,7 +115,7 @@
 
       <div class="docblock">
       {% for ctor in class.ctors %}
-        <div class="toggle-wrapper default-hide {% if ctor.deprecated_since %}deprecated{% endif %}">
+        <div class="toggle-wrapper {% if ctor.deprecated_since %}deprecated{% endif %}">
           <h6><a href="ctor.{{ class.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
 
           <div class="docblock">
@@ -137,7 +137,7 @@
 
       <div class="docblock">
       {% for method in class.methods %}
-        <div class="toggle-wrapper default-hide {% if method.deprecated_since %}deprecated{% endif %}">
+        <div class="toggle-wrapper {% if method.deprecated_since %}deprecated{% endif %}">
           <h6><a href="method.{{ class.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
           <div class="docblock">
@@ -160,7 +160,7 @@
 
       <div class="docblock">
       {% for property in class.properties %}
-        <div class="toggle-wrapper default-hide {% if property.deprecated_since %}deprecated{% endif %}">
+        <div class="toggle-wrapper {% if property.deprecated_since %}deprecated{% endif %}">
           <h6><a href="property.{{ class.name }}.{{ property.name }}.html">{{ class.fqtn }}:{{ property.name }}</a></h6>
 
           <div class="docblock">
@@ -183,7 +183,7 @@
 
       <div class="docblock">
       {% for signal in class.signals %}
-        <div class="toggle-wrapper default-hide {% if signal.deprecated_since %}deprecated{% endif %}">
+        <div class="toggle-wrapper {% if signal.deprecated_since %}deprecated{% endif %}">
           <h6><a href="signal.{{ class.name }}.{{ signal.name }}.html">{{ class.fqtn }}::{{ signal.name }}</a></h6>
 
           <div class="docblock">
@@ -234,7 +234,7 @@
 
       <div class="docblock">
       {% for method in class.virtual_methods %}
-      <div class="toggle-wrapper default-hide {% if method.deprecated_since %}deprecated{% endif %}">
+      <div class="toggle-wrapper {% if method.deprecated_since %}deprecated{% endif %}">
         <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ class.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ class.class_name }}.{{ method.name }}</a> ();</h6>
 
         <div class="docblock">
@@ -256,7 +256,7 @@
 
       <div class="docblock">
       {% for method in class.class_methods %}
-      <div class="toggle-wrapper default-hide {% if method.deprecated_since %}deprecated{% endif %}">
+      <div class="toggle-wrapper {% if method.deprecated_since %}deprecated{% endif %}">
         <h6><a href="class_method.{{ class.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
@@ -278,7 +278,7 @@
 
       <div class="docblock">
       {% for func in class.type_funcs %}
-      <div class="toggle-wrapper default-hide {% if func.deprecated_since %}deprecated{% endif %}">
+      <div class="toggle-wrapper {% if func.deprecated_since %}deprecated{% endif %}">
         <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">
