@@ -407,6 +407,7 @@ class Property(GIRElement):
 class Signal(GIRElement):
     def __init__(self, name: str, detailed: bool, when: str, action: bool = False, no_hooks: bool = False, no_recurse: bool = False):
         super().__init__(name)
+        self.detailed = detailed
         self.when = when
         self.action = action
         self.no_hooks = no_hooks
