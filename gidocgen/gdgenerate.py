@@ -96,6 +96,11 @@ class TemplateProperty:
         self.construct_only = prop.construct_only
         if prop.doc is not None:
             self.description = utils.preprocess_docs(prop.doc.content, namespace)
+            filename = prop.doc.filename
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            line = prop.doc.line
+            self.docs_location = f"{filename}#L{line}"
 
         self.stability = prop.stability
         self.annotations = prop.annotations
@@ -174,6 +179,11 @@ class TemplateSignal:
 
         if signal.doc is not None:
             self.description = utils.preprocess_docs(signal.doc.content, namespace)
+            filename = signal.doc.filename
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            line = signal.doc.line
+            self.docs_location = f"{filename}#L{line}"
 
         self.arguments = []
         for arg in signal.parameters:
