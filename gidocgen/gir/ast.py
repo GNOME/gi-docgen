@@ -120,6 +120,12 @@ class GIRElement:
         """Set the position in the source code for the element"""
         self.info.source_position = pos
 
+    @property
+    def source_position(self) -> T.Optional[T.Tuple[str, str]]:
+        if self.info.source_position is None:
+            return None
+        return self.info.source_position.filename, self.info.source_position.line
+
     def set_deprecated(self, doc: T.Optional[str] = None, since_version: T.Optional[str] = None) -> None:
         """Set the deprecation annotations for the element"""
         self.info.deprecated_msg = doc
