@@ -38,6 +38,12 @@ SCOPE_MODES = {
     'async': 'Arguments are valid until the call is completed',
 }
 
+SIGNAL_WHEN = {
+    'first': "The default handler is called before the handlers added via `g_signal_connect()`",
+    'last': "The default handler is called after the handlers added via `g_signal_connect()`",
+    'cleanup': "The default handler is called after the handlers added via `g_signal_connect_after()`",
+}
+
 
 def type_name_to_cname(fqtn, is_pointer=False):
     ns, name = fqtn.split('.')
@@ -184,6 +190,12 @@ class TemplateSignal:
                 filename = filename.replace('../', '')
             line = signal.doc.line
             self.docs_location = f"{filename}#L{line}"
+
+        self.is_detailed = signal.detailed
+        self.is_action = signal.action
+        self.no_recurse = signal.no_recurse
+        self.no_hooks = signal.no_hooks
+        self.when = utils.preprocess_docs(SIGNAL_WHEN[signal.when], namespace)
 
         self.arguments = []
         for arg in signal.parameters:
