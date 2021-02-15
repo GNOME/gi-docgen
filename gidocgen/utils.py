@@ -177,9 +177,9 @@ class LinkGenerator:
         elif self._fragment in ['ctor', 'method']:
             self._name, self._func_name = self._rest.split('.')
             if self._namespace is not None:
-                cls = self._namespace.find_class(self._name)
-                if cls is not None:
-                    self._func = f"{self._namespace.symbol_prefix[0]}_{cls.symbol_prefix}_{self._func_name}()"
+                t = self._namespace.find_real_type(f"{self._ns}.{self._name}")
+                if t is not None:
+                    self._func = f"{self._namespace.symbol_prefix[0]}_{t.symbol_prefix}_{self._func_name}()"
                 else:
                     self._func = f"{self._namespace.symbol_prefix[0]}_{self._func_name}()"
             else:
