@@ -231,6 +231,19 @@ class TemplateMethod:
                 "message": utils.preprocess_docs(msg, namespace),
             }
 
+        if method.source_position is not None:
+            filename, line = method.source_position
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.source_location = f"{filename}#L{line}"
+
+        if method.doc is not None:
+            filename = method.doc.filename
+            line = method.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
+
     @property
     def c_decl(self):
         res = []
@@ -273,6 +286,19 @@ class TemplateClassMethod:
         self.return_value = None
         if not isinstance(method.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(namespace, method, method.return_value)
+
+        if method.source_position is not None:
+            filename, line = method.source_position
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.source_location = f"{filename}#L{line}"
+
+        if method.doc is not None:
+            filename = method.doc.filename
+            line = method.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
 
     @property
     def c_decl(self):
@@ -323,6 +349,19 @@ class TemplateFunction:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+
+        if func.source_position is not None:
+            filename, line = func.source_position
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.source_location = f"{filename}#L{line}"
+
+        if func.doc is not None:
+            filename = func.doc.filename
+            line = func.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
 
     @property
     def c_decl(self):
