@@ -102,7 +102,7 @@ class TemplateProperty:
 
 
 class TemplateArgument:
-    def __init__(self, call, argument):
+    def __init__(self, namespace, call, argument):
         self.name = argument.name
         self.type_name = argument.target.name
         self.type_cname = argument.target.ctype
@@ -125,7 +125,7 @@ class TemplateArgument:
             self.len_arg = argument.target.length != -1 and call.parameters[argument.target.length].name
         self.description = "No description available."
         if argument.doc is not None:
-            self.description = utils.preprocess_docs(argument.doc.content)
+            self.description = utils.preprocess_docs(argument.doc.content, namespace)
 
     @property
     def is_pointer(self):
@@ -133,7 +133,7 @@ class TemplateArgument:
 
 
 class TemplateReturnValue:
-    def __init__(self, call, retval):
+    def __init__(self, namespace, call, retval):
         self.name = retval.name
         self.type_name = retval.target.name
         self.type_cname = retval.target.ctype
@@ -151,7 +151,7 @@ class TemplateReturnValue:
         if self.type_name in ['utf8', 'filename']:
             self.string_note = STRING_TYPES[self.type_name]
         if retval.doc is not None:
-            self.description = utils.preprocess_docs(retval.doc.content)
+            self.description = utils.preprocess_docs(retval.doc.content, namespace)
 
     @property
     def is_pointer(self):
@@ -170,11 +170,11 @@ class TemplateSignal:
 
         self.arguments = []
         for arg in signal.parameters:
-            self.arguments.append(TemplateArgument(signal, arg))
+            self.arguments.append(TemplateArgument(namespace, signal, arg))
 
         self.return_value = None
         if not isinstance(signal.return_value.target, gir.VoidType):
-            self.return_value = TemplateReturnValue(signal, signal.return_value)
+            self.return_value = TemplateReturnValue(namespace, signal, signal.return_value)
 
         self.stability = signal.stability
         self.annotations = signal.annotations
@@ -211,15 +211,15 @@ class TemplateMethod:
         if method.doc is not None:
             self.description = utils.preprocess_docs(method.doc.content, namespace)
 
-        self.instance_parameter = TemplateArgument(method, method.instance_param)
+        self.instance_parameter = TemplateArgument(namespace, method, method.instance_param)
 
         self.arguments = []
         for arg in method.parameters:
-            self.arguments.append(TemplateArgument(method, arg))
+            self.arguments.append(TemplateArgument(namespace, method, arg))
 
         self.return_value = None
         if not isinstance(method.return_value.target, gir.VoidType):
-            self.return_value = TemplateReturnValue(method, method.return_value)
+            self.return_value = TemplateReturnValue(namespace, method, method.return_value)
 
         self.stability = method.stability
         self.annotations = method.annotations
@@ -268,11 +268,11 @@ class TemplateClassMethod:
 
         self.arguments = []
         for arg in method.parameters:
-            self.arguments.append(TemplateArgument(method, arg))
+            self.arguments.append(TemplateArgument(namespace, method, arg))
 
         self.return_value = None
         if not isinstance(method.return_value.target, gir.VoidType):
-            self.return_value = TemplateReturnValue(method, method.return_value)
+            self.return_value = TemplateReturnValue(namespace, method, method.return_value)
 
     @property
     def c_decl(self):
@@ -308,11 +308,11 @@ class TemplateFunction:
 
         self.arguments = []
         for arg in func.parameters:
-            self.arguments.append(TemplateArgument(func, arg))
+            self.arguments.append(TemplateArgument(namespace, func, arg))
 
         self.return_value = None
         if not isinstance(func.return_value.target, gir.VoidType):
-            self.return_value = TemplateReturnValue(func, func.return_value)
+            self.return_value = TemplateReturnValue(namespace, func, func.return_value)
 
         self.stability = func.stability
         self.annotations = func.annotations
@@ -355,11 +355,11 @@ class TemplateCallback:
 
         self.arguments = []
         for arg in cb.parameters:
-            self.arguments.append(TemplateArgument(cb, arg))
+            self.arguments.append(TemplateArgument(namespace, cb, arg))
 
         self.return_value = None
         if not isinstance(cb.return_value.target, gir.VoidType):
-            self.return_value = TemplateReturnValue(cb, cb.return_value)
+            self.return_value = TemplateReturnValue(namespace, cb, cb.return_value)
 
         self.stability = cb.stability
         self.annotations = cb.annotations
@@ -792,13 +792,13 @@ class TemplateAlias:
 
 
 class TemplateMember:
-    def __init__(self, enum, member):
+    def __init__(self, namespace, enum, member):
         self.name = member.identifier
         self.nick = member.nick
         self.value = member.value
         self.description = "No description available."
         if member.doc is not None:
-            self.description = utils.preprocess_docs(member.doc.content)
+            self.description = utils.preprocess_docs(member.doc.content, namespace)
 
 
 class TemplateEnum:
@@ -841,7 +841,7 @@ class TemplateEnum:
         if len(enum.members) != 0:
             self.members = []
             for member in enum.members:
-                self.members.append(TemplateMember(enum, member))
+                self.members.append(TemplateMember(namespace, enum, member))
 
         if len(enum.functions) != 0:
             self.type_funcs = []
