@@ -110,6 +110,14 @@ def process_language(lang):
     return LANGUAGE_MAP[language.lower()]
 
 
+class LinkParseError(Exception):
+    def __init__(self, fragment=None, rest=None, message="Unable to parse link"):
+        self.fragment = fragment
+        self.rest = rest
+        self.message = message
+        super().__init__(message=f"{self.message}: [{self.fragment}@{self.rest}]")
+
+
 class LinkGenerator:
     def __init__(self, **kwargs):
         self._namespace = kwargs.get('namespace')
@@ -155,7 +163,10 @@ class LinkGenerator:
             else:
                 self._type = f"{self._ns}{self._name}"
         elif self._fragment == 'property':
-            self._name, self._prop_name = self._rest.split(':')
+            try:
+                self._name, self._prop_name = self._rest.split(':')
+            except ValueError:
+                raise LinkParseError(self._fragment, self._rest, "Unable to parse property link")
             if self._namespace is not None:
                 t = self._namespace.find_real_type(self._name)
                 if t is not None:
@@ -165,7 +176,10 @@ class LinkGenerator:
             else:
                 self._type = f"{self._ns}{self._name}"
         elif self._fragment == 'signal':
-            self._name, self._signal_name = self._rest.split('::')
+            try:
+                self._name, self._signal_name = self._rest.split('::')
+            except ValueError:
+                raise LinkParseError(self._fragment, self._rest, "Unable to parse signal link")
             if self._namespace is not None:
                 t = self._namespace.find_real_type(self._name)
                 if t is not None:
@@ -175,7 +189,10 @@ class LinkGenerator:
             else:
                 self._type = f"{self._ns}{self._name}"
         elif self._fragment in ['ctor', 'method']:
-            self._name, self._func_name = self._rest.split('.')
+            try:
+                self._name, self._func_name = self._rest.split('.')
+            except ValueError:
+                raise LinkParseError(self._fragment, self._rest, "Unable to parse method link")
             if self._namespace is not None:
                 t = self._namespace.find_real_type(self._name)
                 if t is not None:
