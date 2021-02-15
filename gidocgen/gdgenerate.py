@@ -688,7 +688,7 @@ class TemplateRecord:
 
     @property
     def c_decl(self):
-        res = [f"struct {self.fqtn} {{"]
+        res = [f"struct {self.type_cname} {{"]
         n_fields = len(self.fields)
         if n_fields > 0:
             for (idx, field) in enumerate(self.fields):
@@ -747,7 +747,7 @@ class TemplateUnion:
 
     @property
     def c_decl(self):
-        res = [f"union {self.fqtn} {{"]
+        res = [f"union {self.type_cname} {{"]
         n_fields = len(self.fields)
         if n_fields > 0:
             for (idx, field) in enumerate(self.fields):
