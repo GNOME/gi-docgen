@@ -124,89 +124,73 @@ class LinkGenerator:
         self._fragment = kwargs.get('fragment', '')
         self._endpoint = kwargs.get('endpoint', '')
 
+        assert self._namespace is not None
+
         if '.' in self._endpoint:
             self._ns, self._rest = self._endpoint.split('.', maxsplit=1)
         else:
-            self._ns = ''
+            self._ns = None
             self._rest = self._endpoint
 
-        if self._namespace is not None:
+        if self._ns is None:
             self._ns = self._namespace.name
 
         if self._fragment == 'id':
-            if self._namespace is not None:
-                t = self._namespace.find_symbol(self._endpoint)
-                if isinstance(t, gir.Class) or \
-                   isinstance(t, gir.Interface) or \
-                   isinstance(t, gir.Record):
-                    self._fragment = 'method'
-                    self._func = f"{self._endpoint}()"
-                    self._name = t.name
-                    self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
-                    self._func_name = self._func_name.replace(t.symbol_prefix + '_', '')
-                elif isinstance(t, gir.Function):
-                    self._fragment = 'func'
-                    self._func = f"{self._endpoint}()"
-                    self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
-                else:
-                    self._fragment = None
+            t = self._namespace.find_symbol(self._endpoint)
+            if isinstance(t, gir.Class) or \
+               isinstance(t, gir.Interface) or \
+               isinstance(t, gir.Record):
+                self._fragment = 'method'
+                self._func = f"{self._endpoint}()"
+                self._name = t.name
+                self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
+                self._func_name = self._func_name.replace(t.symbol_prefix + '_', '')
+            elif isinstance(t, gir.Function):
+                self._fragment = 'func'
+                self._func = f"{self._endpoint}()"
+                self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
             else:
                 self._fragment = None
         elif self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
             self._name = self._rest
-            if self._namespace is not None:
-                t = self._namespace.find_real_type(self._name)
-                if t is not None:
-                    self._type = t.ctype
-                else:
-                    self._type = f"{self._namespace.identifier_prefix[0]}{self._name}"
+            t = self._namespace.find_real_type(self._name)
+            if t is not None:
+                self._type = t.ctype
             else:
-                self._type = f"{self._ns}{self._name}"
+                self._type = f"{self._namespace.identifier_prefix[0]}{self._name}"
         elif self._fragment == 'property':
             try:
                 self._name, self._prop_name = self._rest.split(':')
             except ValueError:
                 raise LinkParseError(self._fragment, self._rest, "Unable to parse property link")
-            if self._namespace is not None:
-                t = self._namespace.find_real_type(self._name)
-                if t is not None:
-                    self._type = t.ctype
-                else:
-                    self._type = f"{self._namespace.identifier_prefix[0]}{self._name}"
+            t = self._namespace.find_real_type(self._name)
+            if t is not None:
+                self._type = t.ctype
             else:
-                self._type = f"{self._ns}{self._name}"
+                self._type = f"{self._namespace.identifier_prefix[0]}{self._name}"
         elif self._fragment == 'signal':
             try:
                 self._name, self._signal_name = self._rest.split('::')
             except ValueError:
                 raise LinkParseError(self._fragment, self._rest, "Unable to parse signal link")
-            if self._namespace is not None:
-                t = self._namespace.find_real_type(self._name)
-                if t is not None:
-                    self._type = t.ctype
-                else:
-                    self._type = f"{self._namespace.identifier_prefix[0]}{self._name}"
+            t = self._namespace.find_real_type(self._name)
+            if t is not None:
+                self._type = t.ctype
             else:
-                self._type = f"{self._ns}{self._name}"
+                self._type = f"{self._namespace.identifier_prefix[0]}{self._name}"
         elif self._fragment in ['ctor', 'method']:
             try:
                 self._name, self._func_name = self._rest.split('.')
             except ValueError:
                 raise LinkParseError(self._fragment, self._rest, "Unable to parse method link")
-            if self._namespace is not None:
-                t = self._namespace.find_real_type(self._name)
-                if t is not None:
-                    self._func = f"{self._namespace.symbol_prefix[0]}_{t.symbol_prefix}_{self._func_name}()"
-                else:
-                    self._func = f"{self._namespace.symbol_prefix[0]}_{self._func_name}()"
+            t = self._namespace.find_real_type(self._name)
+            if t is not None:
+                self._func = f"{self._namespace.symbol_prefix[0]}_{t.symbol_prefix}_{self._func_name}()"
             else:
-                self._func = "".join([self._ns.lower(), '_', self._name.lower(), '_', self._func_name, '()'])
+                self._func = f"{self._namespace.symbol_prefix[0]}_{self._func_name}()"
         elif self._fragment == 'func':
             self._func_name = self._rest
-            if self._namespace is not None:
-                self._func = f"{self._namespace.symbol_prefix[0]}_{self._rest}()"
-            else:
-                self._func = "".join([self._ns.lower(), '_', self._rest.lower(), '()'])
+            self._func = f"{self._namespace.symbol_prefix[0]}_{self._rest}()"
         else:
             log.warning(f"Unknown fragment '{self._fragment}' in link [{self._fragment}@{self._endpoint}]")
 
@@ -225,7 +209,7 @@ class LinkGenerator:
             return f"`{self._ns}.{self._rest}`"
 
 
-def preprocess_docs(text, namespace=None, md=None, extensions=[]):
+def preprocess_docs(text, namespace, md=None, extensions=[]):
     processed_text = []
 
     code_block_text = []
