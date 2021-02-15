@@ -211,6 +211,8 @@ class TemplateMethod:
         if method.doc is not None:
             self.description = utils.preprocess_docs(method.doc.content, namespace)
 
+        self.throws = method.throws
+
         self.instance_parameter = TemplateArgument(namespace, method, method.instance_param)
 
         self.arguments = []
@@ -261,10 +263,12 @@ class TemplateMethod:
         else:
             res += [f"  {self.instance_parameter.type_cname} self,"]
             for (idx, arg) in enumerate(self.arguments):
-                if idx < n_args - 1:
-                    res += [f"  {arg.type_cname} {arg.name},"]
-                else:
+                if idx == n_args - 1 and not self.throws:
                     res += [f"  {arg.type_cname} {arg.name}"]
+                else:
+                    res += [f"  {arg.type_cname} {arg.name},"]
+        if self.throws:
+            res += ["  GError** error"]
         res += [")"]
         return utils.code_highlight("\n".join(res))
 
@@ -274,8 +278,10 @@ class TemplateClassMethod:
         self.name = method.name
         self.identifier = method.identifier
         self.class_type_cname = cls.class_struct.type_struct
-        self.description = "No description available."
 
+        self.throws = method.throws
+
+        self.description = "No description available."
         if method.doc is not None:
             self.description = utils.preprocess_docs(method.doc.content, namespace)
 
@@ -314,10 +320,12 @@ class TemplateClassMethod:
         else:
             res += [f"  {self.class_type_cname}* self,"]
             for (idx, arg) in enumerate(self.arguments, start=1):
-                if idx < n_args - 1:
-                    res += [f"  {arg.type_cname} {arg.name},"]
-                else:
+                if idx == n_args - 1 and not self.throws:
                     res += [f"  {arg.type_cname} {arg.name}"]
+                else:
+                    res += [f"  {arg.type_cname} {arg.name},"]
+        if self.throws:
+            res += ["  GError** error"]
         res += [")"]
         return utils.code_highlight("\n".join(res))
 
@@ -327,6 +335,8 @@ class TemplateFunction:
         self.identifier = func.identifier
         self.name = func.name
         self.namespace = namespace.name
+
+        self.throws = func.throws
 
         self.description = "No description available."
         if func.doc is not None:
@@ -376,10 +386,12 @@ class TemplateFunction:
             res += ["  void"]
         else:
             for (idx, arg) in enumerate(self.arguments):
-                if idx < n_args - 1:
-                    res += [f"  {arg.type_cname} {arg.name},"]
-                else:
+                if idx == n_args - 1 and not self.throws:
                     res += [f"  {arg.type_cname} {arg.name}"]
+                else:
+                    res += [f"  {arg.type_cname} {arg.name},"]
+        if self.throws:
+            res += ["  GError** error"]
         res += [")"]
         return utils.code_highlight("\n".join(res))
 
@@ -399,6 +411,8 @@ class TemplateCallback:
         self.return_value = None
         if not isinstance(cb.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(namespace, cb, cb.return_value)
+
+        self.throws = cb.throws
 
         self.stability = cb.stability
         self.annotations = cb.annotations
@@ -423,10 +437,12 @@ class TemplateCallback:
             res += ["void"]
         else:
             for (idx, arg) in enumerate(self.arguments):
-                if idx < n_args - 1:
-                    res += [f"  {arg.type_cname} {arg.name},"]
-                else:
+                if idx == n_args - 1 and not self.throws:
                     res += [f"  {arg.type_cname} {arg.name}"]
+                else:
+                    res += [f"  {arg.type_cname} {arg.name},"]
+        if self.throws:
+            res += ["  GError** error"]
         res += [")"]
         return utils.code_highlight("\n".join(res))
 
