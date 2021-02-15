@@ -109,6 +109,11 @@ class GIDocConfig:
         extra = self._config.get('extra', {})
         return extra.get('content_images', [])
 
+    @property
+    def source_location_url(self):
+        source_location = self._config.get('source-location', {})
+        return source_location.get('base_url', '')
+
 
 class GITemplateConfig:
     """Load and represent the template configuration"""
