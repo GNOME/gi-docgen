@@ -72,6 +72,13 @@ class TemplateConstant:
                 "message": utils.preprocess_docs(msg, namespace),
             }
 
+        if const.doc is not None:
+            filename = const.doc.filename
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            line = const.doc.line
+            const.docs_location = f"{filename}#L{line}"
+
     @property
     def c_decl(self):
         return utils.code_highlight(f"#define {self.identifier} {self.value}")
@@ -512,6 +519,13 @@ class TemplateInterface:
                 "message": utils.preprocess_docs(msg, namespace),
             }
 
+        if interface.doc is not None:
+            filename = interface.doc.filename
+            line = interface.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
+
         self.class_name = interface.type_struct
 
         self.class_struct = namespace.find_record(interface.type_struct)
@@ -619,6 +633,13 @@ class TemplateClass:
                 "message": utils.preprocess_docs(msg, namespace),
             }
 
+        if cls.doc is not None:
+            filename = cls.doc.filename
+            line = cls.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
+
         self.fields = []
         for field in cls.fields:
             if not field.private:
@@ -721,6 +742,13 @@ class TemplateRecord:
                 "message": utils.preprocess_docs(msg, namespace),
             }
 
+        if record.doc is not None:
+            filename = record.doc.filename
+            line = record.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
+
         self.fields = []
         for field in record.fields:
             if not field.private:
@@ -779,6 +807,13 @@ class TemplateUnion:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+
+        if union.doc is not None:
+            filename = union.doc.filename
+            line = union.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
 
         self.fields = []
         for field in union.fields:
@@ -882,6 +917,13 @@ class TemplateEnum:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+
+        if enum.doc is not None:
+            filename = enum.doc.filename
+            line = enum.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
 
         if isinstance(enum, gir.BitField):
             self.link_prefix = "flags"
