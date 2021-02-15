@@ -273,11 +273,12 @@ class ReturnValue(GIRElement):
 
 class Callable(GIRElement):
     """A callable symbol: function, method, function-macro, ..."""
-    def __init__(self, name: str, identifier: T.Optional[str]):
+    def __init__(self, name: str, identifier: T.Optional[str], throws: bool = False):
         super().__init__(name)
         self.identifier = identifier
         self.parameters: T.List[Parameter] = []
         self.return_value: T.Optional[ReturnValue] = None
+        self.throws = throws
 
     def add_parameter(self, param: Parameter) -> None:
         self.parameters.append(param)
@@ -306,13 +307,13 @@ class FunctionMacro(Callable):
 
 
 class Function(Callable):
-    def __init__(self, name: str, identifier: str):
-        super().__init__(name, identifier)
+    def __init__(self, name: str, identifier: str, throws: bool = False):
+        super().__init__(name, identifier, throws)
 
 
 class Method(Callable):
-    def __init__(self, name: str, identifier: str, instance_param: Parameter):
-        super().__init__(name, identifier)
+    def __init__(self, name: str, identifier: str, instance_param: Parameter, throws: bool = False):
+        super().__init__(name, identifier, throws)
         self.instance_param = instance_param
 
     def __contains__(self, param):
@@ -322,8 +323,8 @@ class Method(Callable):
 
 
 class VirtualMethod(Callable):
-    def __init__(self, name: str, identifier: str, invoker: str, instance_param: Parameter):
-        super().__init__(name, identifier)
+    def __init__(self, name: str, identifier: str, invoker: str, instance_param: Parameter, throws: bool = False):
+        super().__init__(name, identifier, throws)
         self.instance_param = instance_param
         self.invoker = invoker
 
@@ -335,9 +336,8 @@ class VirtualMethod(Callable):
 
 class Callback(Callable):
     def __init__(self, name: str, ctype: T.Optional[str], throws: bool = False):
-        super().__init__(name, None)
+        super().__init__(name=name, identifier=None, throws=throws)
         self.ctype = ctype
-        self.throws = throws
 
 
 class Member(GIRElement):

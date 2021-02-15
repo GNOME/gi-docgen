@@ -325,6 +325,7 @@ class GirParser:
     def _parse_callback_field(self, node: ET.Element) -> ast.Callback:
         name = node.attrib.get('name')
         ctype = node.attrib.get(_cns('type'))
+        throws = node.attrib.get('throws', '0') == '1'
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -334,7 +335,7 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.Callback(name=name, ctype=ctype)
+        res = ast.Callback(name=name, ctype=ctype, throws=throws)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_parameters(params)
         res.set_return_value(return_value)
@@ -344,6 +345,7 @@ class GirParser:
     def _parse_callback(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         name = node.attrib.get('name')
         ctype = node.attrib.get(_cns('type'))
+        throws = node.attrib.get('throws', '0') == '1'
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -353,7 +355,7 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.Callback(name=name, ctype=ctype)
+        res = ast.Callback(name=name, ctype=ctype, throws=throws)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_parameters(params)
         res.set_return_value(return_value)
@@ -416,6 +418,7 @@ class GirParser:
     def _parse_type_function(self, node: ET.Element) -> ast.Function:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
+        throws = node.attrib.get('throws', '0') == '1'
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -425,7 +428,7 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.Function(name=name, identifier=identifier)
+        res = ast.Function(name=name, identifier=identifier, throws=throws)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_return_value(return_value)
         res.set_parameters(params)
@@ -454,6 +457,7 @@ class GirParser:
     def _parse_method(self, node: ET.Element) -> ast.Method:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
+        throws = node.attrib.get('throws', '0') == '1'
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -466,7 +470,7 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.Method(name=name, identifier=identifier, instance_param=instance_param)
+        res = ast.Method(name=name, identifier=identifier, instance_param=instance_param, throws=throws)
         res.set_return_value(return_value)
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
@@ -477,6 +481,7 @@ class GirParser:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
         invoker = node.attrib.get('invoker')
+        throws = node.attrib.get('throws', '0') == '1'
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -489,7 +494,7 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.VirtualMethod(name=name, identifier=identifier, invoker=invoker, instance_param=instance_param)
+        res = ast.VirtualMethod(name=name, identifier=identifier, invoker=invoker, instance_param=instance_param, throws=throws)
         res.set_return_value(return_value)
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
