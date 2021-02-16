@@ -135,9 +135,15 @@
       </h4>
 
       <div class="docblock">
-        {{ class_method.return_value.description|safe }}
-
         <table>
+          <tr class="arg-name">
+            <td colspan="2">Returns:
+            {% if class_method.return_value.link %}{{ class_method.return_value.link|safe }}{% else %}{{ class_method.return_value.type_cname }}{% endif %}
+            </td>
+          </tr>
+          <tr class="arg-description">
+            <td colspan="2">{{ class_method.return_value.description|safe }}</td>
+          </tr>
           {% if class_method.return_value.is_array and class_method.return_value.zero_terminated %}<tr><td>&nbsp;</td><td>The array must be <code>NULL</code> terminated</td></tr>{% endif %}
           {% if class_method.return_value.is_array and class_method.return_value.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array must have {{ class_method.return_value.fixed_size }} elements</td></tr>{% endif %}
           {% if class_method.return_value.is_array and class_method.return_value.len_arg %}<tr><td>&nbsp;</td><td>The length of the array is in the <code>{{ class_method.return_value.len_arg }}</code> argument</td></tr>{% endif %}

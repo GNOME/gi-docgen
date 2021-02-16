@@ -121,9 +121,15 @@
       </h4>
 
       <div class="docblock">
-        {{ func.return_value.description|safe }}
-
         <table>
+          <tr class="arg-name">
+            <td colspan="2">Returns:
+            {% if func.return_value.link %}{{ func.return_value.link|safe }}{% else %}{{ func.return_value.type_cname }}{% endif %}
+            </td>
+          </tr>
+          <tr class="arg-description">
+            <td colspan="2">{{ func.return_value.description|safe }}</td>
+          </tr>
           {% if func.return_value.is_array and func.return_value.zero_terminated %}<tr><td>&nbsp;</td><td>The array must be <code>NULL</code> terminated</td></tr>{% endif %}
           {% if func.return_value.is_array and func.return_value.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array must have {{ func.return_value.fixed_size }} elements</td></tr>{% endif %}
           {% if func.return_value.is_array and func.return_value.len_arg %}<tr><td>&nbsp;</td><td>The length of the array is in the <code>{{ func.return_value.len_arg }}</code> argument</td></tr>{% endif %}
