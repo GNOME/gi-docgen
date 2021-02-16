@@ -116,7 +116,7 @@ class LinkParseError(Exception):
         self.fragment = fragment
         self.rest = rest
         self.message = message
-        super().__init__(message=f"{self.message}: [{self.fragment}@{self.rest}]")
+        super().__init__(f"{self.message}: [{self.fragment}@{self.rest}]")
 
 
 class LinkGenerator:
