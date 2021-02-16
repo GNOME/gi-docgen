@@ -52,6 +52,11 @@ class GIDocConfig:
         return f"{namespace}-{version}"
 
     @property
+    def version(self):
+        library = self._config.get('library', {})
+        return library.get('version', 'Unknown')
+
+    @property
     def authors(self):
         library = self._config.get('library', {})
         return library.get('authors', 'Unknown authors')
