@@ -30,10 +30,10 @@
   --heading-weight: 900;
   --heading-small-weight: 500;
   --anchor-sign: "#";
-  --body-font-size: clamp(16px, 1vw, 20px);
 
   /* fonts */
   --body-font-family: "Red Hat Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  --body-font-size: clamp(16px, 1vw, 20px);
   --heading-font-family: var(--body-font-family);
   --monospace-font-family: "Source Code Pro", monospace;
   --monospace-font-size: calc(0.82 * var(--body-font-size)); /* Monospace fonts are very different in terms of font-sizes. Adjust this value to scale it */
@@ -44,15 +44,15 @@
  *********************************/
 .theme-dark {
   --primary: rgb(144, 194, 255);
-	--text-color: #f6f6f6;
+  --text-color: #f6f6f6;
   --text-muted-color: #9e9d9d;
-	--body-bg: #121212;
-	--sidebar-primary: rgb(144, 194, 255);
-	--sidebar-bg: #151515;
+  --body-bg: #121212;
+  --sidebar-primary: rgb(144, 194, 255);
+  --sidebar-bg: #151515;
   --sidebar-selected-bg: rgb(17, 112, 228);
-	--sidebar-text-color: #fafafa;
-	--box-bg: rgba(135, 135, 135, 0.1);
-	--box-text-color: #fff;  
+  --sidebar-text-color: #fafafa;
+  --box-bg: rgba(135, 135, 135, 0.1);
+  --box-text-color: #fff;
 }
 
 *,
@@ -62,21 +62,21 @@
 }
 
 ::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-	border-radius: 10px;
-	background: rgba(128, 128, 128, 0.6);
+  border-radius: 10px;
+  background: rgba(128, 128, 128, 0.6);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: rgba(128, 128, 128, 1);
+  background: rgba(128, 128, 128, 1);
 }
 
 ::-webkit-scrollbar-track {
-	background: rgba(128, 128, 128, 0.15);
+  background: rgba(128, 128, 128, 0.15);
 }
 
 body {
@@ -147,11 +147,11 @@ summary {
 }
 
 blockquote {
-	border-left: 3px solid var(--primary);
-	background: var(--box-bg);
-	padding: var(--box-padding);
-	border-radius: var(--box-radius);
-	margin: var(--box--margin);
+  border-left: 3px solid var(--primary);
+  background: var(--box-bg);
+  padding: var(--box-padding);
+  border-radius: var(--box-radius);
+  margin: var(--box--margin);
 }
 
 code, 
@@ -162,9 +162,9 @@ pre {
 }
 
 pre {
-	background: var(--box-bg);
-	padding: var(--box-padding);
-	border-radius: var(--box-radius);
+  background: var(--box-bg);
+  padding: var(--box-padding);
+  border-radius: var(--box-radius);
   overflow: auto;
 }
 
@@ -235,7 +235,7 @@ blockquote > *:last-child > *:last-child > *:last-child {
 #body-wrapper {
   display: flex;
   flex-wrap: nowrap;
-	flex-direction: row;
+  flex-direction: row;
 }
 
 #body-wrapper:focus {
@@ -290,31 +290,31 @@ h4:hover > .md-anchor {
 }
 
 .collapse-toggle {
-	position: absolute;
-	right: 0;
-	left: -2em;
-	white-space: nowrap;
-	text-decoration: none;
-	font-size: 0.8em;
+  position: absolute;
+  right: 0;
+  left: -2em;
+  white-space: nowrap;
+  text-decoration: none;
+  font-size: 0.8em;
   color: transparent;
 }
 
 .collapse-toggle > .inner {
-	width: 1rem;
-	height: 1rem;
-	border-radius: 4px;
-	display: inline-flex;
-	justify-content: center;
-	align-items: center;
-	text-align: center;
-	vertical-align: middle;
-	color: var(--box-text-color);
-	position: relative;
-	left: -0.25rem;
-	font-family: monospace;
-	font-size: 0.7rem;
-	font-weight: bold;
-	background: var(--box-bg);
+  width: 1rem;
+  height: 1rem;
+  border-radius: 4px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--box-text-color);
+  position: relative;
+  left: -0.25rem;
+  font-family: monospace;
+  font-size: 0.7rem;
+  font-weight: bold;
+  background: var(--box-bg);
 }
 
 .docblock {
@@ -405,9 +405,9 @@ footer {
   overflow: hidden;
   transition: background-color 150ms ease;
   color: var(--sidebar-primary);
-	border-radius: 0.35rem;
- 	padding: 0.2rem 0.5rem;
-	margin-bottom: 0.15rem;
+  border-radius: 0.35rem;
+   padding: 0.2rem 0.5rem;
+  margin-bottom: 0.15rem;
 }
 
 .sidebar .section a:hover {
@@ -523,11 +523,11 @@ kbd {
 }
 
 .meta tr > td:not(:first-child) {
-	width: 100%;
+  width: 100%;
 }
 
 .meta tr > td:first-child {
-	white-space: nowrap;
+  white-space: nowrap;
 }
 
 @media (max-width: 700px) {
