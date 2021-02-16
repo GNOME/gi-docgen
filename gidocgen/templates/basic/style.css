@@ -516,9 +516,9 @@ kbd {
 
 .srclink {
   color: var(--text-color-muted);
+  font-size: 1rem;
+  font-weight: var(--text-weight);
   flex-grow: 0;
-  font-size: 17px;
-  font-weight: normal;
   text-decoration: none;
   margin-left: auto;
   position: relative;
