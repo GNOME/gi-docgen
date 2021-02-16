@@ -2,6 +2,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap');
 
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background: rgba(128, 128, 128, 0.6);
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(128, 128, 128, 1);
+}
+
+::-webkit-scrollbar-track {
+	background: rgba(128, 128, 128, 0.15);
+}
+
+:root {
+  --primary: rgb(17, 112, 228);
+  --text-color: #333;
+  --sidebar-primary: rgb(144, 194, 255);
+  --sidebar-bg: #151515;
+  --sidebar-text-color: #fafafa;
+  --box-bg: rgba(0, 0, 0, 0.04);
+  --box-radius: 0.35rem;
+  --box-padding: 0.75rem;
+  --box-margin: 0.75rem 0;
+  --box-text-color: #111;
+}
+
 body {
   font: 16px/1.5 "Source Serif Pro", serif;
   font-family: "Red Hat Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
@@ -12,17 +43,20 @@ body {
   -webkit-font-feature-settings: "kern", "liga";
   -moz-font-feature-settings: "kern", "liga";
   font-feature-settings: "kern", "liga";
-  color: #333;
+  color: var(--text-color);
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 900;
-  margin: 2em 0 0.75em 0;
+  margin: 1.75em 0 0.75em 0;
 }
 
 h1 {
   font-size: 1.75em;
-  font-weight: 300;
+}
+
+header h1 {
+  margin-top: 0;
 }
 
 h2 {
@@ -65,7 +99,7 @@ p {
 }
 
 a {
-  color: rgb(17, 112, 228);
+  color: var(--primary);
   text-decoration: none;
 }
 
@@ -74,29 +108,30 @@ summary {
 }
 
 blockquote {
-	border-left: 3px solid rgb(17, 112, 228);
-	background: #f7f7f7;
-	margin: 0.75rem 0;
-	padding: 0.75rem;
-	border-radius: 0.35rem;
+	border-left: 3px solid var(--primary);
+	background: var(--box-bg);
+	padding: var(--box-padding);
+	border-radius: var(--box-radius);
+	margin: var(--box--margin);
 }
 
 code, 
 pre {
   font-family: "Source Code Pro", monospace;
   font-size: 0.85rem;
+  color: var(--box-text-color);
 }
 
 pre {
-  padding: 0.75rem;
-  background: #f7f7f7;
-  border-radius: 0.35rem;
-  color: #111;
+	background: var(--box-bg);
+	padding: var(--box-padding);
+	border-radius: var(--box-radius);
+  overflow: auto;
 }
 
 code {
   display: inline-flex;
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--box-bg);
   padding: 0 0.35em;
   border-radius: 0.35rem;
 }
@@ -107,11 +142,14 @@ pre code {
   padding: 0;
   margin: 0;
   font-size: 1em;
+  background: none;
+  color: inherit;
 }
 
 pre code {
   background: none;
   border-radius: 0;
+  color: inherit;
 }
 
 
@@ -125,7 +163,7 @@ strong, b {
   font-weight: 600;
 }
 
-/* fix unwanted margins in tables, code and lists */
+/* fix unwanted margins in tables, code, lists and blockquotes */
 li > *:first-child,
 li > *:first-child > *:first-child,
 li > *:first-child > *:first-child > *:first-child,
@@ -134,7 +172,10 @@ td > *:first-child > *:first-child,
 td > *:first-child > *:first-child > *:first-child,
 pre > *:first-child,
 pre > *:first-child > *:first-child,
-pre > *:first-child > *:first-child > *:first-child {
+pre > *:first-child > *:first-child > *:first-child,
+blockquote > *:first-child,
+blockquote > *:first-child > *:first-child,
+blockquote > *:first-child > *:first-child > *:first-child {
   margin-top: 0;
 }
 li > *:last-child,
@@ -145,7 +186,10 @@ td > *:last-child > *:last-child,
 td > *:last-child > *:last-child > *:last-child,
 pre > *:last-child,
 pre > *:last-child > *:last-child,
-pre > *:last-child > *:last-child > *:last-child {
+pre > *:last-child > *:last-child > *:last-child,
+blockquote > *:last-child,
+blockquote > *:last-child > *:last-child,
+blockquote > *:last-child > *:last-child > *:last-child {
   margin-bottom: 0;
 }
 
@@ -174,7 +218,12 @@ footer {
   z-index: 1;
   text-decoration: none;
   background: transparent;
-  padding-left: 0.35rem;
+  padding: 0 0.35rem;
+  color: #aaa;
+}
+
+.anchor:hover {
+  color: var(--primary);
 }
 
 .anchor:not([href]) {
@@ -182,7 +231,7 @@ footer {
 }
 
 .anchor:before {
-  content: '§';
+  content: '#'; /*'§'*/
 }
 
 .md-anchor {
@@ -222,13 +271,13 @@ h4:hover > .md-anchor {
 	align-items: center;
 	text-align: center;
 	vertical-align: middle;
-	color: #757575;
+	color: var(--box-text-color);
 	position: relative;
 	left: -0.25rem;
 	font-family: monospace;
 	font-size: 0.7rem;
 	font-weight: bold;
-	background: #f5f5f5;
+	background: var(--box-bg);
 }
 
 .collapse-toggle:hover + h4 {
@@ -251,17 +300,6 @@ h4:hover > .md-anchor {
   overflow: visible;
 }
 
-.sidebar {
-  background: #151515;
-  min-width: 15rem;
-  padding: 0 2rem;
-  color: #fafafa;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-}
-
 footer {
   display: none;
 }
@@ -272,6 +310,15 @@ footer {
 
 .sidebar {
   scrollbar-width: thin;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-bg);
+  min-width: 15rem;
+  padding: 0 2rem;
+  color: var(--sidebar-text-color);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .sidebar .section > ul > li {
@@ -317,19 +364,19 @@ footer {
   text-overflow: ellipsis;
   overflow: hidden;
   transition: background-color 150ms ease;
-  color: rgb(144, 194, 255);
+  color: var(--sidebar-primary);
 	border-radius: 0.35rem;
  	padding: 0.2rem 0.5rem;
 	margin-bottom: 0.15rem;
 }
 
 .sidebar .section a:hover {
-  background-color: #2f2f2f;
-  color: #ecf4ff;
+  background-color: rgba(127, 127, 127, 0.2);
+  color: var(--sidebar-text-color);
 }
 
 .sidebar .section a.current {
-  background-color: rgb(17, 112, 228);
+  background-color: var(--primary);
   color: white;
 }
 
