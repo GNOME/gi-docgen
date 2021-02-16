@@ -150,6 +150,11 @@ h3 {
   font-size: calc(1.2em * var(--heading-font-scale));
 }
 
+header h3 {
+  color: var(--text-color-muted);
+  margin-bottom: 0;
+}
+
 h4, h5 {
   font-size: calc(1em * var(--heading-font-scale));
 }
@@ -175,6 +180,10 @@ p {
 a {
   color: var(--primary);
   text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 summary {
@@ -372,8 +381,14 @@ footer {
   color: var(--sidebar-text-color);
   position: sticky;
   top: 0;
+  z-index: 2;
   height: 100vh;
   overflow-y: auto;
+}
+
+.sidebar a,
+.sidebar a:hover {
+  text-decoration: none;
 }
 
 .sidebar .logo {
@@ -558,6 +573,7 @@ kbd {
 .methods h6,
 .signals h6,
 .properties h6,
+.type-funcs h6,
 .implements a,
 .sidebar .links a,
 #classes + .docblock a,
