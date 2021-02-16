@@ -1,0 +1,131 @@
+/**
+ * RedHat Fonts taken from https://github.com/RedHatOfficial/RedHatFont
+ * License: SIL Open Font License 1.1 http://scripts.sil.org/OFL
+ */
+@font-face {
+  font-family: "RedHatDisplayWeb";
+  src: url("./fonts/RedHatDisplay/RedHatDisplay-Regular.woff2") format("woff2"),
+       url("./fonts/RedHatDisplay/RedHatDisplay-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatDisplayWeb";
+  src: url("./fonts/RedHatDisplay/RedHatDisplay-RegularItalic.woff2") format("woff2"),
+       url("./fonts/RedHatDisplay/RedHatDisplay-RegularItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 400;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatDisplayWeb";
+  src: url("./fonts/RedHatDisplay/RedHatDisplay-Medium.woff2") format("woff2"),
+       url("./fonts/RedHatDisplay/RedHatDisplay-Medium.woff") format("woff");
+  font-style: normal;
+  font-weight: 500;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatDisplayWeb";
+  src: url("./fonts/RedHatDisplay/RedHatDisplay-MediumItalic.woff2") format("woff2"),
+       url("./fonts/RedHatDisplay/RedHatDisplay-MediumItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 500;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatDisplayWeb";
+  src: url("./fonts/RedHatDisplay/RedHatDisplay-Bold.woff2") format("woff2"),
+       url("./fonts/RedHatDisplay/RedHatDisplay-Bold.woff") format("woff");
+  font-style: normal;
+  font-weight: 700;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatDisplayWeb";
+  src: url("./fonts/RedHatDisplay/RedHatDisplay-BoldItalic.woff2") format("woff2"),
+       url("./fonts/RedHatDisplay/RedHatDisplay-BoldItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 700;
+  font-display: fallback;
+}
+
+
+@font-face {
+  font-family: "RedHatDisplayWeb";
+  src: url("./fonts/RedHatDisplay/RedHatDisplay-Black.woff2") format("woff2"),
+       url("./fonts/RedHatDisplay/RedHatDisplay-Black.woff") format("woff");
+  font-style: normal;
+  font-weight: 900;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatDisplayWeb";
+  src: url("./fonts/RedHatDisplay/RedHatDisplay-BlackItalic.woff2") format("woff2"),
+       url("./fonts/RedHatDisplay/RedHatDisplay-BlackItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 900;
+  font-display: fallback;
+}
+
+
+@font-face {
+  font-family: "RedHatTextWeb";
+  src: url("./fonts/RedHatText/RedHatText-Regular.woff2") format("woff2"),
+       url("./fonts/RedHatText/RedHatText-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatTextWeb";
+  src: url("./fonts/RedHatText/RedHatText-RegularItalic.woff2") format("woff2"),
+       url("./fonts/RedHatText/RedHatText-RegularItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 400;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatTextWeb";
+  src: url("./fonts/RedHatText/RedHatText-Medium.woff2") format("woff2"),
+       url("./fonts/RedHatText/RedHatText-Medium.woff") format("woff");
+  font-style: normal;
+  font-weight: 700;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatTextWeb";
+  src: url("./fonts/RedHatText/RedHatText-MediumItalic.woff2") format("woff2"),
+       url("./fonts/RedHatText/RedHatText-MediumItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 700;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatTextWeb";
+  src: url("./fonts/RedHatText/RedHatText-Bold.woff2") format("woff2"),
+       url("./fonts/RedHatText/RedHatText-Bold.woff") format("woff");
+  font-style: normal;
+  font-weight: 900;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "RedHatTextWeb";
+  src: url("./fonts/RedHatText/RedHatText-BoldItalic.woff2") format("woff2"),
+       url("./fonts/RedHatText/RedHatText-BoldItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 900;
+  font-display: fallback;
+}

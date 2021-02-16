@@ -29,4 +29,4 @@ function = "function.html"
 style = "style.css"
 
 [extra_files]
-files = ["main.js", "pygment.css"]
+files = ["main.js", "pygment.css", "fonts.css"]
