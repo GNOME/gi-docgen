@@ -2,6 +2,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap');
 
+/*********************************
+ * LIGHT THEME
+ *********************************/
+:root,
+.theme-light {
+  --primary: rgb(17, 112, 228);
+  --text-color: #333;
+  --body-bg: #fff;
+  --sidebar-primary: rgb(144, 194, 255);
+  --sidebar-bg: #151515;
+  --sidebar-selected-bg: var(--primary);
+  --sidebar-text-color: #fafafa;
+  --box-bg: rgba(135, 135, 135, 0.1);
+  --box-radius: 0.35rem;
+  --box-padding: 0.75rem;
+  --box-margin: 0.75rem 0;
+  --box-text-color: #111;
+}
+
+/*********************************
+ * DARK THEME
+ *********************************/
+.theme-dark {
+  --primary: rgb(144, 194, 255);
+	--text-color: #f6f6f6;
+	--body-bg: #121212;
+	--sidebar-primary: rgb(144, 194, 255);
+	--sidebar-bg: #151515;
+  --sidebar-selected-bg: rgb(17, 112, 228);
+	--sidebar-text-color: #fafafa;
+	--box-bg: rgba(135, 135, 135, 0.1);
+	--box-radius: 0.35rem;
+	--box-padding: 0.75rem;
+	--box-margin: 0.75rem 0;
+	--box-text-color: #fff;  
+}
+
+
 ::-webkit-scrollbar {
 	width: 8px;
 	height: 8px;
@@ -20,19 +58,6 @@
 	background: rgba(128, 128, 128, 0.15);
 }
 
-:root {
-  --primary: rgb(17, 112, 228);
-  --text-color: #333;
-  --sidebar-primary: rgb(144, 194, 255);
-  --sidebar-bg: #151515;
-  --sidebar-text-color: #fafafa;
-  --box-bg: rgba(0, 0, 0, 0.04);
-  --box-radius: 0.35rem;
-  --box-padding: 0.75rem;
-  --box-margin: 0.75rem 0;
-  --box-text-color: #111;
-}
-
 body {
   font: 16px/1.5 "Source Serif Pro", serif;
   font-family: "Red Hat Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
@@ -44,6 +69,7 @@ body {
   -moz-font-feature-settings: "kern", "liga";
   font-feature-settings: "kern", "liga";
   color: var(--text-color);
+  background: var(--body-bg);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -74,10 +100,6 @@ h4 {
 h5, h6 {
   font-size: 1em;
   font-weight: 500;
-}
-
-.content h2, .content h3, .content h4 {
-  color: #333;
 }
 
 .sidebar .logo {
@@ -280,10 +302,6 @@ h4:hover > .md-anchor {
 	background: var(--box-bg);
 }
 
-.collapse-toggle:hover + h4 {
-  color: #333;
-}
-
 .docblock {
   position: relative;
   text-align: left;
@@ -376,7 +394,7 @@ footer {
 }
 
 .sidebar .section a.current {
-  background-color: var(--primary);
+  background-color: var(--sidebar-selected-bg);
   color: white;
 }
 
