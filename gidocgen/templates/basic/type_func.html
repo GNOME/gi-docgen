@@ -107,7 +107,7 @@
         <table>
           {% for arg in type_func.arguments %}
           <tr class="arg-name">
-            <td><code>{{ arg.name }}</code></td><td><code>{{ arg.type_cname }}</code></td>
+            <td><code>{{ arg.name }}</code></td><td>{% if arg.link %}{{ arg.link|safe }}{% else %}<code>{{ arg.type_cname }}</code>{% endif %}</a></td>
           </tr>
           <tr class="arg-description">
             <td>&nbsp;</td>
