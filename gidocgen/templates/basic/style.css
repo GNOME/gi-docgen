@@ -261,6 +261,7 @@ blockquote > *:last-child > *:last-child > *:last-child {
 #main {
   position: relative;
   flex-grow: 1;
+  box-shadow: 0 0 134px rgba(0, 0, 0, 0.1);
 }
 
 footer {
