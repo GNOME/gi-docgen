@@ -5,8 +5,7 @@
 /*********************************
  * LIGHT THEME
  *********************************/
-:root,
-.theme-light {
+:root {
 
   /* colors */
   --text-color: #333;
@@ -37,22 +36,25 @@
   --heading-font-family: var(--body-font-family);
   --monospace-font-family: "Source Code Pro", monospace;
   --monospace-font-size: calc(0.82 * var(--body-font-size)); /* Monospace fonts are very different in terms of font-sizes. Adjust this value to scale it */
+  --table-font-size: 0.92em;    /* Tables often contain lots information. It's better to scale them down a big to get more sutff fitted inside */
 }
 
 /*********************************
  * DARK THEME (overrides)
  *********************************/
-.theme-dark {
-  --primary: rgb(144, 194, 255);
-  --text-color: #f6f6f6;
-  --text-muted-color: #9e9d9d;
-  --body-bg: #121212;
-  --sidebar-primary: rgb(144, 194, 255);
-  --sidebar-bg: #151515;
-  --sidebar-selected-bg: rgb(17, 112, 228);
-  --sidebar-text-color: #fafafa;
-  --box-bg: rgba(135, 135, 135, 0.1);
-  --box-text-color: #fff;
+ @media (prefers-color-scheme: dark) {
+  :root {
+    --primary: rgb(144, 194, 255);
+    --text-color: #f6f6f6;
+    --text-muted-color: #9e9d9d;
+    --body-bg: #121212;
+    --sidebar-primary: rgb(144, 194, 255);
+    --sidebar-bg: #1e1e1e;
+    --sidebar-selected-bg: rgb(17, 112, 228);
+    --sidebar-text-color: #fafafa;
+    --box-bg: rgba(135, 135, 135, 0.1);
+    --box-text-color: #fff;
+  }
 }
 
 *,
@@ -175,6 +177,10 @@ code {
   border-radius: 0.35rem;
 }
 
+a > code {
+  color: var(--primary);
+}
+
 
 pre pre,
 pre code {
@@ -251,7 +257,8 @@ footer {
   width: 100%;
 }
 
-.anchor {
+.anchor,
+.md-anchor {
   position: relative;
   z-index: 1;
   text-decoration: none;
@@ -259,30 +266,19 @@ footer {
   color: var(--text-color-muted);
 }
 
-.anchor:hover {
+.anchor:hover,
+.md-anchor:hover {
   color: var(--primary);
 }
 
-.anchor:not([href]) {
+.anchor:not([href]),
+.md-anchor:not([href]) {
   display: none;
 }
 
-.anchor:before {
+.anchor:before,
+.md-anchor:before {
   content: var(--anchor-sign); /*'§'*/
-}
-
-.md-anchor {
-  display: none;
-  text-decoration: none;
-  background: transparent;
-  padding-left: 0.35rem;
-}
-
-h1:hover > .md-anchor,
-h2:hover > .md-anchor,
-h3:hover > .md-anchor,
-h4:hover > .md-anchor {
-  display: initial;
 }
 
 .toggle-wrapper {
@@ -346,7 +342,7 @@ footer {
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-bg);
   min-width: 19em;
-  padding: 0 2rem;
+  padding: 0 2em 2em 2em;
   color: var(--sidebar-text-color);
   position: sticky;
   top: 0;
@@ -493,6 +489,7 @@ kbd {
 .docblock table {
   margin: .25em 0;
   width: calc(100% - 3rem);
+  font-size: var(--table-font-size);
 }
 
 .docblock table td {
