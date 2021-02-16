@@ -92,6 +92,10 @@ pre {
   padding-left: 7px;
 }
 
+.md-ancor:before {
+  content: '§';
+}
+
 h1:hover > .anchor,
 h2:hover > .anchor,
 h3:hover > .anchor,
