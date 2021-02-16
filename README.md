@@ -8,6 +8,16 @@ reference of these libraries, as well as other ancillary documentation.
 
 ## Installation
 
+### Running GI-DocGen uninstalled
+
+You can run GI-DocGen from its repository, by calling:
+
+```
+./gi-docgen.py
+```
+
+GI-DocGen will automatically detect this case.
+
 ### Installing GI-DocGen via pip
 
 To install GI-DocGen, you will need to have the following pieces of software
