@@ -127,14 +127,19 @@ class LinkGenerator:
 
         assert self._namespace is not None
 
-        if '.' in self._endpoint:
+        # Valid links:
+        #
+        # - [fragment@rest]
+        # - [fragment@Namespace.rest]
+        # - [fragment@OtherNamespace.res]
+        if self._endpoint.startswith(f"{self._namespace.name}."):
+            self._ns = self._namespace.name
+            self._rest = self._endpoint[len(self._ns) + 1:]
+        elif '.' in self._endpoint:
             self._ns, self._rest = self._endpoint.split('.', maxsplit=1)
         else:
-            self._ns = None
-            self._rest = self._endpoint
-
-        if self._ns is None:
             self._ns = self._namespace.name
+            self._rest = self._endpoint
 
         if self._fragment == 'id':
             t = self._namespace.find_symbol(self._endpoint)
