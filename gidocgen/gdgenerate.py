@@ -190,6 +190,26 @@ class TemplateReturnValue:
             self.string_note = STRING_TYPES[self.type_name]
         if retval.doc is not None:
             self.description = utils.preprocess_docs(retval.doc.content, namespace)
+        if self.type_name is not None and self.type_name.startswith(namespace.name):
+            name = self.type_name[len(namespace.name) + 1:]
+            t = namespace.find_real_type(name)
+            if t is not None:
+                if isinstance(t, gir.Alias):
+                    self.link = f"<a href=\"alias.{name}.html\"><code>{self.type_cname}</code></a>"
+                elif isinstance(t, gir.BitField):
+                    self.link = f"<a href=\"flags.{name}.html\"><code>{self.type_cname}</code></a>"
+                elif isinstance(t, gir.Class):
+                    self.link = f"<a href=\"class.{name}.html\"><code>{self.type_cname}</code></a>"
+                elif isinstance(t, gir.ErrorDomain):
+                    self.link = f"<a href=\"error.{name}.html\"><code>{self.type_cname}</code></a>"
+                elif isinstance(t, gir.Enumeration):
+                    self.link = f"<a href=\"enum.{name}.html\"><code>{self.type_cname}</code></a>"
+                elif isinstance(t, gir.Interface):
+                    self.link = f"<a href=\"iface.{name}.html\"><code>{self.type_cname}</code></a>"
+                elif isinstance(t, gir.Record):
+                    self.link = f"<a href=\"struct.{name}.html\"><code>{self.type_cname}</code></a>"
+                elif isinstance(t, gir.Union):
+                    self.link = f"<a href=\"union.{name}.html\"><code>{self.type_cname}</code></a>"
 
     @property
     def is_pointer(self):
