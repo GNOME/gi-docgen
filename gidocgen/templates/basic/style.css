@@ -1,18 +1,26 @@
 @import url("pygment.css");
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap');
 
 body {
   font: 16px/1.4 "Source Serif Pro", serif;
+  font-family: "Red Hat Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   margin: 0;
+  padding: 0;
   position: relative;
-  padding: 10px 15px 20px 15px;
 
   -webkit-font-feature-settings: "kern", "liga";
   -moz-font-feature-settings: "kern", "liga";
   font-feature-settings: "kern", "liga";
+  color: #333;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 900;
 }
 
 h1 {
-  font-size: 1.5em;
+  font-size: 1.75em;
+  font-weight: 300;
 }
 
 h2 {
@@ -20,21 +28,25 @@ h2 {
 }
 
 h3 {
-  font-size: 1.3em;
+  font-size: 1.2em;
+}
+
+h4 {
+  font-size: 1em;
 }
 
 .content h2, .content h3, .content h4 {
-  color: #acacac;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  color: #333;
 }
 
 .sidebar .logo {
-  margin: 12px auto;
-  width: 100%;
+  display: block;
+  margin: 2rem auto 0 auto;
+  width: 70%;
 }
 
 ol, ul {
-  padding-left: 25px;
+  padding-left: 1rem;
 }
 
 ul ul, ol ul, ul ol, ol ol {
@@ -60,25 +72,51 @@ summary {
 
 code, pre {
   font-family: "Source Code Pro", monospace;
+  font-size: 0.85rem;
 }
 
 pre {
-  padding: 14px;
+  padding: 0.75rem;
+  background: #f7f7f7;
+  border-radius: 0.35rem;
+  color: #111;
+}
+
+:not(pre) code {
+	background: #f7f7f7;
+	padding: 0.1em 0.35em;
+	border-radius: 0.35rem;
+}
+
+strong, b {
+  font-weight: 600;
 }
 
 #body-wrapper {
   box-sizing: border-box;
+  display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+#body-wrapper:focus {
+  outline: none;
 }
 
 #main {
   position: relative;
+  flex-grow: 1;
+}
+
+footer {
+  width: 100%;
 }
 
 .anchor {
   display: none;
   text-decoration: none;
   background: transparent;
-  padding-left: 7px;
+  padding-left: 0.35rem;
 }
 
 .anchor:before {
@@ -89,7 +127,7 @@ pre {
   display: none;
   text-decoration: none;
   background: transparent;
-  padding-left: 7px;
+  padding-left: 0.35rem;
 }
 
 .md-ancor:before {
@@ -111,22 +149,43 @@ h4:hover > .md-anchor {
   display: initial;
 }
 
+.toggle-wrapper {
+  position: relative;
+}
+
 .collapse-toggle {
-  position: absolute;
-  left: -25px;
-  text-decoration: none;
-  color: rgba(0, 0, 0, 0.25);
-  font-size: 0.8em;
+	position: absolute;
+	right: 0;
+	left: -2em;
+	white-space: nowrap;
+	text-decoration: none;
+	font-size: 0.8em;
+  color: transparent;
 }
 
 .collapse-toggle > .inner {
-  display: inline-block;
-  width: 1.2ch;
-  text-align: center;
+	width: 1rem;
+	height: 1rem;
+	border-radius: 4px;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	vertical-align: middle;
+	color: #757575;
+	position: relative;
+	left: -0.25rem;
+	font-family: monospace;
+	font-size: 0.7rem;
+	font-weight: bold;
+	background: #f5f5f5;
+}
+
+.collapse-toggle:hover + h4 {
+  color: #333;
 }
 
 .docblock {
-  margin-left: 23px;
   position: relative;
   text-align: left;
 }
@@ -136,21 +195,24 @@ h4:hover > .md-anchor {
 }
 
 .content {
-  margin-left: 230px;
-  margin-top: 50px;
+  padding: 2rem 4rem;
   max-width: none;
   overflow: visible;
 }
 
 .sidebar {
-  background-color: #efefef;
-  width: 200px;
-  position: fixed;
-  left: 0;
+  background: #151515;
+  min-width: 15rem;
+  padding: 0 2rem;
+  color: #fafafa;
+  position: sticky;
   top: 0;
-  bottom: 0;
-  overflow: auto;
-  z-index: 1;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+footer {
+  display: none;
 }
 
 * {
@@ -166,41 +228,52 @@ h4:hover > .md-anchor {
 }
 
 .sidebar .section h3, .sidebar .section h5 {
-  text-align: center;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.65);
-  margin-right: 12px;
+  text-align: left;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
-.sidebar .namespace > h3 > a {
-  font-weight: 800;
-  font-size: 1.2em;
+.sidebar .section h5 {
+  font-size: 1em;
+  margin-bottom: 0.5em;
+}
+
+.sidebar .namespace > h3 {
+  margin-bottom: 0;
+  padding: 0;
+  font-size: 1.5em;
+  text-transform: uppercase;
+  font-weight: 900;
 }
 
 .sidebar .namespace > p {
-  font-size: 0.8em;
-  text-align: center;
-  margin-right: 12px;
+  font-size: 0.9em;
+  opacity: 0.8;
+  padding-left: 0.5rem;
 }
 
 .sidebar .section {
-  padding-left: 12px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .sidebar .links {
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
 }
 
 .sidebar .section a {
   display: block;
   text-overflow: ellipsis;
   overflow: hidden;
-  font-size: 14px;
-  font-weight: 300;
-  transition: background-color 250ms ease-out;
+  transition: background-color 150ms ease;
+  color: #b5d6ff;
+  padding: 0.25rem 0.5rem;
+	border-radius: 0.35rem;
 }
 
 .sidebar .section a:hover {
-  background-color: white;
+  background-color: #2f2f2f;
+  color: #ddecff;
 }
 
 .sidebar .section a.current {
@@ -216,7 +289,7 @@ h4:hover > .md-anchor {
 }
 
 .content table:not(.table-display) {
-  border-spacing: 0 5px;
+  border-spacing: 0 0.25rem;
 }
 
 .content td {
@@ -224,7 +297,7 @@ h4:hover > .md-anchor {
 }
 
 .content td:first-child {
-  padding-right: 20px;
+  padding-right: 1rem;
 }
 
 .content td p:first-child {
@@ -261,7 +334,7 @@ kbd {
 }
 
 .content td:first-child {
-  padding-right: 20px;
+  padding-right: 1rem;
 }
 
 .content td p:first-child {
@@ -278,18 +351,24 @@ kbd {
 }
 
 .docblock table {
-  margin: .5em 0;
-  width: calc(100% - 64px);
+  margin: .25em 0;
+  width: calc(100% - 3rem);
 }
 
 .docblock table td {
-  padding: .5em;
+  padding: .25em;
 }
 
 .docblock table th {
-  padding: .5em;
+  padding: .25em;
   text-align: left;
   font-weight: 600;
+}
+
+.docblock ul li,
+.docblock ol li {
+  padding-top: 0.15rem;
+  padding-bottom: 0.15rem;
 }
 
 .srclink {
@@ -299,6 +378,14 @@ kbd {
   font-weight: normal;
   text-decoration: none;
   margin-left: auto;
+}
+
+.meta tr > td:not(:first-child) {
+	width: 100%;
+}
+
+.meta tr > td:first-child {
+	white-space: nowrap;
 }
 
 @media (max-width: 700px) {
