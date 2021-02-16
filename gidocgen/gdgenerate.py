@@ -329,9 +329,9 @@ class TemplateMethod:
             res += [f"{self.name} ("]
         n_args = len(self.arguments)
         if n_args == 0:
-            res += [f"  {self.instance_parameter.type_cname} self"]
+            res += [f"  {self.instance_parameter.type_cname} {self.instance_parameter.name}"]
         else:
-            res += [f"  {self.instance_parameter.type_cname} self,"]
+            res += [f"  {self.instance_parameter.type_cname} {self.instance_parameter.name},"]
             for (idx, arg) in enumerate(self.arguments):
                 if idx == n_args - 1 and not self.throws:
                     res += [f"  {arg.type_cname} {arg.name}"]
