@@ -7,18 +7,33 @@
  *********************************/
 :root,
 .theme-light {
-  --primary: rgb(17, 112, 228);
+
+  /* colors */
   --text-color: #333;
+  --primary: rgb(17, 112, 228);
   --body-bg: #fff;
   --sidebar-primary: rgb(144, 194, 255);
   --sidebar-bg: #151515;
   --sidebar-selected-bg: var(--primary);
   --sidebar-text-color: #fafafa;
+
+  /* boxes, e.g. code blocks */
   --box-bg: rgba(135, 135, 135, 0.1);
   --box-radius: 0.35rem;
   --box-padding: 0.75rem;
   --box-margin: 0.75rem 0;
   --box-text-color: #111;
+
+  /* typography */
+  --text-weight: normal;
+  --heading-weight: 900;
+  --heading-small-weight: 500;
+
+  /* fonts */
+  --body-font-family: "Red Hat Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  --heading-font-family: var(--body-font-family);
+  --monospace-font-family: "Source Code Pro", monospace;
+  --monospace-font-scale: 0.82; /* Monospace fonts are very different in terms of font-sizes. Adjust this value to scale it */
 }
 
 /*********************************
@@ -33,9 +48,6 @@
   --sidebar-selected-bg: rgb(17, 112, 228);
 	--sidebar-text-color: #fafafa;
 	--box-bg: rgba(135, 135, 135, 0.1);
-	--box-radius: 0.35rem;
-	--box-padding: 0.75rem;
-	--box-margin: 0.75rem 0;
 	--box-text-color: #fff;  
 }
 
@@ -59,8 +71,8 @@
 }
 
 body {
-  font: 16px/1.5 "Source Serif Pro", serif;
-  font-family: "Red Hat Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font: 16px/1.5 var(--body-font-family);
+  font-weight: var(--text-weight);
   margin: 0;
   padding: 0;
   position: relative;
@@ -73,7 +85,8 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 900;
+  font-family: var(--heading-font-family);
+  font-weight: var(--heading-weight);
   margin: 1.75em 0 0.75em 0;
 }
 
@@ -99,7 +112,7 @@ h4 {
 
 h5, h6 {
   font-size: 1em;
-  font-weight: 500;
+  font-weight: var(--heading-small-weight);
 }
 
 .sidebar .logo {
@@ -139,8 +152,8 @@ blockquote {
 
 code, 
 pre {
-  font-family: "Source Code Pro", monospace;
-  font-size: 0.85rem;
+  font-family: var(--monospace-font-family);
+  font-size: calc(var(--monospace-font-scale) * 1rem);
   color: var(--box-text-color);
 }
 
@@ -347,6 +360,7 @@ footer {
   text-align: left;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+  font-weight: var(--heading-weight);
 }
 
 .sidebar .section h5 {
