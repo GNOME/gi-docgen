@@ -14,7 +14,6 @@ HELP_MSG = "Generates an index of all the symbols"
 def add_args(parser):
     parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[],
                         help="include paths for other GIR files")
-    parser.add_argument("-q", "--quiet", action="store_true", help="suppress messages except warnings")
     parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'),
                         default=sys.stdin, help="the GIR file to parse")
 
