@@ -195,7 +195,8 @@ class TemplateSignal:
         self.is_action = signal.action
         self.no_recurse = signal.no_recurse
         self.no_hooks = signal.no_hooks
-        self.when = utils.preprocess_docs(SIGNAL_WHEN[signal.when], namespace)
+        if signal.when:
+            self.when = utils.preprocess_docs(SIGNAL_WHEN[signal.when], namespace)
 
         self.arguments = []
         for arg in signal.parameters:
