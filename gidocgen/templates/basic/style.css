@@ -550,13 +550,26 @@ kbd {
   white-space: nowrap;
 }
 
-/**************************
+/*************************************************************
  SYMBOLS
-**************************/
+ TODO: add a 'symbol' class in templates to avoid this hack
+**************************************************************/
 .constructors h6,
 .methods h6,
+.signals h6,
 .properties h6,
-.implements a {
+.implements a,
+.sidebar .links a,
+#classes + .docblock a,
+#interfaces + .docblock a,
+#structs + .docblock a,
+#aliases + .docblock a,
+#enums + .docblock a,
+#bitfields + .docblock a,
+#domains + .docblock a,
+#callbacks + .docblock a,
+#constants + .docblock a
+{
   font-family: var(--symbol-font-family);
   font-size: calc(1em * var(--symbol-font-scale));
   font-weight: var(--symbol-font-weight);
