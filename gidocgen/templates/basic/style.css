@@ -1,6 +1,5 @@
 @import url("pygment.css");
 @import url("fonts.css");
-@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap');
 
 /*********************************
  * LIGHT THEME
@@ -19,27 +18,43 @@
   --sidebar-padding: 1.5em;
 
   /* boxes, e.g. code blocks */
-  --box-bg: rgba(135, 135, 135, 0.1);
+  --box-bg: rgba(135, 135, 135, 0.085);
   --box-radius: 0.35rem;
   --box-padding: 0.75rem;
   --box-margin: 0.75rem 0;
   --box-text-color: #111;
 
   /* typography */
-  --text-weight: normal;
+  --body-font-family: "Noto Serif","RedHatTextWeb",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  --body-font-scale: 0.95;
+  --body-font-size: calc(var(--body-font-scale) * clamp(16px, 1vw, 20px));
+  --body-font-weight: normal;
+  
+  --heading-font-family: "RedHatDisplayWeb", var(--body-font-family);
   --heading-weight: 900;
-  --heading-small-weight: 500;
-  --heading-table-weight: var(--heading-small-weight);
+  --heading-font-scale: 1.05;
+
+  --heading-small-font-family: var(--body-font-family);
+  --heading-small-weight: 600;
+  --heading-small-font-scale: 1;
+
+  --heading-table-font-family: var(--heading-font-family);
+  --heading-table-weight: 600;
+
+  --monospace-font-family: "Source Code Pro", monospace;
+  --monospace-font-size: calc(0.86 * var(--body-font-size)); /* Monospace fonts are very different in terms of font-sizes. Adjust this value to scale it */
+
+  --symbol-font-family: var(--heading-font-family);
+  --symbol-font-weight: 500;
+  --symbol-font-scale: 1;
+
+  --table-font-size: 0.92em;    /* Tables often contain lots information. It's better to scale them down a big to get more sutff fitted inside */
+
+  --prefered-content-width: 90ch; /* The width for the readable content, as prefered */
+
   --anchor-sign: "#";
 
-  /* fonts */
-  --body-font-family: "RedHatTextWeb",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  --body-font-size: clamp(16px, 1vw, 20px);
-  --heading-font-family: "RedHatDisplayWeb", var(--body-font-family);
-  --monospace-font-family: "Source Code Pro", monospace;
-  --monospace-font-size: calc(0.82 * var(--body-font-size)); /* Monospace fonts are very different in terms of font-sizes. Adjust this value to scale it */
-  --table-font-size: 0.92em;    /* Tables often contain lots information. It's better to scale them down a big to get more sutff fitted inside */
-}
+} 
 
 /*********************************
  * DARK THEME (overrides)
@@ -100,7 +115,7 @@
 
 body {
   font: 16px/1.5 var(--body-font-family);
-  font-weight: var(--text-weight);
+  font-weight: var(--body-font-weight);
   font-size: var(--body-font-size);
   margin: 0;
   padding: 0;
@@ -120,7 +135,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-  font-size: 1.75em;
+  font-size: calc(1.75em * var(--heading-font-scale));
 }
 
 header h1 {
@@ -128,19 +143,20 @@ header h1 {
 }
 
 h2 {
-  font-size: 1.4em;
+  font-size: calc(1.4em * var(--heading-font-scale));
 }
 
 h3 {
-  font-size: 1.2em;
+  font-size: calc(1.2em * var(--heading-font-scale));
 }
 
-h4 {
-  font-size: 1em;
+h4, h5 {
+  font-size: calc(1em * var(--heading-font-scale));
 }
 
-h5, h6 {
-  font-size: 1em;
+h6 {
+  font-size: calc(1em * var(--heading-small-font-scale));
+  font-family: var(--heading-small-font-family);
   font-weight: var(--heading-small-weight);
 }
 
@@ -331,13 +347,12 @@ footer {
 
 .deprecated > h6 > a {
   opacity: 0.65;
-  text-decoration: dotted;
 }
 
 .content {
   padding: 2em 4em;
   overflow: visible;
-  max-width: calc(80ch + 8em);
+  max-width: calc(var(--prefered-content-width) + 8em);
 }
 
 footer {
@@ -506,6 +521,7 @@ kbd {
 .docblock table th {
   padding: .25em;
   text-align: left;
+  font-family: var(--heading-table-font-family);
   font-weight: var(--heading-table-weight);
 }
 
@@ -518,7 +534,7 @@ kbd {
 .srclink {
   color: var(--text-color-muted);
   font-size: 1rem;
-  font-weight: var(--text-weight);
+  font-weight: var(--body-font-weight);
   flex-grow: 0;
   text-decoration: none;
   margin-left: auto;
@@ -534,6 +550,21 @@ kbd {
   white-space: nowrap;
 }
 
+/**************************
+ SYMBOLS
+**************************/
+.constructors h6,
+.methods h6,
+.properties h6,
+.implements a {
+  font-family: var(--symbol-font-family);
+  font-size: calc(1em * var(--symbol-font-scale));
+  font-weight: var(--symbol-font-weight);
+}
+
+/**************************
+ RESPONSIVENESS
+**************************/
 @media (max-width: 700px) {
   body {
     padding-top: 0px;
