@@ -22,8 +22,6 @@ class GIDocGenApp:
         self.quiet = False
         self.commands = {}
         self.parser = argparse.ArgumentParser(prog='gi-docgen', formatter_class=self.formatter)
-        self.parser.add_argument("-q", "--quiet", action="store_true", help="suppress messages except warnings")
-        self.parser.add_argument("--fatal-warnings", action="store_true", help="whether warnings are fatal")
 
         self.subparser = self.parser.add_subparsers(title='Commands',
                                                     description='If no command is specified, default to help')
@@ -55,6 +53,7 @@ class GIDocGenApp:
 
         options = self.parser.parse_args(args)
 
+        # Set up the logging system
         log.set_quiet(options.quiet)
         log.set_fatal_warnings(options.fatal_warnings)
         log.set_log_epoch()
@@ -84,6 +83,11 @@ class GIDocGenApp:
         @aliases (array): a list of aliases for the command
         """
         p = self.subparser.add_parser(name, help=help_msg, aliases=aliases, formatter_class=self.formatter)
+
+        # Add shared commands
+        p.add_argument("-q", "--quiet", action="store_true", help="suppress messages except warnings")
+        p.add_argument("--fatal-warnings", action="store_true", help="whether warnings are fatal")
+
         if add_args_func:
             add_args_func(p)
         p.set_defaults(run_func=run_func)
