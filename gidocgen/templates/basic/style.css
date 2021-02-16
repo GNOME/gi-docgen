@@ -16,6 +16,7 @@
   --sidebar-bg: #151515;
   --sidebar-selected-bg: var(--primary);
   --sidebar-text-color: #fafafa;
+  --sidebar-padding: 1.5em;
 
   /* boxes, e.g. code blocks */
   --box-bg: rgba(135, 135, 135, 0.1);
@@ -61,6 +62,16 @@
 *:before,
 *:after {
   box-sizing: border-box;
+}
+
+::-moz-selection {
+  color: white;
+  background: var(--primary);
+}
+
+::selection {
+  color: white;
+  background: var(--primary);
 }
 
 ::-webkit-scrollbar {
@@ -262,7 +273,7 @@ footer {
   position: relative;
   z-index: 1;
   text-decoration: none;
-  padding: 0 0.35rem;
+  padding: 0 0.5em;
   color: var(--text-color-muted);
 }
 
@@ -342,7 +353,7 @@ footer {
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-bg);
   min-width: 19em;
-  padding: 0 2em 2em 2em;
+  padding: var(--sidebar-padding);
   color: var(--sidebar-text-color);
   position: sticky;
   top: 0;
