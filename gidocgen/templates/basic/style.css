@@ -10,6 +10,7 @@
 
   /* colors */
   --text-color: #333;
+  --text-color-muted: #999;
   --primary: rgb(17, 112, 228);
   --body-bg: #fff;
   --sidebar-primary: rgb(144, 194, 255);
@@ -28,20 +29,23 @@
   --text-weight: normal;
   --heading-weight: 900;
   --heading-small-weight: 500;
+  --anchor-sign: "#";
+  --body-font-size: clamp(16px, 1vw, 20px);
 
   /* fonts */
   --body-font-family: "Red Hat Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   --heading-font-family: var(--body-font-family);
   --monospace-font-family: "Source Code Pro", monospace;
-  --monospace-font-scale: 0.82; /* Monospace fonts are very different in terms of font-sizes. Adjust this value to scale it */
+  --monospace-font-size: calc(0.82 * var(--body-font-size)); /* Monospace fonts are very different in terms of font-sizes. Adjust this value to scale it */
 }
 
 /*********************************
- * DARK THEME
+ * DARK THEME (overrides)
  *********************************/
 .theme-dark {
   --primary: rgb(144, 194, 255);
 	--text-color: #f6f6f6;
+  --text-muted-color: #9e9d9d;
 	--body-bg: #121212;
 	--sidebar-primary: rgb(144, 194, 255);
 	--sidebar-bg: #151515;
@@ -51,6 +55,11 @@
 	--box-text-color: #fff;  
 }
 
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
 
 ::-webkit-scrollbar {
 	width: 8px;
@@ -73,6 +82,7 @@
 body {
   font: 16px/1.5 var(--body-font-family);
   font-weight: var(--text-weight);
+  font-size: var(--body-font-size);
   margin: 0;
   padding: 0;
   position: relative;
@@ -115,12 +125,6 @@ h5, h6 {
   font-weight: var(--heading-small-weight);
 }
 
-.sidebar .logo {
-  display: block;
-  margin: 2rem auto 0 auto;
-  width: 70%;
-}
-
 ol, ul {
   padding-left: 1rem;
 }
@@ -153,7 +157,7 @@ blockquote {
 code, 
 pre {
   font-family: var(--monospace-font-family);
-  font-size: calc(var(--monospace-font-scale) * 1rem);
+  font-size: var(--monospace-font-size);
   color: var(--box-text-color);
 }
 
@@ -229,10 +233,9 @@ blockquote > *:last-child > *:last-child > *:last-child {
 }
 
 #body-wrapper {
-  box-sizing: border-box;
   display: flex;
+  flex-wrap: nowrap;
 	flex-direction: row;
-	flex-wrap: wrap;
 }
 
 #body-wrapper:focus {
@@ -252,9 +255,8 @@ footer {
   position: relative;
   z-index: 1;
   text-decoration: none;
-  background: transparent;
   padding: 0 0.35rem;
-  color: #aaa;
+  color: var(--text-color-muted);
 }
 
 .anchor:hover {
@@ -266,7 +268,7 @@ footer {
 }
 
 .anchor:before {
-  content: '#'; /*'§'*/
+  content: var(--anchor-sign); /*'§'*/
 }
 
 .md-anchor {
@@ -343,13 +345,19 @@ footer {
   scrollbar-width: thin;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-bg);
-  min-width: 15rem;
+  min-width: 19em;
   padding: 0 2rem;
   color: var(--sidebar-text-color);
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
+}
+
+.sidebar .logo {
+  display: block;
+  margin: 2rem auto 0 auto;
+  width: 70%;
 }
 
 .sidebar .section > ul > li {
@@ -413,7 +421,7 @@ footer {
 }
 
 .content, nav {
-  max-width: 960px;
+  max-width: 68em;
 }
 
 .hidden {
@@ -504,7 +512,7 @@ kbd {
 }
 
 .srclink {
-  color: rgba(0, 0, 0, 0.55);
+  color: var(--text-color-muted);
   flex-grow: 0;
   font-size: 17px;
   font-weight: normal;
