@@ -41,6 +41,9 @@
   --heading-table-font-family: var(--heading-font-family);
   --heading-table-weight: 600;
 
+  --heading-docblock-color: #6d6d6d;  /* docblocks have headings from source comments. we want them to differ.*/
+  --heading-docblock-scale: 0.9;        /* docblocks have headings from source comments. we want them to differ.*/
+
   --monospace-font-family: "Source Code Pro", monospace;
   --monospace-font-size: calc(0.86 * var(--body-font-size)); /* Monospace fonts are very different in terms of font-sizes. Adjust this value to scale it */
 
@@ -63,7 +66,7 @@
   :root {
     --primary: rgb(144, 194, 255);
     --text-color: #f6f6f6;
-    --text-muted-color: #9e9d9d;
+    --text-color-muted: #686868;
     --body-bg: #121212;
     --sidebar-primary: rgb(144, 194, 255);
     --sidebar-bg: #1e1e1e;
@@ -71,6 +74,7 @@
     --sidebar-text-color: #fafafa;
     --box-bg: rgba(135, 135, 135, 0.1);
     --box-text-color: #fff;
+    --heading-docblock-color: #b7b7b7;
   }
 
   /* fix dark theme syntax highlighting with a filter (for now) */
@@ -139,6 +143,7 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size: calc(1.75em * var(--heading-font-scale));
 }
+
 
 header h1 {
   margin-top: 0;
@@ -336,7 +341,7 @@ footer {
 .collapse-toggle > .inner {
   width: 1rem;
   height: 1rem;
-  border-radius: 4px;
+  border-radius: calc(0.75 * var(--box-radius));
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -378,7 +383,7 @@ footer {
   scrollbar-width: thin;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-bg);
-  min-width: 19em;
+  min-width: 40ch;
   padding: var(--sidebar-padding);
   color: var(--sidebar-text-color);
   position: sticky;
@@ -444,7 +449,7 @@ footer {
   overflow: hidden;
   transition: background-color 150ms ease;
   color: var(--sidebar-primary);
-  border-radius: 0.35rem;
+  border-radius: var(--box-radius);
    padding: 0.2rem 0.5rem;
   margin-bottom: 0.15rem;
 }
@@ -525,6 +530,32 @@ kbd {
   border-top: 0;
 }
 
+
+.docblock h1 {
+  font-size: calc(1.3em * var(--heading-docblock-scale) * var(--heading-font-scale));
+}
+
+.docblock h2 {
+  font-size: calc(1.2em * var(--heading-docblock-scale) * var(--heading-font-scale));
+}
+
+.docblock h3 {
+  font-size: calc(1.1em * var(--heading-docblock-scale) * var(--heading-font-scale));
+}
+
+.docblock h4 {
+  font-size: calc(1.05em * var(--heading-docblock-scale) * var(--heading-font-scale));
+}
+
+.docblock h1,
+.docblock h2,
+.docblock h3,
+.docblock h4,
+.docblock h5,
+.docblock h6 {
+  color: var(--heading-docblock-color)
+}
+
 .docblock table {
   margin: .25em 0;
   max-width: 100%;
@@ -540,6 +571,16 @@ kbd {
   text-align: left;
   font-family: var(--heading-table-font-family);
   font-weight: var(--heading-table-weight);
+}
+
+.docblock table tr th:first-child,
+.docblock table tr td:first-child {
+  padding-left: 0;
+}
+
+.docblock table tr th:last-child,
+.docblock table tr td:last-child {
+  padding-right: 0;
 }
 
 .docblock ul li,
