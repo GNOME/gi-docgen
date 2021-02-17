@@ -34,7 +34,7 @@
   --heading-weight: 900;
   --heading-font-scale: 1.05;
 
-  --heading-small-font-family: var(--body-font-family);
+  --heading-small-font-family: var(--heading-font-family);
   --heading-small-weight: 600;
   --heading-small-font-scale: 1;
 
@@ -53,8 +53,8 @@
 
   --table-font-size: 0.92em;    /* Tables often contain lots information. It's better to scale them down a big to get more sutff fitted inside */
 
-  --prefered-content-width: 90ch; /* The width for the readable content, as prefered */
-
+  /* misc */
+  --prefered-content-width: 90ch; /* The preferred width for the readable content */
   --anchor-sign: "#";
 
 } 
@@ -83,6 +83,9 @@
   }
 }
 
+/*********************************
+ * GENERAL STYLING
+ *********************************/
 *,
 *:before,
 *:after {
@@ -115,6 +118,10 @@
 
 ::-webkit-scrollbar-track {
   background: rgba(128, 128, 128, 0.15);
+}
+
+* {
+  scrollbar-width: initial;
 }
 
 body {
@@ -280,6 +287,9 @@ blockquote > *:last-child > *:last-child > *:last-child {
   margin-bottom: 0;
 }
 
+/*********************************
+ * PAGE STRUCTURE
+ *********************************/
 #body-wrapper {
   display: flex;
   flex-wrap: nowrap;
@@ -298,87 +308,12 @@ blockquote > *:last-child > *:last-child > *:last-child {
 
 footer {
   width: 100%;
-}
-
-.anchor,
-.md-anchor {
-  position: relative;
-  z-index: 1;
-  text-decoration: none;
-  padding: 0 0.5em;
-  color: var(--text-color-muted);
-}
-
-.anchor:hover,
-.md-anchor:hover {
-  color: var(--primary);
-}
-
-.anchor:not([href]),
-.md-anchor:not([href]) {
   display: none;
 }
 
-.anchor:before,
-.md-anchor:before {
-  content: var(--anchor-sign); /*'§'*/
-}
-
-.toggle-wrapper {
-  position: relative;
-}
-
-.collapse-toggle {
-  position: absolute;
-  right: 0;
-  left: -2em;
-  white-space: nowrap;
-  text-decoration: none;
-  font-size: 0.8em;
-  color: transparent;
-}
-
-.collapse-toggle > .inner {
-  width: 1rem;
-  height: 1rem;
-  border-radius: calc(0.75 * var(--box-radius));
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  vertical-align: middle;
-  color: var(--box-text-color);
-  position: relative;
-  left: -0.25rem;
-  font-family: monospace;
-  font-size: 0.7rem;
-  font-weight: bold;
-  background: var(--box-bg);
-}
-
-.docblock {
-  position: relative;
-  text-align: left;
-}
-
-.deprecated > h6 > a {
-  opacity: 0.65;
-}
-
-.content {
-  padding: 2em 4em;
-  overflow: visible;
-  max-width: calc(var(--prefered-content-width) + 8em);
-}
-
-footer {
-  display: none;
-}
-
-* {
-  scrollbar-width: initial;
-}
-
+/*********************************
+ * SIDEBAR
+ *********************************/
 .sidebar {
   scrollbar-width: thin;
   background: var(--sidebar-bg);
@@ -464,8 +399,83 @@ footer {
   color: white;
 }
 
+/*********************************
+ * ANCHORS & TOGGLERS
+ *********************************/
+.anchor,
+.md-anchor {
+  position: relative;
+  z-index: 1;
+  text-decoration: none;
+  padding: 0 0.5em;
+  color: var(--text-color-muted);
+}
+
+.anchor:hover,
+.md-anchor:hover {
+  color: var(--primary);
+}
+
+.anchor:not([href]),
+.md-anchor:not([href]) {
+  display: none;
+}
+
+.anchor:before,
+.md-anchor:before {
+  content: var(--anchor-sign); /*'§'*/
+}
+
+.toggle-wrapper {
+  position: relative;
+}
+
+.collapse-toggle {
+  position: absolute;
+  right: 0;
+  left: -2em;
+  white-space: nowrap;
+  text-decoration: none;
+  font-size: 0.8em;
+  color: transparent;
+}
+
+.collapse-toggle > .inner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: calc(0.75 * var(--box-radius));
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--box-text-color);
+  position: relative;
+  left: -0.25rem;
+  font-family: monospace;
+  font-size: 0.7rem;
+  font-weight: bold;
+  background: var(--box-bg);
+}
+
+/*********************************
+ * UTILITY
+ *********************************/
+.deprecated > h6 > a {
+  opacity: 0.65;
+}
+
 .hidden {
   display: none !important;
+}
+
+/*********************************
+ * CONTENT STYLING
+ *********************************/
+.content {
+  padding: 2em 4em;
+  overflow: visible;
+  max-width: calc(var(--prefered-content-width) + 8em);
 }
 
 .content table:not(.table-display) {
@@ -530,6 +540,32 @@ kbd {
   border-top: 0;
 }
 
+.srclink {
+  color: var(--text-color-muted);
+  font-size: 1rem;
+  font-weight: var(--body-font-weight);
+  flex-grow: 0;
+  text-decoration: none;
+  margin-left: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.meta tr > td:not(:first-child) {
+  width: 100%;
+}
+
+.meta tr > td:first-child {
+  white-space: nowrap;
+}
+
+/*********************************
+ * DOCBLOCK STYLING
+ *********************************/
+.docblock {
+  position: relative;
+  text-align: left;
+}
 
 .docblock h1 {
   font-size: calc(1.3em * var(--heading-docblock-scale) * var(--heading-font-scale));
@@ -589,24 +625,6 @@ kbd {
   padding-bottom: 0.15rem;
 }
 
-.srclink {
-  color: var(--text-color-muted);
-  font-size: 1rem;
-  font-weight: var(--body-font-weight);
-  flex-grow: 0;
-  text-decoration: none;
-  margin-left: auto;
-  position: relative;
-  z-index: 1;
-}
-
-.meta tr > td:not(:first-child) {
-  width: 100%;
-}
-
-.meta tr > td:first-child {
-  white-space: nowrap;
-}
 
 /*************************************************************
  SYMBOLS
