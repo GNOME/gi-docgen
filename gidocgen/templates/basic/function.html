@@ -123,8 +123,14 @@
       <div class="docblock">
         <table>
           <tr class="arg-name">
-            <td colspan="2">Returns:
-            {% if func.return_value.link %}{{ func.return_value.link|safe }}{% else %}{{ func.return_value.type_cname }}{% endif %}
+            <td colspan="2">Returns:&nbsp;
+            {%- if func.return_value.link -%}
+            {%- if func.return_value.is_array -%}An array of&nbsp;{%- endif -%}
+            {%- if func.return_value.is_list -%}A list of&nbsp;{%- endif -%}
+            {{ func.return_value.link|safe }}
+            {%- else -%}
+            <code>{{ func.return_value.type_cname }}</code>
+            {%- endif -%}
             </td>
           </tr>
           <tr class="arg-description">

@@ -142,8 +142,24 @@
       </h4>
 
       <div class="docblock">
-        {{ signal.return_value.description|safe }}
         <table>
+          <tr class="arg-name">
+            <td colspan="2">Returns:&nbsp;
+            {%- if signal.return_value.link -%}
+            {%- if signal.return_value.is_array -%}An array of&nbsp;{%- endif -%}
+            {%- if signal.return_value.is_list -%}A list of&nbsp;{%- endif -%}
+            {{ signal.return_value.link|safe }}
+            {%- else -%}
+            <code>{{ signal.return_value.type_cname }}</code>
+            {%- endif -%}
+            </td>
+          </tr>
+          <tr class="arg-description">
+            <td colspan="2">{{ signal.return_value.description|safe }}</td>
+          </tr>
+          {% if signal.return_value.is_array and signal.return_value.zero_terminated %}<tr><td>&nbsp;</td><td>The array must be <code>NULL</code> terminated</td></tr>{% endif %}
+          {% if signal.return_value.is_array and signal.return_value.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array must have {{ signal.return_value.fixed_size }} elements</td></tr>{% endif %}
+          {% if signal.return_value.is_array and signal.return_value.len_arg %}<tr><td>&nbsp;</td><td>The length of the array is in the <code>{{ signal.return_value.len_arg }}</code> argument</td></tr>{% endif %}
           {% if signal.return_value.is_pointer %}<tr><td>{{ signal.return_value.transfer }}</td></tr>{% endif %}
           {% if signal.return_value.is_pointer and signal.return_value.nullable %}<tr><td>Can be <code>NULL</code></td></tr>{% endif %}
           {% if signal.return_value.string_note %}<tr><td>{{ signal.return_value.string_note }}</td></tr>{% endif %}

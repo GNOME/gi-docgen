@@ -137,8 +137,14 @@
       <div class="docblock">
         <table>
           <tr class="arg-name">
-            <td colspan="2">Returns:
-            {% if class_method.return_value.link %}{{ class_method.return_value.link|safe }}{% else %}{{ class_method.return_value.type_cname }}{% endif %}
+            <td colspan="2">Returns:&nbsp;
+            {%- if class_method.return_value.link -%}
+            {%- if class_method.return_value.is_array -%}An array of&nbsp;{%- endif -%}
+            {%- if class_method.return_value.is_list -%}A list of&nbsp;{%- endif -%}
+            {{ class_method.return_value.link|safe }}
+            {%- else -%}
+            <code>{{ class_method.return_value.type_cname }}</code>
+            {%- endif -%}
             </td>
           </tr>
           <tr class="arg-description">
