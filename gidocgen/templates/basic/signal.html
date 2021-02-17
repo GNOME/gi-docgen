@@ -117,7 +117,16 @@
         <table>
           {% for arg in signal.arguments %}
           <tr>
-            <td><code>{{ arg.name }}</code></td><td><code>{{ arg.type_cname }}</code></td>
+            <td><code>{{ arg.name }}</code></td>
+            <td>
+            {%- if arg.link -%}
+            {%- if arg.is_array -%}An array of&nbsp;{%- endif -%}
+            {%- if arg.is_list -%}A list of&nbsp;{%- endif -%}
+            {{ arg.link|safe }}
+            {%- else -%}
+            <code>{{ arg.type_cname }}</code>
+            {%- endif -%}
+            </td>
           </tr>
           <tr>
             <td>&nbsp;</td>

@@ -107,7 +107,16 @@
         <table>
           {% for arg in class_method.arguments %}
           <tr class="arg-name">
-            <td><code>{{ arg.name }}</code></td><td>{% if arg.link %}{{ arg.link|safe }}{% else %}<code>{{ arg.type_cname }}</code>{% endif %}</a></td>
+            <td><code>{{ arg.name }}</code></td>
+            <td>
+            {%- if arg.link -%}
+            {%- if arg.is_array -%}An array of&nbsp;{%- endif -%}
+            {%- if arg.is_list -%}A list of&nbsp;{%- endif -%}
+            {{ arg.link|safe }}
+            {%- else -%}
+            <code>{{ arg.type_cname }}</code>
+            {%- endif -%}
+            </td>
           </tr>
           <tr class="arg-description">
             <td>&nbsp;</td>
