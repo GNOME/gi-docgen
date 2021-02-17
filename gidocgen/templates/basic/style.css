@@ -25,12 +25,15 @@
   --box-text-color: #111;
 
   /* typography */
-  --body-font-family: "Noto Serif","RedHatTextWeb",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  --body-font-family: "Noto Serif",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   --body-font-scale: 0.95;
   --body-font-size: calc(var(--body-font-scale) * clamp(16px, 1vw, 20px));
   --body-font-weight: normal;
-  
-  --heading-font-family: "RedHatDisplayWeb", var(--body-font-family);
+
+  --monospace-font-family: "Source Code Pro", monospace;
+  --monospace-font-size: calc(0.86 * var(--body-font-size)); /* Monospace fonts are very different in terms of font-sizes. Adjust this value to scale it */
+
+  --heading-font-family: "Red Hat Display", var(--body-font-family);
   --heading-weight: 900;
   --heading-font-scale: 1.05;
 
@@ -43,9 +46,6 @@
 
   --heading-docblock-color: #6d6d6d;  /* docblocks have headings from source comments. we want them to differ.*/
   --heading-docblock-scale: 0.9;        /* docblocks have headings from source comments. we want them to differ.*/
-
-  --monospace-font-family: "Source Code Pro", monospace;
-  --monospace-font-size: calc(0.86 * var(--body-font-size)); /* Monospace fonts are very different in terms of font-sizes. Adjust this value to scale it */
 
   --symbol-font-family: var(--heading-font-family);
   --symbol-font-weight: 500;
