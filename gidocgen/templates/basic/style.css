@@ -231,6 +231,7 @@ code {
   background: var(--box-bg);
   padding: 0 0.35em;
   border-radius: 0.35rem;
+  word-break: break-word;
 }
 
 a > code {
@@ -663,6 +664,7 @@ kbd {
 
   #body-wrapper {
     flex-direction: column;
+    overflow: hidden;
   }
 
   #main {
