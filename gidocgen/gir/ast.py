@@ -197,6 +197,14 @@ class ArrayType(GIRElement):
         self.value_type = value_type
 
 
+class ListType(GIRElement):
+    """Type class for List nodes"""
+    def __init__(self, name: str, value_type: Type, ctype: str = None):
+        super().__init__(name)
+        self.ctype = ctype
+        self.value_type = value_type
+
+
 class GType:
     """Base class for GType information"""
     def __init__(self, type_name: str, get_type: str, type_struct: T.Optional[str] = None):

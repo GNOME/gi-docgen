@@ -117,6 +117,10 @@ class GirParser:
             else:
                 log.debug(f"Unqualified type name {name} found")
                 fqtn = name
+        if ctype is None and fqtn not in FUNDAMENTAL_CTYPES:
+            for titer in self._types_register.values():
+                if titer.name == fqtn:
+                    return titer
         if (fqtn, ctype) not in self._types_register:
             if ctype is None and fqtn in FUNDAMENTAL_CTYPES:
                 ctype = FUNDAMENTAL_CTYPES[fqtn]
@@ -295,6 +299,13 @@ class GirParser:
                 tname = child.attrib.get('name', ttype.replace('*', ''))
                 if tname == 'none' and ttype == 'void':
                     ctype = ast.VoidType()
+                elif tname in ['GLib.List', 'GLib.SList']:
+                    child_type = child.find('core:type', GI_NAMESPACES)
+                    if child_type is not None:
+                        etname = child_type.attrib.get('name', 'gpointer')
+                        etype = self._lookup_type(name=etname)
+                        if etype is not None:
+                            ctype = ast.ListType(name=tname, ctype=ttype, value_type=etype)
                 else:
                     ctype = self._lookup_type(name=tname, ctype=ttype)
             else:
