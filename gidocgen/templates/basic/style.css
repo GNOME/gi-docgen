@@ -632,6 +632,7 @@ kbd {
  SYMBOLS
  TODO: add a 'symbol' class in templates to avoid this hack
 **************************************************************/
+.symbol,
 .constructors h6,
 .methods h6,
 .signals h6,
