@@ -647,7 +647,8 @@ kbd {
 #bitfields + .docblock a,
 #domains + .docblock a,
 #callbacks + .docblock a,
-#constants + .docblock a
+#constants + .docblock a,
+#functions + .docblock a
 {
   font-family: var(--symbol-font-family);
   font-size: calc(1em * var(--symbol-font-scale));
