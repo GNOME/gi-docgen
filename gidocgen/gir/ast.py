@@ -184,6 +184,12 @@ class Type(GIRElement):
     def __repr__(self):
         return f"Type({self.name}, {self.ctype})"
 
+    @property
+    def base_ctype(self):
+        if self.ctype is None:
+            return None
+        return self.ctype.replace('*', '')
+
 
 class ArrayType(GIRElement):
     """Base class for Array nodes"""
@@ -497,6 +503,7 @@ class Class(Type):
         self.ref_func = ref_func
         self.unref_func = unref_func
         self.gtype = gtype
+        self.ancestors: T.List[Type] = []
         self.implements: T.List[Type] = []
         self.constructors: T.List[Function] = []
         self.methods: T.List[Method] = []
