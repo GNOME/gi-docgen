@@ -613,6 +613,7 @@ kbd {
 .docblock table tr th:first-child,
 .docblock table tr td:first-child {
   padding-left: 0;
+  min-width: 12em;
 }
 
 .docblock table tr th:last-child,
