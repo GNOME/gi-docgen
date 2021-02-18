@@ -7,6 +7,7 @@ py = import('python').find_installation('python3',
   modules: [
     'jinja2',
     'markdown',
+    'markupsafe',
     'pygments',
     'toml',
     'typogrify',
