@@ -8,8 +8,9 @@
 
 @font-face {
   font-family: "RedHatDisplayWeb";
-  src: url("./fonts/RedHatDisplay/RedHatDisplay-Regular.woff2") format("woff2"),
-       url("./fonts/RedHatDisplay/RedHatDisplay-Regular.woff") format("woff");
+  src: local('RedHatDisplayWeb'),
+       url("RedHatDisplay-Regular.woff2") format("woff2"),
+       url("RedHatDisplay-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
   font-display: fallback;
@@ -17,8 +18,9 @@
 
 @font-face {
   font-family: "RedHatDisplayWeb";
-  src: url("./fonts/RedHatDisplay/RedHatDisplay-RegularItalic.woff2") format("woff2"),
-       url("./fonts/RedHatDisplay/RedHatDisplay-RegularItalic.woff") format("woff");
+  src: local('RedHatDisplayWeb'),
+       url("RedHatDisplay-RegularItalic.woff2") format("woff2"),
+       url("RedHatDisplay-RegularItalic.woff") format("woff");
   font-style: italic;
   font-weight: 400;
   font-display: fallback;
@@ -26,8 +28,9 @@
 
 @font-face {
   font-family: "RedHatDisplayWeb";
-  src: url("./fonts/RedHatDisplay/RedHatDisplay-Medium.woff2") format("woff2"),
-       url("./fonts/RedHatDisplay/RedHatDisplay-Medium.woff") format("woff");
+  src: local('RedHatDisplayWeb'),
+       url("RedHatDisplay-Medium.woff2") format("woff2"),
+       url("RedHatDisplay-Medium.woff") format("woff");
   font-style: normal;
   font-weight: 500;
   font-display: fallback;
@@ -35,8 +38,9 @@
 
 @font-face {
   font-family: "RedHatDisplayWeb";
-  src: url("./fonts/RedHatDisplay/RedHatDisplay-MediumItalic.woff2") format("woff2"),
-       url("./fonts/RedHatDisplay/RedHatDisplay-MediumItalic.woff") format("woff");
+  src: local('RedHatDisplayWeb'),
+       url("RedHatDisplay-MediumItalic.woff2") format("woff2"),
+       url("RedHatDisplay-MediumItalic.woff") format("woff");
   font-style: italic;
   font-weight: 500;
   font-display: fallback;
@@ -44,8 +48,9 @@
 
 @font-face {
   font-family: "RedHatDisplayWeb";
-  src: url("./fonts/RedHatDisplay/RedHatDisplay-Bold.woff2") format("woff2"),
-       url("./fonts/RedHatDisplay/RedHatDisplay-Bold.woff") format("woff");
+  src: local('RedHatDisplayWeb'),
+       url("RedHatDisplay-Bold.woff2") format("woff2"),
+       url("RedHatDisplay-Bold.woff") format("woff");
   font-style: normal;
   font-weight: 700;
   font-display: fallback;
@@ -53,8 +58,9 @@
 
 @font-face {
   font-family: "RedHatDisplayWeb";
-  src: url("./fonts/RedHatDisplay/RedHatDisplay-BoldItalic.woff2") format("woff2"),
-       url("./fonts/RedHatDisplay/RedHatDisplay-BoldItalic.woff") format("woff");
+  src: local('RedHatDisplayWeb'),
+       url("RedHatDisplay-BoldItalic.woff2") format("woff2"),
+       url("RedHatDisplay-BoldItalic.woff") format("woff");
   font-style: italic;
   font-weight: 700;
   font-display: fallback;
@@ -63,8 +69,9 @@
 
 @font-face {
   font-family: "RedHatDisplayWeb";
-  src: url("./fonts/RedHatDisplay/RedHatDisplay-Black.woff2") format("woff2"),
-       url("./fonts/RedHatDisplay/RedHatDisplay-Black.woff") format("woff");
+  src: local('RedHatDisplayWeb'),
+       url("RedHatDisplay-Black.woff2") format("woff2"),
+       url("RedHatDisplay-Black.woff") format("woff");
   font-style: normal;
   font-weight: 900;
   font-display: fallback;
@@ -72,18 +79,19 @@
 
 @font-face {
   font-family: "RedHatDisplayWeb";
-  src: url("./fonts/RedHatDisplay/RedHatDisplay-BlackItalic.woff2") format("woff2"),
-       url("./fonts/RedHatDisplay/RedHatDisplay-BlackItalic.woff") format("woff");
+  src: local('RedHatDisplayWeb'),
+       url("RedHatDisplay-BlackItalic.woff2") format("woff2"),
+       url("RedHatDisplay-BlackItalic.woff") format("woff");
   font-style: italic;
   font-weight: 900;
   font-display: fallback;
 }
-
 
 @font-face {
   font-family: "RedHatTextWeb";
-  src: url("./fonts/RedHatText/RedHatText-Regular.woff2") format("woff2"),
-       url("./fonts/RedHatText/RedHatText-Regular.woff") format("woff");
+  src: local('RedHatTextWeb'),
+       url("RedHatText-Regular.woff2") format("woff2"),
+       url("RedHatText-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
   font-display: fallback;
@@ -91,8 +99,9 @@
 
 @font-face {
   font-family: "RedHatTextWeb";
-  src: url("./fonts/RedHatText/RedHatText-RegularItalic.woff2") format("woff2"),
-       url("./fonts/RedHatText/RedHatText-RegularItalic.woff") format("woff");
+  src: local('RedHatTextWeb'),
+       url("RedHatText-RegularItalic.woff2") format("woff2"),
+       url("RedHatText-RegularItalic.woff") format("woff");
   font-style: italic;
   font-weight: 400;
   font-display: fallback;
@@ -100,8 +109,9 @@
 
 @font-face {
   font-family: "RedHatTextWeb";
-  src: url("./fonts/RedHatText/RedHatText-Medium.woff2") format("woff2"),
-       url("./fonts/RedHatText/RedHatText-Medium.woff") format("woff");
+  src: local('RedHatTextWeb'),
+       url("RedHatText-Medium.woff2") format("woff2"),
+       url("RedHatText-Medium.woff") format("woff");
   font-style: normal;
   font-weight: 700;
   font-display: fallback;
@@ -109,8 +119,9 @@
 
 @font-face {
   font-family: "RedHatTextWeb";
-  src: url("./fonts/RedHatText/RedHatText-MediumItalic.woff2") format("woff2"),
-       url("./fonts/RedHatText/RedHatText-MediumItalic.woff") format("woff");
+  src: local('RedHatTextWeb'),
+       url("RedHatText-MediumItalic.woff2") format("woff2"),
+       url("RedHatText-MediumItalic.woff") format("woff");
   font-style: italic;
   font-weight: 700;
   font-display: fallback;
@@ -118,8 +129,9 @@
 
 @font-face {
   font-family: "RedHatTextWeb";
-  src: url("./fonts/RedHatText/RedHatText-Bold.woff2") format("woff2"),
-       url("./fonts/RedHatText/RedHatText-Bold.woff") format("woff");
+  src: local('RedHatTextWeb'),
+       url("RedHatText-Bold.woff2") format("woff2"),
+       url("RedHatText-Bold.woff") format("woff");
   font-style: normal;
   font-weight: 900;
   font-display: fallback;
@@ -127,8 +139,9 @@
 
 @font-face {
   font-family: "RedHatTextWeb";
-  src: url("./fonts/RedHatText/RedHatText-BoldItalic.woff2") format("woff2"),
-       url("./fonts/RedHatText/RedHatText-BoldItalic.woff") format("woff");
+  src: local('RedHatTextWeb'),
+       url("RedHatText-BoldItalic.woff2") format("woff2"),
+       url("RedHatText-BoldItalic.woff") format("woff");
   font-style: italic;
   font-weight: 900;
   font-display: fallback;

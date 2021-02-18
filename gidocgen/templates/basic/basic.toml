@@ -29,4 +29,34 @@ function = "function.html"
 style = "style.css"
 
 [extra_files]
-files = ["main.js", "pygment.css", "fonts.css"]
+files = [
+  "main.js",
+  "pygment.css",
+  "fonts.css",
+  "RedHatDisplay-Regular.woff2",
+  "RedHatDisplay-Regular.woff",
+  "RedHatDisplay-Medium.woff2",
+  "RedHatDisplay-Medium.woff",
+  "RedHatDisplay-MediumItalic.woff2",
+  "RedHatDisplay-MediumItalic.woff",
+  "RedHatDisplay-Bold.woff2",
+  "RedHatDisplay-Bold.woff",
+  "RedHatDisplay-BoldItalic.woff2",
+  "RedHatDisplay-BoldItalic.woff",
+  "RedHatDisplay-Black.woff2",
+  "RedHatDisplay-Black.woff",
+  "RedHatDisplay-BlackItalic.woff2",
+  "RedHatDisplay-BlackItalic.woff",
+  "RedHatText-BoldItalic.woff",
+  "RedHatText-BoldItalic.woff2",
+  "RedHatText-Bold.woff",
+  "RedHatText-Bold.woff2",
+  "RedHatText-Italic.woff",
+  "RedHatText-Italic.woff2",
+  "RedHatText-MediumItalic.woff",
+  "RedHatText-MediumItalic.woff2",
+  "RedHatText-Medium.woff",
+  "RedHatText-Medium.woff2",
+  "RedHatText-Regular.woff",
+  "RedHatText-Regular.woff2",
+]

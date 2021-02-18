@@ -227,7 +227,6 @@ pre {
 }
 
 code {
-  display: inline-flex;
   background: var(--box-bg);
   padding: 0 0.35em;
   border-radius: 0.35rem;
