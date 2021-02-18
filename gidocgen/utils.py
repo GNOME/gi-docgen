@@ -4,6 +4,7 @@
 import markdown
 import re
 
+from markupsafe import Markup
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
@@ -279,10 +280,10 @@ def preprocess_docs(text, namespace, md=None, extensions=[]):
     else:
         text = md.convert("\n".join(processed_text))
 
-    return typogrify(text)
+    return Markup(typogrify(text))
 
 
 def code_highlight(text, language='c'):
     lexer = get_lexer_by_name(language)
     formatter = HtmlFormatter()
-    return highlight(text, lexer, formatter)
+    return Markup(highlight(text, lexer, formatter))

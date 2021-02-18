@@ -66,7 +66,7 @@
         <pre><code>{{ struct.c_decl }}</code></pre>
 
         <div class="docblock">
-          {{ struct.description|safe }}
+          {{ struct.description }}
         </div>
 
         {% if struct.fields %}
@@ -83,7 +83,7 @@
             {% for field in struct.fields %}
               <tr>
                 <td><code>{{ field.name }}</code></td>
-                <td>{{ field.description|safe }}</td>
+                <td>{{ field.description }}</td>
               </tr>
             {% endfor %}
             </table>
@@ -101,7 +101,7 @@
             {% endif %}
             {% if struct.deprecated_since %}
             <tr><td>Deprecated since:</td><td>{{ struct.deprecated_since.version }}</td></tr>
-            <tr><td colspan="2">{{ struct.deprecated_since.message|safe }}</td></tr>
+            <tr><td colspan="2">{{ struct.deprecated_since.message }}</td></tr>
             {% endif %}
           </table>
         </div>
@@ -131,7 +131,7 @@
           <h6><a href="ctor.{{ struct.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
 
           <div class="docblock">
-            {{ ctor.description|safe }}
+            {{ ctor.description }}
           </div>
 
           {% if ctor.deprecated_since %}
@@ -156,7 +156,7 @@
           <h6><a href="method.{{ struct.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
           <div class="docblock">
-            {{ method.description|safe }}
+            {{ method.description }}
           </div>
 
           {% if method.deprecated_since %}
@@ -182,7 +182,7 @@
         <h6><a href="type_func.{{ struct.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">
-          {{ func.description|safe }}
+          {{ func.description }}
         </div>
 
         {% if func.deprecated_since %}

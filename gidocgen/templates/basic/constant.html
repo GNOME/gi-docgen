@@ -45,7 +45,7 @@
       </h4>
 
       <div class="docblock">
-        <pre><code>{{ constant.c_decl|safe }}</code></pre>
+        <pre><code>{{ constant.c_decl }}</code></pre>
       </div>
     </div>
 
@@ -59,7 +59,7 @@
       </h4>
 
       <div class="docblock">
-        {{ constant.description|safe }}
+        {{ constant.description }}
       </div>
 
       <div class="docblock">
@@ -72,7 +72,7 @@
           {% endif %}
           {% if constant.deprecated_since %}
           <tr><td>Deprecated since:</td><td>{{ constant.deprecated_since.version }}</td></tr>
-          <tr><td colspan="2">{{ constant.deprecated_since.message|safe }}</td></tr>
+          <tr><td colspan="2">{{ constant.deprecated_since.message }}</td></tr>
           {% endif %}
         </table>
       </div>

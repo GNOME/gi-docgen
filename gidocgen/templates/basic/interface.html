@@ -68,7 +68,7 @@
         <pre><code>{{ interface.c_decl }}</code></pre>
 
         <div class="docblock">
-          {{ interface.description|safe }}
+          {{ interface.description }}
         </div>
 
         <div class="docblock">
@@ -81,7 +81,7 @@
             {% endif %}
             {% if interface.deprecated_since %}
             <tr><td>Deprecated since:</td><td>{{ interface.deprecated_since.version }}</td></tr>
-            <tr><td colspan="2">{{ interface.deprecated_since.message|safe }}</td></tr>
+            <tr><td colspan="2">{{ interface.deprecated_since.message }}</td></tr>
             {% endif %}
           </table>
         </div>
@@ -111,7 +111,7 @@
         <h6><a href="method.{{ interface.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
-          {{ method.description|safe }}
+          {{ method.description }}
         </div>
 
         {% if method.deprecated_since %}
@@ -137,7 +137,7 @@
         <h6><a href="property.{{ interface.name }}.{{ property.name }}.html">{{ interface.fqtn }}:{{ property.name }}</a></h6>
 
         <div class="docblock">
-          {{ property.description|safe }}
+          {{ property.description }}
         </div>
 
         {% if property.deprecated_since %}
@@ -163,7 +163,7 @@
         <h6><a href="signal.{{ interface.name }}.{{ signal.name }}.html">{{ interface.fqtn }}::{{ signal.name }}</a></h6>
 
         <div class="docblock">
-          {{ signal.description|safe }}
+          {{ signal.description }}
         </div>
 
         {% if signal.deprecated_since %}
@@ -199,8 +199,8 @@
         {% for field in interface.class_fields %}
         <tr>
           <td style="vertical-align:top"><code>{{ field.name }}</code></td>
-          <td style="vertical-align:top">{{ field.type_cname|safe }}</td>
-          <td style="vertical-align:top">{{ field.description|safe }}</td>
+          <td style="vertical-align:top">{{ field.type_cname }}</td>
+          <td style="vertical-align:top">{{ field.description }}</td>
         </tr>
         {% endfor %}
         </table>
@@ -221,7 +221,7 @@
         <h6><a href="class_method.{{ interface.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
-          {{ method.description|safe }}
+          {{ method.description }}
         </div>
 
         {% if method.deprecated_since %}
@@ -246,7 +246,7 @@
         <h6><a href="type_func.{{ interface.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">
-          {{ func.description|safe }}
+          {{ func.description }}
         </div>
 
         {% if func.deprecated_since %}
@@ -271,7 +271,7 @@
         <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ interface.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ interface.name }}.{{ method.name }}</a> ();</h6>
 
         <div class="docblock">
-          {{ method.description|safe }}
+          {{ method.description }}
         </div>
 
         {% if method.deprecated_since %}

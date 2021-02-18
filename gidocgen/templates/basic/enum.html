@@ -75,7 +75,7 @@
       </h4>
 
       <div class="docblock">
-      {{ enum.description|safe }}
+      {{ enum.description }}
       </div>
 
       <div class="docblock">
@@ -88,7 +88,7 @@
           {% endif %}
           {% if enum.deprecated_since %}
           <tr><td>Deprecated since:</td><td>{{ enum.deprecated_since.version }}</td></tr>
-          <tr><td colspan="2">{{ enum.deprecated_since.message|safe }}</td></tr>
+          <tr><td colspan="2">{{ enum.deprecated_since.message }}</td></tr>
           {% endif %}
         </table>
       </div>
@@ -123,7 +123,7 @@
           <td><code>{{ member.name }}</code></td>
           <td><code>&quot;{{ member.nick }}&quot;</code></td>
           <td><code>{{ member.value }}</code></td>
-          <td>{{ member.description|safe }}</td>
+          <td>{{ member.description }}</td>
         </tr>
       {% endfor %}
       </table>
@@ -156,7 +156,7 @@
           <h6><a href="type_func.{{ enum.name }}.{{ func.name }}.html">{{ func.identifier }} ();</a></h6>
 
           <div class="docblock">
-            {{ func.description|safe }}
+            {{ func.description }}
           </div>
 
           {% if func.deprecated_since %}

@@ -53,7 +53,7 @@
       </h4>
 
       <div class="docblock c-decl">
-        <pre><code>{{ vfunc.c_decl|safe }}</code></pre>
+        <pre><code>{{ vfunc.c_decl }}</code></pre>
       </div>
     </div>
 
@@ -67,7 +67,7 @@
       </h4>
 
       <div class="docblock">
-        {{ vfunc.description|safe }}
+        {{ vfunc.description }}
       </div>
 
       <div class="docblock">
@@ -80,7 +80,7 @@
           {% endif %}
           {% if vfunc.deprecated_since %}
           <tr><td>Deprecated since:</td><td>{{ vfunc.deprecated_since.version }}</td></tr>
-          <tr><td colspan="2">{{ vfunc.deprecated_since.message|safe }}</td></tr>
+          <tr><td colspan="2">{{ vfunc.deprecated_since.message }}</td></tr>
           {% endif %}
         </table>
       </div>
@@ -120,7 +120,7 @@
           </tr>
           <tr class="arg-description">
             <td>&nbsp;</td>
-            <td>{{ arg.description|safe }}</td>
+            <td>{{ arg.description }}</td>
           </tr>
           {% if arg.direction != "in" %}<tr><td>&nbsp;</td><td>Direction: {{ arg.direction }}</td></tr>{% endif %}
           {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
@@ -157,7 +157,7 @@
             </td>
           </tr>
           <tr class="arg-description">
-            <td colspan="2">{{ vfunc.return_value.description|safe }}</td>
+            <td colspan="2">{{ vfunc.return_value.description }}</td>
           </tr>
           {% if vfunc.return_value.is_array and vfunc.return_value.zero_terminated %}<tr><td>&nbsp;</td><td>The array must be <code>NULL</code> terminated</td></tr>{% endif %}
           {% if vfunc.return_value.is_array and vfunc.return_value.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array must have {{ vfunc.return_value.fixed_size }} elements</td></tr>{% endif %}
