@@ -66,6 +66,7 @@ class TemplateConstant:
 
         self.description = "No description available."
         if const.doc is not None:
+            self.summary = utils.preprocess_docs(const.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(const.doc.content, namespace)
 
         self.stability = const.stability
@@ -101,6 +102,7 @@ class TemplateProperty:
         self.construct = prop.construct
         self.construct_only = prop.construct_only
         if prop.doc is not None:
+            self.summary = utils.preprocess_docs(prop.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(prop.doc.content, namespace)
             filename = prop.doc.filename
             if filename.startswith('../'):
@@ -149,6 +151,7 @@ class TemplateArgument:
             self.value_type_cname = argument.target.value_type.ctype
         self.description = "No description available."
         if argument.doc is not None:
+            self.summary = utils.preprocess_docs(argument.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(argument.doc.content, namespace)
         if self.is_array:
             name = self.value_type
@@ -214,6 +217,7 @@ class TemplateReturnValue:
         if self.type_name in ['utf8', 'filename']:
             self.string_note = STRING_TYPES[self.type_name]
         if retval.doc is not None:
+            self.summary = utils.preprocess_docs(retval.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(retval.doc.content, namespace)
         if self.is_array:
             name = self.value_type
@@ -263,6 +267,7 @@ class TemplateSignal:
         self.identifier = signal.name.replace("-", "_")
 
         if signal.doc is not None:
+            self.summary = utils.preprocess_docs(signal.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(signal.doc.content, namespace)
             filename = signal.doc.filename
             if filename.startswith('../'):
@@ -318,6 +323,7 @@ class TemplateMethod:
         self.description = "No description available."
 
         if method.doc is not None:
+            self.summary = utils.preprocess_docs(method.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(method.doc.content, namespace)
 
         self.throws = method.throws
@@ -392,6 +398,7 @@ class TemplateClassMethod:
 
         self.description = "No description available."
         if method.doc is not None:
+            self.summary = utils.preprocess_docs(method.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(method.doc.content, namespace)
 
         self.arguments = []
@@ -449,6 +456,7 @@ class TemplateFunction:
 
         self.description = "No description available."
         if func.doc is not None:
+            self.summary = utils.preprocess_docs(func.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(func.doc.content, namespace)
 
         self.arguments = []
@@ -511,6 +519,7 @@ class TemplateCallback:
         self.description = "No description available."
         self.identifier = cb.name.replace("-", "_")
         if cb.doc is not None:
+            self.summary = utils.preprocess_docs(cb.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(cb.doc.content, namespace)
 
         self.arguments = []
@@ -609,6 +618,7 @@ class TemplateInterface:
 
         self.description = "No description available."
         if interface.doc is not None:
+            self.summary = utils.preprocess_docs(interface.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(interface.doc.content, namespace)
 
         self.stability = interface.stability
@@ -723,6 +733,7 @@ class TemplateClass:
 
         self.description = "No description available."
         if cls.doc is not None:
+            self.summary = utils.preprocess_docs(cls.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(cls.doc.content, namespace)
 
         self.stability = cls.stability
@@ -832,6 +843,7 @@ class TemplateRecord:
 
         self.description = "No description available."
         if record.doc is not None:
+            self.summary = utils.preprocess_docs(record.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(record.doc.content, namespace)
 
         self.stability = record.stability
@@ -898,6 +910,7 @@ class TemplateUnion:
 
         self.description = "No description available."
         if union.doc is not None:
+            self.summary = utils.preprocess_docs(union.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(union.doc.content, namespace)
 
         self.stability = union.stability
@@ -965,6 +978,7 @@ class TemplateAlias:
 
         self.description = "No description available."
         if alias.doc is not None:
+            self.summary = utils.preprocess_docs(alias.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(alias.doc.content, namespace)
 
         self.stability = alias.stability
@@ -1007,6 +1021,7 @@ class TemplateEnum:
 
         self.description = "No description available."
         if enum.doc is not None:
+            self.summary = utils.preprocess_docs(enum.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(enum.doc.content, namespace)
 
         self.stability = enum.stability
@@ -1613,21 +1628,20 @@ def _gen_content_files(config, theme_config, content_dir, output_dir, jinja_env,
     md = markdown.Markdown(extensions=utils.MD_EXTENSIONS, extension_configs=utils.MD_EXTENSIONS_CONF)
 
     for file_name in config.content_files:
-        content_file = file_name.replace(".md", ".html")
         src_file = os.path.join(content_dir, file_name)
-        dst_file = os.path.join(output_dir, content_file)
-
-        log.info(f"Generating content file {file_name}: {dst_file}")
 
         src_data = ""
         with open(src_file, "r") as infile:
             source = []
             for line in infile:
-                source += [line]
+                source.append(line)
             src_data = "".join(source)
 
-        dst_data = utils.preprocess_docs(src_data, namespace, md)
+        dst_data = utils.preprocess_docs(src_data, namespace, md=md)
         title = "\n".join(md.Meta.get("title", ["Unknown document"]))
+
+        content_file = file_name.replace(".md", ".html")
+        dst_file = os.path.join(output_dir, content_file)
 
         content = {
             "abs_input_file": src_file,
@@ -1639,6 +1653,7 @@ def _gen_content_files(config, theme_config, content_dir, output_dir, jinja_env,
             "data": dst_data,
         }
 
+        log.info(f"Generating content file {file_name}: {dst_file}")
         with open(dst_file, "w") as outfile:
             outfile.write(content_tmpl.render({
                 "CONFIG": config,

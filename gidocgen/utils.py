@@ -216,13 +216,18 @@ class LinkGenerator:
             return f"`{self._ns}.{self._rest}`"
 
 
-def preprocess_docs(text, namespace, md=None, extensions=[]):
+def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
     processed_text = []
 
     code_block_text = []
     code_block_language = None
     inside_code_block = False
     for line in text.split("\n"):
+        # If we're in "summary" mode, we bail out at the first empty line
+        # after a paragraph
+        if summary and line == '' and len(processed_text) > 0:
+            break
+
         res = CODEBLOCK_START_RE.match(line)
         if res:
             code_block_language = process_language(res.group("language"))
