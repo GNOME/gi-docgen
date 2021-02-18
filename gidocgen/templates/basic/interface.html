@@ -111,7 +111,7 @@
         <h6><a href="method.{{ interface.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
-          {{ method.description }}
+          {{ method.summary }}
         </div>
 
         {% if method.deprecated_since %}
@@ -137,7 +137,7 @@
         <h6><a href="property.{{ interface.name }}.{{ property.name }}.html">{{ interface.fqtn }}:{{ property.name }}</a></h6>
 
         <div class="docblock">
-          {{ property.description }}
+          {{ property.summary }}
         </div>
 
         {% if property.deprecated_since %}
@@ -163,7 +163,7 @@
         <h6><a href="signal.{{ interface.name }}.{{ signal.name }}.html">{{ interface.fqtn }}::{{ signal.name }}</a></h6>
 
         <div class="docblock">
-          {{ signal.description }}
+          {{ signal.summary }}
         </div>
 
         {% if signal.deprecated_since %}
@@ -221,7 +221,7 @@
         <h6><a href="class_method.{{ interface.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
-          {{ method.description }}
+          {{ method.summary }}
         </div>
 
         {% if method.deprecated_since %}
@@ -246,7 +246,7 @@
         <h6><a href="type_func.{{ interface.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">
-          {{ func.description }}
+          {{ func.summary }}
         </div>
 
         {% if func.deprecated_since %}
@@ -271,7 +271,7 @@
         <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ interface.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ interface.name }}.{{ method.name }}</a> ();</h6>
 
         <div class="docblock">
-          {{ method.description }}
+          {{ method.summary }}
         </div>
 
         {% if method.deprecated_since %}

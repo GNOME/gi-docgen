@@ -131,7 +131,7 @@
           <h6><a href="ctor.{{ struct.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
 
           <div class="docblock">
-            {{ ctor.description }}
+            {{ ctor.summary }}
           </div>
 
           {% if ctor.deprecated_since %}
@@ -156,7 +156,7 @@
           <h6><a href="method.{{ struct.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
           <div class="docblock">
-            {{ method.description }}
+            {{ method.summary }}
           </div>
 
           {% if method.deprecated_since %}
@@ -182,7 +182,7 @@
         <h6><a href="type_func.{{ struct.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">
-          {{ func.description }}
+          {{ func.summary }}
         </div>
 
         {% if func.deprecated_since %}

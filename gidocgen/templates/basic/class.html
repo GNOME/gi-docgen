@@ -131,7 +131,7 @@
           <h6><a href="ctor.{{ class.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
 
           <div class="docblock">
-            {{ ctor.description }}
+            {{ ctor.summary }}
           </div>
 
           {% if ctor.deprecated_since %}
@@ -156,7 +156,7 @@
           <h6><a href="method.{{ class.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
           <div class="docblock">
-            {{ method.description }}
+            {{ method.summary }}
           </div>
 
           {% if method.deprecated_since %}
@@ -182,7 +182,7 @@
           <h6><a href="property.{{ class.name }}.{{ property.name }}.html">{{ class.fqtn }}:{{ property.name }}</a></h6>
 
           <div class="docblock">
-            {{ property.description }}
+            {{ property.summary }}
           </div>
 
           {% if property.deprecated_since %}
@@ -208,7 +208,7 @@
           <h6><a href="signal.{{ class.name }}.{{ signal.name }}.html">{{ class.fqtn }}::{{ signal.name }}</a></h6>
 
           <div class="docblock">
-            {{ signal.description }}
+            {{ signal.summary }}
           </div>
 
           {% if signal.deprecated_since %}
@@ -267,7 +267,7 @@
         <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ class.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ class.class_name }}.{{ method.name }}</a> ();</h6>
 
         <div class="docblock">
-          {{ method.description }}
+          {{ method.summary }}
         </div>
 
         {% if method.deprecated_since %}
@@ -292,7 +292,7 @@
         <h6><a href="class_method.{{ class.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
 
         <div class="docblock">
-          {{ method.description }}
+          {{ method.summary }}
         </div>
 
         {% if method.deprecated_since %}
@@ -317,7 +317,7 @@
         <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
 
         <div class="docblock">
-          {{ func.description }}
+          {{ func.summary }}
         </div>
 
         {% if func.deprecated_since %}
