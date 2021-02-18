@@ -136,7 +136,7 @@ def set_log_epoch(epoch=0):
         log_epoch = epoch
 
 
-def log(text, prefix=None, location=None):
+def log(text, prefix=None, location=None, out=None):
     '''
     Prints a line of text using the given prefix and location.
 
@@ -149,18 +149,18 @@ def log(text, prefix=None, location=None):
     if location:
         res += [str(location), ' ']
     res += [text]
-    print(''.join(res))
+    print(''.join(res), file=out)
 
 
 def error(text, location=None):
     '''Prints an error message'''
-    log(text, prefix=red('ERROR'), location=location)
+    log(text, prefix=red('ERROR'), location=location, out=sys.stderr)
     sys.exit(1)
 
 
 def warning(text, location=None):
     '''Prints a warning message'''
-    log(text, prefix=yellow('WARNING'), location=location)
+    log(text, prefix=yellow('WARNING'), location=location, out=sys.stderr)
 
     global log_warnings_counter
     log_warnings_counter += 1
@@ -183,7 +183,7 @@ def debug(text, location=None):
 
 def deprecation(text, location=None):
     '''Prints a deprecation warning'''
-    log(text, prefix=blue('DEPRECATED'), location=location)
+    log(text, prefix=blue('DEPRECATED'), location=location, out=sys.stderr)
     global log_warnings_counter
     log_warnings_counter += 1
 
