@@ -612,7 +612,7 @@ class TemplateInterface:
         self.requires_fqtn = f"{self.requires_namespace}.{self.requires_name}"
 
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{interface.symbol_prefix}"
-        self.type_cname = interface.ctype
+        self.type_cname = interface.base_ctype
 
         self.link_prefix = "iface"
 
@@ -680,7 +680,7 @@ class TemplateInterface:
 class TemplateClass:
     def __init__(self, namespace, cls):
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{cls.symbol_prefix}"
-        self.type_cname = cls.ctype
+        self.type_cname = cls.base_ctype
         self.link_prefix = "class"
         self.fundamental = cls.fundamental
         self.abstract = cls.abstract
@@ -713,6 +713,20 @@ class TemplateClass:
             if parent is None:
                 log.error(f"Unable to find parent {cls.parent} for class {cls.name}")
             self.parent_cname = parent.ctype
+
+        self.ancestors = []
+        for ancestor_type in cls.ancestors:
+            ancestor = namespace.find_class(ancestor_type.name)
+            if ancestor is not None:
+                tmpl = TemplateClass(namespace, ancestor)
+                self.ancestors.append(tmpl)
+            else:
+                self.ancestors.append({
+                    "namespace": ancestor_type.name.split('.')[0],
+                    "name": ancestor_type.name.split('.')[1],
+                    "fqtn": ancestor_type.name,
+                    "type_cname": ancestor_type.base_ctype,
+                })
 
         self.class_name = cls.type_struct
 
@@ -794,11 +808,16 @@ class TemplateClass:
             self.interfaces = []
             for iface_type in cls.implements:
                 iface = namespace.find_interface(iface_type.name)
-                if iface is None:
-                    log.debug(f"Unable to find interface {iface_type.name}")
-                    self.interfaces.append(TemplateInterface(namespace, iface_type))
+                if iface is not None:
+                    tmpl = TemplateInterface(namespace, iface)
+                    self.interfaces.append(tmpl)
                 else:
-                    self.interfaces.append(TemplateInterface(namespace, iface))
+                    self.interfaces.append({
+                        "namespace": iface_type.name.split('.')[0],
+                        "name": iface_type.name.split('.')[1],
+                        "fqtn": iface_type.name,
+                        "type_cname": iface_type.base_ctype,
+                    })
 
         if len(cls.virtual_methods) != 0:
             self.virtual_methods = []
@@ -968,7 +987,7 @@ class TemplateUnion:
 
 class TemplateAlias:
     def __init__(self, namespace, alias):
-        self.type_cname = alias.ctype
+        self.type_cname = alias.base_ctype
         self.target_ctype = alias.target.ctype
         self.link_prefix = "alias"
 
@@ -994,7 +1013,7 @@ class TemplateAlias:
 
     @property
     def c_decl(self):
-        return f"alias {self.target_ctype} {self.fqtn}"
+        return f"typedef {self.target_ctype} {self.type_cname}"
 
 
 class TemplateMember:
