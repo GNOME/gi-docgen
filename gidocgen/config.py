@@ -119,6 +119,16 @@ class GIDocConfig:
         source_location = self._config.get('source-location', {})
         return source_location.get('base_url', '')
 
+    @property
+    def theme_name(self):
+        theme = self._config.get('theme', {})
+        return theme.get('name', '')
+
+    @property
+    def show_index_summary(self):
+        theme = self._config.get('theme', {})
+        return theme.get('show_index_summary', False)
+
 
 class GITemplateConfig:
     """Load and represent the template configuration"""

@@ -116,14 +116,21 @@
   {% if elements|length > 0 %}
   <section>
     <div class="toggle-wrapper default-hide">
-      <h4 id="{{ section_id }}">{{ section_title }}</h4>
+      <h4 id="{{ section_id }}" class="section-header">{{ section_title }}</h4>
 
       <div class="docblock">
-      {% for element in elements %}
-      {% if loop.first %}<ul>{% endif %}
-        <li><a href="{{ section_fragment }}.{{ element.name }}.html">{{ element.name }}</a></li>
-      {% if loop.last %}</ul>{% endif %}
-      {% endfor %}
+        <table style="display:block;">
+          <tbody>
+          {% for element in elements %}
+          <tr class="section-item">
+            <td><a title="{{ element.name }}" href="{{ section_fragment }}.{{ element.name }}.html">{{ element.name }}</a></td>
+            {% if CONFIG.show_index_summary %}
+            <td class="docblock-summary">{{ element.summary }}</td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
