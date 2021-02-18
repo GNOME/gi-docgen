@@ -1090,11 +1090,14 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
     type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
     vfunc_tmpl = jinja_env.get_template(theme_config.vfunc_template)
 
+    template_classes = []
+
     for cls in all_classes:
         class_file = os.path.join(output_dir, f"class.{cls.name}.html")
         log.info(f"Creating class file for {namespace.name}.{cls.name}: {class_file}")
 
         tmpl = TemplateClass(namespace, cls)
+        template_classes.append(tmpl)
 
         with open(class_file, "w") as out:
             content = class_tmpl.render({
@@ -1189,6 +1192,8 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     'type_func': type_func,
                 }))
 
+    return template_classes
+
 
 def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all_interfaces):
     namespace = repository.namespace
@@ -1201,11 +1206,14 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
     type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
     vfunc_tmpl = jinja_env.get_template(theme_config.vfunc_template)
 
+    template_interfaces = []
+
     for iface in all_interfaces:
         iface_file = os.path.join(output_dir, f"iface.{iface.name}.html")
         log.info(f"Creating interface file for {namespace.name}.{iface.name}: {iface_file}")
 
         tmpl = TemplateInterface(namespace, iface)
+        template_interfaces.append(tmpl)
 
         with open(iface_file, "w") as out:
             out.write(iface_tmpl.render({
@@ -1286,6 +1294,8 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     'type_func': type_func,
                 }))
 
+    return template_interfaces
+
 
 def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enums):
     namespace = repository.namespace
@@ -1293,11 +1303,14 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
     enum_tmpl = jinja_env.get_template(theme_config.enum_template)
     type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
 
+    template_enums = []
+
     for enum in all_enums:
         enum_file = os.path.join(output_dir, f"enum.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
         tmpl = TemplateEnum(namespace, enum)
+        template_enums.append(tmpl)
 
         with open(enum_file, "w") as out:
             out.write(enum_tmpl.render({
@@ -1317,6 +1330,8 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
                     'class': tmpl,
                     'type_func': type_func,
                 }))
+
+    return template_enums
 
 
 def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_enums):
@@ -1325,11 +1340,14 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
     enum_tmpl = jinja_env.get_template(theme_config.flags_template)
     type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
 
+    template_bitfields = []
+
     for enum in all_enums:
         enum_file = os.path.join(output_dir, f"flags.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
         tmpl = TemplateEnum(namespace, enum)
+        template_bitfields.append(tmpl)
 
         with open(enum_file, "w") as out:
             out.write(enum_tmpl.render({
@@ -1349,6 +1367,8 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
                     'class': tmpl,
                     'type_func': type_func,
                 }))
+
+    return template_bitfields
 
 
 def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_enums):
@@ -1357,11 +1377,14 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
     enum_tmpl = jinja_env.get_template(theme_config.error_template)
     type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
 
+    template_domains = []
+
     for enum in all_enums:
         enum_file = os.path.join(output_dir, f"error.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
         tmpl = TemplateEnum(namespace, enum)
+        template_domains.append(tmpl)
 
         with open(enum_file, "w") as out:
             out.write(enum_tmpl.render({
@@ -1382,17 +1405,22 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
                     'type_func': type_func,
                 }))
 
+    return template_domains
+
 
 def _gen_constants(config, theme_config, output_dir, jinja_env, repository, all_constants):
     namespace = repository.namespace
 
     const_tmpl = jinja_env.get_template(theme_config.constant_template)
 
+    template_constants = []
+
     for const in all_constants:
         const_file = os.path.join(output_dir, f"const.{const.name}.html")
         log.info(f"Creating constant file for {namespace.name}.{const.name}: {const_file}")
 
         tmpl = TemplateConstant(namespace, const)
+        template_constants.append(tmpl)
 
         with open(const_file, "w") as out:
             out.write(const_tmpl.render({
@@ -1400,6 +1428,8 @@ def _gen_constants(config, theme_config, output_dir, jinja_env, repository, all_
                 'namespace': namespace,
                 'constant': tmpl,
             }))
+
+    return template_constants
 
 
 def _gen_aliases(config, theme_config, output_dir, jinja_env, repository, all_aliases):
@@ -1409,11 +1439,14 @@ def _gen_aliases(config, theme_config, output_dir, jinja_env, repository, all_al
     method_tmpl = jinja_env.get_template(theme_config.method_template)
     type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
 
+    template_aliases = []
+
     for alias in all_aliases:
         alias_file = os.path.join(output_dir, f"alias.{alias.name}.html")
         log.info(f"Creating alias file for {namespace.name}.{alias.name}: {alias_file}")
 
         tmpl = TemplateAlias(namespace, alias)
+        template_aliases.append(tmpl)
 
         with open(alias_file, "w") as out:
             content = alias_tmpl.render({
@@ -1460,6 +1493,8 @@ def _gen_aliases(config, theme_config, output_dir, jinja_env, repository, all_al
                     'type_func': type_func,
                 }))
 
+    return template_aliases
+
 
 def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_records):
     namespace = repository.namespace
@@ -1468,11 +1503,14 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
     method_tmpl = jinja_env.get_template(theme_config.method_template)
     type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
 
+    template_records = []
+
     for record in all_records:
         record_file = os.path.join(output_dir, f"struct.{record.name}.html")
         log.info(f"Creating record file for {namespace.name}.{record.name}: {record_file}")
 
         tmpl = TemplateRecord(namespace, record)
+        template_records.append(tmpl)
 
         with open(record_file, "w") as out:
             content = record_tmpl.render({
@@ -1519,6 +1557,8 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
                     'type_func': type_func,
                 }))
 
+    return template_records
+
 
 def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_unions):
     namespace = repository.namespace
@@ -1527,11 +1567,14 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
     method_tmpl = jinja_env.get_template(theme_config.method_template)
     type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
 
+    template_unions = []
+
     for union in all_unions:
         union_file = os.path.join(output_dir, f"union.{union.name}.html")
         log.info(f"Creating union file for {namespace.name}.{union.name}: {union_file}")
 
         tmpl = TemplateUnion(namespace, union)
+        template_unions.append(tmpl)
 
         with open(union_file, "w") as out:
             content = union_tmpl.render({
@@ -1578,17 +1621,22 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
                     'type_func': type_func,
                 }))
 
+    return template_unions
+
 
 def _gen_functions(config, theme_config, output_dir, jinja_env, repository, all_functions):
     namespace = repository.namespace
 
     func_tmpl = jinja_env.get_template(theme_config.func_template)
 
+    template_functions = []
+
     for func in all_functions:
         func_file = os.path.join(output_dir, f"func.{func.name}.html")
         log.info(f"Creating function file for {namespace.name}.{func.name}: {func_file}")
 
         tmpl = TemplateFunction(namespace, func)
+        template_functions.append(tmpl)
 
         with open(func_file, "w") as out:
             content = func_tmpl.render({
@@ -1598,6 +1646,8 @@ def _gen_functions(config, theme_config, output_dir, jinja_env, repository, all_
             })
 
             out.write(content)
+
+    return template_functions
 
 
 def _gen_callbacks(config, theme_config, output_dir, jinja_env, repository, all_callbacks):
@@ -1605,11 +1655,14 @@ def _gen_callbacks(config, theme_config, output_dir, jinja_env, repository, all_
 
     func_tmpl = jinja_env.get_template(theme_config.func_template)
 
+    template_callbacks = []
+
     for func in all_callbacks:
         func_file = os.path.join(output_dir, f"callback.{func.name}.html")
         log.info(f"Creating callback file for {namespace.name}.{func.name}: {func_file}")
 
         tmpl = TemplateCallback(namespace, func)
+        template_callbacks.append(tmpl)
 
         with open(func_file, "w") as out:
             content = func_tmpl.render({
@@ -1619,6 +1672,8 @@ def _gen_callbacks(config, theme_config, output_dir, jinja_env, repository, all_
             })
 
             out.write(content)
+
+    return template_callbacks
 
 
 def _gen_content_files(config, theme_config, content_dir, output_dir, jinja_env, namespace):
@@ -1738,6 +1793,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
 
     log.info(f"Generating references for: {gen_indices}")
 
+    template_symbols = {}
     for section in gen_indices:
         generator = all_indices.get(section, None)
         if generator is None:
@@ -1749,7 +1805,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
             log.debug(f"No symbols for section {section}")
             continue
 
-        generator(config, theme_config, ns_dir, jinja_env, repository, s)
+        template_symbols[section] = generator(config, theme_config, ns_dir, jinja_env, repository, s)
 
     ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
     ns_file = os.path.join(ns_dir, "index.html")
@@ -1759,7 +1815,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
             "CONFIG": config,
             "repository": repository,
             "namespace": namespace,
-            "symbols": symbols,
+            "symbols": template_symbols,
             "content_files": content_files,
         }))
 
