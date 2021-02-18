@@ -77,6 +77,10 @@ class GirParser:
         if repository is None:
             log.error(f"Could not parse GIR {girfile}")
         else:
+            if isinstance(girfile, str):
+                repository.girfile = girfile
+            else:
+                repository.girfile = girfile.name
             self._repository = repository
             self._repository.resolve_empty_ctypes()
             self._repository.resolve_class_ancestors()
@@ -134,19 +138,21 @@ class GirParser:
         if self._dependencies.get(str(include), None) is not None:
             log.debug(f"Dependency {include} already parsed")
             return
-        repository = None
+        found = False
         for base_path in self._search_paths:
             girfile = os.path.join(base_path, f"{include}.gir")
             if os.path.exists(girfile) and os.path.isfile(girfile):
                 log.debug(f"Loading GIR for dependency {include} at {girfile}")
                 tree = ET.parse(girfile)
                 repository = self._parse_tree(tree.getroot())
-                break
-        if repository is None:
+                if repository is not None:
+                    repository.girfile = girfile
+                    ns = repository.namespace
+                    self._dependencies[str(ns)] = repository
+                    found = True
+                    break
+        if not found:
             log.error(f"Could not find GIR dependency in the search paths: {include}")
-        else:
-            ns = repository.namespace
-            self._dependencies[str(ns)] = repository
 
     def _parse_tree(self, root: ET.Element) -> ast.Repository:
         assert root.tag == _corens('repository')

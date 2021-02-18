@@ -794,6 +794,7 @@ class Repository:
         self.c_includes: T.List[CInclude] = []
         self.types: T.Mapping[str, Type] = {}
         self._namespaces: T.List[Namespace] = []
+        self.girfile: T.Optional[str] = None
 
     def add_namespace(self, ns: Namespace) -> None:
         self._namespaces.append(ns)
