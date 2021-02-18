@@ -101,6 +101,27 @@
       </div>
     </summary>
 
+    {% if class.ancestors %}
+    <div class="toggle-wrapper ancestors">
+      <h4 id="ancestors">
+        Ancestors
+        <a href="#ancestors" class="anchor"></a>
+      </h4>
+
+      <div class="docblock">
+        <ul>
+        {% for ancestor in class.ancestors %}
+          {% if ancestor.namespace == namespace.name %}
+          <li class="class"><a href="class.{{ ancestor.name }}.html" title="{{ ancestor.name }}">{{ ancestor.type_cname }}</a></li>
+          {% else %}
+          <li class="class">{{ ancestor.type_cname }}</a></li>
+          {% endif %}
+        {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
     {% if class.interfaces %}
     <div class="toggle-wrapper implements">
       <h4 id="implements">
@@ -111,7 +132,11 @@
       <div class="docblock">
         <ul>
         {% for iface in class.interfaces %}
-          <li class="interface"><a href="iface.{{ iface.name }}.html">{{ iface.fqtn }}</a></li>
+          {% if iface.namespace == namespace.name %}
+          <li class="interface"><a href="iface.{{ iface.name }}.html" title="{{ iface.name }}">{{ iface.type_cname }}</a></li>
+          {% else %}
+          <li class="interface">{{ iface.type_cname }}</a></li>
+          {% endif %}
         {% endfor %}
         </ul>
       </div>

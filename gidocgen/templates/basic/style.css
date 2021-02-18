@@ -639,6 +639,7 @@ kbd {
 .properties h6,
 .type-funcs h6,
 .implements a,
+.ancestors a,
 .sidebar .links a,
 #classes + .docblock a,
 #interfaces + .docblock a,
