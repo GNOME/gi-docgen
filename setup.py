@@ -21,9 +21,19 @@ entries = {
 
 packages = [
     'gidocgen',
+    'gidocgen.gir',
 ]
 
-package_data = {}
+package_data = {
+    'gidocgen': [
+        "templates/basic/basic.toml",
+        "templates/basic/*.css",
+        "templates/basic/*.html",
+        "templates/basic/*.woff2",
+        "templates/basic/*.woff",
+        "templates/basic/*.txt",
+    ],
+}
 
 data_files = []
 
