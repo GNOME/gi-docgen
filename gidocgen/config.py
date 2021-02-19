@@ -20,71 +20,63 @@ class GIDocConfig:
             except toml.TomlDecodeError as err:
                 log.error(f"Invalid configuration file: {self._config_file}: {err}")
 
-    def get_templates_dir(self, default=None):
-        theme = self._config.get('theme', {})
-        return theme.get('templates_dir', default)
-
-    def get_theme_name(self, default=None):
-        theme = self._config.get('theme', {})
-        return theme.get('name', default)
-
-    def get_library_name(self, default=None):
-        library = self._config.get('library', {})
-        return library.get('name', default)
-
-    def get_website_url(self, default=None):
-        library = self._config.get('library', {})
-        return library.get('website_url', default)
-
-    def get_logo_url(self, default=None):
-        library = self._config.get('library', {})
-        return library.get('logo_url', default)
-
-    def get_description(self, default=None):
-        library = self._config.get('library', {})
-        return library.get('description', default)
+    @property
+    def library(self):
+        return self._config.get('library', {})
 
     @property
-    def namespace(self):
-        library = self._config.get('library', {})
-        namespace = library['namespace']
-        version = library['version']
-        return f"{namespace}-{version}"
+    def extra(self):
+        return self._config.get('extra', {})
+
+    @property
+    def theme(self):
+        return self._config.get('theme', {})
+
+    def get_templates_dir(self, default=None):
+        return self.theme.get('templates_dir', default)
+
+    def get_theme_name(self, default=None):
+        return self.theme.get('name', default)
+
+    def get_library_name(self, default=None):
+        return self.library.get('name', default)
+
+    def get_website_url(self, default=None):
+        return self.library.get('website_url', default)
+
+    def get_logo_url(self, default=None):
+        return self.library.get('logo_url', default)
+
+    def get_description(self, default=None):
+        return self.library.get('description', default)
 
     @property
     def version(self):
-        library = self._config.get('library', {})
-        return library.get('version', 'Unknown')
+        return self.library.get('version', 'Unknown')
 
     @property
     def authors(self):
-        library = self._config.get('library', {})
-        return library.get('authors', 'Unknown authors')
+        return self.library.get('authors', 'Unknown authors')
 
     @property
     def license(self):
-        library = self._config.get('library', {})
-        return library.get('license', 'All rights reserved')
+        return self.library.get('license', 'All rights reserved')
 
     @property
     def website_url(self):
-        library = self._config.get('library', {})
-        return library.get('website_url', '')
+        return self.library.get('website_url', '')
 
     @property
     def browse_url(self):
-        library = self._config.get('library', {})
-        return library.get('browse_url', '')
+        return self.library.get('browse_url', '')
 
     @property
     def logo_url(self):
-        library = self._config.get('library', {})
-        return library.get('logo_url', '')
+        return self.library.get('logo_url', '')
 
     @property
     def description(self):
-        library = self._config.get('library', {})
-        return library.get('description', '')
+        return self.library.get('description', '')
 
     @property
     def dependencies(self):
@@ -105,14 +97,16 @@ class GIDocConfig:
         return retval
 
     @property
+    def devhelp(self):
+        return self.library.get('devhelp', False)
+
+    @property
     def content_files(self):
-        extra = self._config.get('extra', {})
-        return extra.get('content_files', [])
+        return self.extra.get('content_files', [])
 
     @property
     def content_images(self):
-        extra = self._config.get('extra', {})
-        return extra.get('content_images', [])
+        return self.extra.get('content_images', [])
 
     @property
     def source_location_url(self):
@@ -121,13 +115,11 @@ class GIDocConfig:
 
     @property
     def theme_name(self):
-        theme = self._config.get('theme', {})
-        return theme.get('name', '')
+        return self.theme.get('name', '')
 
     @property
     def show_index_summary(self):
-        theme = self._config.get('theme', {})
-        return theme.get('show_index_summary', False)
+        return self.theme.get('show_index_summary', False)
 
 
 class GITemplateConfig:
