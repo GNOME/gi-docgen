@@ -203,7 +203,11 @@ class LinkGenerator:
                 self._func = f"{self._ns_lower}_{self._func_name}()"
         elif self._fragment == 'func':
             self._func_name = self._rest
-            self._func = f"{self._ns_lower}_{self._rest}()"
+            t = self._namespace.find_function(self._func_name)
+            if t is not None:
+                self._func = f"{t.identifier}()"
+            else:
+                self._func = f"{self._ns_lower}_{self._rest}()"
         else:
             log.warning(f"Unknown fragment '{self._fragment}' in link [{self._fragment}@{self._endpoint}]")
 
