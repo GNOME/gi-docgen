@@ -8,6 +8,8 @@ import os
 import shutil
 import sys
 
+import xml.etree.ElementTree as etree
+
 from . import config, gir, log, utils
 
 
@@ -42,6 +44,20 @@ SIGNAL_WHEN = {
     'first': "The default handler is called before the handlers added via `g_signal_connect()`",
     'last': "The default handler is called after the handlers added via `g_signal_connect()`",
     'cleanup': "The default handler is called after the handlers added via `g_signal_connect_after()`",
+}
+
+FRAGMENT = {
+    "aliases": "alias",
+    "bitfields": "flags",
+    "callbacks": "cb",
+    "classes": "class",
+    "constants": "const",
+    "domains": "error",
+    "enums": "enum",
+    "functions": "func",
+    "interfaces": "iface",
+    "structs": "struct",
+    "unions": "union",
 }
 
 
@@ -1772,6 +1788,82 @@ def _gen_content_images(config, content_dir, output_dir):
     return content_images
 
 
+def gen_devhelp(config, repository, namespace, symbols, content_files):
+    book = etree.Element('book')
+    book.set("xmlns", "http://www.devhelp.net/book")
+    book.set("title", f"{namespace.name} Reference Manual")
+    book.set("link", "index.html")
+    book.set("author", f"{config.authors}")
+    book.set("name", f"{namespace.name}")
+    book.set("version", "2")
+    book.set("language", "c")
+
+    chapters = etree.SubElement(book, 'chapters')
+
+    for f in content_files:
+        sub = etree.SubElement(chapters, 'sub')
+        sub.set("name", f["title"])
+        sub.set("link", f["href"])
+
+    for section, types in symbols.items():
+        if len(types) == 0:
+            continue
+
+        sub = etree.SubElement(chapters, "sub")
+        sub.set("name", section.capitalize())
+
+        for t in types:
+            sub_section = etree.SubElement(sub, "sub")
+            sub_section.set("name", t.name)
+            sub_section.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+
+    functions = etree.SubElement(book, "functions")
+    for section, types in symbols.items():
+        if len(types) == 0:
+            continue
+
+        for t in types:
+            if section in ["bitfields", "domains", "enums"]:
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "enum")
+                keyword.set("name", f"enum {t.type_cname}")
+                keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+                continue
+
+            if section in ["functions"]:
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "function")
+                keyword.set("name", f"{t.identifier} ()")
+                keyword.set("link", f"func.{t.name}.html")
+                continue
+
+            if section in ["aliases", "classes", "interfaces", "structs", "unions"]:
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "struct")
+                keyword.set("name", f"struct {t.type_cname}")
+                keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+
+            for m in getattr(t, "methods", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "function")
+                keyword.set("name", f"{m.identifier} ()")
+                keyword.set("link", f"method.{t.name}.{m.name}.html")
+
+            for p in getattr(t, "properties", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "property")
+                keyword.set("name", f"The {t.type_cname}:{p.name} property")
+                keyword.set("link", f"property.{t.name}.{p.name}.html")
+
+            for s in getattr(t, "signals", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "signal")
+                keyword.set("name", f"The {t.type_cname}::{s.name} signal")
+                keyword.set("link", f"signal.{t.name}.{s.name}.html")
+
+    return etree.ElementTree(book)
+
+
 def gen_reference(config, options, repository, templates_dir, theme_config, content_dir, output_dir):
     theme_dir = os.path.join(templates_dir, theme_config.name.lower())
     log.debug(f"Loading jinja templates from {theme_dir}")
@@ -1822,6 +1914,8 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
 
     if options.sections == [] or options.sections == ["all"]:
         gen_indices = list(all_indices.keys())
+    elif options.sections == ["none"]:
+        gen_indices = []
     else:
         gen_indices = options.sections
 
@@ -1870,6 +1964,12 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         dst_dir = os.path.dirname(dst)
         os.makedirs(dst_dir, exist_ok=True)
         shutil.copyfile(src, dst)
+
+    if config.devhelp:
+        devhelp_file = os.path.join(ns_dir, f"{namespace.name}-{namespace.version}.devhelp2")
+        log.info(f"Creating DevHelp file for {namespace.name}.{namespace.version}: {devhelp_file}")
+        res = gen_devhelp(config, repository, namespace, template_symbols, content_files)
+        res.write(devhelp_file, encoding="UTF-8")
 
 
 def add_args(parser):
