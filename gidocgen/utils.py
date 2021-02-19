@@ -137,11 +137,16 @@ class LinkGenerator:
         if self._endpoint.startswith(f"{self._namespace.name}."):
             self._ns = self._namespace.name
             self._rest = self._endpoint[len(self._ns) + 1:]
+            self._external = False
         elif '.' in self._endpoint:
             self._ns, self._rest = self._endpoint.split('.', maxsplit=1)
+            self._external = True
         else:
             self._ns = self._namespace.name
             self._rest = self._endpoint
+            self._external = False
+
+        self._ns_lower = self._ns.lower()
 
         if self._fragment == 'id':
             t = self._namespace.find_symbol(self._endpoint)
@@ -165,7 +170,7 @@ class LinkGenerator:
             if t is not None:
                 self._type = t.ctype
             else:
-                self._type = f"{self._namespace.identifier_prefix[0]}{self._name}"
+                self._type = f"{self._ns}{self._name}"
         elif self._fragment == 'property':
             try:
                 self._name, self._prop_name = self._rest.split(':')
@@ -175,7 +180,7 @@ class LinkGenerator:
             if t is not None:
                 self._type = t.ctype
             else:
-                self._type = f"{self._namespace.identifier_prefix[0]}{self._name}"
+                self._type = f"{self._ns}{self._name}"
         elif self._fragment == 'signal':
             try:
                 self._name, self._signal_name = self._rest.split('::')
@@ -185,7 +190,7 @@ class LinkGenerator:
             if t is not None:
                 self._type = t.ctype
             else:
-                self._type = f"{self._namespace.identifier_prefix[0]}{self._name}"
+                self._type = f"{self._ns}{self._name}"
         elif self._fragment in ['ctor', 'method']:
             try:
                 self._name, self._func_name = self._rest.split('.')
@@ -195,10 +200,10 @@ class LinkGenerator:
             if t is not None:
                 self._func = f"{self._namespace.symbol_prefix[0]}_{t.symbol_prefix}_{self._func_name}()"
             else:
-                self._func = f"{self._namespace.symbol_prefix[0]}_{self._func_name}()"
+                self._func = f"{self._ns_lower}_{self._func_name}()"
         elif self._fragment == 'func':
             self._func_name = self._rest
-            self._func = f"{self._namespace.symbol_prefix[0]}_{self._rest}()"
+            self._func = f"{self._ns_lower}_{self._rest}()"
         else:
             log.warning(f"Unknown fragment '{self._fragment}' in link [{self._fragment}@{self._endpoint}]")
 
@@ -217,7 +222,9 @@ class LinkGenerator:
 
     @property
     def href(self):
-        if self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
+        if self._external:
+            return None
+        elif self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
             return f"{self._fragment}.{self._name}.html"
         elif self._fragment == 'property':
             return f"property.{self._name}.{self._prop_name}.html"
