@@ -125,6 +125,7 @@ class LinkGenerator:
         self._namespace = kwargs.get('namespace')
         self._fragment = kwargs.get('fragment', '')
         self._endpoint = kwargs.get('endpoint', '')
+        self._no_link = kwargs.get('no_link', False)
 
         assert self._namespace is not None
 
@@ -201,19 +202,40 @@ class LinkGenerator:
         else:
             log.warning(f"Unknown fragment '{self._fragment}' in link [{self._fragment}@{self._endpoint}]")
 
-    def __str__(self):
+    @property
+    def text(self):
         if self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
-            return f"[`{self._type}`]({self._fragment}.{self._name}.html)"
+            return f"`{self._type}`"
         elif self._fragment == 'property':
-            return f"[`{self._type}:{self._prop_name}`](property.{self._name}.{self._prop_name}.html)"
+            return f"`{self._type}:{self._prop_name}`"
         elif self._fragment == 'signal':
-            return f"[`{self._type}::{self._signal_name}`](signal.{self._name}.{self._signal_name}.html)"
-        elif self._fragment in ['ctor', 'method']:
-            return f"[`{self._func}`]({self._fragment}.{self._name}.{self._func_name}.html)"
-        elif self._fragment == 'func':
-            return f"[`{self._func}`](func.{self._func_name}.html)"
+            return f"`{self._type}::{self._signal_name}`"
+        elif self._fragment in ['ctor', 'func', 'method']:
+            return f"`{self._func}`"
         else:
             return f"`{self._ns}.{self._rest}`"
+
+    @property
+    def href(self):
+        if self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
+            return f"{self._fragment}.{self._name}.html"
+        elif self._fragment == 'property':
+            return f"property.{self._name}.{self._prop_name}.html"
+        elif self._fragment == 'signal':
+            return f"signal.{self._name}.{self._signal_name}.html"
+        elif self._fragment in ['ctor', 'method']:
+            return f"{self._fragment}.{self._name}.{self._func_name}.html"
+        elif self._fragment == 'func':
+            return f"func.{self._func_name}.html"
+        else:
+            return None
+
+    def __str__(self):
+        text = self.text
+        href = self.href
+        if self._no_link or href is None:
+            return text
+        return f"[{text}]({href})"
 
 
 def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
@@ -261,7 +283,7 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
             for m in LINK_RE.finditer(line, idx):
                 fragment = m.group('fragment')
                 endpoint = m.group('endpoint')
-                link = LinkGenerator(namespace=namespace, fragment=fragment, endpoint=endpoint)
+                link = LinkGenerator(namespace=namespace, fragment=fragment, endpoint=endpoint, no_link=summary)
                 start = m.start()
                 end = m.end()
                 left_pad = line[idx:start]
