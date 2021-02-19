@@ -642,6 +642,7 @@ kbd {
 .ancestors a,
 .sidebar .links a,
 #classes + .docblock a,
+#ancestors + .docblock a,
 #interfaces + .docblock a,
 #structs + .docblock a,
 #aliases + .docblock a,
