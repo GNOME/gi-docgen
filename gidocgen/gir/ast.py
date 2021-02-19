@@ -771,6 +771,9 @@ class Namespace:
     def find_interface(self, iface: str) -> T.Optional[Interface]:
         return self._interfaces.get(iface)
 
+    def find_function(self, func: str) -> T.Optional[Function]:
+        return self._functions.get(func)
+
     def find_real_type(self, name: str) -> T.Optional[Type]:
         if name in self._aliases:
             return self._aliases[name]
