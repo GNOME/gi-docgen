@@ -92,7 +92,7 @@ class TemplateConstant:
 
 
 class TemplateProperty:
-    def __init__(self, namespace, cls, prop):
+    def __init__(self, namespace, type_, prop):
         self.name = prop.name
         self.type_name = prop.target.name
         self.type_cname = prop.target.ctype
@@ -260,9 +260,9 @@ class TemplateReturnValue:
 
 
 class TemplateSignal:
-    def __init__(self, namespace, cls, signal):
+    def __init__(self, namespace, type_, signal):
         self.name = signal.name
-        self.class_type_cname = cls.type_cname
+        self.type_cname = type_.base_ctype
         self.description = "No description available."
         self.identifier = signal.name.replace("-", "_")
 
@@ -308,7 +308,7 @@ class TemplateSignal:
         else:
             res += [f"{self.return_value.type_cname}"]
         res += [f"{self.identifier} ("]
-        res += [f"  {self.class_type_cname} self,"]
+        res += [f"  {self.type_cname} self,"]
         for arg in self.arguments:
             res += [f"  {arg.type_cname} {arg.name},"]
         res += ["  gpointer user_data"]
@@ -317,7 +317,7 @@ class TemplateSignal:
 
 
 class TemplateMethod:
-    def __init__(self, namespace, cls, method):
+    def __init__(self, namespace, type_, method):
         self.name = method.name
         self.identifier = method.identifier
         self.description = "No description available."
@@ -655,22 +655,22 @@ class TemplateInterface:
         if len(interface.properties) != 0:
             self.properties = []
             for prop in interface.properties:
-                self.properties.append(TemplateProperty(namespace, self, prop))
+                self.properties.append(TemplateProperty(namespace, interface, prop))
 
         if len(interface.signals) != 0:
             self.signals = []
             for sig in interface.signals:
-                self.signals.append(TemplateSignal(namespace, self, sig))
+                self.signals.append(TemplateSignal(namespace, interface, sig))
 
         if len(interface.methods) != 0:
             self.methods = []
             for meth in interface.methods:
-                self.methods.append(TemplateMethod(namespace, self, meth))
+                self.methods.append(TemplateMethod(namespace, interface, meth))
 
         if len(interface.virtual_methods) != 0:
             self.virtual_methods = []
             for vfunc in interface.virtual_methods:
-                self.virtual_methods.append(TemplateMethod(namespace, self, vfunc))
+                self.virtual_methods.append(TemplateMethod(namespace, interface, vfunc))
 
     @property
     def c_decl(self):
@@ -678,7 +678,7 @@ class TemplateInterface:
 
 
 class TemplateClass:
-    def __init__(self, namespace, cls):
+    def __init__(self, namespace, cls, recurse=True):
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{cls.symbol_prefix}"
         self.type_cname = cls.base_ctype
         self.link_prefix = "class"
@@ -714,19 +714,28 @@ class TemplateClass:
                 log.error(f"Unable to find parent {cls.parent} for class {cls.name}")
             self.parent_cname = parent.ctype
 
-        self.ancestors = []
-        for ancestor_type in cls.ancestors:
-            ancestor = namespace.find_class(ancestor_type.name)
-            if ancestor is not None:
-                tmpl = TemplateClass(namespace, ancestor)
-                self.ancestors.append(tmpl)
-            else:
-                self.ancestors.append({
-                    "namespace": ancestor_type.name.split('.')[0],
-                    "name": ancestor_type.name.split('.')[1],
-                    "fqtn": ancestor_type.name,
-                    "type_cname": ancestor_type.base_ctype,
-                })
+        if recurse:
+            self.ancestors = []
+            for ancestor_type in cls.ancestors:
+                ancestor = namespace.find_class(ancestor_type.name.split('.')[1])
+                # We don't use read Template objects, here, because it can be
+                # extremely expensive, unless we add a cache somewhere
+                if ancestor is not None:
+                    self.ancestors.append({
+                        "namespace": ancestor_type.name.split('.')[0],
+                        "name": ancestor_type.name.split('.')[1],
+                        "fqtn": ancestor_type.name,
+                        "type_cname": ancestor_type.base_ctype,
+                        "properties": [TemplateProperty(namespace, ancestor, p) for p in ancestor.properties],
+                        "signals": [TemplateSignal(namespace, ancestor, s) for s in ancestor.signals],
+                    })
+                else:
+                    self.ancestors.append({
+                        "namespace": ancestor_type.name.split('.')[0],
+                        "name": ancestor_type.name.split('.')[1],
+                        "fqtn": ancestor_type.name,
+                        "type_cname": ancestor_type.base_ctype,
+                    })
 
         self.class_name = cls.type_struct
 
@@ -775,12 +784,12 @@ class TemplateClass:
         if len(cls.properties) != 0:
             self.properties = []
             for prop in cls.properties:
-                self.properties.append(TemplateProperty(namespace, self, prop))
+                self.properties.append(TemplateProperty(namespace, cls, prop))
 
         if len(cls.signals) != 0:
             self.signals = []
             for sig in cls.signals:
-                self.signals.append(TemplateSignal(namespace, self, sig))
+                self.signals.append(TemplateSignal(namespace, cls, sig))
 
         if len(cls.constructors) != 0:
             self.ctors = []
@@ -790,7 +799,7 @@ class TemplateClass:
         if len(cls.methods) != 0:
             self.methods = []
             for meth in cls.methods:
-                self.methods.append(TemplateMethod(namespace, self, meth))
+                self.methods.append(TemplateMethod(namespace, cls, meth))
 
         if self.class_struct is not None:
             self.class_ctype = self.class_struct.ctype
@@ -807,10 +816,16 @@ class TemplateClass:
         if len(cls.implements) != 0:
             self.interfaces = []
             for iface_type in cls.implements:
-                iface = namespace.find_interface(iface_type.name)
+                iface = namespace.find_interface(iface_type.name.split('.')[1])
                 if iface is not None:
-                    tmpl = TemplateInterface(namespace, iface)
-                    self.interfaces.append(tmpl)
+                    self.interfaces.append({
+                        "namespace": iface_type.name.split('.')[0],
+                        "name": iface_type.name.split('.')[1],
+                        "fqtn": iface_type.name,
+                        "type_cname": iface_type.base_ctype,
+                        "properties": [TemplateProperty(namespace, iface, p) for p in iface.properties],
+                        "signals": [TemplateSignal(namespace, iface, s) for s in iface.signals],
+                    })
                 else:
                     self.interfaces.append({
                         "namespace": iface_type.name.split('.')[0],
@@ -822,7 +837,7 @@ class TemplateClass:
         if len(cls.virtual_methods) != 0:
             self.virtual_methods = []
             for vfunc in cls.virtual_methods:
-                self.virtual_methods.append(TemplateMethod(namespace, self, vfunc))
+                self.virtual_methods.append(TemplateMethod(namespace, cls, vfunc))
 
         if len(cls.functions) != 0:
             self.type_funcs = []
@@ -895,7 +910,7 @@ class TemplateRecord:
         if len(record.methods) != 0:
             self.methods = []
             for meth in record.methods:
-                self.methods.append(TemplateMethod(namespace, self, meth))
+                self.methods.append(TemplateMethod(namespace, record, meth))
 
         if len(record.functions) != 0:
             self.type_funcs = []
@@ -962,7 +977,7 @@ class TemplateUnion:
         if len(union.methods) != 0:
             self.methods = []
             for meth in union.methods:
-                self.methods.append(TemplateMethod(namespace, self, meth))
+                self.methods.append(TemplateMethod(namespace, union, meth))
 
         if len(union.functions) != 0:
             self.type_funcs = []
