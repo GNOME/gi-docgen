@@ -190,7 +190,6 @@
         </div>
       {% endfor %}
       </div>
-
     </div>
     {% endif %}
 
@@ -217,6 +216,34 @@
       {% endfor %}
       </div>
 
+      {% for ancestor in class.ancestors %}
+        {% if ancestor.namespace == namespace.name and ancestor.properties|length > 0%}
+        <div class="toggle-wrapper default-hide ancestor-properties">
+          <h5>Properties inherited from {{ ancestor.type_cname }}</h5>
+
+          <div class="docblock">
+          {% for property in ancestor.properties %}
+            <h6><a href="property.{{ ancestor.name }}.{{ property.name }}.html">{{ ancestor.fqtn }}:{{ property.name }}</a></h6>
+          {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+
+      {% for iface in class.interfaces %}
+        {% if iface.namespace == namespace.name and iface.properties|length > 0 %}
+        <div class="toggle-wrapper default-hide ancestor-properties">
+          <h5>Properties inherited from {{ iface.type_cname }}</h5>
+
+          <div class="docblock">
+          {% for property in iface.properties %}
+            <h6><a href="property.{{ iface.name }}.{{ property.name }}.html">{{ iface.fqtn }}:{{ property.name }}</a></h6>
+          {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+
     </div>
     {% endif %}
 
@@ -242,6 +269,34 @@
         </div>
       {% endfor %}
       </div>
+
+      {% for ancestor in class.ancestors %}
+        {% if ancestor.namespace == namespace.name and ancestor.properties|length > 0%}
+        <div class="toggle-wrapper default-hide ancestor-signals">
+          <h5>Signals inherited from {{ ancestor.type_cname }}</h5>
+
+          <div class="docblock">
+          {% for signal in ancestor.signals %}
+            <h6><a href="signal.{{ ancestor.name }}.{{ signal.name }}.html">{{ ancestor.fqtn }}::{{ signal.name }}</a></h6>
+          {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+
+      {% for iface in class.interfaces %}
+        {% if iface.namespace == namespace.name and iface.properties|length > 0 %}
+        <div class="toggle-wrapper default-hide ancestor-signals">
+          <h5>Signals inherited from {{ iface.type_cname }}</h5>
+
+          <div class="docblock">
+          {% for signal in iface.signals %}
+            <h6><a href="signal.{{ iface.name }}.{{ signal.name }}.html">{{ iface.fqtn }}::{{ signal.name }}</a></h6>
+          {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
 
     </div>
     {% endif %}
