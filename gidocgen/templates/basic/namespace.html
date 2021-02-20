@@ -7,38 +7,27 @@
   <meta name="og:description" content="Reference for {{ namespace.name }}-{{ namespace.version }}"/>
 {% endblock %}
 
-{% block navbar %}
-<nav class="sidebar">
-  {% if CONFIG.logo_url %}
-  <div class="section">
-    <img src="{{ CONFIG.logo_url }}" class="logo"/>
-  </div>
+{% block sidebar %}
+<div class="section">
+  <h5>Sections</h5>
+  <div class="links">
+  {% for symbol in symbols %}
+  {% if symbols[symbol]|length > 0 %}
+    <a href="#{{ symbol }}">{{ symbol|capitalize }}</a>
   {% endif %}
-  <div class="section namespace">
-    <h3><a href="index.html">{{ namespace.name }}</a></h3>
-    <p>Version: {{ namespace.version }}</p>
+  {% endfor %}
   </div>
-  <div class="section">
-    <h5>Sections</h5>
-    <div class="links">
-    {% for symbol in symbols %}
-    {% if symbols[symbol]|length > 0 %}
-      <a href="#{{ symbol }}">{{ symbol|capitalize }}</a>
-    {% endif %}
-    {% endfor %}
-    </div>
+</div>
+{% if CONFIG.dependencies|length > 0 %}
+<div class="section">
+  <h5>Dependencies</h5>
+  <div class="links">
+  {% for gir_name, dep in CONFIG.dependencies.items() %}
+    <a href="{{ dep.docs_url }}" class="external">{{ dep.name }}</a>
+  {% endfor %}
   </div>
-  {% if CONFIG.dependencies|length > 0 %}
-  <div class="section">
-    <h5>Dependencies</h5>
-    <div class="links">
-    {% for gir_name, dep in CONFIG.dependencies.items() %}
-      <a href="{{ dep.docs_url }}" class="external">{{ dep.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-  {% endif %}
-</nav>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block content %}

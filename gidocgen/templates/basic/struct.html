@@ -21,28 +21,16 @@
 {% endmacro %}
 
 {% block sidebar %}
-<nav class="sidebar">
-  {% if CONFIG.logo_url %}
-  <div class="section">
-    <img src="{{ CONFIG.logo_url }}" class="logo"/>
+<div class="section">
+  <h5>Type</h5>
+  <div class="links">
+    <a class="current" href="struct.{{ struct.name }}.html#description">{{ struct.name }}</a>
   </div>
-  {% endif %}
-  <div class="section namespace">
-    <h3><a href="index.html">{{ namespace.name }}</a></h3>
-    <p>Version: {{ namespace.version }}</p>
-  </div>
+</div>
 
-  <div class="section">
-    <h5>Struct</h5>
-    <div class="links">
-      <a class="current" href="struct.{{ struct.name }}.html#description">{{ struct.name }}</a>
-    </div>
-  </div>
-
-  {{ sidebar_block(struct.ctors, struct.name, "Constructors", "ctor", "ctor") }}
-  {{ sidebar_block(struct.methods, struct.name, "Instance methods", "method", "method") }}
-  {{ sidebar_block(struct.type_funcs, struct.name, "Type functions", "func", "type_func") }}
-</nav>
+{{ sidebar_block(struct.ctors, struct.name, "Constructors", "ctor", "ctor") }}
+{{ sidebar_block(struct.methods, struct.name, "Instance methods", "method", "method") }}
+{{ sidebar_block(struct.type_funcs, struct.name, "Type functions", "func", "type_func") }}
 {% endblock %}
 
 {% block content %}

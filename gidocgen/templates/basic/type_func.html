@@ -8,31 +8,20 @@
 {% endblock %}
 
 {% block sidebar %}
-<nav class="sidebar">
-  {% if CONFIG.logo_url %}
-  <div class="section">
-    <img src="{{ CONFIG.logo_url }}" class="logo"/>
+<div class="section">
+  <h5>Type</h5>
+  <div class="links">
+    <a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>
   </div>
-  {% endif %}
-  <div class="section namespace">
-    <h3><a href="index.html">{{ namespace.name }}</a></h3>
-    <p>Version: {{ namespace.version }}</p>
+</div>
+<div class="section">
+  <h5>Type functions</h5>
+  <div class="links">
+  {% for m in class.type_funcs %}
+    <a class="method{% if type_func.name == m.name %} current{% endif %}" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
+  {% endfor %}
   </div>
-  <div class="section">
-    <h5>Type</h5>
-    <div class="links">
-      <a href="{{ class.link_prefix }}.{{ class.name }}.html">{{ class.name }}</a>
-    </div>
-  </div>
-  <div class="section">
-    <h5>Type functions</h5>
-    <div class="links">
-    {% for m in class.type_funcs %}
-      <a class="method{% if type_func.name == m.name %} current{% endif %}" href="type_func.{{ class.name }}.{{ m.name }}.html">{{ m.name }}</a>
-    {% endfor %}
-    </div>
-  </div>
-</nav>
+</div>
 {% endblock %}
 
 {% block content %}
