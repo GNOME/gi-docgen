@@ -330,7 +330,7 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
     else:
         text = md.convert("\n".join(processed_text))
 
-    return Markup(typogrify(text))
+    return Markup(typogrify(text, ignore_tags=['h1', 'h2', 'h3', 'h4']))
 
 
 def code_highlight(text, language='c'):
