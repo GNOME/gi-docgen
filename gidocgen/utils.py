@@ -112,16 +112,32 @@ def process_language(lang):
     return LANGUAGE_MAP[language.lower()]
 
 
-class LinkParseError(Exception):
-    def __init__(self, fragment=None, rest=None, message="Unable to parse link"):
+class LinkParseError:
+    def __init__(self, line=None, start=0, end=0, fragment=None, rest=None, message="Unable to parse link"):
+        self.line = line
+        self.start = start
+        self.end = end
         self.fragment = fragment
         self.rest = rest
         self.message = message
-        super().__init__(f"{self.message}: [{self.fragment}@{self.rest}]")
+
+    def __str__(self):
+        if self.line is not None:
+            msg = [self.message]
+            msg.append(self.line)
+            err_line = ['^'.rjust(self.start + 1, ' ')]
+            err_line += [''.join(['~' for x in range(self.end - self.start - 1)])]
+            msg.append("".join(err_line))
+            return "\n".join(msg)
+        else:
+            return f"{self.message}: [{self.fragment}@{self.rest}]"
 
 
 class LinkGenerator:
     def __init__(self, **kwargs):
+        self._line = kwargs.get('line')
+        self._start = kwargs.get('start', 0)
+        self._end = kwargs.get('end', 0)
         self._namespace = kwargs.get('namespace')
         self._fragment = kwargs.get('fragment', '')
         self._endpoint = kwargs.get('endpoint', '')
@@ -174,43 +190,55 @@ class LinkGenerator:
         elif self._fragment == 'property':
             try:
                 self._name, self._prop_name = self._rest.split(':')
+                t = self._namespace.find_real_type(self._name)
+                if t is not None and t.base_ctype is not None:
+                    self._type = t.base_ctype
+                else:
+                    self._type = f"{self._ns}{self._name}"
             except ValueError:
-                raise LinkParseError(self._fragment, self._endpoint, "Unable to parse property link")
-            t = self._namespace.find_real_type(self._name)
-            if t is not None and t.base_ctype is not None:
-                self._type = t.base_ctype
-            else:
-                self._type = f"{self._ns}{self._name}"
+                self._fragment = None
+                log.warning(str(LinkParseError(self._line, self._start, self._end,
+                                               self._fragment, self._endpoint,
+                                               "Unable to parse property link")))
         elif self._fragment == 'signal':
             try:
                 self._name, self._signal_name = self._rest.split('::')
+                t = self._namespace.find_real_type(self._name)
+                if t is not None and t.base_ctype is not None:
+                    self._type = t.base_ctype
+                else:
+                    self._type = f"{self._ns}{self._name}"
             except ValueError:
-                raise LinkParseError(self._fragment, self._endpoint, "Unable to parse signal link")
-            t = self._namespace.find_real_type(self._name)
-            if t is not None and t.base_ctype is not None:
-                self._type = t.base_ctype
-            else:
-                self._type = f"{self._ns}{self._name}"
+                self._fragment = None
+                log.warning(str(LinkParseError(self._line, self._start, self._end,
+                                               self._fragment, self._endpoint,
+                                               "Unable to parse signal link")))
         elif self._fragment in ['ctor', 'method']:
             try:
                 self._name, self._func_name = self._rest.split('.')
+                t = self._namespace.find_real_type(self._name)
+                if t is not None:
+                    self._func = f"{self._namespace.symbol_prefix[0]}_{t.symbol_prefix}_{self._func_name}()"
+                else:
+                    self._func = f"{self._ns_lower}_{self._func_name}()"
             except ValueError:
-                raise LinkParseError(self._fragment, self._endpoint, "Unable to parse method link")
-            t = self._namespace.find_real_type(self._name)
-            if t is not None:
-                self._func = f"{self._namespace.symbol_prefix[0]}_{t.symbol_prefix}_{self._func_name}()"
-            else:
-                self._func = f"{self._ns_lower}_{self._func_name}()"
+                self._fragment = None
+                log.warning(str(LinkParseError(self._line, self._start, self._end,
+                                               self._fragment, self._endpoint,
+                                               "Unable to parse method link")))
         elif self._fragment == 'vfunc':
             try:
                 self._name, self._func_name = self._rest.split('.')
+                t = self._namespace.find_real_type(self._name)
+                if t is not None and t.base_ctype is not None:
+                    self._type = t.base_ctype
+                else:
+                    self._type = f"{self._ns}{self._name}"
             except ValueError:
-                raise LinkParseError(self._fragment, self._endpoint, "Unable to parse vfunc link")
-            t = self._namespace.find_real_type(self._name)
-            if t is not None and t.base_ctype is not None:
-                self._type = t.base_ctype
-            else:
-                self._type = f"{self._ns}{self._name}"
+                self._fragment = None
+                log.warning(str(LinkParseError(self._line, self._start, self._end,
+                                               self._fragment, self._endpoint,
+                                               "Unable to parse vfunc link")))
         elif self._fragment == 'func':
             self._func_name = self._rest
             t = self._namespace.find_function(self._func_name)
@@ -219,7 +247,9 @@ class LinkGenerator:
             else:
                 self._func = f"{self._ns_lower}_{self._rest}()"
         else:
-            log.warning(f"Unknown fragment '{self._fragment}' in link [{self._fragment}@{self._endpoint}]")
+            log.warning(LinkParseError(self._line, self._start, self._end,
+                                       self._fragment, self._endpoint,
+                                       "Unable to parse link"))
 
     @property
     def text(self):
@@ -306,9 +336,12 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
             for m in LINK_RE.finditer(line, idx):
                 fragment = m.group('fragment')
                 endpoint = m.group('endpoint')
-                link = LinkGenerator(namespace=namespace, fragment=fragment, endpoint=endpoint, no_link=summary)
                 start = m.start()
                 end = m.end()
+                link = LinkGenerator(line=line, start=start, end=end,
+                                     namespace=namespace,
+                                     fragment=fragment, endpoint=endpoint,
+                                     no_link=summary)
                 left_pad = line[idx:start]
                 replacement = re.sub(LINK_RE, str(link), line[start:end])
                 new_line.append(left_pad)
