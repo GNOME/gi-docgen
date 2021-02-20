@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
 import argparse
+import concurrent.futures
 import jinja2
 import markdown
 import os
@@ -2067,18 +2068,32 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     log.info(f"Generating references for: {gen_indices}")
 
     template_symbols = {}
-    for section in gen_indices:
-        generator = all_indices.get(section, None)
-        if generator is None:
-            log.debug(f"No generator for section {section}")
-            continue
 
-        s = symbols.get(section, [])
-        if s is None:
-            log.debug(f"No symbols for section {section}")
-            continue
+    # Each section is isolated, so we run it into a thread pool
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures_to_section = {}
+        for section in gen_indices:
+            s = symbols.get(section, [])
+            if s is None:
+                log.debug(f"No symbols for section {section}")
+                continue
 
-        template_symbols[section] = generator(config, theme_config, ns_dir, jinja_env, repository, s)
+            generator = all_indices.get(section, None)
+            if generator is None:
+                log.debug(f"No generator for section {section}")
+                continue
+
+            f = executor.submit(generator, config, theme_config, ns_dir, jinja_env, repository, s)
+            futures_to_section[f] = section
+
+        for future in concurrent.futures.as_completed(futures_to_section):
+            section = futures_to_section[future]
+            try:
+                res = future.result()
+            except Exception as e:
+                print(f"Section {section} raised {e}")
+            else:
+                template_symbols[section] = res
 
     ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
     ns_file = os.path.join(ns_dir, "index.html")
