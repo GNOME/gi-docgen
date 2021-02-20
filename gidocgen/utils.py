@@ -167,8 +167,8 @@ class LinkGenerator:
         elif self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
             self._name = self._rest
             t = self._namespace.find_real_type(self._name)
-            if t is not None:
-                self._type = t.ctype
+            if t is not None and t.base_ctype is not None:
+                self._type = t.base_ctype
             else:
                 self._type = f"{self._ns}{self._name}"
         elif self._fragment == 'property':
@@ -177,8 +177,8 @@ class LinkGenerator:
             except ValueError:
                 raise LinkParseError(self._fragment, self._rest, "Unable to parse property link")
             t = self._namespace.find_real_type(self._name)
-            if t is not None:
-                self._type = t.ctype
+            if t is not None and t.base_ctype is not None:
+                self._type = t.base_ctype
             else:
                 self._type = f"{self._ns}{self._name}"
         elif self._fragment == 'signal':
@@ -187,8 +187,8 @@ class LinkGenerator:
             except ValueError:
                 raise LinkParseError(self._fragment, self._rest, "Unable to parse signal link")
             t = self._namespace.find_real_type(self._name)
-            if t is not None:
-                self._type = t.ctype
+            if t is not None and t.base_ctype is not None:
+                self._type = t.base_ctype
             else:
                 self._type = f"{self._ns}{self._name}"
         elif self._fragment in ['ctor', 'method']:
@@ -201,6 +201,16 @@ class LinkGenerator:
                 self._func = f"{self._namespace.symbol_prefix[0]}_{t.symbol_prefix}_{self._func_name}()"
             else:
                 self._func = f"{self._ns_lower}_{self._func_name}()"
+        elif self._fragment == 'vfunc':
+            try:
+                self._name, self._func_name = self._rest.split('.')
+            except ValueError:
+                raise LinkParseError(self._fragment, self._rest, "Unable to parse vfunc link")
+            t = self._namespace.find_real_type(self._name)
+            if t is not None and t.base_ctype is not None:
+                self._type = t.base_ctype
+            else:
+                self._type = f"{self._ns}{self._name}"
         elif self._fragment == 'func':
             self._func_name = self._rest
             t = self._namespace.find_function(self._func_name)
@@ -221,6 +231,8 @@ class LinkGenerator:
             return f"`{self._type}::{self._signal_name}`"
         elif self._fragment in ['ctor', 'func', 'method']:
             return f"`{self._func}`"
+        elif self._fragment == 'vfunc':
+            return f"`{self._type}.{self._func_name}`"
         else:
             return f"`{self._ns}.{self._rest}`"
 
@@ -234,7 +246,7 @@ class LinkGenerator:
             return f"property.{self._name}.{self._prop_name}.html"
         elif self._fragment == 'signal':
             return f"signal.{self._name}.{self._signal_name}.html"
-        elif self._fragment in ['ctor', 'method']:
+        elif self._fragment in ['ctor', 'method', 'vfunc']:
             return f"{self._fragment}.{self._name}.{self._func_name}.html"
         elif self._fragment == 'func':
             return f"func.{self._func_name}.html"
