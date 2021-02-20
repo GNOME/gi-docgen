@@ -175,7 +175,7 @@ class LinkGenerator:
             try:
                 self._name, self._prop_name = self._rest.split(':')
             except ValueError:
-                raise LinkParseError(self._fragment, self._rest, "Unable to parse property link")
+                raise LinkParseError(self._fragment, self._endpoint, "Unable to parse property link")
             t = self._namespace.find_real_type(self._name)
             if t is not None and t.base_ctype is not None:
                 self._type = t.base_ctype
@@ -185,7 +185,7 @@ class LinkGenerator:
             try:
                 self._name, self._signal_name = self._rest.split('::')
             except ValueError:
-                raise LinkParseError(self._fragment, self._rest, "Unable to parse signal link")
+                raise LinkParseError(self._fragment, self._endpoint, "Unable to parse signal link")
             t = self._namespace.find_real_type(self._name)
             if t is not None and t.base_ctype is not None:
                 self._type = t.base_ctype
@@ -195,7 +195,7 @@ class LinkGenerator:
             try:
                 self._name, self._func_name = self._rest.split('.')
             except ValueError:
-                raise LinkParseError(self._fragment, self._rest, "Unable to parse method link")
+                raise LinkParseError(self._fragment, self._endpoint, "Unable to parse method link")
             t = self._namespace.find_real_type(self._name)
             if t is not None:
                 self._func = f"{self._namespace.symbol_prefix[0]}_{t.symbol_prefix}_{self._func_name}()"
@@ -205,7 +205,7 @@ class LinkGenerator:
             try:
                 self._name, self._func_name = self._rest.split('.')
             except ValueError:
-                raise LinkParseError(self._fragment, self._rest, "Unable to parse vfunc link")
+                raise LinkParseError(self._fragment, self._endpoint, "Unable to parse vfunc link")
             t = self._namespace.find_real_type(self._name)
             if t is not None and t.base_ctype is not None:
                 self._type = t.base_ctype
