@@ -734,16 +734,26 @@ class TemplateClass:
             self.ancestors = []
             for ancestor_type in cls.ancestors:
                 ancestor = namespace.find_class(ancestor_type.name.split('.')[1])
-                # We don't use read Template objects, here, because it can be
+                # We don't use real Template objects, here, because it can be
                 # extremely expensive, unless we add a cache somewhere
                 if ancestor is not None:
+                    # Set a hard-limit on the number of methods; base types can
+                    # add *a lot* of them; two dozens feel like a good compromise
+                    if len(ancestor.methods) < 24:
+                        methods = [TemplateMethod(namespace, ancestor, m) for m in ancestor.methods]
+                    else:
+                        methods = []
                     self.ancestors.append({
                         "namespace": ancestor_type.name.split('.')[0],
                         "name": ancestor_type.name.split('.')[1],
                         "fqtn": ancestor_type.name,
                         "type_cname": ancestor_type.base_ctype,
                         "properties": [TemplateProperty(namespace, ancestor, p) for p in ancestor.properties],
+                        "n_properties": len(ancestor.properties),
                         "signals": [TemplateSignal(namespace, ancestor, s) for s in ancestor.signals],
+                        "n_signals": len(ancestor.signals),
+                        "methods": methods,
+                        "n_methods": len(ancestor.methods),
                     })
                 else:
                     self.ancestors.append({
@@ -840,7 +850,9 @@ class TemplateClass:
                         "fqtn": iface_type.name,
                         "type_cname": iface_type.base_ctype,
                         "properties": [TemplateProperty(namespace, iface, p) for p in iface.properties],
+                        "n_properties": len(iface.properties),
                         "signals": [TemplateSignal(namespace, iface, s) for s in iface.signals],
+                        "n_signals": len(iface.signals),
                     })
                 else:
                     self.interfaces.append({
