@@ -123,7 +123,7 @@ class GirParser:
                 fqtn = name
         if ctype is None and fqtn not in FUNDAMENTAL_CTYPES:
             for titer in self._types_register.values():
-                if titer.name == fqtn:
+                if titer.name == fqtn and titer.ctype is not None:
                     return titer
         if (fqtn, ctype) not in self._types_register:
             if ctype is None and fqtn in FUNDAMENTAL_CTYPES:
