@@ -193,6 +193,22 @@
         </div>
         {% endif %}
       {% endfor %}
+
+      {% for iface in class.interfaces %}
+        {% if iface.namespace == namespace.name and iface.n_methods > 0 %}
+        <div class="{% if iface.methods %}toggle-wrapper default-hide{% endif %} ancestor-methods">
+          <h5 style="display:block;">Methods inherited from <a href="iface.{{ iface.name }}.html">{{ iface.type_cname }}</a> ({{ iface.n_methods }})</h5>
+
+          {% if iface.methods %}
+          <div class="docblock">
+          {% for method in iface.methods %}
+            <h6><a href="method.{{ iface.name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
+          {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      {% endfor %}
     </div>
     {% endif %}
 
