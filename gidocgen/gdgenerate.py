@@ -844,6 +844,12 @@ class TemplateClass:
             for iface_type in cls.implements:
                 iface = namespace.find_interface(iface_type.name.split('.')[1])
                 if iface is not None:
+                    # Set a hard-limit on the number of methods; base types can
+                    # add *a lot* of them; two dozens feel like a good compromise
+                    if len(iface.methods) < 24:
+                        methods = [TemplateMethod(namespace, iface, m) for m in iface.methods]
+                    else:
+                        methods = []
                     self.interfaces.append({
                         "namespace": iface_type.name.split('.')[0],
                         "name": iface_type.name.split('.')[1],
@@ -853,6 +859,8 @@ class TemplateClass:
                         "n_properties": len(iface.properties),
                         "signals": [TemplateSignal(namespace, iface, s) for s in iface.signals],
                         "n_signals": len(iface.signals),
+                        "methods": methods,
+                        "n_methods": len(iface.methods),
                     })
                 else:
                     self.interfaces.append({
