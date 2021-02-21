@@ -15,6 +15,8 @@ from . import config, gir, log, utils
 
 HELP_MSG = "Generates the reference"
 
+MISSING_DESCRIPTION = "No description available."
+
 STRING_TYPES = {
     'utf8': 'The string is a NUL terminated UTF-8 string',
     'filename': 'The string is a file system path, using the OS encoding',
@@ -408,7 +410,7 @@ class TemplateClassMethod:
     def __init__(self, namespace, cls, method):
         self.name = method.name
         self.identifier = method.identifier
-        self.class_type_cname = cls.class_struct.type_struct
+        self.class_type_cname = cls.type_struct
 
         self.throws = method.throws
 
@@ -615,8 +617,11 @@ class TemplateInterface:
             self.fqtn = interface.name
             self.requires = "GObject.Object"
             self.link_prefix = "iface"
-            self.description = "No description available."
+            self.description = MISSING_DESCRIPTION
             return
+
+        md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
+                               extension_configs=utils.MD_EXTENSIONS_CONF)
 
         requires = interface.prerequisite
         if requires is None:
@@ -632,10 +637,10 @@ class TemplateInterface:
 
         self.link_prefix = "iface"
 
-        self.description = "No description available."
+        self.description = MISSING_DESCRIPTION
         if interface.doc is not None:
-            self.summary = utils.preprocess_docs(interface.doc.content, namespace, summary=True)
-            self.description = utils.preprocess_docs(interface.doc.content, namespace)
+            self.summary = utils.preprocess_docs(interface.doc.content, namespace, summary=True, md=md)
+            self.description = utils.preprocess_docs(interface.doc.content, namespace, md=md)
 
         self.stability = interface.stability
         self.annotations = interface.annotations
@@ -665,28 +670,129 @@ class TemplateInterface:
                 if not field.private:
                     self.class_fields.append(TemplateField(namespace, field))
 
-            for meth in self.class_struct.methods:
-                self.class_methods.append(TemplateClassMethod(namespace, self, meth))
+            for method in self.class_struct.methods:
+                name = method.name
+                identifier = method.identifier
+                summary = MISSING_DESCRIPTION
+                if method.doc is not None:
+                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if method.deprecated_since is not None:
+                    (version, msg) = method.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.class_methods.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(interface.properties) != 0:
             self.properties = []
             for prop in interface.properties:
-                self.properties.append(TemplateProperty(namespace, interface, prop))
+                name = prop.name
+                summary = MISSING_DESCRIPTION
+                if prop.doc is not None:
+                    summary = utils.preprocess_docs(prop.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if prop.deprecated_since is not None:
+                    (version, msg) = prop.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.properties.append({
+                    "name": name,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(interface.signals) != 0:
             self.signals = []
-            for sig in interface.signals:
-                self.signals.append(TemplateSignal(namespace, interface, sig))
+            for signal in interface.signals:
+                name = signal.name
+                summary = MISSING_DESCRIPTION
+                if signal.doc is not None:
+                    summary = utils.preprocess_docs(signal.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if signal.deprecated_since is not None:
+                    (version, msg) = signal.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.signals.append({
+                    "name": name,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(interface.methods) != 0:
             self.methods = []
-            for meth in interface.methods:
-                self.methods.append(TemplateMethod(namespace, interface, meth))
+            for method in interface.methods:
+                name = method.name
+                identifier = method.identifier
+                summary = MISSING_DESCRIPTION
+                if method.doc is not None:
+                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if method.deprecated_since is not None:
+                    (version, msg) = method.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.methods.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(interface.virtual_methods) != 0:
             self.virtual_methods = []
             for vfunc in interface.virtual_methods:
-                self.virtual_methods.append(TemplateMethod(namespace, interface, vfunc))
+                name = vfunc.name
+                summary = MISSING_DESCRIPTION
+                if vfunc.doc is not None:
+                    summary = utils.preprocess_docs(vfunc.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if vfunc.deprecated_since is not None:
+                    (version, msg) = vfunc.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.virtual_methods.append({
+                    "name": name,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
+
+        if len(interface.functions) != 0:
+            self.type_funcs = []
+            for func in interface.functions:
+                name = func.name
+                identifier = func.identifier
+                summary = MISSING_DESCRIPTION
+                if func.doc is not None:
+                    summary = utils.preprocess_docs(func.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if func.deprecated_since is not None:
+                    (version, msg) = func.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.type_funcs.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
     @property
     def c_decl(self):
@@ -769,7 +875,10 @@ class TemplateClass:
         if len(cls.fields) != 0:
             self.instance_struct = self.class_name
 
-        self.class_struct = namespace.find_record(cls.type_struct)
+        if cls.type_struct is not None:
+            self.class_struct = namespace.find_record(cls.type_struct)
+        else:
+            self.class_struct = None
 
         # "Final", in the absence of an actual flag or annotation,
         # is determined through an heuristic; if either the instance
@@ -780,10 +889,13 @@ class TemplateClass:
         else:
             self.final = False
 
-        self.description = "No description available."
+        md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
+                               extension_configs=utils.MD_EXTENSIONS_CONF)
+
+        self.description = MISSING_DESCRIPTION
         if cls.doc is not None:
-            self.summary = utils.preprocess_docs(cls.doc.content, namespace, summary=True)
-            self.description = utils.preprocess_docs(cls.doc.content, namespace)
+            self.summary = utils.preprocess_docs(cls.doc.content, namespace, summary=True, md=md)
+            self.description = utils.preprocess_docs(cls.doc.content, namespace, md=md)
 
         self.stability = cls.stability
         self.annotations = cls.annotations
@@ -792,7 +904,7 @@ class TemplateClass:
             (version, msg) = cls.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg, namespace),
+                "message": utils.preprocess_docs(msg, namespace, md=md),
             }
 
         if cls.doc is not None:
@@ -810,22 +922,86 @@ class TemplateClass:
         if len(cls.properties) != 0:
             self.properties = []
             for prop in cls.properties:
-                self.properties.append(TemplateProperty(namespace, cls, prop))
+                name = prop.name
+                summary = MISSING_DESCRIPTION
+                if prop.doc is not None:
+                    summary = utils.preprocess_docs(prop.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if prop.deprecated_since is not None:
+                    (version, msg) = prop.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.properties.append({
+                    "name": name,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(cls.signals) != 0:
             self.signals = []
-            for sig in cls.signals:
-                self.signals.append(TemplateSignal(namespace, cls, sig))
+            for signal in cls.signals:
+                name = signal.name
+                summary = MISSING_DESCRIPTION
+                if signal.doc is not None:
+                    summary = utils.preprocess_docs(signal.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if signal.deprecated_since is not None:
+                    (version, msg) = signal.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.signals.append({
+                    "name": name,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(cls.constructors) != 0:
             self.ctors = []
             for ctor in cls.constructors:
-                self.ctors.append(TemplateFunction(namespace, ctor))
+                name = ctor.name
+                identifier = ctor.identifier
+                summary = MISSING_DESCRIPTION
+                if ctor.doc is not None:
+                    summary = utils.preprocess_docs(ctor.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if ctor.deprecated_since is not None:
+                    (version, msg) = ctor.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.ctors.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(cls.methods) != 0:
             self.methods = []
-            for meth in cls.methods:
-                self.methods.append(TemplateMethod(namespace, cls, meth))
+            for method in cls.methods:
+                name = method.name
+                identifier = method.identifier
+                summary = MISSING_DESCRIPTION
+                if method.doc is not None:
+                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if method.deprecated_since is not None:
+                    (version, msg) = method.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.methods.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if self.class_struct is not None:
             self.class_ctype = self.class_struct.ctype
@@ -837,11 +1013,30 @@ class TemplateClass:
                     self.class_fields.append(TemplateField(namespace, field))
 
             for meth in self.class_struct.methods:
-                self.class_methods.append(TemplateClassMethod(namespace, self, meth))
+                name = method.name
+                identifier = method.identifier
+                summary = MISSING_DESCRIPTION
+                if method.doc is not None:
+                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if method.deprecated_since is not None:
+                    (version, msg) = method.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.class_methods.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(cls.implements) != 0:
             self.interfaces = []
             for iface_type in cls.implements:
+                if iface_type.name == 'Gtk.ConstraintTarget':
+                    log.warning(f"iface: {iface_type}")
                 iface = namespace.find_interface(iface_type.name.split('.')[1])
                 if iface is not None:
                     # Set a hard-limit on the number of methods; base types can
@@ -873,12 +1068,44 @@ class TemplateClass:
         if len(cls.virtual_methods) != 0:
             self.virtual_methods = []
             for vfunc in cls.virtual_methods:
-                self.virtual_methods.append(TemplateMethod(namespace, cls, vfunc))
+                name = vfunc.name
+                summary = MISSING_DESCRIPTION
+                if vfunc.doc is not None:
+                    summary = utils.preprocess_docs(vfunc.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if vfunc.deprecated_since is not None:
+                    (version, msg) = vfunc.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.virtual_methods.append({
+                    "name": name,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(cls.functions) != 0:
             self.type_funcs = []
             for func in cls.functions:
-                self.type_funcs.append(TemplateFunction(namespace, func))
+                name = func.name
+                identifier = func.identifier
+                summary = MISSING_DESCRIPTION
+                if func.doc is not None:
+                    summary = utils.preprocess_docs(func.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if func.deprecated_since is not None:
+                    (version, msg) = func.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.type_funcs.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
     @property
     def c_decl(self):
@@ -911,10 +1138,13 @@ class TemplateRecord:
         self.namespace = namespace.name
         self.fqtn = f"{namespace.name}.{record.name}"
 
-        self.description = "No description available."
+        md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
+                               extension_configs=utils.MD_EXTENSIONS_CONF)
+
+        self.description = MISSING_DESCRIPTION
         if record.doc is not None:
-            self.summary = utils.preprocess_docs(record.doc.content, namespace, summary=True)
-            self.description = utils.preprocess_docs(record.doc.content, namespace)
+            self.summary = utils.preprocess_docs(record.doc.content, namespace, summary=True, md=md)
+            self.description = utils.preprocess_docs(record.doc.content, namespace, md=md)
 
         self.stability = record.stability
         self.annotations = record.annotations
@@ -941,17 +1171,68 @@ class TemplateRecord:
         if len(record.constructors) != 0:
             self.ctors = []
             for ctor in record.constructors:
-                self.ctors.append(TemplateFunction(namespace, ctor))
+                name = ctor.name
+                identifier = ctor.identifier
+                summary = MISSING_DESCRIPTION
+                if ctor.doc is not None:
+                    summary = utils.preprocess_docs(ctor.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if ctor.deprecated_since is not None:
+                    (version, msg) = ctor.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.ctors.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(record.methods) != 0:
             self.methods = []
-            for meth in record.methods:
-                self.methods.append(TemplateMethod(namespace, record, meth))
+            for method in record.methods:
+                name = method.name
+                identifier = method.identifier
+                summary = MISSING_DESCRIPTION
+                if method.doc is not None:
+                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if method.deprecated_since is not None:
+                    (version, msg) = method.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.methods.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(record.functions) != 0:
             self.type_funcs = []
             for func in record.functions:
-                self.type_funcs.append(TemplateFunction(namespace, func))
+                name = func.name
+                identifier = func.identifier
+                summary = MISSING_DESCRIPTION
+                if func.doc is not None:
+                    summary = utils.preprocess_docs(func.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if func.deprecated_since is not None:
+                    (version, msg) = func.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.type_funcs.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
     @property
     def c_decl(self):
@@ -978,10 +1259,13 @@ class TemplateUnion:
         self.namespace = namespace.name
         self.fqtn = f"{namespace.name}.{union.name}"
 
-        self.description = "No description available."
+        md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
+                               extension_configs=utils.MD_EXTENSIONS_CONF)
+
+        self.description = MISSING_DESCRIPTION
         if union.doc is not None:
-            self.summary = utils.preprocess_docs(union.doc.content, namespace, summary=True)
-            self.description = utils.preprocess_docs(union.doc.content, namespace)
+            self.summary = utils.preprocess_docs(union.doc.content, namespace, summary=True, md=md)
+            self.description = utils.preprocess_docs(union.doc.content, namespace, md=md)
 
         self.stability = union.stability
         self.annotations = union.annotations
@@ -1008,17 +1292,68 @@ class TemplateUnion:
         if len(union.constructors) != 0:
             self.ctors = []
             for ctor in union.constructors:
-                self.ctors.append(TemplateFunction(namespace, ctor))
+                name = ctor.name
+                identifier = ctor.identifier
+                summary = MISSING_DESCRIPTION
+                if ctor.doc is not None:
+                    summary = utils.preprocess_docs(ctor.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if ctor.deprecated_since is not None:
+                    (version, msg) = ctor.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.ctors.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(union.methods) != 0:
             self.methods = []
-            for meth in union.methods:
-                self.methods.append(TemplateMethod(namespace, union, meth))
+            for method in union.methods:
+                name = method.name
+                identifier = method.identifier
+                summary = MISSING_DESCRIPTION
+                if method.doc is not None:
+                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if method.deprecated_since is not None:
+                    (version, msg) = method.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.methods.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
         if len(union.functions) != 0:
             self.type_funcs = []
             for func in union.functions:
-                self.type_funcs.append(TemplateFunction(namespace, func))
+                name = func.name
+                identifier = func.identifier
+                summary = MISSING_DESCRIPTION
+                if func.doc is not None:
+                    summary = utils.preprocess_docs(func.doc.content, namespace, summary=True, md=md)
+                deprecated_since = None
+                if func.deprecated_since is not None:
+                    (version, msg) = func.deprecated_since
+                    deprecated_since = {
+                        "version": version,
+                        "message": utils.preprocess_docs(msg, namespace, md=md),
+                    }
+                self.type_funcs.append({
+                    "name": name,
+                    "identifier": identifier,
+                    "summary": summary,
+                    "deprecated_since": deprecated_since,
+                })
 
     @property
     def c_decl(self):
@@ -1046,10 +1381,13 @@ class TemplateAlias:
         self.name = alias.name
         self.fqtn = f"{namespace.name}.{alias.name}"
 
-        self.description = "No description available."
+        md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
+                               extension_configs=utils.MD_EXTENSIONS_CONF)
+
+        self.description = MISSING_DESCRIPTION
         if alias.doc is not None:
-            self.summary = utils.preprocess_docs(alias.doc.content, namespace, summary=True)
-            self.description = utils.preprocess_docs(alias.doc.content, namespace)
+            self.summary = utils.preprocess_docs(alias.doc.content, namespace, summary=True, md=md)
+            self.description = utils.preprocess_docs(alias.doc.content, namespace, md=md)
 
         self.stability = alias.stability
         self.annotations = alias.annotations
@@ -1178,7 +1516,8 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
 
             out.write(content)
 
-        for ctor in getattr(tmpl, 'ctors', []):
+        for ctor in cls.constructors:
+            c = TemplateFunction(namespace, ctor)
             ctor_file = os.path.join(output_dir, f"ctor.{cls.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{cls.name}.{ctor.name}: {ctor_file}")
 
@@ -1187,10 +1526,11 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'type_func': ctor,
+                    'type_func': c,
                 }))
 
-        for method in getattr(tmpl, 'methods', []):
+        for method in cls.methods:
+            m = TemplateMethod(namespace, cls, method)
             method_file = os.path.join(output_dir, f"method.{cls.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{cls.name}.{method.name}: {method_file}")
 
@@ -1199,10 +1539,11 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'method': method,
+                    'method': m,
                 }))
 
-        for prop in getattr(tmpl, 'properties', []):
+        for prop in cls.properties:
+            p = TemplateProperty(namespace, cls, prop)
             prop_file = os.path.join(output_dir, f"property.{cls.name}.{prop.name}.html")
             log.debug(f"Creating property file for {namespace.name}.{cls.name}.{prop.name}: {prop_file}")
 
@@ -1211,10 +1552,11 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'property': prop,
+                    'property': p,
                 }))
 
-        for signal in getattr(tmpl, 'signals', []):
+        for signal in cls.signals:
+            s = TemplateSignal(namespace, cls, signal)
             signal_file = os.path.join(output_dir, f"signal.{cls.name}.{signal.name}.html")
             log.debug(f"Creating signal file for {namespace.name}.{cls.name}.{signal.name}: {signal_file}")
 
@@ -1223,22 +1565,26 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'signal': signal,
+                    'signal': s,
                 }))
 
-        for cls_method in getattr(tmpl, 'class_methods', []):
-            cls_method_file = os.path.join(output_dir, f"class_method.{cls.name}.{cls_method.name}.html")
-            log.debug(f"Creating class method file for {namespace.name}.{cls.name}.{cls_method.name}: {cls_method_file}")
+        if cls.type_struct is not None:
+            class_struct = namespace.find_record(cls.type_struct)
+            for cls_method in class_struct.methods:
+                c = TemplateClassMethod(namespace, cls, cls_method)
+                cls_method_file = os.path.join(output_dir, f"class_method.{cls.name}.{cls_method.name}.html")
+                log.debug(f"Creating class method file for {namespace.name}.{cls.name}.{cls_method.name}: {cls_method_file}")
 
-            with open(cls_method_file, "w") as out:
-                out.write(class_method_tmpl.render({
-                    'CONFIG': config,
-                    'namespace': namespace,
-                    'class': tmpl,
-                    'class_method': cls_method,
-                }))
+                with open(cls_method_file, "w") as out:
+                    out.write(class_method_tmpl.render({
+                        'CONFIG': config,
+                        'namespace': namespace,
+                        'class': tmpl,
+                        'class_method': c,
+                    }))
 
-        for vfunc in getattr(tmpl, 'virtual_methods', []):
+        for vfunc in cls.virtual_methods:
+            f = TemplateMethod(namespace, cls, vfunc)
             vfunc_file = os.path.join(output_dir, f"vfunc.{cls.name}.{vfunc.name}.html")
             log.debug(f"Creating vfunc file for {namespace.name}.{cls.name}.{vfunc.name}: {vfunc_file}")
 
@@ -1247,10 +1593,11 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'vfunc': vfunc,
+                    'vfunc': f,
                 }))
 
-        for type_func in getattr(tmpl, 'type_funcs', []):
+        for type_func in cls.functions:
+            f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{cls.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{cls.name}.{type_func.name}: {type_func_file}")
 
@@ -1259,7 +1606,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'type_func': type_func,
+                    'type_func': f,
                 }))
 
     return template_classes
@@ -1292,7 +1639,8 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                 'interface': tmpl,
             }))
 
-        for method in getattr(tmpl, 'methods', []):
+        for method in iface.methods:
+            m = TemplateMethod(namespace, iface, method)
             method_file = os.path.join(output_dir, f"method.{iface.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{iface.name}.{method.name}: {method_file}")
 
@@ -1301,10 +1649,11 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'method': method,
+                    'method': m,
                 }))
 
-        for prop in getattr(tmpl, 'properties', []):
+        for prop in iface.properties:
+            p = TemplateProperty(namespace, iface, prop)
             prop_file = os.path.join(output_dir, f"property.{iface.name}.{prop.name}.html")
             log.debug(f"Creating property file for {namespace.name}.{iface.name}.{prop.name}: {prop_file}")
 
@@ -1313,10 +1662,11 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'property': prop,
+                    'property': p,
                 }))
 
-        for signal in getattr(tmpl, 'signals', []):
+        for signal in iface.signals:
+            s = TemplateSignal(namespace, iface, signal)
             signal_file = os.path.join(output_dir, f"signal.{iface.name}.{signal.name}.html")
             log.debug(f"Creating signal file for {namespace.name}.{iface.name}.{signal.name}: {signal_file}")
 
@@ -1325,22 +1675,11 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'signal': signal,
+                    'signal': s,
                 }))
 
-        for cls_method in getattr(tmpl, 'class_methods', []):
-            class_method_file = os.path.join(output_dir, f"class_method.{iface.name}.{cls_method.name}.html")
-            log.debug(f"Creating class method file for {namespace.name}.{iface.name}.{cls_method.name}: {class_method_file}")
-
-            with open(class_method_file, "w") as out:
-                out.write(class_method_tmpl.render({
-                    'CONFIG': config,
-                    'namespace': namespace,
-                    'class': tmpl,
-                    'class_method': cls_method,
-                }))
-
-        for vfunc in getattr(tmpl, 'virtual_methods', []):
+        for vfunc in iface.virtual_methods:
+            v = TemplateMethod(namespace, iface, vfunc)
             vfunc_file = os.path.join(output_dir, f"vfunc.{iface.name}.{vfunc.name}.html")
             log.debug(f"Creating vfunc file for {namespace.name}.{iface.name}.{vfunc.name}: {vfunc_file}")
 
@@ -1349,10 +1688,26 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'vfunc': vfunc,
+                    'vfunc': v,
                 }))
 
-        for type_func in getattr(tmpl, 'type_funcs', []):
+        if iface.type_struct is not None:
+            iface_struct = namespace.find_record(iface.type_struct)
+            for cls_method in iface_struct.methods:
+                m = TemplateClassMethod(namespace, iface, cls_method)
+                cls_method_file = os.path.join(output_dir, f"class_method.{iface.name}.{cls_method.name}.html")
+                log.debug(f"Creating class method file for {namespace.name}.{iface.name}.{cls_method.name}: {cls_method_file}")
+
+                with open(cls_method_file, "w") as out:
+                    out.write(class_method_tmpl.render({
+                        'CONFIG': config,
+                        'namespace': namespace,
+                        'class': tmpl,
+                        'class_method': m,
+                    }))
+
+        for type_func in iface.functions:
+            f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{iface.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{iface.name}.{type_func.name}: {type_func_file}")
 
@@ -1361,7 +1716,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'type_func': type_func,
+                    'type_func': f,
                 }))
 
     return template_interfaces
@@ -1506,8 +1861,6 @@ def _gen_aliases(config, theme_config, output_dir, jinja_env, repository, all_al
     namespace = repository.namespace
 
     alias_tmpl = jinja_env.get_template(theme_config.alias_template)
-    method_tmpl = jinja_env.get_template(theme_config.method_template)
-    type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
 
     template_aliases = []
 
@@ -1526,42 +1879,6 @@ def _gen_aliases(config, theme_config, output_dir, jinja_env, repository, all_al
             })
 
             out.write(content)
-
-        for ctor in getattr(tmpl, 'ctors', []):
-            ctor_file = os.path.join(output_dir, f"ctor.{alias.name}.{ctor.name}.html")
-            log.debug(f"Creating ctor file for {namespace.name}.{alias.name}.{ctor.name}: {ctor_file}")
-
-            with open(ctor_file, "w") as out:
-                out.write(type_func_tmpl.render({
-                    'CONFIG': config,
-                    'namespace': namespace,
-                    'class': tmpl,
-                    'type_func': ctor,
-                }))
-
-        for method in getattr(tmpl, 'methods', []):
-            method_file = os.path.join(output_dir, f"method.{alias.name}.{method.name}.html")
-            log.debug(f"Creating method file for {namespace.name}.{alias.name}.{method.name}: {method_file}")
-
-            with open(method_file, "w") as out:
-                out.write(method_tmpl.render({
-                    'CONFIG': config,
-                    'namespace': namespace,
-                    'class': tmpl,
-                    'method': method,
-                }))
-
-        for type_func in getattr(tmpl, 'type_funcs', []):
-            type_func_file = os.path.join(output_dir, f"type_func.{alias.name}.{type_func.name}.html")
-            log.debug(f"Creating type func file for {namespace.name}.{alias.name}.{type_func.name}: {type_func_file}")
-
-            with open(type_func_file, "w") as out:
-                out.write(type_func_tmpl.render({
-                    'CONFIG': config,
-                    'namespace': namespace,
-                    'class': tmpl,
-                    'type_func': type_func,
-                }))
 
     return template_aliases
 
@@ -1591,7 +1908,8 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
 
             out.write(content)
 
-        for ctor in getattr(tmpl, 'ctors', []):
+        for ctor in record.constructors:
+            c = TemplateFunction(namespace, ctor)
             ctor_file = os.path.join(output_dir, f"ctor.{record.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{record.name}.{ctor.name}: {ctor_file}")
 
@@ -1600,10 +1918,11 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'type_func': ctor,
+                    'type_func': c,
                 }))
 
-        for method in getattr(tmpl, 'methods', []):
+        for method in record.methods:
+            m = TemplateMethod(namespace, record, method)
             method_file = os.path.join(output_dir, f"method.{record.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{record.name}.{method.name}: {method_file}")
 
@@ -1612,10 +1931,11 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'method': method,
+                    'method': m,
                 }))
 
-        for type_func in getattr(tmpl, 'type_funcs', []):
+        for type_func in record.functions:
+            f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{record.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{record.name}.{type_func.name}: {type_func_file}")
 
@@ -1624,7 +1944,7 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'type_func': type_func,
+                    'type_func': f,
                 }))
 
     return template_records
@@ -1655,7 +1975,8 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
 
             out.write(content)
 
-        for ctor in getattr(tmpl, 'ctors', []):
+        for ctor in union.constructors:
+            c = TemplateFunction(namespace, ctor)
             ctor_file = os.path.join(output_dir, f"ctor.{union.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{union.name}.{ctor.name}: {ctor_file}")
 
@@ -1664,10 +1985,11 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'type_func': ctor,
+                    'type_func': c,
                 }))
 
-        for method in getattr(tmpl, 'methods', []):
+        for method in union.methods:
+            m = TemplateMethod(namespace, union, method)
             method_file = os.path.join(output_dir, f"method.{union.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{union.name}.{method.name}: {method_file}")
 
@@ -1676,10 +1998,11 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'method': method,
+                    'method': m,
                 }))
 
-        for type_func in getattr(tmpl, 'type_funcs', []):
+        for type_func in union.functions:
+            f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{union.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{union.name}.{type_func.name}: {type_func_file}")
 
@@ -1688,7 +2011,7 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'type_func': type_func,
+                    'type_func': f,
                 }))
 
     return template_unions
@@ -1866,20 +2189,20 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             for m in getattr(t, "methods", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
-                keyword.set("name", f"{m.identifier} ()")
-                keyword.set("link", f"method.{t.name}.{m.name}.html")
+                keyword.set("name", f"{m['identifier']} ()")
+                keyword.set("link", f"method.{t.name}.{m['name']}.html")
 
             for p in getattr(t, "properties", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "property")
-                keyword.set("name", f"The {t.type_cname}:{p.name} property")
-                keyword.set("link", f"property.{t.name}.{p.name}.html")
+                keyword.set("name", f"The {t.type_cname}:{p['name']} property")
+                keyword.set("link", f"property.{t.name}.{p['name']}.html")
 
             for s in getattr(t, "signals", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "signal")
-                keyword.set("name", f"The {t.type_cname}::{s.name} signal")
-                keyword.set("link", f"signal.{t.name}.{s.name}.html")
+                keyword.set("name", f"The {t.type_cname}::{s['name']} signal")
+                keyword.set("link", f"signal.{t.name}.{s['name']}.html")
 
     return etree.ElementTree(book)
 
