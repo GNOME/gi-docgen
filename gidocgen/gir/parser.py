@@ -121,13 +121,13 @@ class GirParser:
             else:
                 log.debug(f"Unqualified type name {name} found")
                 fqtn = name
+        if ctype is None and fqtn in FUNDAMENTAL_CTYPES:
+            ctype = FUNDAMENTAL_CTYPES[fqtn]
         if ctype is None and fqtn not in FUNDAMENTAL_CTYPES:
             for titer in self._types_register.values():
                 if titer.name == fqtn and titer.ctype is not None:
                     return titer
         if (fqtn, ctype) not in self._types_register:
-            if ctype is None and fqtn in FUNDAMENTAL_CTYPES:
-                ctype = FUNDAMENTAL_CTYPES[fqtn]
             t = ast.Type(name=fqtn, ctype=ctype)
             self._types_register[(fqtn, ctype)] = t
             log.debug(f"Adding type {fqtn} for {t}")
@@ -291,6 +291,8 @@ class GirParser:
                 tname = child_type.attrib.get('name', ttype.replace('*', ''))
                 if tname == 'none' and ttype == 'void':
                     target = ast.VoidType()
+                elif tname != 'gpointer' and ttype == 'gpointer':
+                    target = self._lookup_type(name=tname)
                 else:
                     target = self._lookup_type(name=tname, ctype=ctype)
             else:
@@ -312,6 +314,8 @@ class GirParser:
                         etype = self._lookup_type(name=etname)
                         if etype is not None:
                             ctype = ast.ListType(name=tname, ctype=ttype, value_type=etype)
+                elif tname != 'gpointer' and ttype == 'gpointer':
+                    ctype = self._lookup_type(name=tname)
                 else:
                     ctype = self._lookup_type(name=tname, ctype=ttype)
             else:
