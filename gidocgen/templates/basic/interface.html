@@ -31,6 +31,7 @@
 {{ sidebar_block(interface.methods, interface.name, "Instance methods", "method", "method") }}
 {{ sidebar_block(interface.properties, interface.name, "Properties", "property", "property") }}
 {{ sidebar_block(interface.signals, interface.name, "Signals", "signal", "signal") }}
+{{ sidebar_block(interface.class_methods, interface.name, "Interface methods", "method", "class_method") }}
 {{ sidebar_block(interface.type_funcs, interface.name, "Type functions", "func", "type_func") }}
 {{ sidebar_block(interface.virtual_methods, interface.name, "Virtual methods", "method", "vfunc") }}
 {% endblock %}
@@ -220,6 +221,31 @@
       </div>
     </div>
     {% endif %} 
+
+    {% if interface.class_methods %}
+    <div class="toggle-wrapper methods">
+      <h4 id="interface-methods">
+        Interface methods
+        <a href="#interface-methods" class="anchor"></a>
+      </h4>
+
+      <div class="docblock">
+      {% for method in interface.class_methods %}
+      <div class="{% if method.deprecated_since %}deprecated{% endif %}">
+        <h6><a href="class_method.{{ interface.name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
+
+        <div class="docblock">
+          {{ method.summary }}
+        </div>
+
+        {% if method.deprecated_since %}
+        <div class="docblock"><p>Deprecated since: {{ method.deprecated_since.version }}</p></div>
+        {% endif %}
+      </div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
 
     {% if interface.functions %}
     <div class="methods toggle-wrapper">
