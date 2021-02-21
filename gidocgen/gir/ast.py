@@ -799,7 +799,7 @@ class Namespace:
 
 class Repository:
     def __init__(self):
-        self.includes: T.List[Repository] = []
+        self.includes: T.Mapping[str, Repository] = {}
         self.packages: T.List[Package] = []
         self.c_includes: T.List[CInclude] = []
         self.types: T.Mapping[str, Type] = {}
@@ -811,7 +811,7 @@ class Repository:
 
     def resolve_empty_ctypes(self):
         def find_real_type(includes, ns, name):
-            for repo in self.includes:
+            for repo in self.includes.values():
                 if repo.namespace.name != name:
                     continue
                 real_type = repo.namespace.find_real_type(name)
@@ -836,7 +836,7 @@ class Repository:
 
     def resolve_class_ancestors(self):
         def find_parent_class(includes, ns, name):
-            for repo in self.includes:
+            for repo in self.includes.values():
                 if repo.namespace.name != name:
                     continue
                 parent = repo.namespace.find_class(name)

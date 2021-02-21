@@ -148,7 +148,7 @@ class GirParser:
                 if repository is not None:
                     repository.girfile = girfile
                     ns = repository.namespace
-                    self._dependencies[str(ns)] = repository
+                    self._dependencies[ns.name] = repository
                     found = True
                     break
         if not found:
@@ -192,7 +192,7 @@ class GirParser:
             log.debug(f"Parsing dependency {include}")
             self._parse_dependency(include)
 
-        repository.includes.extend(self._dependencies.values())
+        repository.includes = self._dependencies
 
         repository.add_namespace(namespace)
 
