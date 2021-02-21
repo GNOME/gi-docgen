@@ -140,7 +140,7 @@
       <div class="docblock">
       {% for ctor in class.ctors %}
         <div class="{% if ctor.deprecated_since %}deprecated{% endif %}">
-          <h6><a href="ctor.{{ class.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
+          <h6><a href="ctor.{{ class.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a></h6>
 
           <div class="docblock">
             {{ ctor.summary }}
@@ -165,7 +165,7 @@
       <div class="docblock">
       {% for method in class.methods %}
         <div class="{% if method.deprecated_since %}deprecated{% endif %}">
-          <h6><a href="method.{{ class.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+          <h6><a href="method.{{ class.name}}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
 
           <div class="docblock">
             {{ method.summary }}
@@ -186,7 +186,7 @@
           {% if ancestor.methods %}
           <div class="docblock">
           {% for method in ancestor.methods %}
-            <h6><a href="method.{{ ancestor.name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+            <h6><a href="method.{{ ancestor.name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
           {% endfor %}
           </div>
           {% endif %}
@@ -355,7 +355,7 @@
       <div class="docblock">
       {% for method in class.virtual_methods %}
       <div class="{% if method.deprecated_since %}deprecated{% endif %}">
-        <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ class.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ class.class_name }}.{{ method.name }}</a> ();</h6>
+        <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ class.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ class.class_name }}.{{ method.name }}</a></h6>
 
         <div class="docblock">
           {{ method.summary }}
@@ -380,7 +380,7 @@
       <div class="docblock">
       {% for method in class.class_methods %}
       <div class="{% if method.deprecated_since %}deprecated{% endif %}">
-        <h6><a href="class_method.{{ class.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+        <h6><a href="class_method.{{ class.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
 
         <div class="docblock">
           {{ method.summary }}
@@ -405,7 +405,7 @@
       <div class="docblock">
       {% for func in class.type_funcs %}
       <div class="{% if func.deprecated_since %}deprecated{% endif %}">
-        <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
+        <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a></h6>
 
         <div class="docblock">
           {{ func.summary }}

@@ -96,7 +96,7 @@
       <div class="docblock">
       {% for method in interface.methods %}
       <div class="{% if method.deprecated_since %}deprecated{% endif %}">
-        <h6><a href="method.{{ interface.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+        <h6><a href="method.{{ interface.name}}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
 
         <div class="docblock">
           {{ method.summary }}
@@ -206,7 +206,7 @@
       <div class="docblock">
       {% for method in interface.class_methods %}
       <div class="{% if method.deprecated_since %}deprecated{% endif %}">
-        <h6><a href="class_method.{{ interface.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+        <h6><a href="class_method.{{ interface.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
 
         <div class="docblock">
           {{ method.summary }}
@@ -231,7 +231,7 @@
       <div class="docblock">
       {% for func in interface.type_funcs %}
       <div class="{% if func.deprecated_since %}deprecated{% endif %}">
-        <h6><a href="type_func.{{ interface.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
+        <h6><a href="type_func.{{ interface.name }}.{{ func.name }}.html">{{ func.identifier }}</a></h6>
 
         <div class="docblock">
           {{ func.summary }}
@@ -256,7 +256,7 @@
       <div class="docblock">
       {% for method in interface.virtual_methods %}
       <div class="{% if method.deprecated_since %}deprecated{% endif %}">
-        <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ interface.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ interface.name }}.{{ method.name }}</a> ();</h6>
+        <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ interface.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ interface.name }}.{{ method.name }}</a></h6>
 
         <div class="docblock">
           {{ method.summary }}

@@ -116,7 +116,7 @@
       <div class="docblock">
       {% for ctor in struct.ctors %}
         <div class="{% if ctor.deprecated_since %}deprecated{% endif %}">
-          <h6><a href="ctor.{{ struct.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a> ();</h6>
+          <h6><a href="ctor.{{ struct.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a></h6>
 
           <div class="docblock">
             {{ ctor.summary }}
@@ -141,7 +141,7 @@
       <div class="docblock">
       {% for method in struct.methods %}
         <div class="{% if method.deprecated_since %}deprecated{% endif %}">
-          <h6><a href="method.{{ struct.name}}.{{ method.name }}.html">{{ method.identifier }}</a> ();</h6>
+          <h6><a href="method.{{ struct.name}}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
 
           <div class="docblock">
             {{ method.summary }}
@@ -167,7 +167,7 @@
       <div class="docblock">
       {% for func in struct.type_funcs %}
       <div class="{% if func.deprecated_since %}deprecated{% endif %}">
-        <h6><a href="type_func.{{ struct.name }}.{{ func.name }}.html">{{ func.identifier }}</a> ();</h6>
+        <h6><a href="type_func.{{ struct.name }}.{{ func.name }}.html">{{ func.identifier }}</a></h6>
 
         <div class="docblock">
           {{ func.summary }}
