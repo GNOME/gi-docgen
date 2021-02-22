@@ -122,9 +122,16 @@
             {{ ctor.summary }}
           </div>
 
-          {% if ctor.deprecated_since %}
-          <div class="docblock"><p>Deprecated since: {{ ctor.deprecated_since.version }}</p></div>
-          {% endif %}
+          {% if ctor.available_since or ctor.deprecated_since -%}
+          <div class="docblock">
+          {%- if ctor.available_since -%}
+          <p>Available since: {{ ctor.available_since }}</p>
+          {%- endif -%}
+          {%- if ctor.deprecated_since -%}
+          <p>Deprecated since: {{ ctor.deprecated_since }}</p>
+          {%- endif -%}
+          </div>
+          {%- endif %}
         </div>
       {% endfor %}
       </div>
@@ -147,9 +154,16 @@
             {{ method.summary }}
           </div>
 
-          {% if method.deprecated_since %}
-          <div class="docblock"><p>Deprecated since: {{ method.deprecated_since.version }}</p></div>
-          {% endif %}
+          {% if method.available_since or method.deprecated_since -%}
+          <div class="docblock">
+          {%- if method.available_since -%}
+          <p>Available since: {{ method.available_since }}</p>
+          {%- endif -%}
+          {%- if method.deprecated_since -%}
+          <p>Deprecated since: {{ method.deprecated_since }}</p>
+          {%- endif -%}
+          </div>
+          {%- endif %}
         </div>
       {% endfor %}
       </div>
@@ -173,9 +187,16 @@
           {{ func.summary }}
         </div>
 
-        {% if func.deprecated_since %}
-        <div class="docblock"><p>Deprecated since: {{ func.deprecated_since.version }}</p></div>
-        {% endif %}
+        {% if func.available_since or func.deprecated_since -%}
+        <div class="docblock">
+        {%- if func.available_since -%}
+        <p>Available since: {{ func.available_since }}</p>
+        {%- endif -%}
+        {%- if func.deprecated_since -%}
+        <p>Deprecated since: {{ func.deprecated_since }}</p>
+        {%- endif -%}
+        </div>
+        {%- endif %}
       </div>
       {% endfor %}
       </div>

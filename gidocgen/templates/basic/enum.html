@@ -147,9 +147,16 @@
             {{ func.summary }}
           </div>
 
-          {% if func.deprecated_since %}
-          <div class="docblock"><p>Deprecated since: {{ func.deprecated_since.version }}</p></div>
-          {% endif %}
+          {% if func.available_since or func.deprecated_since -%}
+          <div class="docblock">
+          {%- if func.available_since -%}
+          <p>Available since: {{ func.available_since }}</p>
+          {%- endif -%}
+          {%- if func.deprecated_since -%}
+          <p>Deprecated since: {{ func.deprecated_since }}</p>
+          {%- endif -%}
+          </div>
+          {%- endif %}
         </div>
       {% endfor %}
     </div>

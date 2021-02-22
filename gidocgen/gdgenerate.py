@@ -64,13 +64,88 @@ FRAGMENT = {
 
 
 def type_name_to_cname(fqtn, is_pointer=False):
-    ns, name = fqtn.split('.')
+    ns, name = fqtn.split('.', 1)
     res = []
     res.append(ns)
     res.append(name)
     if is_pointer:
         res.append('*')
     return "".join(res)
+
+
+def gen_index_func(func, namespace, md=None):
+    """Generates a dictionary with the callable metadata required by an index template"""
+    name = func.name
+    if getattr(func, "identifier"):
+        identifier = func.identifier
+    else:
+        identifier = None
+    if func.doc is not None:
+        summary = utils.preprocess_docs(func.doc.content, namespace, summary=True, md=md)
+    else:
+        summary = MISSING_DESCRIPTION
+    if func.available_since is not None:
+        available_since = func.available_since
+    else:
+        available_since = None
+    if func.deprecated_since is not None:
+        (version, msg) = func.deprecated_since
+        deprecated_since = version
+    else:
+        deprecated_since = None
+    return {
+        "name": name,
+        "identifier": identifier,
+        "summary": summary,
+        "available_since": available_since,
+        "deprecated_since": deprecated_since,
+    }
+
+
+def gen_index_property(prop, namespace, md=None):
+    name = prop.name
+    if prop.doc is not None:
+        summary = utils.preprocess_docs(prop.doc.content, namespace, summary=True, md=md)
+    else:
+        summary = MISSING_DESCRIPTION
+    if prop.available_since is not None:
+        available_since = prop.available_since
+    else:
+        available_since = None
+    if prop.deprecated_since is not None:
+        (version, msg) = prop.deprecated_since
+        deprecated_since = version
+    else:
+        deprecated_since = None
+    return {
+        "name": name,
+        "summary": summary,
+        "available_since": available_since,
+        "deprecated_since": deprecated_since,
+    }
+
+
+def gen_index_signal(signal, namespace, md=None):
+    name = signal.name
+    if signal.doc is not None:
+        summary = utils.preprocess_docs(signal.doc.content, namespace, summary=True, md=md)
+    else:
+        summary = MISSING_DESCRIPTION
+    if signal.available_since is not None:
+        available_since = signal.available_since
+    else:
+        available_since = None
+    if signal.deprecated_since is not None:
+        (version, msg) = signal.deprecated_since
+        deprecated_since = version
+    else:
+        deprecated_since = None
+    return {
+        "name": name,
+        "summary": summary,
+        "available_since": available_since,
+        "deprecated_since": deprecated_since,
+    }
 
 
 class TemplateConstant:
@@ -671,128 +746,32 @@ class TemplateInterface:
                     self.class_fields.append(TemplateField(namespace, field))
 
             for method in self.class_struct.methods:
-                name = method.name
-                identifier = method.identifier
-                summary = MISSING_DESCRIPTION
-                if method.doc is not None:
-                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if method.deprecated_since is not None:
-                    (version, msg) = method.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.class_methods.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.class_methods.append(gen_index_func(method, namespace, md))
 
         if len(interface.properties) != 0:
             self.properties = []
             for prop in interface.properties:
-                name = prop.name
-                summary = MISSING_DESCRIPTION
-                if prop.doc is not None:
-                    summary = utils.preprocess_docs(prop.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if prop.deprecated_since is not None:
-                    (version, msg) = prop.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.properties.append({
-                    "name": name,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.properties.append(gen_index_property(prop, namespace, md))
 
         if len(interface.signals) != 0:
             self.signals = []
             for signal in interface.signals:
-                name = signal.name
-                summary = MISSING_DESCRIPTION
-                if signal.doc is not None:
-                    summary = utils.preprocess_docs(signal.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if signal.deprecated_since is not None:
-                    (version, msg) = signal.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.signals.append({
-                    "name": name,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.signals.append(gen_index_signal(signal, namespace, md))
 
         if len(interface.methods) != 0:
             self.methods = []
             for method in interface.methods:
-                name = method.name
-                identifier = method.identifier
-                summary = MISSING_DESCRIPTION
-                if method.doc is not None:
-                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if method.deprecated_since is not None:
-                    (version, msg) = method.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.methods.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.methods.append(gen_index_func(method, namespace, md))
 
         if len(interface.virtual_methods) != 0:
             self.virtual_methods = []
             for vfunc in interface.virtual_methods:
-                name = vfunc.name
-                summary = MISSING_DESCRIPTION
-                if vfunc.doc is not None:
-                    summary = utils.preprocess_docs(vfunc.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if vfunc.deprecated_since is not None:
-                    (version, msg) = vfunc.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.virtual_methods.append({
-                    "name": name,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.virtual_methods.append(gen_index_func(vfunc, namespace, md))
 
         if len(interface.functions) != 0:
             self.type_funcs = []
             for func in interface.functions:
-                name = func.name
-                identifier = func.identifier
-                summary = MISSING_DESCRIPTION
-                if func.doc is not None:
-                    summary = utils.preprocess_docs(func.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if func.deprecated_since is not None:
-                    (version, msg) = func.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.type_funcs.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -806,6 +785,9 @@ class TemplateClass:
         self.link_prefix = "class"
         self.fundamental = cls.fundamental
         self.abstract = cls.abstract
+
+        md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
+                               extension_configs=utils.MD_EXTENSIONS_CONF)
 
         if '.' in cls.name:
             self.namespace = cls.name.split('.')[0]
@@ -846,7 +828,7 @@ class TemplateClass:
                     # Set a hard-limit on the number of methods; base types can
                     # add *a lot* of them; two dozens feel like a good compromise
                     if len(ancestor.methods) < 24:
-                        methods = [TemplateMethod(namespace, ancestor, m) for m in ancestor.methods]
+                        methods = [gen_index_func(m, namespace, md) for m in ancestor.methods]
                     else:
                         methods = []
                     self.ancestors.append({
@@ -854,9 +836,9 @@ class TemplateClass:
                         "name": ancestor_type.name.split('.')[1],
                         "fqtn": ancestor_type.name,
                         "type_cname": ancestor_type.base_ctype,
-                        "properties": [TemplateProperty(namespace, ancestor, p) for p in ancestor.properties],
+                        "properties": [gen_index_property(p, namespace, md) for p in ancestor.properties],
                         "n_properties": len(ancestor.properties),
-                        "signals": [TemplateSignal(namespace, ancestor, s) for s in ancestor.signals],
+                        "signals": [gen_index_signal(s, namespace, md) for s in ancestor.signals],
                         "n_signals": len(ancestor.signals),
                         "methods": methods,
                         "n_methods": len(ancestor.methods),
@@ -889,9 +871,6 @@ class TemplateClass:
         else:
             self.final = False
 
-        md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
-                               extension_configs=utils.MD_EXTENSIONS_CONF)
-
         self.description = MISSING_DESCRIPTION
         if cls.doc is not None:
             self.summary = utils.preprocess_docs(cls.doc.content, namespace, summary=True, md=md)
@@ -922,86 +901,22 @@ class TemplateClass:
         if len(cls.properties) != 0:
             self.properties = []
             for prop in cls.properties:
-                name = prop.name
-                summary = MISSING_DESCRIPTION
-                if prop.doc is not None:
-                    summary = utils.preprocess_docs(prop.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if prop.deprecated_since is not None:
-                    (version, msg) = prop.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.properties.append({
-                    "name": name,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.properties.append(gen_index_property(prop, namespace, md))
 
         if len(cls.signals) != 0:
             self.signals = []
             for signal in cls.signals:
-                name = signal.name
-                summary = MISSING_DESCRIPTION
-                if signal.doc is not None:
-                    summary = utils.preprocess_docs(signal.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if signal.deprecated_since is not None:
-                    (version, msg) = signal.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.signals.append({
-                    "name": name,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.signals.append(gen_index_signal(signal, namespace, md))
 
         if len(cls.constructors) != 0:
             self.ctors = []
             for ctor in cls.constructors:
-                name = ctor.name
-                identifier = ctor.identifier
-                summary = MISSING_DESCRIPTION
-                if ctor.doc is not None:
-                    summary = utils.preprocess_docs(ctor.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if ctor.deprecated_since is not None:
-                    (version, msg) = ctor.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.ctors.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.ctors.append(gen_index_func(ctor, namespace, md))
 
         if len(cls.methods) != 0:
             self.methods = []
             for method in cls.methods:
-                name = method.name
-                identifier = method.identifier
-                summary = MISSING_DESCRIPTION
-                if method.doc is not None:
-                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if method.deprecated_since is not None:
-                    (version, msg) = method.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.methods.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.methods.append(gen_index_func(method, namespace, md))
 
         if self.class_struct is not None:
             self.class_ctype = self.class_struct.ctype
@@ -1012,25 +927,8 @@ class TemplateClass:
                 if not field.private:
                     self.class_fields.append(TemplateField(namespace, field))
 
-            for meth in self.class_struct.methods:
-                name = method.name
-                identifier = method.identifier
-                summary = MISSING_DESCRIPTION
-                if method.doc is not None:
-                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if method.deprecated_since is not None:
-                    (version, msg) = method.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.class_methods.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+            for method in self.class_struct.methods:
+                self.class_methods.append(gen_index_func(method, namespace, md))
 
         if len(cls.implements) != 0:
             self.interfaces = []
@@ -1040,7 +938,7 @@ class TemplateClass:
                     # Set a hard-limit on the number of methods; base types can
                     # add *a lot* of them; two dozens feel like a good compromise
                     if len(iface.methods) < 24:
-                        methods = [TemplateMethod(namespace, iface, m) for m in iface.methods]
+                        methods = [gen_index_func(m, namespace, md) for m in iface.methods]
                     else:
                         methods = []
                     self.interfaces.append({
@@ -1048,9 +946,9 @@ class TemplateClass:
                         "name": iface_type.name.split('.')[1],
                         "fqtn": iface_type.name,
                         "type_cname": iface_type.base_ctype,
-                        "properties": [TemplateProperty(namespace, iface, p) for p in iface.properties],
+                        "properties": [gen_index_property(p, namespace, md) for p in iface.properties],
                         "n_properties": len(iface.properties),
-                        "signals": [TemplateSignal(namespace, iface, s) for s in iface.signals],
+                        "signals": [gen_index_signal(s, namespace, md) for s in iface.signals],
                         "n_signals": len(iface.signals),
                         "methods": methods,
                         "n_methods": len(iface.methods),
@@ -1151,7 +1049,7 @@ class TemplateRecord:
             (version, msg) = record.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg, namespace),
+                "message": utils.preprocess_docs(msg, namespace, md=md),
             }
 
         if record.doc is not None:
@@ -1169,68 +1067,17 @@ class TemplateRecord:
         if len(record.constructors) != 0:
             self.ctors = []
             for ctor in record.constructors:
-                name = ctor.name
-                identifier = ctor.identifier
-                summary = MISSING_DESCRIPTION
-                if ctor.doc is not None:
-                    summary = utils.preprocess_docs(ctor.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if ctor.deprecated_since is not None:
-                    (version, msg) = ctor.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.ctors.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.ctors.append(gen_index_func(ctor, namespace, md))
 
         if len(record.methods) != 0:
             self.methods = []
             for method in record.methods:
-                name = method.name
-                identifier = method.identifier
-                summary = MISSING_DESCRIPTION
-                if method.doc is not None:
-                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if method.deprecated_since is not None:
-                    (version, msg) = method.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.methods.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.methods.append(gen_index_func(method, namespace, md))
 
         if len(record.functions) != 0:
             self.type_funcs = []
             for func in record.functions:
-                name = func.name
-                identifier = func.identifier
-                summary = MISSING_DESCRIPTION
-                if func.doc is not None:
-                    summary = utils.preprocess_docs(func.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if func.deprecated_since is not None:
-                    (version, msg) = func.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.type_funcs.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1272,7 +1119,7 @@ class TemplateUnion:
             (version, msg) = union.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg, namespace),
+                "message": utils.preprocess_docs(msg, namespace, md=md),
             }
 
         if union.doc is not None:
@@ -1290,68 +1137,17 @@ class TemplateUnion:
         if len(union.constructors) != 0:
             self.ctors = []
             for ctor in union.constructors:
-                name = ctor.name
-                identifier = ctor.identifier
-                summary = MISSING_DESCRIPTION
-                if ctor.doc is not None:
-                    summary = utils.preprocess_docs(ctor.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if ctor.deprecated_since is not None:
-                    (version, msg) = ctor.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.ctors.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.ctors.append(gen_index_func(ctor, namespace, md))
 
         if len(union.methods) != 0:
             self.methods = []
             for method in union.methods:
-                name = method.name
-                identifier = method.identifier
-                summary = MISSING_DESCRIPTION
-                if method.doc is not None:
-                    summary = utils.preprocess_docs(method.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if method.deprecated_since is not None:
-                    (version, msg) = method.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.methods.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.methods.append(gen_index_func(method, namespace, md))
 
         if len(union.functions) != 0:
             self.type_funcs = []
             for func in union.functions:
-                name = func.name
-                identifier = func.identifier
-                summary = MISSING_DESCRIPTION
-                if func.doc is not None:
-                    summary = utils.preprocess_docs(func.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if func.deprecated_since is not None:
-                    (version, msg) = func.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.type_funcs.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1408,9 +1204,10 @@ class TemplateMember:
         self.name = member.identifier
         self.nick = member.nick
         self.value = member.value
-        self.description = "No description available."
         if member.doc is not None:
             self.description = utils.preprocess_docs(member.doc.content, namespace)
+        else:
+            self.description = MISSING_DESCRIPTION
 
 
 class TemplateEnum:
@@ -1425,10 +1222,14 @@ class TemplateEnum:
         self.name = enum.name
         self.fqtn = f"{namespace.name}.{enum.name}"
 
-        self.description = "No description available."
+        md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
+                               extension_configs=utils.MD_EXTENSIONS_CONF)
+
         if enum.doc is not None:
-            self.summary = utils.preprocess_docs(enum.doc.content, namespace, summary=True)
-            self.description = utils.preprocess_docs(enum.doc.content, namespace)
+            self.summary = utils.preprocess_docs(enum.doc.content, namespace, summary=True, md=md)
+            self.description = utils.preprocess_docs(enum.doc.content, namespace, md=md)
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.stability = enum.stability
         self.annotations = enum.annotations
@@ -1438,7 +1239,7 @@ class TemplateEnum:
             (version, msg) = enum.deprecated_since
             self.deprecated_since = {
                 "version": version,
-                "message": utils.preprocess_docs(msg, namespace),
+                "message": utils.preprocess_docs(msg, namespace, md=md),
             }
 
         if enum.doc is not None:
@@ -1466,7 +1267,7 @@ class TemplateEnum:
         if len(enum.functions) != 0:
             self.type_funcs = []
             for func in enum.functions:
-                self.type_funcs.append(TemplateFunction(namespace, func))
+                self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1742,7 +1543,8 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
                 'enum': tmpl,
             }))
 
-        for type_func in getattr(tmpl, 'type_funcs', []):
+        for type_func in enum.functions:
+            f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
@@ -1751,7 +1553,7 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'type_func': type_func,
+                    'type_func': f,
                 }))
 
     return template_enums
@@ -1779,7 +1581,8 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
                 'enum': tmpl,
             }))
 
-        for type_func in getattr(tmpl, 'type_funcs', []):
+        for type_func in enum.functions:
+            f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
@@ -1788,7 +1591,7 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'type_func': type_func,
+                    'type_func': f,
                 }))
 
     return template_bitfields
@@ -1816,7 +1619,8 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
                 'enum': tmpl,
             }))
 
-        for type_func in getattr(tmpl, 'type_funcs', []):
+        for type_func in enum.functions:
+            f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
@@ -1825,7 +1629,7 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,
-                    'type_func': type_func,
+                    'type_func': f,
                 }))
 
     return template_domains
