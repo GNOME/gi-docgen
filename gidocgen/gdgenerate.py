@@ -2107,29 +2107,34 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
             "content_files": content_files,
         }))
 
-    if theme_config.css is not None:
-        log.info(f"Copying style from {theme_dir} to {ns_dir}")
-        style_src = os.path.join(theme_dir, theme_config.css)
-        style_dst = os.path.join(ns_dir, theme_config.css)
-        shutil.copyfile(style_src, style_dst)
-
-    for extra_file in theme_config.extra_files:
-        log.info(f"Copying extra file {extra_file} from {theme_dir} to {ns_dir}")
-        src = os.path.join(theme_dir, extra_file)
-        dst = os.path.join(ns_dir, extra_file)
-        shutil.copyfile(src, dst)
-
-    for (src, dst) in content_images:
-        log.info(f"Copying content image {src}: {dst}")
-        dst_dir = os.path.dirname(dst)
-        os.makedirs(dst_dir, exist_ok=True)
-        shutil.copyfile(src, dst)
-
     if config.devhelp:
         devhelp_file = os.path.join(ns_dir, f"{namespace.name}-{namespace.version}.devhelp2")
         log.info(f"Creating DevHelp file for {namespace.name}.{namespace.version}: {devhelp_file}")
         res = gen_devhelp(config, repository, namespace, template_symbols, content_files)
         res.write(devhelp_file, encoding="UTF-8")
+
+    copy_files = []
+    if theme_config.css is not None:
+        style_src = os.path.join(theme_dir, theme_config.css)
+        style_dst = os.path.join(ns_dir, theme_config.css)
+        copy_files.append((style_src, style_dst))
+
+    for extra_file in theme_config.extra_files:
+        src = os.path.join(theme_dir, extra_file)
+        dst = os.path.join(ns_dir, extra_file)
+        copy_files.append((src, dst))
+
+    copy_files.extend(content_images)
+
+    def copy_worker(src, dst):
+        log.info(f"Copying file {src}: {dst}")
+        dst_dir = os.path.dirname(dst)
+        os.makedirs(dst_dir, exist_ok=True)
+        shutil.copy(src, dst)
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for (src, dst) in copy_files:
+            executor.submit(copy_worker, src, dst)
 
 
 def add_args(parser):
