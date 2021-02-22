@@ -1035,8 +1035,6 @@ class TemplateClass:
         if len(cls.implements) != 0:
             self.interfaces = []
             for iface_type in cls.implements:
-                if iface_type.name == 'Gtk.ConstraintTarget':
-                    log.warning(f"iface: {iface_type}")
                 iface = namespace.find_interface(iface_type.name.split('.')[1])
                 if iface is not None:
                     # Set a hard-limit on the number of methods; base types can
