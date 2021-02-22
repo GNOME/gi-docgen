@@ -364,9 +364,13 @@
       </h4>
 
       <div class="docblock">
-        <pre><code>struct {{ class.class_ctype }} {
+        <pre><code>struct {{ namespace.name}}{{ class.class_name }} {
   {% for field in class.class_fields %}
-  {{ field.name }};
+  {%- if field.is_callback -%}
+  {{ field.type_cname }};
+  {%- else -%}
+  {{ field.type_cname }} {{ field.name }};
+  {%- endif %}
   {% else %}/* no available fields */{% endfor %}
 }</code></pre>
       </div>
@@ -379,9 +383,12 @@
         {% for field in class.class_fields %}
         <tr>
           <td style="vertical-align:top"><code>{{ field.name }}</code></td>
-          <td style="vertical-align:top">{{ field.type_cname }}</td>
-          <td style="vertical-align:top">{{ field.description }}</td>
+          <td style="vertical-align:top"><pre><code>{{ field.type_cname }}</code></pre></td>
         </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td style="vertical-align:top">{{ field.description }}</td>
+        </td>
         {% endfor %}
         </table>
       </div>

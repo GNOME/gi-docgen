@@ -616,9 +616,11 @@ class TemplateFunction:
 
 
 class TemplateCallback:
-    def __init__(self, namespace, cb):
+    def __init__(self, namespace, cb, field=False):
         self.name = cb.name
         self.identifier = cb.name.replace("-", "_")
+        self.field = field
+
         if cb.doc is not None:
             self.summary = utils.preprocess_docs(cb.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(cb.doc.content, namespace)
@@ -648,24 +650,38 @@ class TemplateCallback:
     @property
     def c_decl(self):
         res = []
-        if self.return_value is None:
-            res += ["void"]
+        if self.field:
+            arg_indent = "    "
         else:
-            res += [f"{self.return_value.type_cname}"]
-        res += [f"{self.identifier} ("]
+            arg_indent = "  "
+        if self.return_value is None:
+            retval = "void"
+        else:
+            retval = f"{self.return_value.type_cname}"
+        if self.field:
+            res += [f"{retval} (* {self.identifier}) ("]
+        else:
+            res += [retval]
+            res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
         if n_args == 0:
             res += ["void"]
         else:
             for (idx, arg) in enumerate(self.arguments):
                 if idx == n_args - 1 and not self.throws:
-                    res += [f"  {arg.type_cname} {arg.name}"]
+                    res += [f"{arg_indent}{arg.type_cname} {arg.name}"]
                 else:
-                    res += [f"  {arg.type_cname} {arg.name},"]
+                    res += [f"{arg_indent}{arg.type_cname} {arg.name},"]
         if self.throws:
-            res += ["  GError** error"]
-        res += [")"]
-        return utils.code_highlight("\n".join(res))
+            res += [f"{arg_indent}GError** error"]
+        if self.field:
+            res += ["  )"]
+        else:
+            res += [")"]
+        if self.field:
+            return "\n".join(res)
+        else:
+            return utils.code_highlight("\n".join(res))
 
 
 class TemplateField:
@@ -673,14 +689,17 @@ class TemplateField:
         self.name = field.name
         if field.target is not None:
             if isinstance(field.target, gir.Callback):
+                self.is_callback = True
                 self.type_name: field.target.name
-                self.type_cname = TemplateCallback(namespace, field.target).c_decl
+                self.type_cname = TemplateCallback(namespace, field.target, field=True).c_decl
             else:
+                self.is_callback = False
                 self.type_name = field.target.name
                 self.type_cname = field.target.ctype
         else:
+            self.is_callback = False
             self.type_name = 'none'
-            self.type_cname = 'void*'
+            self.type_cname = 'gpointer'
         self.private = field.private
         if field.doc is not None:
             self.description = utils.preprocess_docs(field.doc.content, namespace)
@@ -975,44 +994,12 @@ class TemplateClass:
         if len(cls.virtual_methods) != 0:
             self.virtual_methods = []
             for vfunc in cls.virtual_methods:
-                name = vfunc.name
-                summary = MISSING_DESCRIPTION
-                if vfunc.doc is not None:
-                    summary = utils.preprocess_docs(vfunc.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if vfunc.deprecated_since is not None:
-                    (version, msg) = vfunc.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.virtual_methods.append({
-                    "name": name,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.virtual_methods.append(gen_index_func(vfunc, namespace, md))
 
         if len(cls.functions) != 0:
             self.type_funcs = []
             for func in cls.functions:
-                name = func.name
-                identifier = func.identifier
-                summary = MISSING_DESCRIPTION
-                if func.doc is not None:
-                    summary = utils.preprocess_docs(func.doc.content, namespace, summary=True, md=md)
-                deprecated_since = None
-                if func.deprecated_since is not None:
-                    (version, msg) = func.deprecated_since
-                    deprecated_since = {
-                        "version": version,
-                        "message": utils.preprocess_docs(msg, namespace, md=md),
-                    }
-                self.type_funcs.append({
-                    "name": name,
-                    "identifier": identifier,
-                    "summary": summary,
-                    "deprecated_since": deprecated_since,
-                })
+                self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1095,15 +1082,15 @@ class TemplateRecord:
         res = [f"struct {self.type_cname} {{"]
         n_fields = len(self.fields)
         if n_fields > 0:
-            for (idx, field) in enumerate(self.fields):
-                if idx < n_fields - 1:
-                    res += [f"  {field.name}: {field.type_cname},"]
+            for field in self.fields:
+                if field.is_callback:
+                    res += [f"  {field.type_cname};"]
                 else:
-                    res += [f"  {field.name}: {field.type_cname}"]
+                    res += [f"  {field.type_cname} {field.name};"]
         else:
             res += ["  /* No available fields */"]
         res += ["}"]
-        return "\n".join(res)
+        return utils.code_highlight("\n".join(res))
 
 
 class TemplateUnion:
@@ -1165,15 +1152,15 @@ class TemplateUnion:
         res = [f"union {self.type_cname} {{"]
         n_fields = len(self.fields)
         if n_fields > 0:
-            for (idx, field) in enumerate(self.fields):
-                if idx < n_fields - 1:
-                    res += [f"  {field.name}: {field.type_cname},"]
+            for field in self.fields:
+                if field.is_callback:
+                    res += [f"  {field.type_cname};"]
                 else:
-                    res += [f"  {field.name}: {field.type_cname}"]
+                    res += [f"  {field.type_cname} {field.name};"]
         else:
             res += ["  /* No available fields */"]
         res += ["}"]
-        return "\n".join(res)
+        return utils.code_highlight("\n".join(res))
 
 
 class TemplateAlias:
