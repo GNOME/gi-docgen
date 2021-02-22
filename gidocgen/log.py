@@ -142,6 +142,7 @@ def log(text, prefix=None, location=None, out=None):
 
     @prefix: (optional): a prefix string, or an AnsiEscape object
     @location: (optional): a location string, or a Location object
+    @out: (optional): a File object
     '''
     res = []
     if prefix:
@@ -188,16 +189,22 @@ def deprecation(text, location=None):
     log_warnings_counter += 1
 
 
+def checkpoint(prefix=None):
+    if log_quiet:
+        return
+    elapsed = (time.monotonic() - log_epoch)
+    msg = f"Elapsed time {elapsed:.3f} seconds"
+    if prefix is None:
+        prefix = green('INFO')
+    log(msg, prefix)
+
+
 def report():
     if log_quiet:
         return
-
     elapsed = (time.monotonic() - log_epoch)
-
     report = [""]
     report += [f"Elapsed time: {elapsed:.3f} seconds"]
     report += [f"Total warnings: {log_warnings_counter}"]
-
     print("\n".join(report))
-
     return log_warnings_counter != 0
