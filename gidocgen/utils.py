@@ -361,7 +361,7 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
                                  extensions=md_ext,
                                  extension_configs=MD_EXTENSIONS_CONF)
     else:
-        text = md.convert("\n".join(processed_text))
+        text = md.reset().convert("\n".join(processed_text))
 
     return Markup(typogrify(text, ignore_tags=['h1', 'h2', 'h3', 'h4']))
 
