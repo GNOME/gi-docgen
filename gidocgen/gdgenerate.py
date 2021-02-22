@@ -2169,6 +2169,7 @@ def run(options):
     parser.parse(options.infile)
 
     if not options.dry_run:
+        log.checkpoint()
         gen_reference(conf, options, parser.get_repository(), templates_dir, theme_conf, content_dir, output_dir)
 
     return 0
