@@ -158,10 +158,11 @@ class TemplateConstant:
         self.name = const.name
         self.fqtn = f"{namespace.name}.{const.name}"
 
-        self.description = "No description available."
         if const.doc is not None:
             self.summary = utils.preprocess_docs(const.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(const.doc.content, namespace)
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.stability = const.stability
         self.annotations = const.annotations
@@ -190,7 +191,6 @@ class TemplateProperty:
         self.name = prop.name
         self.type_name = prop.target.name
         self.type_cname = prop.target.ctype
-        self.description = "No description available."
         self.readable = prop.readable
         self.writable = prop.writable
         self.construct = prop.construct
@@ -203,6 +203,8 @@ class TemplateProperty:
                 filename = filename.replace('../', '')
             line = prop.doc.line
             self.docs_location = f"{filename}#L{line}"
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.stability = prop.stability
         self.annotations = prop.annotations
@@ -243,10 +245,11 @@ class TemplateArgument:
         if self.is_list:
             self.value_type = argument.target.value_type.name
             self.value_type_cname = argument.target.value_type.ctype
-        self.description = "No description available."
         if argument.doc is not None:
             self.summary = utils.preprocess_docs(argument.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(argument.doc.content, namespace)
+        else:
+            self.description = MISSING_DESCRIPTION
         if self.is_array:
             name = self.value_type
         elif self.is_list:
@@ -307,12 +310,13 @@ class TemplateReturnValue:
         if self.is_list:
             self.value_type = retval.target.value_type.name
             self.value_type_cname = retval.target.value_type.ctype
-        self.description = "No description available."
         if self.type_name in ['utf8', 'filename']:
             self.string_note = STRING_TYPES[self.type_name]
         if retval.doc is not None:
             self.summary = utils.preprocess_docs(retval.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(retval.doc.content, namespace)
+        else:
+            self.description = MISSING_DESCRIPTION
         if self.is_array:
             name = self.value_type
         elif self.is_list:
@@ -357,7 +361,6 @@ class TemplateSignal:
     def __init__(self, namespace, type_, signal):
         self.name = signal.name
         self.type_cname = type_.base_ctype
-        self.description = "No description available."
         self.identifier = signal.name.replace("-", "_")
 
         if signal.doc is not None:
@@ -368,6 +371,8 @@ class TemplateSignal:
                 filename = filename.replace('../', '')
             line = signal.doc.line
             self.docs_location = f"{filename}#L{line}"
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.is_detailed = signal.detailed
         self.is_action = signal.action
@@ -414,11 +419,12 @@ class TemplateMethod:
     def __init__(self, namespace, type_, method):
         self.name = method.name
         self.identifier = method.identifier
-        self.description = "No description available."
 
         if method.doc is not None:
             self.summary = utils.preprocess_docs(method.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(method.doc.content, namespace)
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.throws = method.throws
 
@@ -490,10 +496,11 @@ class TemplateClassMethod:
 
         self.throws = method.throws
 
-        self.description = "No description available."
         if method.doc is not None:
             self.summary = utils.preprocess_docs(method.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(method.doc.content, namespace)
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.arguments = []
         for arg in method.parameters:
@@ -548,10 +555,11 @@ class TemplateFunction:
 
         self.throws = func.throws
 
-        self.description = "No description available."
         if func.doc is not None:
             self.summary = utils.preprocess_docs(func.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(func.doc.content, namespace)
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.arguments = []
         for arg in func.parameters:
@@ -610,11 +618,12 @@ class TemplateFunction:
 class TemplateCallback:
     def __init__(self, namespace, cb):
         self.name = cb.name
-        self.description = "No description available."
         self.identifier = cb.name.replace("-", "_")
         if cb.doc is not None:
             self.summary = utils.preprocess_docs(cb.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(cb.doc.content, namespace)
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.arguments = []
         for arg in cb.parameters:
@@ -673,9 +682,10 @@ class TemplateField:
             self.type_name = 'none'
             self.type_cname = 'void*'
         self.private = field.private
-        self.description = "No description available."
         if field.doc is not None:
             self.description = utils.preprocess_docs(field.doc.content, namespace)
+        else:
+            self.description = MISSING_DESCRIPTION
 
 
 class TemplateInterface:
