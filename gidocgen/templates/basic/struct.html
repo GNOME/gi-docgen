@@ -94,10 +94,10 @@
           </table>
         </div>
 
-        {% if struct.annotations %}
+        {% if struct.attributes %}
         <div class="docblock">
-          <table class="annotations">
-          {% for (key, value) in struct.annotations %}
+          <table class="attributes">
+          {% for (key, value) in struct.attributes.items() %}
             <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
           {% endfor %}
           </table>

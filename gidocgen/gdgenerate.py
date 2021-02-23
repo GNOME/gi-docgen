@@ -11,6 +11,8 @@ import sys
 
 import xml.etree.ElementTree as etree
 
+from markupsafe import Markup
+
 from . import config, gir, log, utils
 
 
@@ -165,7 +167,7 @@ class TemplateConstant:
             self.description = MISSING_DESCRIPTION
 
         self.stability = const.stability
-        self.annotations = const.annotations
+        self.attributes = const.attributes
         self.available_since = const.available_since
         if const.deprecated_since is not None:
             (version, msg) = const.deprecated_since
@@ -207,7 +209,6 @@ class TemplateProperty:
             self.description = MISSING_DESCRIPTION
 
         self.stability = prop.stability
-        self.annotations = prop.annotations
         self.available_since = prop.available_since
         if prop.deprecated_since is not None:
             (version, msg) = prop.deprecated_since
@@ -215,6 +216,52 @@ class TemplateProperty:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+
+        def transform_set_attribute(namespace, prop, setter_func):
+            if setter_func is None:
+                log.warning(f"Missing value in the set attribute for {prop.name}")
+                return None
+            t = namespace.find_symbol(setter_func)
+            if t is None or not isinstance(t, gir.Class):
+                return setter_func
+            func_name = setter_func.replace(namespace.symbol_prefix[0] + '_', '')
+            func_name = func_name.replace(t.symbol_prefix + '_', '')
+            href = f"method.{t.name}.{func_name}"
+            return Markup(f"<a href=\"{href}\"><code>{setter_func}</code></a>")
+
+        def transform_get_attribute(namespace, prop, getter_func):
+            if getter_func is None:
+                log.warning(f"Missing value in the get attribute for {prop.name}")
+                return None
+            t = namespace.find_symbol(getter_func)
+            if t is None or not isinstance(t, gir.Class):
+                return getter_func
+            func_name = getter_func.replace(namespace.symbol_prefix[0] + '_', '')
+            func_name = func_name.replace(t.symbol_prefix + '_', '')
+            href = f"method.{t.name}.{func_name}"
+            return Markup(f"<a href=\"{href}\"><code>{getter_func}</code></a>")
+
+        ATTRIBUTE_NAMES = {
+            "org.gtk.Property.set": {
+                "label": "Setter method",
+                "transform": transform_set_attribute,
+            },
+            "org.gtk.Property.get": {
+                "label": "Getter method",
+                "transform": transform_get_attribute,
+            },
+        }
+
+        self.attributes = {}
+        for name in (prop.attributes or {}):
+            value = prop.attributes[name]
+            if name in ATTRIBUTE_NAMES:
+                label = ATTRIBUTE_NAMES[name].get("label")
+                transform = ATTRIBUTE_NAMES[name].get("transform")
+                if transform is not None:
+                    self.attributes[label] = transform(namespace, prop, value)
+            else:
+                self.attributes[name] = value
 
 
 class TemplateArgument:
@@ -390,7 +437,7 @@ class TemplateSignal:
             self.return_value = TemplateReturnValue(namespace, signal, signal.return_value)
 
         self.stability = signal.stability
-        self.annotations = signal.annotations
+        self.attributes = signal.attributes
         self.available_since = signal.available_since
         if signal.deprecated_since is not None:
             (version, msg) = signal.deprecated_since
@@ -439,7 +486,7 @@ class TemplateMethod:
             self.return_value = TemplateReturnValue(namespace, method, method.return_value)
 
         self.stability = method.stability
-        self.annotations = method.annotations
+        self.attributes = method.attributes
         self.available_since = method.available_since
         if method.deprecated_since is not None:
             (version, msg) = method.deprecated_since
@@ -570,7 +617,7 @@ class TemplateFunction:
             self.return_value = TemplateReturnValue(namespace, func, func.return_value)
 
         self.stability = func.stability
-        self.annotations = func.annotations
+        self.attributes = func.attributes
         self.available_since = func.available_since
         if func.deprecated_since is not None:
             (version, msg) = func.deprecated_since
@@ -638,7 +685,7 @@ class TemplateCallback:
         self.throws = cb.throws
 
         self.stability = cb.stability
-        self.annotations = cb.annotations
+        self.attributes = cb.attributes
         self.available_since = cb.available_since
         if cb.deprecated_since is not None:
             (version, msg) = cb.deprecated_since
@@ -748,7 +795,7 @@ class TemplateInterface:
             self.description = utils.preprocess_docs(interface.doc.content, namespace, md=md)
 
         self.stability = interface.stability
-        self.annotations = interface.annotations
+        self.attributes = interface.attributes
         self.available_since = interface.available_since
         if interface.deprecated_since is not None:
             (version, msg) = interface.deprecated_since
@@ -907,7 +954,7 @@ class TemplateClass:
             self.description = utils.preprocess_docs(cls.doc.content, namespace, md=md)
 
         self.stability = cls.stability
-        self.annotations = cls.annotations
+        self.attributes = cls.attributes
         self.available_since = cls.available_since
         if cls.deprecated_since is not None:
             (version, msg) = cls.deprecated_since
@@ -1041,7 +1088,7 @@ class TemplateRecord:
             self.description = utils.preprocess_docs(record.doc.content, namespace, md=md)
 
         self.stability = record.stability
-        self.annotations = record.annotations
+        self.attributes = record.attributes
         self.available_since = record.available_since
         if record.deprecated_since is not None:
             (version, msg) = record.deprecated_since
@@ -1111,7 +1158,7 @@ class TemplateUnion:
             self.description = utils.preprocess_docs(union.doc.content, namespace, md=md)
 
         self.stability = union.stability
-        self.annotations = union.annotations
+        self.attributes = union.attributes
         self.available_since = union.available_since
         if union.deprecated_since is not None:
             (version, msg) = union.deprecated_since
@@ -1182,7 +1229,7 @@ class TemplateAlias:
             self.description = utils.preprocess_docs(alias.doc.content, namespace, md=md)
 
         self.stability = alias.stability
-        self.annotations = alias.annotations
+        self.attributes = alias.attributes
         self.available_since = alias.available_since
         self.deprecated_since = alias.deprecated_since
         if alias.deprecated_since is not None:
@@ -1230,7 +1277,7 @@ class TemplateEnum:
             self.description = MISSING_DESCRIPTION
 
         self.stability = enum.stability
-        self.annotations = enum.annotations
+        self.attributes = enum.attributes
         self.available_since = enum.available_since
         self.deprecated_since = enum.deprecated_since
         if enum.deprecated_since is not None:

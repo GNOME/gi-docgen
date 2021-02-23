@@ -71,10 +71,10 @@
         </table>
       </div>
 
-      {% if property.annotations %}
+      {% if property.attributes %}
       <div class="docblock">
         <table>
-        {% for (key, value) in property.annotations %}
+        {% for (key, value) in property.attributes.items() %}
           <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
         {% endfor %}
         </table>

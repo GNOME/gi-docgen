@@ -81,10 +81,10 @@
         </table>
       </div>
 
-      {% if enum.annotations %}
+      {% if enum.attributes %}
       <div class="docblock">
-        <table class="annotations">
-        {% for (key, value) in enum.annotations %}
+        <table class="attributes">
+        {% for (key, value) in enum.attributes.items() %}
           <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
         {% endfor %}
         </table>

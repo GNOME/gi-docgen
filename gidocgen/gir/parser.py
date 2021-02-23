@@ -256,6 +256,19 @@ class GirParser:
 
         return "".join(child.itertext())
 
+    def _maybe_parse_attributes(self, node: ET.Element) -> T.Optional[T.Mapping[str, str]]:
+        children = node.findall('core:attribute', GI_NAMESPACES)
+        if children is None:
+            return None
+
+        attrs = {}
+        for child in children:
+            name = child.attrib.get('name')
+            value = child.attrib.get('value')
+            if name is not None:
+                attrs[name] = value
+        return attrs
+
     def _maybe_parse_docs(self, node: ET.Element, element: ast.GIRElement) -> None:
         doc = self._maybe_parse_doc(node)
         if doc is not None:
@@ -263,6 +276,9 @@ class GirParser:
         source_pos = self._maybe_parse_source_position(node)
         if source_pos is not None:
             element.set_source_position(source_pos)
+        attrs = self._maybe_parse_attributes(node)
+        if attrs is not None:
+            element.set_attributes(attrs)
         stability = node.attrib.get('stability')
         if stability is not None:
             element.set_stability(stability)

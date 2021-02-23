@@ -75,10 +75,10 @@
           </table>
         </div>
 
-        {% if interface.annotations %}
+        {% if interface.attributes %}
         <div class="docblock">
-          <table class="annotations">
-          {% for (key, value) in interface.annotations %}
+          <table class="attributes">
+          {% for (key, value) in interface.attributes.items() %}
             <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
           {% endfor %}
           </table>

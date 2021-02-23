@@ -27,7 +27,7 @@ class SourcePosition:
         return f'{self.filename}:{self.line}'
 
 
-class Annotation:
+class Attribute:
     """A user-defined annotation"""
     def __init__(self, name: str, value: T.Optional[str]):
         self.name = name
@@ -73,12 +73,12 @@ class Info:
         self.deprecated_version = deprecated_version
         self.version = version
         self.stability = stability
-        self.annotations: T.List[Annotation] = []
+        self.attributes: T.Mapping[str, str] = {}
         self.doc: T.Optional[Doc] = None
         self.source_position: T.Optional[SourcePosition] = None
 
-    def add_annotation(self, annotation: Annotation) -> None:
-        self.annotations.append(annotation)
+    def add_attribute(self, name: str, value: T.Optional[str]) -> None:
+        self.attributes[name] = value
 
 
 class GIRElement:
@@ -131,13 +131,14 @@ class GIRElement:
         self.info.deprecated_msg = doc
         self.info.deprecated_version = since_version
 
-    def add_annotation(self, name: str, value: T.Optional[str] = None) -> None:
+    def set_attributes(self, attrs: T.Mapping[str, T.Optional[str]]) -> None:
         """Add an annotation to the symbol"""
-        self.info.add_annotation(Annotation(name, value))
+        for name, value in attrs.items():
+            self.info.add_attribute(name, value)
 
     @property
-    def annotations(self) -> T.List[T.Tuple[str, T.Optional[str]]]:
-        return self.info.annotations
+    def attributes(self) -> T.Mapping[str, T.Optional[str]]:
+        return self.info.attributes
 
     @property
     def available_since(self) -> T.Optional[str]:

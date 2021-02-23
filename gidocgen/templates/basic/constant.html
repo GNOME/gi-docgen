@@ -66,10 +66,10 @@
         </table>
       </div>
 
-      {% if constant.annotations %}
+      {% if constant.attributes %}
       <div class="docblock">
         <table>
-        {% for (key, value) in constant.annotations %}
+        {% for (key, value) in constant.attributes.items() %}
           <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
         {% endfor %}
         </table>
