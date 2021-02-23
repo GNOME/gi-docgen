@@ -135,7 +135,7 @@ class GirParser:
         return res
 
     def _parse_dependency(self, include: ast.Include) -> None:
-        if self._dependencies.get(str(include), None) is not None:
+        if self._dependencies.get(include.name, None) is not None:
             log.debug(f"Dependency {include} already parsed")
             return
         found = False
