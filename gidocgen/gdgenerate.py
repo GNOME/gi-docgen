@@ -486,7 +486,6 @@ class TemplateMethod:
             self.return_value = TemplateReturnValue(namespace, method, method.return_value)
 
         self.stability = method.stability
-        self.attributes = method.attributes
         self.available_since = method.available_since
         if method.deprecated_since is not None:
             (version, msg) = method.deprecated_since
@@ -507,6 +506,33 @@ class TemplateMethod:
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
             self.docs_location = f"{filename}#L{line}"
+
+        def transform_property_attribute(namespace, type_, method, value):
+            text = f"{namespace.name}.{type_.name}:{value}"
+            href = f"property.{type_.name}.{value}.html"
+            return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
+
+        ATTRIBUTE_NAMES = {
+            "org.gtk.Method.set_property": {
+                "label": "Sets property",
+                "transform": transform_property_attribute,
+            },
+            "org.gtk.Method.get_property": {
+                "label": "Gets property",
+                "transform": transform_property_attribute,
+            }
+        }
+
+        self.attributes = {}
+        for name in (method.attributes or {}):
+            value = method.attributes[name]
+            if name in ATTRIBUTE_NAMES:
+                label = ATTRIBUTE_NAMES[name].get("label")
+                transform = ATTRIBUTE_NAMES[name].get("transform")
+                if transform is not None:
+                    self.attributes[label] = transform(namespace, type_, method, value)
+            else:
+                self.attributes[name] = value
 
     @property
     def c_decl(self):
