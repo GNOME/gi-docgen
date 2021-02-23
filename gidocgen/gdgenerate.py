@@ -512,6 +512,11 @@ class TemplateMethod:
             href = f"property.{type_.name}.{value}.html"
             return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
 
+        def transform_signal_attribute(namespace, type_, method, value):
+            text = f"{namespace.name}.{type_.name}::{value}"
+            href = f"signal.{type_.name}.{value}.html"
+            return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
+
         ATTRIBUTE_NAMES = {
             "org.gtk.Method.set_property": {
                 "label": "Sets property",
@@ -520,6 +525,10 @@ class TemplateMethod:
             "org.gtk.Method.get_property": {
                 "label": "Gets property",
                 "transform": transform_property_attribute,
+            },
+            "org.gtk.Method.signal": {
+                "label": "Emits signal",
+                "transform": transform_signal_attribute,
             }
         }
 

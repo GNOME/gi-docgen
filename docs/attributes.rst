@@ -26,6 +26,10 @@ The following attributes apply to methods of a classed type or interface.
   Defines the property set by the function. The property name must be in
   the same type as the method
 
-``out.gtk.Method.get_property`` = ``s``
+``org.gtk.Method.get_property`` = ``s``
   Defines the property retrieved by the function. The property name must
   be in the same type as the method
+
+``org.gtk.Method.signal`` = ``s``
+  Defines the signal emitted by the function. The signal name must be
+  in the same type as the method
