@@ -226,7 +226,7 @@ class TemplateProperty:
                 return setter_func
             func_name = setter_func.replace(namespace.symbol_prefix[0] + '_', '')
             func_name = func_name.replace(t.symbol_prefix + '_', '')
-            href = f"method.{t.name}.{func_name}"
+            href = f"method.{t.name}.{func_name}.html"
             return Markup(f"<a href=\"{href}\"><code>{setter_func}</code></a>")
 
         def transform_get_attribute(namespace, prop, getter_func):
@@ -238,7 +238,7 @@ class TemplateProperty:
                 return getter_func
             func_name = getter_func.replace(namespace.symbol_prefix[0] + '_', '')
             func_name = func_name.replace(t.symbol_prefix + '_', '')
-            href = f"method.{t.name}.{func_name}"
+            href = f"method.{t.name}.{func_name}.html"
             return Markup(f"<a href=\"{href}\"><code>{getter_func}</code></a>")
 
         ATTRIBUTE_NAMES = {
