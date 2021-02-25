@@ -34,6 +34,15 @@ FUNDAMENTAL_TYPES = [
     'va_list',
 ]
 
+GLIB_ALIASES = {
+    'gchar': 'char',
+    'gdouble': 'double',
+    'gfloat': 'float',
+    'gint': 'int',
+    'glong': 'long',
+    'gshort': 'short',
+}
+
 FUNDAMENTAL_CTYPES = {
     'GObject.Object': 'GObject*',
     'GObject.InitiallyUnowned': 'GInitiallyUnowned*',
@@ -110,7 +119,10 @@ class GirParser:
     def _lookup_type(self, name: str, ctype: T.Optional[str] = None) -> ast.Type:
         """Look up a type, and if not found, register it"""
         if name in FUNDAMENTAL_TYPES:
-            fqtn = name
+            if name in GLIB_ALIASES:
+                fqtn = GLIB_ALIASES[name]
+            else:
+                fqtn = name
         elif name == 'GType':
             # This is messy, because GType is part of GObject, but GLib ends up
             # registering it first
