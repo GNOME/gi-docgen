@@ -222,7 +222,7 @@ class TemplateProperty:
                 log.warning(f"Missing value in the set attribute for {prop.name}")
                 return None
             t = namespace.find_symbol(setter_func)
-            if t is None or not isinstance(t, gir.Class):
+            if t is None or not (isinstance(t, gir.Class) or isinstance(t, gir.Interface)):
                 return setter_func
             func_name = setter_func.replace(namespace.symbol_prefix[0] + '_', '')
             func_name = func_name.replace(t.symbol_prefix + '_', '')
@@ -234,7 +234,7 @@ class TemplateProperty:
                 log.warning(f"Missing value in the get attribute for {prop.name}")
                 return None
             t = namespace.find_symbol(getter_func)
-            if t is None or not isinstance(t, gir.Class):
+            if t is None or not (isinstance(t, gir.Class) or isinstance(t, gir.Interface)):
                 return getter_func
             func_name = getter_func.replace(namespace.symbol_prefix[0] + '_', '')
             func_name = func_name.replace(t.symbol_prefix + '_', '')
