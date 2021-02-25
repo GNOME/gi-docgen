@@ -3,6 +3,8 @@
 
 import typing as T
 
+from .. import log
+
 
 class Doc:
     """A documentation node, pointing to the source code"""
@@ -86,6 +88,8 @@ class GIRElement:
     def __init__(self, name: T.Optional[str] = None, namespace: T.Optional[str] = None):
         self.name = name
         self.namespace = namespace
+        if self.namespace is not None and '.' in self.name:
+            self.namespace = self.name.split('.')[0]
         self.info = Info()
 
     def set_introspectable(self, introspectable: bool) -> None:
@@ -157,12 +161,9 @@ class GIRElement:
 
 class Type(GIRElement):
     """Base class for all Type nodes"""
-    def __init__(self, name: str, ctype: T.Optional[str] = None):
-        super().__init__(name)
+    def __init__(self, name: str, ctype: T.Optional[str] = None, namespace: T.Optional[str] = None):
+        super().__init__(name=name, namespace=namespace)
         self.ctype = ctype
-        self.namespace = None
-        if '.' in self.name:
-            self.namespace = self.name.split('.')[0]
 
     def __eq__(self, other):
         if isinstance(other, Type):
@@ -184,6 +185,10 @@ class Type(GIRElement):
 
     def __repr__(self):
         return f"Type({self.name}, {self.ctype})"
+
+    @property
+    def resolved(self):
+        return self.ctype is not None
 
     @property
     def base_ctype(self):
@@ -209,6 +214,15 @@ class ListType(GIRElement):
     def __init__(self, name: str, value_type: Type, ctype: str = None):
         super().__init__(name)
         self.ctype = ctype
+        self.value_type = value_type
+
+
+class MapType(GIRElement):
+    """Type class for Map nodes"""
+    def __init__(self, name: str, key_type: Type, value_type: Type, ctype: str = None):
+        super().__init__(name)
+        self.ctype = ctype
+        self.key_type = key_type
         self.value_type = value_type
 
 
@@ -238,15 +252,15 @@ class VarArgs(Type):
 
 class Alias(Type):
     """Alias to a Type"""
-    def __init__(self, name: str, ctype: str, target: Type):
-        super().__init__(name, ctype)
+    def __init__(self, name: str, namespace: str, ctype: str, target: Type):
+        super().__init__(name=name, ctype=ctype, namespace=namespace)
         self.target = target
 
 
 class Constant(Type):
     """A constant"""
-    def __init__(self, name: str, ctype: str, target: Type, value: str):
-        super().__init__(name, ctype)
+    def __init__(self, name: str, namespace: str, ctype: str, target: Type, value: str):
+        super().__init__(name=name, ctype=ctype, namespace=namespace)
         self.target = target
         self.value = value
 
@@ -288,8 +302,8 @@ class ReturnValue(GIRElement):
 
 class Callable(GIRElement):
     """A callable symbol: function, method, function-macro, ..."""
-    def __init__(self, name: str, identifier: T.Optional[str], throws: bool = False):
-        super().__init__(name)
+    def __init__(self, name: str, namespace: T.Optional[str], identifier: T.Optional[str], throws: bool = False):
+        super().__init__(name=name, namespace=namespace)
         self.identifier = identifier
         self.parameters: T.List[Parameter] = []
         self.return_value: T.Optional[ReturnValue] = None
@@ -317,18 +331,18 @@ class Callable(GIRElement):
 
 
 class FunctionMacro(Callable):
-    def __init__(self, name: str, identifier: str):
-        super().__init__(name, identifier)
+    def __init__(self, name: str, namespace: T.Optional[str], identifier: str):
+        super().__init__(name, namespace, identifier)
 
 
 class Function(Callable):
-    def __init__(self, name: str, identifier: str, throws: bool = False):
-        super().__init__(name, identifier, throws)
+    def __init__(self, name: str, namespace: T.Optional[str], identifier: str, throws: bool = False):
+        super().__init__(name, namespace, identifier, throws)
 
 
 class Method(Callable):
     def __init__(self, name: str, identifier: str, instance_param: Parameter, throws: bool = False):
-        super().__init__(name, identifier, throws)
+        super().__init__(name, None, identifier, throws)
         self.instance_param = instance_param
 
     def __contains__(self, param):
@@ -339,7 +353,7 @@ class Method(Callable):
 
 class VirtualMethod(Callable):
     def __init__(self, name: str, identifier: str, invoker: str, instance_param: Parameter, throws: bool = False):
-        super().__init__(name, identifier, throws)
+        super().__init__(name, None, identifier, throws)
         self.instance_param = instance_param
         self.invoker = invoker
 
@@ -350,8 +364,8 @@ class VirtualMethod(Callable):
 
 
 class Callback(Callable):
-    def __init__(self, name: str, ctype: T.Optional[str], throws: bool = False):
-        super().__init__(name=name, identifier=None, throws=throws)
+    def __init__(self, name: str, namespace: str, ctype: T.Optional[str], throws: bool = False):
+        super().__init__(name=name, namespace=namespace, identifier=None, throws=throws)
         self.ctype = ctype
 
 
@@ -366,8 +380,8 @@ class Member(GIRElement):
 
 class Enumeration(Type):
     """An enumeration type"""
-    def __init__(self, name: str, ctype: str, gtype: T.Optional[GType]):
-        super().__init__(name, ctype)
+    def __init__(self, name: str, namespace: str, ctype: str, gtype: T.Optional[GType]):
+        super().__init__(name=name, ctype=ctype, namespace=namespace)
         self.gtype = gtype
         self.members: T.List[Member] = []
         self.functions: T.List[Function] = []
@@ -396,14 +410,14 @@ class Enumeration(Type):
 
 class BitField(Enumeration):
     """An enumeration type of bit masks"""
-    def __init__(self, name: str, ctype: str, gtype: T.Optional[GType]):
-        super().__init__(name, ctype, gtype)
+    def __init__(self, name: str, namespace: str, ctype: str, gtype: T.Optional[GType]):
+        super().__init__(name, namespace, ctype, gtype)
 
 
 class ErrorDomain(Enumeration):
     """An error domain for GError"""
-    def __init__(self, name: str, ctype: str, gtype: T.Optional[GType], domain: str):
-        super().__init__(name, ctype, gtype)
+    def __init__(self, name: str, namespace: str, ctype: str, gtype: T.Optional[GType], domain: str):
+        super().__init__(name, namespace, ctype, gtype)
         self.domain = domain
 
 
@@ -449,8 +463,8 @@ class Field(GIRElement):
 
 
 class Interface(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType):
-        super().__init__(name, ctype)
+    def __init__(self, name: str, namespace: str, ctype: str, symbol_prefix: str, gtype: GType):
+        super().__init__(name=name, ctype=ctype, namespace=namespace)
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
         self.methods: T.List[Method] = []
@@ -494,9 +508,11 @@ class Interface(Type):
 
 
 class Class(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: GType, parent: T.Optional[Type] = None, abstract: bool = False,
-                 fundamental: bool = False, ref_func: T.Optional[str] = None, unref_func: T.Optional[str] = None):
-        super().__init__(name, ctype)
+    def __init__(self, name: str, namespace: str, ctype: str, symbol_prefix: str,
+                 gtype: GType, parent: T.Optional[Type] = None,
+                 abstract: bool = False, fundamental: bool = False,
+                 ref_func: T.Optional[str] = None, unref_func: T.Optional[str] = None):
+        super().__init__(name=name, ctype=ctype, namespace=namespace)
         self.symbol_prefix = symbol_prefix
         self.parent = parent
         self.abstract = abstract
@@ -553,8 +569,8 @@ class Class(Type):
 
 
 class Boxed(Type):
-    def __init__(self, name: str, symbol_prefix: str, gtype: GType):
-        super().__init__(name, None)
+    def __init__(self, name: str, namespace: str, symbol_prefix: str, gtype: GType):
+        super().__init__(name=name, ctype=None, namespace=namespace)
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
         self.functions: T.List[Function] = []
@@ -564,9 +580,10 @@ class Boxed(Type):
 
 
 class Record(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType] = None,
-                 struct_for: T.Optional[str] = None, disguised: bool = False):
-        super().__init__(name, ctype)
+    def __init__(self, name: str, namespace: str, ctype: str, symbol_prefix: str,
+                 gtype: T.Optional[GType] = None, struct_for: T.Optional[str] = None,
+                 disguised: bool = False):
+        super().__init__(name=name, ctype=ctype, namespace=namespace)
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
         self.struct_for = struct_for
@@ -602,8 +619,8 @@ class Record(Type):
 
 
 class Union(Type):
-    def __init__(self, name: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType]):
-        super().__init__(name, ctype)
+    def __init__(self, name: str, namespace: str, ctype: str, symbol_prefix: str, gtype: T.Optional[GType]):
+        super().__init__(name=name, ctype=ctype, namespace=namespace)
         self.symbol_prefix = symbol_prefix
         self.gtype = gtype
         self.constructors: T.List[Function] = []
@@ -797,48 +814,115 @@ class Namespace:
     def find_symbol(self, name: str) -> T.Optional[Type]:
         return self._symbols.get(name)
 
+    def find_prerequisite_type(self, name: str) -> T.Optional[Type]:
+        if name in self._classes:
+            return self._classes[name]
+        if name is self._interfaces:
+            return self._interfaces[name]
+        return None
+
 
 class Repository:
     def __init__(self):
         self.includes: T.Mapping[str, Repository] = {}
         self.packages: T.List[Package] = []
         self.c_includes: T.List[CInclude] = []
-        self.types: T.Mapping[str, Type] = {}
+        self.types: T.Mapping[str, T.List[Type]] = {}
         self._namespaces: T.List[Namespace] = []
         self.girfile: T.Optional[str] = None
 
     def add_namespace(self, ns: Namespace) -> None:
         self._namespaces.append(ns)
 
-    def resolve_empty_ctypes(self):
-        def find_real_type(includes, ns, name):
-            for repo in self.includes.values():
-                if repo.namespace.name != name:
+    def resolve_empty_ctypes(self, seen_types: T.Mapping[str, T.List[Type]]):
+        for fqtn in seen_types:
+            types = seen_types[fqtn]
+            resolved_types = [t for t in types if t.resolved]
+            if len(resolved_types) == 0:
+                ns, name = fqtn.split('.', 1)
+                backstop = f"{self.namespace.identifier_prefix[0]}{name}"
+                resolved_types.append(Type(fqtn, backstop))
+            self.types[fqtn] = resolved_types
+            log.debug(f"Type: {fqtn}: {resolved_types}")
+
+    def resolve_interface_requires(self):
+        def find_prerequisite_type(includes, ns, name):
+            for repo in includes.values():
+                if repo.namespace.name != ns:
                     continue
-                real_type = repo.namespace.find_real_type(name)
-                if real_type is not None:
-                    return real_type
+                prereq = repo.namespace.find_prerequisite_type(name)
+                if prereq is not None:
+                    return Type(name=f"{repo.namespace.name}.{prereq.name}", ctype=prereq.ctype)
             return None
 
-        for t in self.types.values():
-            if t.ctype is not None:
+        ifaces = self.namespace.get_interfaces()
+        for iface in ifaces:
+            if iface.prerequisite is None:
                 continue
-            real_type = None
-            if '.' in t.name:
-                ns, name = t.name.split('.')
+            prerequisite = None
+            if '.' in iface.prerequisite.name:
+                ns, name = iface.prerequisite.name.split('.', 1)
                 if ns == self.namespace.name:
-                    real_type = self.namespace.find_real_type(name)
+                    prerequisite = self.namespace.find_prerequisite_type(name)
                 else:
-                    real_type = find_real_type(self.includes, ns, name)
+                    prerequisite = find_prerequisite_type(self.includes, ns, name)
             else:
-                pass
-            if real_type is not None:
-                t.ctype = real_type.ctype
+                prerequisite = self.namespace.find_prerequisite_type(iface.prerequisite.name)
+            if prerequisite is not None:
+                if prerequisite.ctype is None:
+                    t = self.find_type(prerequisite.name)
+                    prerequisite.ctype = t.ctype
+                iface.prerequisite = prerequisite
+                log.debug(f"Prerequisite type for interface {iface}: {iface.prerequisite}")
+
+    def resolve_class_type(self):
+        classes = self.namespace.get_classes()
+        for cls in classes:
+            if cls.ctype is None:
+                if '.' not in cls.name:
+                    name = f"{self.namespace.name}.{cls.name}"
+                else:
+                    name = cls.name
+                t = self.find_type(name)
+                cls.ctype = t.base_ctype
+                log.debug(f"Updated C type for {cls}")
+
+    def resolve_class_implements(self):
+        def find_interface_type(includes, ns, name):
+            for repo in includes.values():
+                if repo.namespace.name != ns:
+                    continue
+                iface = repo.namespace.find_interface(name)
+                if iface is not None:
+                    return Type(name=f"{repo.namespace.name}.{iface.name}", ctype=iface.ctype)
+            return None
+
+        classes = self.namespace.get_classes()
+        for cls in classes:
+            if cls.implements is None:
+                continue
+            implements = cls.implements
+            cls.implements = []
+            for iface in implements:
+                if '.' in iface.name:
+                    ns, name = iface.name.split('.', 1)
+                    if ns == self.namespace.name:
+                        iface_type = self.namespace.find_interface(name)
+                    else:
+                        iface_type = find_interface_type(self.includes, ns, name)
+                else:
+                    iface_type = self.namespace.find_interface(iface.name)
+                if iface_type is not None:
+                    if iface_type.ctype is None:
+                        t = self.find_type(iface_type.name)
+                        iface_type.ctype = t.ctype
+                    cls.implements.append(iface_type)
+            log.debug(f"Interfaces implemented by {cls}: {cls.implements}")
 
     def resolve_class_ancestors(self):
         def find_parent_class(includes, ns, name):
-            for repo in self.includes.values():
-                if repo.namespace.name != name:
+            for repo in includes.values():
+                if repo.namespace.name != ns:
                     continue
                 parent = repo.namespace.find_class(name)
                 if parent is not None:
@@ -852,7 +936,6 @@ class Repository:
             ancestors = []
             parent = cls.parent
             while parent is not None:
-                ancestors.append(parent)
                 if '.' in parent.name:
                     ns, name = parent.name.split('.')
                     if ns == self.namespace.name:
@@ -862,9 +945,14 @@ class Repository:
                 else:
                     parent = self.namespace.find_class(parent.name)
                 if parent is not None:
+                    if parent.ctype is None:
+                        t = self.find_type(parent.name)
+                        parent.ctype = t.ctype
+                    ancestors.append(parent)
                     parent = parent.parent
             cls.ancestors = ancestors
             cls.parent = ancestors[0]
+            log.debug(f"Ancestors for {cls}: parent: {cls.parent}, ancestors: {cls.ancestors}")
 
     def resolve_symbols(self):
         symbols: T.Mapping[str, Type] = {}
@@ -889,7 +977,10 @@ class Repository:
         return self._namespaces[0]
 
     def find_type(self, name: str) -> T.Optional[Type]:
-        for (fqtn, ctype) in self._types.keys():
-            if fqtn == name:
-                return self._types.get((fqtn, ctype))
+        types = self.types.get(name)
+        if types is None:
             return None
+        for t in types:
+            if t.resolved:
+                return t
+        return types[0]

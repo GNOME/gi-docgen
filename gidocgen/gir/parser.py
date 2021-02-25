@@ -36,7 +36,7 @@ FUNDAMENTAL_TYPES = [
 
 FUNDAMENTAL_CTYPES = {
     'GObject.Object': 'GObject*',
-    'GObject.InitiallyUnowned': 'GObject*',
+    'GObject.InitiallyUnowned': 'GInitiallyUnowned*',
     'GObject.ParamSpec': 'GObject.ParamSpec*',
 }
 
@@ -58,7 +58,7 @@ class GirParser:
         self._search_paths = search_paths
         self._repository = None
         self._dependencies = {}
-        self._types_register = {}
+        self._seen_types = {}
         self._current_namespace = []
 
     def append_search_path(self, path: str) -> None:
@@ -82,7 +82,10 @@ class GirParser:
             else:
                 repository.girfile = girfile.name
             self._repository = repository
-            self._repository.resolve_empty_ctypes()
+            self._repository.resolve_empty_ctypes(self._seen_types)
+            self._repository.resolve_interface_requires()
+            self._repository.resolve_class_type()
+            self._repository.resolve_class_implements()
             self._repository.resolve_class_ancestors()
             self._repository.resolve_symbols()
 
@@ -121,17 +124,30 @@ class GirParser:
             else:
                 log.debug(f"Unqualified type name {name} found")
                 fqtn = name
+        if ctype is None and fqtn in FUNDAMENTAL_TYPES:
+            for t in FUNDAMENTAL_TYPES:
+                if t == fqtn:
+                    ctype = t
+                    break
         if ctype is None and fqtn in FUNDAMENTAL_CTYPES:
             ctype = FUNDAMENTAL_CTYPES[fqtn]
-        if ctype is None and fqtn not in FUNDAMENTAL_CTYPES:
-            for titer in self._types_register.values():
-                if titer.name == fqtn and titer.ctype is not None:
-                    return titer
-        if (fqtn, ctype) not in self._types_register:
-            t = ast.Type(name=fqtn, ctype=ctype)
-            self._types_register[(fqtn, ctype)] = t
-            log.debug(f"Adding type {fqtn} for {t}")
-        res = self._types_register[(fqtn, ctype)]
+        found_types = self._seen_types.get(fqtn)
+        if found_types is not None:
+            if ctype is not None:
+                for t in found_types:
+                    if t.resolved and t.ctype == ctype:
+                        log.debug(f"Found seen type: {t} (with ctype)")
+                        return t
+                t = ast.Type(name=fqtn, ctype=ctype)
+                found_types.append(t)
+                log.debug(f"Seen new type: {t} (with ctype)")
+                return t
+            log.debug(f"Found seen type: {found_types[0]}")
+            return found_types[0]
+        # First time we saw this type
+        res = ast.Type(name=fqtn, ctype=ctype)
+        self._seen_types[fqtn] = [res]
+        log.debug(f"Seen new type: {res}")
         return res
 
     def _parse_dependency(self, include: ast.Include) -> None:
@@ -220,8 +236,6 @@ class GirParser:
 
         self._pop_namespace()
 
-        repository.types = self._types_register
-
         return repository
 
     def _parse_include(self, node: ET.Element) -> ast.Include:
@@ -303,34 +317,52 @@ class GirParser:
             target: T.Optional[ast.Type] = None
             child_type = child.find('core:type', GI_NAMESPACES)
             if child_type is not None:
-                ttype = child_type.attrib.get(_cns('type'), 'void')
-                tname = child_type.attrib.get('name', ttype.replace('*', ''))
+                ttype = child_type.attrib.get(_cns('type'))
+                tname = child_type.attrib.get('name')
+                if tname is None and ttype is not None:
+                    log.debug(f"Unnabled element type {ttype}")
+                    target = ast.Type(name=ttype.replace('*', ''), ctype=ttype)
                 if tname == 'none' and ttype == 'void':
                     target = ast.VoidType()
                 elif tname != 'gpointer' and ttype == 'gpointer':
+                    # API returning gpointer to avoid casting
                     target = self._lookup_type(name=tname)
                 else:
-                    target = self._lookup_type(name=tname, ctype=ctype)
+                    target = self._lookup_type(name=tname, ctype=ttype)
             else:
                 target = ast.VoidType()
-
             ctype = ast.ArrayType(name=name, zero_terminated=zero_terminated, fixed_size=fixed_size, length=length,
                                   ctype=array_type, value_type=target)
         else:
             child = node.find('core:type', GI_NAMESPACES)
             if child is not None:
-                ttype = child.attrib.get(_cns('type'), 'void')
-                tname = child.attrib.get('name', ttype.replace('*', ''))
-                if tname == 'none' and ttype == 'void':
-                    ctype = ast.VoidType()
+                ttype = child.attrib.get(_cns('type'))
+                tname = child.attrib.get('name')
+                if tname is None and ttype is not None:
+                    log.debug(f"Unnamed type {ttype}")
+                    ctype = ast.Type(name=ttype.replace('*', ''), ctype=ttype)
+                elif tname == 'none' and ttype == 'void':
+                    ctype = None
                 elif tname in ['GLib.List', 'GLib.SList']:
                     child_type = child.find('core:type', GI_NAMESPACES)
                     if child_type is not None:
                         etname = child_type.attrib.get('name', 'gpointer')
                         etype = self._lookup_type(name=etname)
-                        if etype is not None:
-                            ctype = ast.ListType(name=tname, ctype=ttype, value_type=etype)
+                        ctype = ast.ListType(name=tname, ctype=ttype, value_type=etype)
+                    else:
+                        ctype = self._lookup_type(name=tname, ctype=ttype)
+                elif tname in ['GList.HashTable']:
+                    child_types = child.findall('core:type', GI_NAMESPACES)
+                    if child_types is not None and len(child_types) == 2:
+                        ktname = child_types[0].attrib.get('name', 'gpointer')
+                        vtname = child_types[1].attrib.get('name', 'gpointer')
+                        ctype = ast.MapType(name=tname, ctype=ttype,
+                                            key_type=ast.Type(ktname),
+                                            value_type=ast.Type(vtname))
+                    else:
+                        ctype = self._lookup_type(name=tname, ctype=ttype)
                 elif tname != 'gpointer' and ttype == 'gpointer':
+                    # API returning gpointer to avoid casting
                     ctype = self._lookup_type(name=tname)
                 else:
                     ctype = self._lookup_type(name=tname, ctype=ttype)
@@ -353,7 +385,7 @@ class GirParser:
 
         alias_type = ast.Type(name=child.attrib['name'], ctype=child.attrib.get(_cns('type')))
 
-        res = ast.Alias(name=name, ctype=ctype, target=alias_type)
+        res = ast.Alias(name=name, namespace=ns.name, ctype=ctype, target=alias_type)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
 
@@ -372,7 +404,7 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.Callback(name=name, ctype=ctype, throws=throws)
+        res = ast.Callback(name=name, namespace=None, ctype=ctype, throws=throws)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_parameters(params)
         res.set_return_value(return_value)
@@ -392,7 +424,7 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.Callback(name=name, ctype=ctype, throws=throws)
+        res = ast.Callback(name=name, namespace=ns.name, ctype=ctype, throws=throws)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_parameters(params)
         res.set_return_value(return_value)
@@ -409,7 +441,7 @@ class GirParser:
 
         const_type = ast.Type(name=child.attrib['name'], ctype=child.attrib.get(_cns('type')))
 
-        res = ast.Constant(name=name, ctype=ctype, value=value, target=const_type)
+        res = ast.Constant(name=name, namespace=ns.name, ctype=ctype, value=value, target=const_type)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
 
@@ -452,7 +484,7 @@ class GirParser:
 
         return res
 
-    def _parse_type_function(self, node: ET.Element) -> ast.Function:
+    def _parse_type_function(self, node: ET.Element, ns: T.Optional[ast.Namespace] = None) -> ast.Function:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
         throws = node.attrib.get('throws', '0') == '1'
@@ -465,7 +497,12 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.Function(name=name, identifier=identifier, throws=throws)
+        if ns is not None:
+            namespace = ns.name
+        else:
+            namespace = None
+
+        res = ast.Function(name=name, namespace=namespace, identifier=identifier, throws=throws)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_return_value(return_value)
         res.set_parameters(params)
@@ -473,7 +510,7 @@ class GirParser:
         return res
 
     def _parse_function(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
-        res = self._parse_type_function(node)
+        res = self._parse_type_function(node, ns)
         ns.add_function(res)
 
     def _parse_function_macro(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
@@ -485,7 +522,7 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.FunctionMacro(name=name, identifier=identifier)
+        res = ast.FunctionMacro(name=name, namespace=ns.name, identifier=identifier)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_parameters(params)
         self._maybe_parse_docs(node, res)
@@ -573,11 +610,14 @@ class GirParser:
             gtype = ast.GType(type_name, get_type)
 
         if error_domain is not None:
-            res: ast.ErrorDomain = ast.ErrorDomain(name, ctype, gtype, error_domain)
+            res: ast.ErrorDomain = ast.ErrorDomain(name=name, namespace=ns.name,
+                                                   ctype=ctype, gtype=gtype,
+                                                   domain=error_domain)
             if ns is not None:
                 ns.add_error_domain(res)
         else:
-            res: ast.Enumeration = ast.Enumeration(name, ctype, gtype)
+            res: ast.Enumeration = ast.Enumeration(name=name, namespace=ns.name,
+                                                   ctype=ctype, gtype=gtype)
             if ns is not None:
                 ns.add_enumeration(res)
 
@@ -608,7 +648,7 @@ class GirParser:
         if type_name is not None:
             gtype = ast.GType(type_name, get_type)
 
-        res = ast.BitField(name, ctype, gtype)
+        res = ast.BitField(name=name, namespace=ns.name, ctype=ctype, gtype=gtype)
         res.set_members(members)
         res.set_functions(functions)
         self._maybe_parse_docs(node, res)
@@ -679,7 +719,7 @@ class GirParser:
         return res
 
     def _parse_implements(self, node: ET.Element) -> ast.Interface:
-        return self._lookup_type(node.attrib['name'])
+        return self._lookup_type(name=node.attrib['name'])
 
     def _parse_class(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         name = node.attrib.get('name')
@@ -696,7 +736,7 @@ class GirParser:
 
         parent_type = None
         if parent is not None:
-            parent_type = self._lookup_type(parent)
+            parent_type = self._lookup_type(name=parent)
 
         gtype = None
         if type_name is not None:
@@ -742,8 +782,10 @@ class GirParser:
         for child in children:
             signals.append(self._parse_signal(child))
 
-        res = ast.Class(name=name, symbol_prefix=symbol_prefix, ctype=ctype, parent=parent_type, gtype=gtype,
-                        abstract=abstract, fundamental=fundamental, ref_func=ref_func, unref_func=unref_func)
+        res = ast.Class(name=name, namespace=ns.name, symbol_prefix=symbol_prefix, ctype=ctype,
+                        parent=parent_type, gtype=gtype,
+                        abstract=abstract, fundamental=fundamental,
+                        ref_func=ref_func, unref_func=unref_func)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_fields(fields)
         res.set_implements(ifaces)
@@ -771,7 +813,7 @@ class GirParser:
         prerequisite = None
         child = node.find('core:prerequisite', GI_NAMESPACES)
         if child is not None:
-            prerequisite = self._lookup_type(child.attrib['name'])
+            prerequisite = self._lookup_type(name=child.attrib['name'])
 
         fields = []
         children = node.findall('core:field', GI_NAMESPACES)
@@ -803,7 +845,7 @@ class GirParser:
         for child in children:
             signals.append(self._parse_signal(child))
 
-        res = ast.Interface(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
+        res = ast.Interface(name=name, namespace=ns.name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
         res.set_prerequisite(prerequisite)
         res.set_fields(fields)
         res.set_virtual_methods(vmethods)
@@ -830,7 +872,7 @@ class GirParser:
         for child in children:
             functions.append(self._parse_type_function(child))
 
-        res = ast.Boxed(name=name, symbol_prefix=symbol_prefix, gtype=gtype)
+        res = ast.Boxed(name=name, namespace=ns.name, symbol_prefix=symbol_prefix, gtype=gtype)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_functions(functions)
         self._maybe_parse_docs(node, res)
@@ -870,7 +912,8 @@ class GirParser:
         for child in children:
             functions.append(self._parse_type_function(child))
 
-        res = ast.Record(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype,
+        res = ast.Record(name=name, namespace=ns.name, symbol_prefix=symbol_prefix,
+                         ctype=ctype, gtype=gtype,
                          struct_for=gtype_struct_for, disguised=disguised)
         res.set_fields(fields)
         res.set_constructors(ctors)
@@ -912,7 +955,7 @@ class GirParser:
         for child in children:
             functions.append(self._parse_type_function(child))
 
-        res = ast.Union(name=name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
+        res = ast.Union(name=name, namespace=ns.name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_fields(fields)
         res.set_constructors(ctors)

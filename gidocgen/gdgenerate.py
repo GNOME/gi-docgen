@@ -273,6 +273,8 @@ class TemplateArgument:
             self.type_cname = type_name_to_cname(argument.target.name, True)
         self.is_array = isinstance(argument.target, gir.ArrayType)
         self.is_list = isinstance(argument.target, gir.ListType)
+        self.is_map = isinstance(argument.target, gir.MapType)
+        self.is_varargs = isinstance(argument.target, gir.VarArgs)
         self.transfer = TRANSFER_MODES[argument.transfer]
         self.direction = DIRECTION_MODES[argument.direction]
         self.nullable = argument.nullable
@@ -335,6 +337,13 @@ class TemplateArgument:
     @property
     def is_pointer(self):
         return '*' in self.type_cname
+
+    @property
+    def c_decl(self):
+        if self.is_varargs:
+            return "..."
+        else:
+            return f"{self.type_cname} {self.name}"
 
 
 class TemplateReturnValue:
@@ -561,9 +570,9 @@ class TemplateMethod:
             res += [f"  {self.instance_parameter.type_cname} {self.instance_parameter.name},"]
             for (idx, arg) in enumerate(self.arguments):
                 if idx == n_args - 1 and not self.throws:
-                    res += [f"  {arg.type_cname} {arg.name}"]
+                    res += [f"  {arg.c_decl}"]
                 else:
-                    res += [f"  {arg.type_cname} {arg.name},"]
+                    res += [f"  {arg.c_decl},"]
         if self.throws:
             res += ["  GError** error"]
         res += [")"]
@@ -796,12 +805,16 @@ class TemplateInterface:
                 self.namespace, self.name = interface.name.split('.')
                 self.fqtn = interface.name
             else:
-                self.namespace = namespace.name
+                self.namespace = interface.namespace
                 self.name = interface.name
-                self.fqtn = f"{namespace.name}.{interface.name}"
+                self.fqtn = f"{self.namespace}.{self.name}"
         elif isinstance(interface, gir.Type):
-            self.namespace, self.name = interface.name.split('.')
-            self.fqtn = interface.name
+            if '.' in interface.name:
+                self.namespace, self.name = interface.name.split('.')
+            else:
+                self.namespace = interface.namespace or namespace.name
+                self.name = interface.name
+            self.fqtn = f"{self.namespace}.{self.name}"
             self.requires = "GObject.Object"
             self.link_prefix = "iface"
             self.description = MISSING_DESCRIPTION
@@ -814,8 +827,11 @@ class TemplateInterface:
         if requires is None:
             self.requires_namespace = "GObject"
             self.requires_name = "Object"
-        else:
+        elif '.' in requires.name:
             self.requires_namespace, self.requires_name = requires.name.split('.')
+        else:
+            self.requires_namespace = requires.namespace or namespace.name
+            self.requires_name = requires.name
 
         self.requires_fqtn = f"{self.requires_namespace}.{self.requires_name}"
 
@@ -921,19 +937,20 @@ class TemplateClass:
             self.parent_namespace = self.parent_fqtn.split('.')[0]
             self.parent_name = self.parent_fqtn.split('.')[1]
         else:
-            log.error(f"Unqualified parent type name {cls.parent} for class {cls.name}")
-            self.parent_fqtn = f"{namespace.name}.{cls.parent}"
+            self.parent_cname = cls.parent.ctype
             self.parent_name = cls.parent.name
-            self.parent_namespace = namespace.name
-            parent = namespace.find_class(cls.parent.name)
-            if parent is None:
-                log.error(f"Unable to find parent {cls.parent} for class {cls.name}")
-            self.parent_cname = parent.ctype
+            self.parent_namespace = cls.parent.namespace or namespace.name
+            self.parent_fqtn = f"{self.parent_namespace}.{self.parent_name}"
 
         if recurse:
             self.ancestors = []
             for ancestor_type in cls.ancestors:
-                ancestor = namespace.find_class(ancestor_type.name.split('.')[1])
+                if '.' in ancestor_type.name:
+                    ancestor_ns, ancestor_name = ancestor_type.name.split('.')
+                else:
+                    ancestor_ns = ancestor_type.namespace or namespace.name
+                    ancestor_name = ancestor_type.name
+                ancestor = namespace.find_class(ancestor_name)
                 # We don't use real Template objects, here, because it can be
                 # extremely expensive, unless we add a cache somewhere
                 if ancestor is not None:
@@ -944,9 +961,9 @@ class TemplateClass:
                     else:
                         methods = []
                     self.ancestors.append({
-                        "namespace": ancestor_type.name.split('.')[0],
-                        "name": ancestor_type.name.split('.')[1],
-                        "fqtn": ancestor_type.name,
+                        "namespace": ancestor_ns,
+                        "name": ancestor_name,
+                        "fqtn": f"{ancestor_ns}.{ancestor_name}",
                         "type_cname": ancestor_type.base_ctype,
                         "properties": [gen_index_property(p, namespace, md) for p in ancestor.properties],
                         "n_properties": len(ancestor.properties),
@@ -957,10 +974,16 @@ class TemplateClass:
                     })
                 else:
                     self.ancestors.append({
-                        "namespace": ancestor_type.name.split('.')[0],
-                        "name": ancestor_type.name.split('.')[1],
-                        "fqtn": ancestor_type.name,
+                        "namespace": ancestor_ns,
+                        "name": ancestor_name,
+                        "fqtn": f"{ancestor_ns}.{ancestor_name}",
                         "type_cname": ancestor_type.base_ctype,
+                        "properties": [],
+                        "n_properties": 0,
+                        "signals": [],
+                        "n_signals": 0,
+                        "methods": [],
+                        "n_methods": 0,
                     })
 
         self.class_name = cls.type_struct
@@ -1045,7 +1068,12 @@ class TemplateClass:
         if len(cls.implements) != 0:
             self.interfaces = []
             for iface_type in cls.implements:
-                iface = namespace.find_interface(iface_type.name.split('.')[1])
+                if '.' in iface_type.name:
+                    iface_ns, iface_name = iface_type.name.split('.')
+                else:
+                    iface_ns = iface_type.namespace or namespace.name
+                    iface_name = iface_type.name
+                iface = namespace.find_interface(iface_name)
                 if iface is not None:
                     # Set a hard-limit on the number of methods; base types can
                     # add *a lot* of them; two dozens feel like a good compromise
@@ -1054,9 +1082,9 @@ class TemplateClass:
                     else:
                         methods = []
                     self.interfaces.append({
-                        "namespace": iface_type.name.split('.')[0],
-                        "name": iface_type.name.split('.')[1],
-                        "fqtn": iface_type.name,
+                        "namespace": iface_ns,
+                        "name": iface_name,
+                        "fqtn": f"{iface_ns}.{iface_name}",
                         "type_cname": iface_type.base_ctype,
                         "properties": [gen_index_property(p, namespace, md) for p in iface.properties],
                         "n_properties": len(iface.properties),
@@ -1067,10 +1095,16 @@ class TemplateClass:
                     })
                 else:
                     self.interfaces.append({
-                        "namespace": iface_type.name.split('.')[0],
-                        "name": iface_type.name.split('.')[1],
-                        "fqtn": iface_type.name,
+                        "namespace": iface_ns,
+                        "name": iface_name,
+                        "fqtn": f"{iface_ns}.{iface_name}",
                         "type_cname": iface_type.base_ctype,
+                        "properties": [],
+                        "n_properties": 0,
+                        "signals": [],
+                        "n_signals": 0,
+                        "methods": [],
+                        "n_methods": 0,
                     })
 
         if len(cls.virtual_methods) != 0:
@@ -1111,8 +1145,8 @@ class TemplateRecord:
         self.link_prefix = "struct"
 
         self.name = record.name
-        self.namespace = namespace.name
-        self.fqtn = f"{namespace.name}.{record.name}"
+        self.namespace = record.name or namespace.name
+        self.fqtn = f"{self.namespace}.{self.name}"
 
         md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
                                extension_configs=utils.MD_EXTENSIONS_CONF)
@@ -1181,8 +1215,8 @@ class TemplateUnion:
         self.type_cname = union.ctype
         self.link_prefix = "union"
         self.name = union.name
-        self.namespace = namespace.name
-        self.fqtn = f"{namespace.name}.{union.name}"
+        self.namespace = union.namespace or namespace.name
+        self.fqtn = f"{self.namespace}.{self.name}"
 
         md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
                                extension_configs=utils.MD_EXTENSIONS_CONF)
@@ -1251,9 +1285,9 @@ class TemplateAlias:
         self.target_ctype = alias.target.ctype
         self.link_prefix = "alias"
 
-        self.namespace = namespace.name
+        self.namespace = alias.namespace or namespace.name
         self.name = alias.name
-        self.fqtn = f"{namespace.name}.{alias.name}"
+        self.fqtn = f"{self.namespace}.{self.name}"
 
         md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
                                extension_configs=utils.MD_EXTENSIONS_CONF)
@@ -2170,7 +2204,10 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
             try:
                 res = future.result()
             except Exception as e:
-                print(f"Section {section} raised {e}")
+                if log.log_fatal_warnings:
+                    import traceback
+                    traceback.print_exc()
+                log.warning(f"Section {section} raised {e}")
             else:
                 template_symbols[section] = res
 
