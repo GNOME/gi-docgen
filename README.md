@@ -55,7 +55,7 @@ python3 setup.py install
 
 ## Usage
 
-First, read [the GI-DocGen tutorial](./docs/tutorial.md).
+First, read [the GI-DocGen tutorial](./docs/tutorial.rst).
 
 ## Copyright and Licensing terms
 
