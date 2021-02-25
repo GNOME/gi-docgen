@@ -222,7 +222,11 @@ class TemplateProperty:
                 log.warning(f"Missing value in the set attribute for {prop.name}")
                 return None
             t = namespace.find_symbol(setter_func)
-            if t is None or not (isinstance(t, gir.Class) or isinstance(t, gir.Interface)):
+            if t is None:
+                log.warning(f"Invalid Property.set attribute for {prop.name}: {setter_func}")
+                return setter_func
+            if not (isinstance(t, gir.Class) or isinstance(t, gir.Interface)):
+                log.warning(f"Invalid setter function {setter_func} for property {namespace.name}.{t.name}:{prop.name}")
                 return setter_func
             func_name = setter_func.replace(namespace.symbol_prefix[0] + '_', '')
             func_name = func_name.replace(t.symbol_prefix + '_', '')
@@ -234,7 +238,11 @@ class TemplateProperty:
                 log.warning(f"Missing value in the get attribute for {prop.name}")
                 return None
             t = namespace.find_symbol(getter_func)
-            if t is None or not (isinstance(t, gir.Class) or isinstance(t, gir.Interface)):
+            if t is None:
+                log.warning(f"Invalid Property.get attribute for {prop.name}: {getter_func}")
+                return getter_func
+            if not (isinstance(t, gir.Class) or isinstance(t, gir.Interface)):
+                log.warning(f"Invalid getter function {getter_func} for property {namespace.name}.{t.name}:{prop.name}")
                 return getter_func
             func_name = getter_func.replace(namespace.symbol_prefix[0] + '_', '')
             func_name = func_name.replace(t.symbol_prefix + '_', '')
@@ -517,14 +525,22 @@ class TemplateMethod:
             self.docs_location = f"{filename}#L{line}"
 
         def transform_property_attribute(namespace, type_, method, value):
-            text = f"{namespace.name}.{type_.name}:{value}"
-            href = f"property.{type_.name}.{value}.html"
-            return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
+            for p in type_.properties:
+                if p.name == value:
+                    text = f"{namespace.name}.{type_.name}:{value}"
+                    href = f"property.{type_.name}.{value}.html"
+                    return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
+            log.warning(f"Property {value} linked to method {method.name} not found in {namespace.name}.{type_.name}")
+            return value
 
         def transform_signal_attribute(namespace, type_, method, value):
-            text = f"{namespace.name}.{type_.name}::{value}"
-            href = f"signal.{type_.name}.{value}.html"
-            return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
+            for s in type_.signals:
+                if s.name == value:
+                    text = f"{namespace.name}.{type_.name}::{value}"
+                    href = f"signal.{type_.name}.{value}.html"
+                    return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
+            log.warning(f"Signal {value} linked to method {method.name} not found in {namespace.name}.{type_.name}")
+            return value
 
         ATTRIBUTE_NAMES = {
             "org.gtk.Method.set_property": {
