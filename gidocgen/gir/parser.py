@@ -350,7 +350,10 @@ class GirParser:
             if child is not None:
                 ttype = child.attrib.get(_cns('type'))
                 tname = child.attrib.get('name')
-                if tname is None and ttype is not None:
+                if tname is None and ttype is None:
+                    log.debug(f"Found empty type annotation for node {node.tag}")
+                    ctype = ast.VoidType()
+                elif tname is None and ttype is not None:
                     log.debug(f"Unnamed type {ttype}")
                     ctype = ast.Type(name=ttype.replace('*', ''), ctype=ttype)
                 elif tname == 'none' and ttype == 'void':
