@@ -30,7 +30,7 @@
 
 {{ sidebar_block(struct.ctors, struct.name, "Constructors", "ctor", "ctor") }}
 {{ sidebar_block(struct.methods, struct.name, "Instance methods", "method", "method") }}
-{{ sidebar_block(struct.type_funcs, struct.name, "Type functions", "func", "type_func") }}
+{{ sidebar_block(struct.type_funcs, struct.name, "Functions", "func", "type_func") }}
 {% endblock %}
 
 {% block content %}
@@ -174,7 +174,7 @@
     {% if struct.type_funcs %}
     <div class="toggle-wrapper methods">
       <h4 id="type-functions">
-        Type functions
+        Functions
         <a href="#type-functions" class="anchor"></a>
       </h4>
 

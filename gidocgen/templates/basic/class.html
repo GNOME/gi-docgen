@@ -33,7 +33,7 @@
 {{ sidebar_block(class.properties, class.name, "Properties", "property", "property") }}
 {{ sidebar_block(class.signals, class.name, "Signals", "signal", "signal") }}
 {{ sidebar_block(class.class_methods, class.name, "Class methods", "method", "class_method") }}
-{{ sidebar_block(class.type_funcs, class.name, "Type functions", "func", "type_func") }}
+{{ sidebar_block(class.type_funcs, class.name, "Functions", "func", "type_func") }}
 {{ sidebar_block(class.virtual_methods, class.name, "Virtual methods", "method", "vfunc") }}
 {% endblock %}
 
@@ -537,7 +537,7 @@
     {% if class.type_funcs %}
     <div class="toggle-wrapper methods">
       <h4 id="type-functions">
-        Type functions
+        Functions
         <a href="#type-functions" class="anchor"></a>
       </h4>
 

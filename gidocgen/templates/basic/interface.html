@@ -32,7 +32,7 @@
 {{ sidebar_block(interface.properties, interface.name, "Properties", "property", "property") }}
 {{ sidebar_block(interface.signals, interface.name, "Signals", "signal", "signal") }}
 {{ sidebar_block(interface.class_methods, interface.name, "Interface methods", "method", "class_method") }}
-{{ sidebar_block(interface.type_funcs, interface.name, "Type functions", "func", "type_func") }}
+{{ sidebar_block(interface.type_funcs, interface.name, "Functions", "func", "type_func") }}
 {{ sidebar_block(interface.virtual_methods, interface.name, "Virtual methods", "method", "vfunc") }}
 {% endblock %}
 
@@ -279,7 +279,7 @@
     {% if interface.type_funcs %}
     <div class="methods toggle-wrapper">
       <h4 id="type-functions">
-        Type functions
+        Functions
         <a href="#type-functions" class="anchor"></a>
       </h4>
 
