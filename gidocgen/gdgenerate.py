@@ -1430,6 +1430,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
     property_tmpl = jinja_env.get_template(theme_config.property_template)
     signal_tmpl = jinja_env.get_template(theme_config.signal_template)
     class_method_tmpl = jinja_env.get_template(theme_config.class_method_template)
+    ctor_tmpl = jinja_env.get_template(theme_config.ctor_template)
     type_func_tmpl = jinja_env.get_template(theme_config.type_func_template)
     vfunc_tmpl = jinja_env.get_template(theme_config.vfunc_template)
 
@@ -1457,7 +1458,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             log.debug(f"Creating ctor file for {namespace.name}.{cls.name}.{ctor.name}: {ctor_file}")
 
             with open(ctor_file, "w") as out:
-                out.write(type_func_tmpl.render({
+                out.write(ctor_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
                     'class': tmpl,

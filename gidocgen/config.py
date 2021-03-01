@@ -184,6 +184,10 @@ class GITemplateConfig:
         return self.templates.get('type_func', 'type_func.html')
 
     @property
+    def ctor_template(self):
+        return self.templates.get('ctor', 'type_func.html')
+
+    @property
     def func_template(self):
         return self.templates.get('function', 'function.html')
 

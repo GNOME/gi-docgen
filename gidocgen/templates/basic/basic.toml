@@ -24,6 +24,7 @@ record = "struct.html"
 union = "struct.html"
 alias = "struct.html"
 function = "function.html"
+ctor = "ctor.html"
 
 [css]
 style = "style.css"
