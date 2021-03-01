@@ -88,6 +88,18 @@
       </div>
     </summary>
 
+    {% if CONFIG.show_class_hierarchy and (class.ancestors or class.interfaces) %}
+    <div class="toggle-wrapper hierarchy">
+      <h4 id="hierarchy">
+        Hierarchy
+        <a href="#hierarchy" class="anchor"></a>
+      </h4>
+      <div class="docblock">
+        <img src="hierarchy.{{ class.name }}.svg" alt="Hierarchy for {{ class.fqtn }}"/>
+      </div>
+    </div>
+    {% endif %}
+
     {% if class.ancestors %}
     <div class="toggle-wrapper ancestors">
       <h4 id="ancestors">

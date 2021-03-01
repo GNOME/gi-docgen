@@ -2,7 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
 import markdown
+import os
 import re
+import subprocess
+import sys
 
 from markupsafe import Markup
 from pygments import highlight
@@ -370,3 +373,67 @@ def code_highlight(text, language='c'):
     lexer = get_lexer_by_name(language)
     formatter = HtmlFormatter()
     return Markup(highlight(text, lexer, formatter))
+
+
+def render_dot(dot, output_format="svg"):
+    if output_format not in ["svg", "png"]:
+        log.error("Invalid output format for render_dot(): {output_format}")
+
+    args = ["dot", f"-T{output_format}"]
+
+    try:
+        proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.stdin.write(dot.encode("utf-8"))
+        output, err = proc.communicate()
+        if err:
+            log.warning(f"Unable to process dot data: {err}")
+            return None
+        if output_format == "svg":
+            return output.decode("utf-8")
+    except Exception as e:
+        log.warning(f"Unable to process dot data: {e}")
+        return None
+
+
+found_programs = {}
+
+
+def find_program(bin_name, path=None):
+    """Finds a program @bin_name inside the given @path, and returns
+    its full path if found, or None if the program could not be found.
+
+    The @bin_name will automatically get an extension depending on the
+    platform.
+    """
+    global found_programs
+
+    if path is None and bin_name in found_programs:
+        return found_programs[bin_name]
+
+    if path is None:
+        search_paths = os.environ['PATH'].split(os.pathsep)
+    else:
+        search_paths = path.split(os.pathsep)
+
+    bin_extensions = ['']
+
+    if sys.platform == 'win32':
+        pathext = os.environ['PATHEXT'].lower().split(os.pathsep)
+        (basename, extension) = os.path.splitext(bin_name)
+        if extension.lower() not in pathext:
+            bin_extensions = pathext
+        search_paths.insert(0, '')
+
+    for ext in bin_extensions:
+        executable = bin_name + ext
+
+        for p in search_paths:
+            full_path = os.path.join(p, executable)
+            if os.path.isfile(full_path):
+                # Memoize the result with the default PATH, so we can
+                # call this multiple times at no additional cost
+                if path is None:
+                    found_programs[bin_name] = full_path
+                return full_path
+
+    return None

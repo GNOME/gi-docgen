@@ -121,6 +121,10 @@ class GIDocConfig:
     def show_index_summary(self):
         return self.theme.get('show_index_summary', False)
 
+    @property
+    def show_class_hierarchy(self):
+        return self.theme.get('show_class_hierarchy', False)
+
 
 class GITemplateConfig:
     """Load and represent the template configuration"""

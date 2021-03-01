@@ -1159,6 +1159,29 @@ class TemplateClass:
         res += ["}"]
         return "\n".join(res)
 
+    @property
+    def dot(self):
+        ancestors = []
+        implements = []
+        res = ["graph hierarchy {"]
+        res.append("  size=\"6,6\";")
+        res.append(f"  this [label=\"{self.type_cname}\"];")
+        for idx, ancestor in enumerate(self.ancestors):
+            node_id = f"ancestor_{idx}"
+            res.append(f"  {node_id} [label=\"{ancestor['type_cname']}\"];")
+            ancestors.append(node_id)
+        ancestors.reverse()
+        for idx, iface in enumerate(getattr(self, "interfaces", [])):
+            node_id = f"implements_{idx}"
+            res.append(f"  {node_id} [label=\"{iface['type_cname']}\" shape=box];")
+            implements.append(node_id)
+        if len(ancestors) > 0:
+            res.append("  " + " -- ".join(ancestors) + " -- this [color=blue];")
+        for node in implements:
+            res.append(f"  this -- {node} [style=dotted];")
+        res.append("}")
+        return "\n".join(res)
+
 
 class TemplateRecord:
     def __init__(self, namespace, record):
@@ -1451,6 +1474,13 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             })
 
             out.write(content)
+
+        if config.show_class_hierarchy and utils.find_program('dot'):
+            hierarchy_img = utils.render_dot(tmpl.dot, output_format="svg")
+            if hierarchy_img is not None:
+                hierarchy_file = os.path.join(output_dir, f"hierarchy.{cls.name}.svg")
+                with open(hierarchy_file, "w") as img_out:
+                    img_out.write(hierarchy_img)
 
         for ctor in cls.constructors:
             c = TemplateFunction(namespace, ctor)
