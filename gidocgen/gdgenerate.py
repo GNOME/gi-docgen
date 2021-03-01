@@ -1475,7 +1475,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
 
             out.write(content)
 
-        if config.show_class_hierarchy and utils.find_program('dot'):
+        if config.show_class_hierarchy and utils.find_program('dot') is not None:
             hierarchy_img = utils.render_dot(tmpl.dot, output_format="svg")
             if hierarchy_img is not None:
                 hierarchy_file = os.path.join(output_dir, f"hierarchy.{cls.name}.svg")
