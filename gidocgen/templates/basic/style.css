@@ -627,6 +627,17 @@ kbd {
   padding-bottom: 0.15rem;
 }
 
+.docblock ul.type {
+  list-style: none;
+}
+
+.docblock ul.type li::before {
+  content: "»";
+  color: var(--primary);
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em;
+}
 
 /*************************************************************
  SYMBOLS
