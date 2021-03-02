@@ -112,23 +112,4 @@ window.addEventListener("load", function() {
             });
         }
     });
-
-    function scrollBackTop(e) {
-        e.preventDefault();
-        window.scroll({
-            top: 0,
-            behavior: 'smooth',
-        });
-    }
-
-    function toggleScrollButton() {
-        if (window.scrollY < 400) {
-            addClass(btnToTop, "hidden");
-        } else {
-            removeClass(btnToTop, "hidden");
-        }
-    }
-
-    window.onscroll = toggleScrollButton;
-    btnToTop.onclick = scrollBackTop;
 }, false);

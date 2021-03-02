@@ -38,32 +38,32 @@
 <body>
   <div id="body-wrapper" tabindex="-1">
 
-    <nav class="sidebar">
-      {% if CONFIG.logo_url %}
-      <div class="section">
-        <img src="{{ CONFIG.logo_url }}" class="logo"/>
-      </div>
+  <nav class="sidebar">
+    {% if CONFIG.logo_url %}
+    <div class="section">
+      <img src="{{ CONFIG.logo_url }}" class="logo"/>
+    </div>
+    {% endif %}
+    <div class="section namespace">
+      <h3><a href="index.html">{{ namespace.name }}</a></h3>
+      <p>API Version: {{ namespace.version }}</p>
+      {% if CONFIG.version %}
+      <p>Library Version: {{ CONFIG.version }}</p>
       {% endif %}
-      <div class="section namespace">
-        <h3><a href="index.html">{{ namespace.name }}</a></h3>
-        <p>API Version: {{ namespace.version }}</p>
-        {% if CONFIG.version %}
-        <p>Library Version: {{ CONFIG.version }}</p>
-        {% endif %}
-      </div>
-      {% block sidebar %}
-      {% endblock %}
-    </nav>
-
-    {% block navbar %}{% endblock %}
-
-    <div>
-      {% block content %}{% endblock %}
-      <button id="btn-to-top" class="hidden"><span class="up-arrow"></span></button>
     </div>
 
+    {% block sidebar %}
+    {% endblock %}
+  </nav>
+
+  {% block navbar %}{% endblock %}
+
+  {% block content %}{% endblock %}
+
     <footer>
-    {% block footer %}{% endblock %}
+      <button id="btn-to-top"><i>Top</i></button>
+
+      {% block footer %}{% endblock %}
     </footer>
   </div>
 </body>
