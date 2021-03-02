@@ -313,6 +313,29 @@ footer {
 }
 
 /*********************************
+ * Button
+ *********************************/
+
+#btn-to-top {
+  position: fixed;
+  bottom: 12px;
+  right: 32px;
+  z-index: 1000;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--primary);
+  background: var(--box-bg);
+  color: var(--text-color);
+  cursor: pointer;
+  text-transform: none;
+}
+
+#btn-to-top > .up-arrow:after {
+  content: "🡅"
+}
+
+/*********************************
  * SIDEBAR
  *********************************/
 .sidebar {
