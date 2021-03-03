@@ -959,16 +959,30 @@ class Repository:
         for func in self.namespace.get_functions():
             symbols[func.identifier] = func
         for cls in self.namespace.get_classes():
+            for m in cls.constructors:
+                symbols[m.identifier] = cls
             for m in cls.methods:
+                symbols[m.identifier] = cls
+            for m in cls.functions:
                 symbols[m.identifier] = cls
         for iface in self.namespace.get_interfaces():
             for m in iface.methods:
                 symbols[m.identifier] = iface
+            for m in iface.functions:
+                symbols[m.identifier] = iface
         for record in self.namespace.get_records():
+            for m in record.constructors:
+                symbols[m.identifier] = record
             for m in record.methods:
                 symbols[m.identifier] = record
+            for m in record.functions:
+                symbols[m.identifier] = record
         for union in self.namespace.get_unions():
+            for m in union.constructors:
+                symbols[m.identifier] = record
             for m in union.methods:
+                symbols[m.identifier] = record
+            for m in union.functions:
                 symbols[m.identifier] = record
         self.namespace._symbols = symbols
 
