@@ -184,7 +184,7 @@ class Type(GIRElement):
         return self.name == other.name
 
     def __repr__(self):
-        return f"Type({self.name}, {self.ctype})"
+        return f"Type({self.fqtn}, {self.ctype})"
 
     @property
     def resolved(self):
@@ -195,6 +195,15 @@ class Type(GIRElement):
         if self.ctype is None:
             return None
         return self.ctype.replace('*', '')
+
+    @property
+    def fqtn(self):
+        if '.' in self.name:
+            return self.name
+        elif self.namespace is not None:
+            return f"{self.namespace}.{self.name}"
+        else:
+            return None
 
 
 class ArrayType(GIRElement):
