@@ -169,6 +169,11 @@ class TemplateConstant:
         if const.doc is not None:
             self.summary = utils.preprocess_docs(const.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(const.doc.content, namespace)
+            filename = const.doc.filename
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            line = const.doc.line
+            const.docs_location = f"{filename}#L{line}"
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -182,12 +187,7 @@ class TemplateConstant:
                 "message": utils.preprocess_docs(msg, namespace),
             }
 
-        if const.doc is not None:
-            filename = const.doc.filename
-            if filename.startswith('../'):
-                filename = filename.replace('../', '')
-            line = const.doc.line
-            const.docs_location = f"{filename}#L{line}"
+        self.introspectable = const.introspectable
 
     @property
     def c_decl(self):
@@ -222,6 +222,8 @@ class TemplateProperty:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+
+        self.introspectable = prop.introspectable
 
         def transform_set_attribute(namespace, prop, setter_func):
             if setter_func is None:
@@ -293,6 +295,7 @@ class TemplateArgument:
         self.direction = DIRECTION_MODES[argument.direction]
         self.nullable = argument.nullable
         self.scope = SCOPE_MODES[argument.scope or 'none']
+        self.introspectable = argument.introspectable
         if self.type_name in ['utf8', 'filename']:
             self.string_note = STRING_TYPES[self.type_name]
         if argument.closure != -1:
@@ -387,6 +390,7 @@ class TemplateReturnValue:
             self.description = utils.preprocess_docs(retval.doc.content, namespace)
         else:
             self.description = MISSING_DESCRIPTION
+        self.introspectable = retval.introspectable
         if self.is_array:
             name = self.value_type
         elif self.is_list:
@@ -469,6 +473,8 @@ class TemplateSignal:
                 "message": utils.preprocess_docs(msg, namespace),
             }
 
+        self.introspectable = signal.introspectable
+
     @property
     def c_decl(self):
         res = []
@@ -493,6 +499,11 @@ class TemplateMethod:
         if method.doc is not None:
             self.summary = utils.preprocess_docs(method.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(method.doc.content, namespace)
+            filename = method.doc.filename
+            line = method.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -523,12 +534,7 @@ class TemplateMethod:
                 filename = filename.replace('../', '')
             self.source_location = f"{filename}#L{line}"
 
-        if method.doc is not None:
-            filename = method.doc.filename
-            line = method.doc.line
-            if filename.startswith('../'):
-                filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+        self.introspectable = method.introspectable
 
         def transform_property_attribute(namespace, type_, method, value):
             for p in type_.properties:
@@ -612,6 +618,11 @@ class TemplateClassMethod:
         if method.doc is not None:
             self.summary = utils.preprocess_docs(method.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(method.doc.content, namespace)
+            filename = method.doc.filename
+            line = method.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -629,12 +640,7 @@ class TemplateClassMethod:
                 filename = filename.replace('../', '')
             self.source_location = f"{filename}#L{line}"
 
-        if method.doc is not None:
-            filename = method.doc.filename
-            line = method.doc.line
-            if filename.startswith('../'):
-                filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+        self.introspectable = method.introspectable
 
     @property
     def c_decl(self):
@@ -671,6 +677,11 @@ class TemplateFunction:
         if func.doc is not None:
             self.summary = utils.preprocess_docs(func.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(func.doc.content, namespace)
+            filename = func.doc.filename
+            line = func.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -698,12 +709,7 @@ class TemplateFunction:
                 filename = filename.replace('../', '')
             self.source_location = f"{filename}#L{line}"
 
-        if func.doc is not None:
-            filename = func.doc.filename
-            line = func.doc.line
-            if filename.startswith('../'):
-                filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+        self.introspectable = func.introspectable
 
     @property
     def c_decl(self):
@@ -737,6 +743,11 @@ class TemplateCallback:
         if cb.doc is not None:
             self.summary = utils.preprocess_docs(cb.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(cb.doc.content, namespace)
+            filename = cb.doc.filename
+            line = cb.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -759,6 +770,8 @@ class TemplateCallback:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+
+        self.introspectable = cb.introspectable
 
     @property
     def c_decl(self):
@@ -818,6 +831,7 @@ class TemplateField:
             self.description = utils.preprocess_docs(field.doc.content, namespace)
         else:
             self.description = MISSING_DESCRIPTION
+        self.introspectable = field.introspectable
 
 
 class TemplateInterface:
@@ -862,10 +876,16 @@ class TemplateInterface:
 
         self.link_prefix = "iface"
 
-        self.description = MISSING_DESCRIPTION
         if interface.doc is not None:
             self.summary = utils.preprocess_docs(interface.doc.content, namespace, summary=True, md=md)
             self.description = utils.preprocess_docs(interface.doc.content, namespace, md=md)
+            filename = interface.doc.filename
+            line = interface.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.stability = interface.stability
         self.attributes = interface.attributes
@@ -877,12 +897,7 @@ class TemplateInterface:
                 "message": utils.preprocess_docs(msg, namespace),
             }
 
-        if interface.doc is not None:
-            filename = interface.doc.filename
-            line = interface.doc.line
-            if filename.startswith('../'):
-                filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+        self.introspectable = interface.introspectable
 
         self.class_name = interface.type_struct
 
@@ -1028,10 +1043,16 @@ class TemplateClass:
         else:
             self.final = False
 
-        self.description = MISSING_DESCRIPTION
         if cls.doc is not None:
             self.summary = utils.preprocess_docs(cls.doc.content, namespace, summary=True, md=md)
             self.description = utils.preprocess_docs(cls.doc.content, namespace, md=md)
+            filename = cls.doc.filename
+            line = cls.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.stability = cls.stability
         self.attributes = cls.attributes
@@ -1043,12 +1064,7 @@ class TemplateClass:
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
 
-        if cls.doc is not None:
-            filename = cls.doc.filename
-            line = cls.doc.line
-            if filename.startswith('../'):
-                filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+        self.introspectable = cls.introspectable
 
         self.fields = []
         for field in cls.fields:
@@ -1196,10 +1212,16 @@ class TemplateRecord:
         md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
                                extension_configs=utils.MD_EXTENSIONS_CONF)
 
-        self.description = MISSING_DESCRIPTION
         if record.doc is not None:
             self.summary = utils.preprocess_docs(record.doc.content, namespace, summary=True, md=md)
             self.description = utils.preprocess_docs(record.doc.content, namespace, md=md)
+            filename = record.doc.filename
+            line = record.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.stability = record.stability
         self.attributes = record.attributes
@@ -1211,12 +1233,7 @@ class TemplateRecord:
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
 
-        if record.doc is not None:
-            filename = record.doc.filename
-            line = record.doc.line
-            if filename.startswith('../'):
-                filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+        self.introspectable = record.introspectable
 
         self.fields = []
         for field in record.fields:
@@ -1266,10 +1283,16 @@ class TemplateUnion:
         md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
                                extension_configs=utils.MD_EXTENSIONS_CONF)
 
-        self.description = MISSING_DESCRIPTION
         if union.doc is not None:
             self.summary = utils.preprocess_docs(union.doc.content, namespace, summary=True, md=md)
             self.description = utils.preprocess_docs(union.doc.content, namespace, md=md)
+            filename = union.doc.filename
+            line = union.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.stability = union.stability
         self.attributes = union.attributes
@@ -1281,12 +1304,7 @@ class TemplateUnion:
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
 
-        if union.doc is not None:
-            filename = union.doc.filename
-            line = union.doc.line
-            if filename.startswith('../'):
-                filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+        self.introspectable = union.introspectable
 
         self.fields = []
         for field in union.fields:
@@ -1337,10 +1355,16 @@ class TemplateAlias:
         md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
                                extension_configs=utils.MD_EXTENSIONS_CONF)
 
-        self.description = MISSING_DESCRIPTION
         if alias.doc is not None:
             self.summary = utils.preprocess_docs(alias.doc.content, namespace, summary=True, md=md)
             self.description = utils.preprocess_docs(alias.doc.content, namespace, md=md)
+            filename = alias.doc.filename
+            line = alias.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
+        else:
+            self.description = MISSING_DESCRIPTION
 
         self.stability = alias.stability
         self.attributes = alias.attributes
@@ -1352,6 +1376,8 @@ class TemplateAlias:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+
+        self.introspectable = alias.introspectable
 
     @property
     def c_decl(self):
@@ -1365,6 +1391,11 @@ class TemplateMember:
         self.value = member.value
         if member.doc is not None:
             self.description = utils.preprocess_docs(member.doc.content, namespace)
+            filename = member.doc.filename
+            line = member.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -1387,6 +1418,11 @@ class TemplateEnum:
         if enum.doc is not None:
             self.summary = utils.preprocess_docs(enum.doc.content, namespace, summary=True, md=md)
             self.description = utils.preprocess_docs(enum.doc.content, namespace, md=md)
+            filename = enum.doc.filename
+            line = enum.doc.line
+            if filename.startswith('../'):
+                filename = filename.replace('../', '')
+            self.docs_location = f"{filename}#L{line}"
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -1401,12 +1437,7 @@ class TemplateEnum:
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
 
-        if enum.doc is not None:
-            filename = enum.doc.filename
-            line = enum.doc.line
-            if filename.startswith('../'):
-                filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+        self.introspectable = enum.introspectable
 
         if isinstance(enum, gir.BitField):
             self.link_prefix = "flags"
@@ -1442,7 +1473,8 @@ class TemplateNamespace:
     def __init__(self, namespace):
         self.name = namespace.name
         self.version = namespace.version
-        self.prefix = f"{namespace.symbol_prefix[0]}"
+        self.symbol_prefix = namespace.symbol_prefix[0]
+        self.identifier_prefix = namespace.identifier_prefix[0]
 
 
 def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_classes):
