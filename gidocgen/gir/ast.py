@@ -327,6 +327,12 @@ class Callable(GIRElement):
     def set_return_value(self, res: ReturnValue) -> None:
         self.return_value = res
 
+    def set_shadows(self, func: str) -> None:
+        self.shadows = func
+
+    def set_shadowed_by(self, func: str) -> None:
+        self.shadowed_by = func
+
     def __contains__(self, param):
         if isinstance(param, str):
             for p in self.parameters:

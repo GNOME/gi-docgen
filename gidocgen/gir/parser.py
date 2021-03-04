@@ -503,6 +503,8 @@ class GirParser:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
         throws = node.attrib.get('throws', '0') == '1'
+        shadows = node.attrib.get('shadows')
+        shadowed_by = node.attrib.get('shadowed-by')
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -521,6 +523,8 @@ class GirParser:
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_return_value(return_value)
         res.set_parameters(params)
+        res.set_shadows(shadows)
+        res.set_shadowed_by(shadowed_by)
         self._maybe_parse_docs(node, res)
         return res
 
@@ -547,6 +551,8 @@ class GirParser:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
         throws = node.attrib.get('throws', '0') == '1'
+        shadows = node.attrib.get('shadows')
+        shadowed_by = node.attrib.get('shadowed-by')
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -563,6 +569,8 @@ class GirParser:
         res.set_return_value(return_value)
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_shadows(shadows)
+        res.set_shadowed_by(shadowed_by)
         self._maybe_parse_docs(node, res)
         return res
 
