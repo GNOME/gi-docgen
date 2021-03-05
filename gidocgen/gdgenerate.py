@@ -2209,7 +2209,7 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
 
     content_tmpl = jinja_env.get_template(theme_config.content_template)
 
-    dst_file = os.path.join(output_dir, "types_hierarchy.html")
+    dst_file = os.path.join(output_dir, content["output_file"])
     log.info(f"Generating type hierarchy file: {dst_file}")
     with open(dst_file, "w") as outfile:
         outfile.write(content_tmpl.render({
