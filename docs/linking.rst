@@ -29,7 +29,7 @@ For instance:
 
 will all link to ``Bar``.
 
-Backticks will be stripped, so ``[\`class@Foo\`]`` will correctly link to ``Foo``.
+Backticks will be stripped, so ``[`class@Foo`]`` will correctly link to ``Foo``.
 
 The link can either be a fully qualified name, which includes the namespace; or
 a name relative to the current names; for instance, both of the following links
@@ -46,7 +46,7 @@ The available qualifier fragments are:
 +============+=============================+=============================================+
 | `alias`    | An alias to another type    | ``[alias@Allocation]``                      |
 +------------+-----------------------------+---------------------------------------------+
-| `class`    | A GObject class             | ``[class@Widget]``, ``[class@Gdk.Surface]`` |
+| `class`    | A ``GObject`` class         | ``[class@Widget]``, ``[class@Gdk.Surface]`` |
 +------------+-----------------------------+---------------------------------------------+
 | `const`    | A constant symbol           | ``[const@Gdk.KEY_q]``                       |
 +------------+-----------------------------+---------------------------------------------+
@@ -54,23 +54,23 @@ The available qualifier fragments are:
 +------------+-----------------------------+---------------------------------------------+
 | `enum`     | An enumeration              | ``[enum@Orientation]``                      |
 +------------+-----------------------------+---------------------------------------------+
-| `error`    | A `GError` domain           | ``[error@Gtk.BuilderParseError]``           |
+| `error`    | A ``GError`` domain         | ``[error@Gtk.BuilderParseError]``           |
 +------------+-----------------------------+---------------------------------------------+
 | `flags`    | A bitfield                  | ``[flags@Gdk.ModifierType]``                |
 +------------+-----------------------------+---------------------------------------------+
 | `func`     | A global or type function   | ``[func@Gtk.init]``, ``[func@show_uri]``,   |
 |            |                             | ``[func@Gtk.Window.list_toplevels]``        |
 +------------+-----------------------------+---------------------------------------------+
-| `iface`    | A GTypeInterface            | ``[iface@Gtk.Buildable]``                   |
+| `iface`    | A ``GTypeInterface``        | ``[iface@Gtk.Buildable]``                   |
 +------------+-----------------------------+---------------------------------------------+
 | `method`   | An instance or class method | ``[method@Gtk.Widget.show]``,               |
 |            |                             | ``[method@WidgetClass.add_binding]``        |
 +------------+-----------------------------+---------------------------------------------+
-| `property` | A GObject property          | ``[property@Gtk.Orientable:orientation]``   |
+| `property` | A ``GObject`` property      | ``[property@Gtk.Orientable:orientation]``   |
 +------------+-----------------------------+---------------------------------------------+
-| `signal`   | A GObject signal            | ``[signal@Gtk.RecentManager::changed]``     |
+| `signal`   | A ``GObject`` signal        | ``[signal@Gtk.RecentManager::changed]``     |
 +------------+-----------------------------+---------------------------------------------+
-| `struct`   | A C structure               | ``[struct@Gtk.TextIter]``                   |
+| `struct`   | A C structure or union      | ``[struct@Gtk.TextIter]``                   |
 +------------+-----------------------------+---------------------------------------------+
 | `vfunc`    | A virtual function          | ``[vfunc@Gtk.Widget.measure]``              |
 +------------+-----------------------------+---------------------------------------------+

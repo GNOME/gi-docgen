@@ -24,9 +24,9 @@ generating the API reference. For simplicity, we're going to assume you're using
 the "basic" template that is part of gi-docgen.
 
 The project configuration file is written using `ToML <https://toml.io/en/>`__,
-and you can use the `--config` command line option for gi-docgen.
+and you can use the ``--config`` command line option for gi-docgen.
 
-We begin with the `library` preamble:
+We begin with the ``library`` preamble:
 
 ::
 
@@ -42,7 +42,7 @@ The keys above will be used in the main landing page for the library.
 
 If your project has dependencies, and you wish to display them or cross-link
 types and symbols from your API reference, you will need to describe them using
-the `dependencies` key, for instance:
+the ``dependencies`` key, for instance:
 
 ::
 
@@ -64,12 +64,12 @@ Each dependency will need its own object, for instance:
         description = "The base type system library"
         docs_url = "https://developer.gnome.org/gobject/stable"
 
-The `name`, `description`, and `docs_url` keys will be used when generating the
+The ``name``, ``description``, and ``docs_url`` keys will be used when generating the
 list of dependencies on the main landing page.
 
 If you wish to add links to the source code repository for type and symbol
 declarations, as well as the location of the documentation source, you will need
-a `source-location` section:
+a ``source-location`` section:
 
 ::
 
@@ -80,7 +80,7 @@ a `source-location` section:
         file_format = "{filename}#L{line}"
 
 If your library has additiona content, in the form of Markdown files that you
-wish to include in the generated API reference, you can use the `extra` section:
+wish to include in the generated API reference, you can use the ``extra`` section:
 
 ::
 
@@ -118,13 +118,13 @@ wish to include in the generated API reference, you can use the `extra` section:
         ]
 
 For more information about the project configuration, please see the
-:doc:`project-configuration` page.
+:doc:``project-configuration`` page.
 
 Generating the API reference
 ----------------------------
 
 Once you have a project configuration file, and the introspection data for the
-library you wish to document, all you need is to launch the `gi-docgen` command
+library you wish to document, all you need is to launch the ``gi-docgen`` command
 line tool.
 
 You will need to provide:
@@ -135,11 +135,11 @@ You will need to provide:
 - the output directory for the generated files
 - the location of the introspection file
 
-A simple invocation for the installed `Gtk-4.0.gir` file is:
+A simple invocation for the installed ``Gtk-4.0.gir`` file is:
 
 ::
 
   gi-docgen generate -C gtk4.toml /usr/share/gir-1.0/Gtk-4.0.gir
 
-This will generate the API reference for the `Gtk-4.0` namespace, and will put
+This will generate the API reference for the ``Gtk-4.0`` namespace, and will put
 the generate files under the current directory.
