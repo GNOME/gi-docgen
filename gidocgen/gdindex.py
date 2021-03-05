@@ -607,6 +607,7 @@ def run(options):
     xdg_data_home = os.environ.get('XDG_DATA_HOME', os.path.expanduser('~/.local/share'))
 
     paths = []
+    paths.extend(options.include_paths)
     paths.append(os.getcwd())
     paths.append(os.path.join(xdg_data_home, 'gir-1.0'))
     paths.extend([os.path.join(x, 'gir-1.0') for x in xdg_data_dirs])
