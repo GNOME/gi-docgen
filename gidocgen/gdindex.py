@@ -198,7 +198,7 @@ def _print_class_properties(cls, sections=[], is_last_class=False):
     title = str(log.color('Properties', 36))
     log.log(f'    {root_branch}   {props_branch}   {sect_branch} {title}')
 
-    for i, prop in enumerate(cls.properties):
+    for i, prop in enumerate(cls.properties.values()):
         is_last_prop = i == len(cls.properties) - 1
         prop_str = _print_property(prop)
         if is_last_prop:
@@ -230,7 +230,7 @@ def _print_class_signals(cls, sections=[], is_last_class=False):
     title = str(log.color('Signals', 36))
     log.log(f'    {root_branch}   {signals_branch}   {sect_branch} {title}')
 
-    for i, signal in enumerate(cls.signals):
+    for i, signal in enumerate(cls.signals.values()):
         is_last_signal = i == len(cls.signals) - 1
         signal_str = _print_signal(signal)
         if is_last_signal:

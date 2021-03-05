@@ -537,20 +537,18 @@ class TemplateMethod:
         self.introspectable = method.introspectable
 
         def transform_property_attribute(namespace, type_, method, value):
-            for p in type_.properties:
-                if p.name == value:
-                    text = f"{namespace.name}.{type_.name}:{value}"
-                    href = f"property.{type_.name}.{value}.html"
-                    return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
+            if value in type_.properties:
+                text = f"{namespace.name}.{type_.name}:{value}"
+                href = f"property.{type_.name}.{value}.html"
+                return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
             log.warning(f"Property {value} linked to method {method.name} not found in {namespace.name}.{type_.name}")
             return value
 
         def transform_signal_attribute(namespace, type_, method, value):
-            for s in type_.signals:
-                if s.name == value:
-                    text = f"{namespace.name}.{type_.name}::{value}"
-                    href = f"signal.{type_.name}.{value}.html"
-                    return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
+            if value in type_.signals:
+                text = f"{namespace.name}.{type_.name}::{value}"
+                href = f"signal.{type_.name}.{value}.html"
+                return Markup(f"<a href=\"{href}\"><code>{text}</code></a>")
             log.warning(f"Signal {value} linked to method {method.name} not found in {namespace.name}.{type_.name}")
             return value
 
@@ -915,12 +913,12 @@ class TemplateInterface:
 
         if len(interface.properties) != 0:
             self.properties = []
-            for prop in interface.properties:
+            for pname, prop in interface.properties.items():
                 self.properties.append(gen_index_property(prop, namespace, md))
 
         if len(interface.signals) != 0:
             self.signals = []
-            for signal in interface.signals:
+            for sname, signal in interface.signals.items():
                 self.signals.append(gen_index_signal(signal, namespace, md))
 
         if len(interface.methods) != 0:
@@ -1002,9 +1000,9 @@ class TemplateClass:
                         "name": ancestor_name,
                         "fqtn": f"{ancestor_ns}.{ancestor_name}",
                         "type_cname": ancestor_type.base_ctype,
-                        "properties": [gen_index_property(p, namespace, md) for p in ancestor.properties],
+                        "properties": [gen_index_property(p, namespace, md) for p in ancestor.properties.values()],
                         "n_properties": len(ancestor.properties),
-                        "signals": [gen_index_signal(s, namespace, md) for s in ancestor.signals],
+                        "signals": [gen_index_signal(s, namespace, md) for s in ancestor.signals.values()],
                         "n_signals": len(ancestor.signals),
                         "methods": methods,
                         "n_methods": len(ancestor.methods),
@@ -1073,12 +1071,12 @@ class TemplateClass:
 
         if len(cls.properties) != 0:
             self.properties = []
-            for prop in cls.properties:
+            for pname, prop in cls.properties.items():
                 self.properties.append(gen_index_property(prop, namespace, md))
 
         if len(cls.signals) != 0:
             self.signals = []
-            for signal in cls.signals:
+            for sname, signal in cls.signals.items():
                 self.signals.append(gen_index_signal(signal, namespace, md))
 
         if len(cls.constructors) != 0:
@@ -1124,9 +1122,9 @@ class TemplateClass:
                         "name": iface_name,
                         "fqtn": f"{iface_ns}.{iface_name}",
                         "type_cname": iface_type.base_ctype,
-                        "properties": [gen_index_property(p, namespace, md) for p in iface.properties],
+                        "properties": [gen_index_property(p, namespace, md) for p in iface.properties.values()],
                         "n_properties": len(iface.properties),
-                        "signals": [gen_index_signal(s, namespace, md) for s in iface.signals],
+                        "signals": [gen_index_signal(s, namespace, md) for s in iface.signals.values()],
                         "n_signals": len(iface.signals),
                         "methods": methods,
                         "n_methods": len(iface.methods),
@@ -1540,7 +1538,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     'method': m,
                 }))
 
-        for prop in cls.properties:
+        for prop in cls.properties.values():
             p = TemplateProperty(namespace, cls, prop)
             prop_file = os.path.join(output_dir, f"property.{cls.name}.{prop.name}.html")
             log.debug(f"Creating property file for {namespace.name}.{cls.name}.{prop.name}: {prop_file}")
@@ -1553,7 +1551,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     'property': p,
                 }))
 
-        for signal in cls.signals:
+        for signal in cls.signals.values():
             s = TemplateSignal(namespace, cls, signal)
             signal_file = os.path.join(output_dir, f"signal.{cls.name}.{signal.name}.html")
             log.debug(f"Creating signal file for {namespace.name}.{cls.name}.{signal.name}: {signal_file}")
@@ -1650,7 +1648,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     'method': m,
                 }))
 
-        for prop in iface.properties:
+        for prop in iface.properties.values():
             p = TemplateProperty(namespace, iface, prop)
             prop_file = os.path.join(output_dir, f"property.{iface.name}.{prop.name}.html")
             log.debug(f"Creating property file for {namespace.name}.{iface.name}.{prop.name}: {prop_file}")
@@ -1663,7 +1661,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     'property': p,
                 }))
 
-        for signal in iface.signals:
+        for signal in iface.signals.values():
             s = TemplateSignal(namespace, iface, signal)
             signal_file = os.path.join(output_dir, f"signal.{iface.name}.{signal.name}.html")
             log.debug(f"Creating signal file for {namespace.name}.{iface.name}.{signal.name}: {signal_file}")

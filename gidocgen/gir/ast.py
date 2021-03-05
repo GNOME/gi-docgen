@@ -316,7 +316,10 @@ class Callable(GIRElement):
         self.identifier = identifier
         self.parameters: T.List[Parameter] = []
         self.return_value: T.Optional[ReturnValue] = None
-        self.throws = throws
+        self.throws: bool = throws
+        self.moved_to: T.Optional[str] = None
+        self.shadows: T.Optional[str] = None
+        self.shadowed_by: T.Optional[str] = None
 
     def add_parameter(self, param: Parameter) -> None:
         self.parameters.append(param)
@@ -332,6 +335,9 @@ class Callable(GIRElement):
 
     def set_shadowed_by(self, func: str) -> None:
         self.shadowed_by = func
+
+    def set_moved_to(self, func: str) -> None:
+        self.moved_to = func
 
     def __contains__(self, param):
         if isinstance(param, str):
@@ -484,8 +490,8 @@ class Interface(Type):
         self.gtype = gtype
         self.methods: T.List[Method] = []
         self.virtual_methods: T.List[VirtualMethod] = []
-        self.properties: T.List[Property] = []
-        self.signals: T.List[Signal] = []
+        self.properties: T.Mapping[str, Property] = {}
+        self.signals: T.Mapping[str, Signal] = {}
         self.functions: T.List[Function] = []
         self.fields: T.List[Field] = []
         self.prerequisite: T.Optional[str] = None
@@ -507,10 +513,12 @@ class Interface(Type):
         self.virtual_methods.extend(methods)
 
     def set_properties(self, properties: T.List[Property]) -> None:
-        self.properties.extend(properties)
+        for p in properties:
+            self.properties[p.name] = p
 
     def set_signals(self, signals: T.List[Signal]) -> None:
-        self.signals.extend(signals)
+        for s in signals:
+            self.signals[s.name] = s
 
     def set_functions(self, functions: T.List[Function]) -> None:
         self.functions.extend(functions)
@@ -540,8 +548,8 @@ class Class(Type):
         self.constructors: T.List[Function] = []
         self.methods: T.List[Method] = []
         self.virtual_methods: T.List[VirtualMethod] = []
-        self.properties: T.List[Property] = []
-        self.signals: T.List[Signal] = []
+        self.properties: T.Mapping[str, Property] = {}
+        self.signals: T.Mapping[str, Signal] = {}
         self.functions: T.List[Function] = []
         self.fields: T.List[Field] = []
         self.callbacks: T.List[Callback] = []
@@ -568,10 +576,12 @@ class Class(Type):
         self.virtual_methods.extend(methods)
 
     def set_properties(self, properties: T.List[Property]) -> None:
-        self.properties.extend(properties)
+        for p in properties:
+            self.properties[p.name] = p
 
     def set_signals(self, signals: T.List[Signal]) -> None:
-        self.signals.extend(signals)
+        for s in signals:
+            self.signals[s.name] = s
 
     def set_functions(self, functions: T.List[Function]) -> None:
         self.functions.extend(functions)
@@ -848,6 +858,7 @@ class Repository:
 
     def add_namespace(self, ns: Namespace) -> None:
         self._namespaces.append(ns)
+        ns.repository = self
 
     def resolve_empty_ctypes(self, seen_types: T.Mapping[str, T.List[Type]]):
         for fqtn in seen_types:
@@ -968,6 +979,21 @@ class Repository:
             cls.ancestors = ancestors
             cls.parent = ancestors[0]
             log.debug(f"Ancestors for {cls}: parent: {cls.parent}, ancestors: {cls.ancestors}")
+
+    def resolve_moved_to(self):
+        functions = list(self.namespace.get_functions())
+        old_len = len(functions)
+        for func in functions[:]:
+            if func.moved_to is None:
+                continue
+            moved_type, moved_func_name = func.moved_to.split('.')
+            real_type = self.namespace.find_real_type(moved_type)
+            if real_type is None:
+                continue
+            self.namespace._functions.pop(func.name)    # XXX: Add accessor
+        new_len = len(self.namespace._functions)
+        diff = old_len - new_len
+        log.debug(f"Removed {old_len} - {new_len} functions: {diff}")
 
     def resolve_symbols(self):
         symbols: T.Mapping[str, Type] = {}

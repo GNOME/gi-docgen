@@ -96,6 +96,7 @@ class GirParser:
             self._repository.resolve_class_type()
             self._repository.resolve_class_implements()
             self._repository.resolve_class_ancestors()
+            self._repository.resolve_moved_to()
             self._repository.resolve_symbols()
 
     def get_repository(self, name: T.Optional[str] = None) -> T.Optional[ast.Repository]:
@@ -505,6 +506,7 @@ class GirParser:
         throws = node.attrib.get('throws', '0') == '1'
         shadows = node.attrib.get('shadows')
         shadowed_by = node.attrib.get('shadowed-by')
+        moved_to = node.attrib.get('moved-to')
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -525,6 +527,7 @@ class GirParser:
         res.set_parameters(params)
         res.set_shadows(shadows)
         res.set_shadowed_by(shadowed_by)
+        res.set_moved_to(moved_to)
         self._maybe_parse_docs(node, res)
         return res
 

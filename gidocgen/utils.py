@@ -76,6 +76,40 @@ LINK_RE = re.compile(
     ''',
     re.VERBOSE)
 
+TYPE_RE = re.compile(
+    r'''
+    (?P<ns>[\w]+\.)?            # namespace (optional)
+    (?P<name>[\w]+)             # type name
+    ''',
+    re.VERBOSE)
+
+PROPERTY_RE = re.compile(
+    r'''
+    (?P<ns>[\w]+\.)?            # namespace (optional)
+    (?P<name>[\w]+)             # type name
+    :{1}                        # delimiter
+    (?P<property>[\w-]*\w)      # property name
+    ''',
+    re.VERBOSE)
+
+SIGNAL_RE = re.compile(
+    r'''
+    (?P<ns>[\w]+\.)?            # namespace (optional)
+    (?P<name>[\w]+)             # type name
+    :{2}                        # delimiter
+    (?P<signal>[\w-]*\w)        # signal name
+    ''',
+    re.VERBOSE)
+
+METHOD_RE = re.compile(
+    r'''
+    (?P<ns>[\w]+\.)?            # namespace (optional)
+    (?P<name>[\w]+)             # type name
+    \.                          # delimiter
+    (?P<method>[\w_]*\w)        # method name
+    ''',
+    re.VERBOSE)
+
 LANGUAGE_MAP = {
     'c': 'c',
     'css': 'css',
@@ -148,126 +182,310 @@ class LinkGenerator:
 
         assert self._namespace is not None
 
-        # Valid links:
-        #
-        # - [fragment@rest]
-        # - [fragment@Namespace.rest]
-        # - [fragment@OtherNamespace.res]
-        if self._endpoint.startswith(f"{self._namespace.name}."):
-            self._ns = self._namespace.name
-            self._rest = self._endpoint[len(self._ns) + 1:]
-            self._external = False
-        elif '.' in self._endpoint:
-            self._ns, self._rest = self._endpoint.split('.', maxsplit=1)
-            self._external = True
-        else:
-            self._ns = self._namespace.name
-            self._rest = self._endpoint
-            self._external = False
+        self._repository = self._namespace.repository
+        self._valid_namespaces = [n for n in self._repository.includes]
+        self._external = False
 
-        self._ns_lower = self._ns.lower()
+        fragment_parsers = {
+            "alias": self._parse_type,
+            "class": self._parse_type,
+            "const": self._parse_type,
+            "ctor": self._parse_method,
+            "enum": self._parse_type,
+            "error": self._parse_type,
+            "flags": self._parse_type,
+            "func": self._parse_func,
+            "id": self._parse_id,
+            "iface": self._parse_type,
+            "method": self._parse_method,
+            "property": self._parse_property,
+            "signal": self._parse_signal,
+            "struct": self._parse_type,
+            "vfunc": self._parse_method,
+        }
 
-        if self._fragment == 'id':
-            t = self._namespace.find_symbol(self._endpoint)
-            if isinstance(t, gir.Class) or \
-               isinstance(t, gir.Interface) or \
-               isinstance(t, gir.Record):
-                self._fragment = 'method'
-                self._func = f"{self._endpoint}()"
-                self._name = t.name
-                self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
-                self._func_name = self._func_name.replace(t.symbol_prefix + '_', '')
-            elif isinstance(t, gir.Function):
-                self._fragment = 'func'
-                self._func = f"{self._endpoint}()"
-                self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
-            else:
+        parser_method = fragment_parsers.get(self._fragment)
+        if parser_method is not None:
+            res = parser_method()
+            if res is not None:
                 self._fragment = None
-        elif self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
-            self._name = self._rest
-            t = self._namespace.find_real_type(self._name)
+                log.warning(str(res))
+        else:
+            self._fragment = None
+            log.warning(str(LinkParseError(self._line, self._start, self._end,
+                                           self._fragment, self._endpoint,
+                                           "Unable to parse link")))
+
+    def _parse_id(self):
+        t = self._namespace.find_symbol(self._endpoint)
+        if isinstance(t, gir.Class) or \
+           isinstance(t, gir.Interface) or \
+           isinstance(t, gir.Record):
+            self._fragment = 'method'
+            self._symbol_name = f"{self._endpoint}()"
+            self._name = t.name
+            self._method_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
+            self._method_name = self._method_name.replace(t.symbol_prefix + '_', '')
+            return None
+        elif isinstance(t, gir.Function):
+            self._fragment = 'func'
+            self._symbol_name = f"{self._endpoint}()"
+            self._name = None
+            self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
+            return None
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  f"Unable to find symbol {self._endpoint}")
+
+    def _parse_type(self):
+        res = TYPE_RE.match(self._endpoint)
+        if res:
+            ns = res.group('ns')
+            name = res.group('name')
+            if ns is not None:
+                ns = ns[:len(ns) - 1]   # Drop the trailing dot
+            else:
+                ns = self._namespace.name
+                # Accept FooBar in place of Foo.Bar
+                if name.startswith(tuple(self._namespace.identifier_prefix)):
+                    for prefix in self._namespace.identifier_prefix:
+                        name = name.replace(prefix, '')
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  "Invalid type link")
+        if ns == self._namespace.name:
+            t = self._namespace.find_real_type(name)
+            if t is not None and t.base_ctype is not None:
+                self._name = name
+                self._type = t.base_ctype
+                return None
+            else:
+                return LinkParseError(self._line, self._start, self._end,
+                                      self._fragment, self._endpoint,
+                                      f"Unable to find type '{ns}.{name}'")
+        else:
+            self._external = True
+            self._fragment = None
+            return None
+
+    def _parse_property(self):
+        res = PROPERTY_RE.match(self._endpoint)
+        if res:
+            ns = res.group('ns')
+            name = res.group('name')
+            pname = res.group('property')
+            if ns is not None:
+                ns = ns[:len(ns) - 1]   # Drop the trailing dot
+            else:
+                ns = self._namespace.name
+                # Accept FooBar in place of Foo.Bar
+                if name.startswith(tuple(self._namespace.identifier_prefix)):
+                    for prefix in self._namespace.identifier_prefix:
+                        name = name.replace(prefix, '')
+            # Canonicalize the property name
+            pname = pname.replace('_', '-')
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  "Invalid property link")
+        if ns == self._namespace.name:
+            t = self._namespace.find_real_type(name)
             if t is not None and t.base_ctype is not None:
                 self._type = t.base_ctype
+                self._name = name
             else:
-                self._type = f"{self._ns}{self._name}"
-        elif self._fragment == 'property':
-            try:
-                self._name, self._prop_name = self._rest.split(':')
-                t = self._namespace.find_real_type(self._name)
-                if t is not None and t.base_ctype is not None:
-                    self._type = t.base_ctype
-                else:
-                    self._type = f"{self._ns}{self._name}"
-            except ValueError:
-                self._fragment = None
-                log.warning(str(LinkParseError(self._line, self._start, self._end,
-                                               self._fragment, self._endpoint,
-                                               "Unable to parse property link")))
-        elif self._fragment == 'signal':
-            try:
-                self._name, self._signal_name = self._rest.split('::')
-                t = self._namespace.find_real_type(self._name)
-                if t is not None and t.base_ctype is not None:
-                    self._type = t.base_ctype
-                else:
-                    self._type = f"{self._ns}{self._name}"
-            except ValueError:
-                self._fragment = None
-                log.warning(str(LinkParseError(self._line, self._start, self._end,
-                                               self._fragment, self._endpoint,
-                                               "Unable to parse signal link")))
-        elif self._fragment in ['ctor', 'method']:
-            try:
-                self._name, self._func_name = self._rest.split('.')
-                t = self._namespace.find_real_type(self._name)
-                if t is not None:
-                    self._func = f"{self._namespace.symbol_prefix[0]}_{t.symbol_prefix}_{self._func_name}()"
-                else:
-                    self._func = f"{self._ns_lower}_{self._func_name}()"
-            except ValueError:
-                self._fragment = None
-                log.warning(str(LinkParseError(self._line, self._start, self._end,
-                                               self._fragment, self._endpoint,
-                                               "Unable to parse method link")))
-        elif self._fragment == 'vfunc':
-            try:
-                self._name, self._func_name = self._rest.split('.')
-                t = self._namespace.find_real_type(self._name)
-                if t is not None and t.base_ctype is not None:
-                    self._type = t.base_ctype
-                else:
-                    self._type = f"{self._ns}{self._name}"
-            except ValueError:
-                self._fragment = None
-                log.warning(str(LinkParseError(self._line, self._start, self._end,
-                                               self._fragment, self._endpoint,
-                                               "Unable to parse vfunc link")))
-        elif self._fragment == 'func':
-            self._func_name = self._rest
-            t = self._namespace.find_function(self._func_name)
-            if t is not None:
-                self._func = f"{t.identifier}()"
+                return LinkParseError(self._line, self._start, self._end,
+                                      self._fragment, self._endpoint,
+                                      f"Unable to find type '{ns}.{name}'")
+            if (isinstance(t, gir.Class) or isinstance(t, gir.Interface)) and pname in t.properties:
+                self._property_name = pname
             else:
-                self._func = f"{self._ns_lower}_{self._rest}()"
+                return LinkParseError(self._line, self._start, self._end,
+                                      self._fragment, self._endpoint,
+                                      f"Invalid property '{pname}' for type '{ns}.{name}'")
         else:
-            log.warning(LinkParseError(self._line, self._start, self._end,
-                                       self._fragment, self._endpoint,
-                                       "Unable to parse link"))
+            self._external = True
+            self._fragment = None
+            return None
+
+    def _parse_signal(self):
+        res = SIGNAL_RE.match(self._endpoint)
+        if res:
+            ns = res.group('ns')
+            name = res.group('name')
+            sname = res.group('signal')
+            if ns is not None:
+                ns = ns[:len(ns) - 1]   # Drop the trailing dot
+            else:
+                ns = self._namespace.name
+                # Accept FooBar in place of Foo.Bar
+                if name.startswith(tuple(self._namespace.identifier_prefix)):
+                    for prefix in self._namespace.identifier_prefix:
+                        name = name.replace(prefix, '')
+            # Canonicalize the signal name
+            sname = sname.replace('_', '-')
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  "Invalid signal link")
+        if ns == self._namespace.name:
+            t = self._namespace.find_real_type(name)
+            if t is not None and t.base_ctype is not None:
+                self._type = t.base_ctype
+                self._name = name
+            else:
+                return LinkParseError(self._line, self._start, self._end,
+                                      self._fragment, self._endpoint,
+                                      f"Unable to find type '{ns}.{name}'")
+            if (isinstance(t, gir.Class) or isinstance(t, gir.Interface)) and sname in t.signals:
+                self._signal_name = sname
+            else:
+                return LinkParseError(self._line, self._start, self._end,
+                                      self._fragment, self._endpoint,
+                                      f"Invalid signal name '{sname}' for type '{ns}.{name}'")
+        else:
+            self._external = True
+            self._fragment = None
+            return None
+
+    def _parse_method(self):
+        res = METHOD_RE.match(self._endpoint)
+        if res:
+            ns = res.group('ns')
+            name = res.group('name')
+            method = res.group('method')
+            if ns is not None:
+                ns = ns[:len(ns) - 1]   # Drop the trailing dot
+            else:
+                ns = self._namespace.name
+                # Accept FooBar in place of Foo.Bar
+                if name.startswith(tuple(self._namespace.identifier_prefix)):
+                    for prefix in self._namespace.identifier_prefix:
+                        name = name.replace(prefix, '')
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  "Invalid method link")
+        if ns == self._namespace.name:
+            t = self._namespace.find_real_type(name)
+            if t is not None and t.base_ctype is not None:
+                self._type = t.base_ctype
+                self._method_name = method
+                # method@Foo.BarClass.add_name -> class_method.Bar.add_name.html
+                if isinstance(t, gir.Record) and t.struct_for is not None:
+                    self._name = t.struct_for
+                    self._fragment = "class_method"
+                elif self._fragment == "vfunc" and t.type_struct is not None:
+                    self._name = name
+                    self._type = t.type_struct
+                    self._ns = ns
+                else:
+                    self._name = name
+            else:
+                return LinkParseError(self._line, self._start, self._end,
+                                      self._fragment, self._endpoint,
+                                      f"Unable to find type '{ns}.{name}'")
+            if self._fragment == "ctor":
+                methods = getattr(t, "constructors", [])
+            elif self._fragment in ["method", "class_method"]:
+                methods = getattr(t, "methods", [])
+            elif self._fragment == "vfunc":
+                methods = getattr(t, "virtual_methods", [])
+            else:
+                methods = []
+            for m in methods:
+                if m.name == method:
+                    if self._fragment == "vfunc":
+                        self._vfunc_name = m.name
+                    else:
+                        self._symbol_name = f"{m.identifier}()"
+                    return None
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  f"Unable to find method '{ns}.{name}.{method}'")
+        else:
+            self._external = True
+            self._fragment = None
+            return None
+
+    def _parse_func(self):
+        tokens = self._endpoint.split('.')
+        # Case 1: [func@init] => gtk_init()
+        if len(tokens) == 1:
+            ns = self._namespace.name
+            name = None
+            func_name = tokens[0]
+        # Case 2: [func@Gtk.Foo.bar] => gtk_foo_bar()
+        elif len(tokens) == 3:
+            ns = tokens[0]
+            name = tokens[1]
+            func_name = tokens[2]
+        # Case 3: either [func@Gtk.init] or [func@Foo.bar]
+        elif len(tokens) == 2:
+            if tokens[0] == self._namespace.name:
+                ns = tokens[0]
+                name = None
+                func_name = tokens[1]
+            elif tokens[0] in self._valid_namespaces:
+                ns = tokens[0]
+                name = None
+                func_name = tokens[1]
+            else:
+                ns = self._namespace.name
+                name = tokens[0]
+                func_name = tokens[1]
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  "Invalid function link")
+        if ns == self._namespace.name:
+            if name is None:
+                t = self._namespace.find_function(func_name)
+                if t is not None:
+                    self._name = None
+                    self._func_name = func_name
+                    self._symbol_name = f"{t.identifier}()"
+                    return None
+                else:
+                    return LinkParseError(self._line, self._start, self._end,
+                                          self._fragment, self._endpoint,
+                                          f"Unable to find function '{ns}.{func_name}'")
+            else:
+                t = self._namespace.find_real_type(name)
+                if t is None:
+                    return LinkParseError(self._line, self._start, self._end,
+                                          self._fragment, self._endpoint,
+                                          f"Unable to find type '{ns}.{name}'")
+                for func in t.functions:
+                    if func.name == func_name:
+                        self._name = name
+                        self._func_name = func.name
+                        self._symbol_name = f"{func.identifier}()"
+                        return None
+                return LinkParseError(self._line, self._start, self._end,
+                                      self._fragment, self._endpoint,
+                                      f"Unable to find function '{ns}.{name}.{func_name}'")
+        else:
+            self._external = True
+            self._fragment = None
+            return None
 
     @property
     def text(self):
         if self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
-            return f"`{self._type}`"
+            return f"<code>{self._type}</code>"
         elif self._fragment == 'property':
-            return f"`{self._type}:{self._prop_name}`"
+            return f"<code>{self._type}:{self._property_name}</code>"
         elif self._fragment == 'signal':
-            return f"`{self._type}::{self._signal_name}`"
-        elif self._fragment in ['ctor', 'func', 'method']:
-            return f"`{self._func}`"
+            return f"<code>{self._type}::{self._signal_name}</code>"
+        elif self._fragment in ['ctor', 'func', 'method', 'class_method']:
+            return f"{self._symbol_name}"
         elif self._fragment == 'vfunc':
-            return f"`{self._type}.{self._func_name}`"
+            return f"<code>{self._ns}.{self._type}.{self._vfunc_name}</code>"
         else:
-            return f"`{self._ns}.{self._rest}`"
+            return f"{self._endpoint}"
 
     @property
     def href(self):
@@ -276,13 +494,16 @@ class LinkGenerator:
         elif self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
             return f"{self._fragment}.{self._name}.html"
         elif self._fragment == 'property':
-            return f"property.{self._name}.{self._prop_name}.html"
+            return f"property.{self._name}.{self._property_name}.html"
         elif self._fragment == 'signal':
             return f"signal.{self._name}.{self._signal_name}.html"
-        elif self._fragment in ['ctor', 'method', 'vfunc']:
-            return f"{self._fragment}.{self._name}.{self._func_name}.html"
+        elif self._fragment in ['ctor', 'method', 'class_method', 'vfunc']:
+            return f"{self._fragment}.{self._name}.{self._method_name}.html"
         elif self._fragment == 'func':
-            return f"func.{self._func_name}.html"
+            if self._name is not None:
+                return f"type_func.{self._name}.{self._func_name}.html"
+            else:
+                return f"func.{self._func_name}.html"
         else:
             return None
 
@@ -291,7 +512,7 @@ class LinkGenerator:
         href = self.href
         if self._no_link or href is None:
             return text
-        return f"[{text}]({href})"
+        return f"<a href=\"{href}\" target=\"_blank\">{text}</a>"
 
 
 def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
