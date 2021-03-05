@@ -2162,7 +2162,7 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
     # All GTypeInstance sub-types
     typed_tree = subtree(None, flat_tree)
 
-    res = ["<h1>Types Hierarchy</h1>"]
+    res = ["<h1>Classes Hierarchy</h1>"]
 
     def dump_tree(node, out):
         for k in node:
@@ -2173,34 +2173,37 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
                 out.append("</ul>")
             out.append("</li>")
 
-    res += ["<div class=\"docblock\">"]
-    res += ["<ul class=\"type root\">"]
-    res += [" <li class=\"type\"><code>GObject</code></li><ul class=\"type\">"]
-    dump_tree(objects_tree, res)
-    res += [" </ul></li>"]
-    res += ["</ul>"]
-    res += ["</div>"]
+    if len(objects_tree) != 0:
+        res += ["<div class=\"docblock\">"]
+        res += ["<ul class=\"type root\">"]
+        res += [" <li class=\"type\"><code>GObject</code></li><ul class=\"type\">"]
+        dump_tree(objects_tree, res)
+        res += [" </ul></li>"]
+        res += ["</ul>"]
+        res += ["</div>"]
 
-    res += ["<div class=\"docblock\">"]
-    res += ["<ul class=\"type root\">"]
-    res += [" <li class=\"type\"><code>GInitiallyUnowned</code></li><ul class=\"type\">"]
-    dump_tree(unowned_tree, res)
-    res += [" </ul></li>"]
-    res += ["</ul>"]
-    res += ["</div>"]
+    if len(unowned_tree) != 0:
+        res += ["<div class=\"docblock\">"]
+        res += ["<ul class=\"type root\">"]
+        res += [" <li class=\"type\"><code>GInitiallyUnowned</code></li><ul class=\"type\">"]
+        dump_tree(unowned_tree, res)
+        res += [" </ul></li>"]
+        res += ["</ul>"]
+        res += ["</div>"]
 
-    res += ["<div class=\"docblock\">"]
-    res += ["<ul class=\"type root\">"]
-    dump_tree(typed_tree, res)
-    res += ["</ul>"]
-    res += ["</div>"]
+    if len(typed_tree) != 0:
+        res += ["<div class=\"docblock\">"]
+        res += ["<ul class=\"type root\">"]
+        dump_tree(typed_tree, res)
+        res += ["</ul>"]
+        res += ["</div>"]
 
     content = {
-        "output_file": "types_hierarchy.html",
+        "output_file": "classes_hierarchy.html",
         "meta": {
             "keywords": "types, hierarchy, classes",
         },
-        "title": "Types Hierarchy",
+        "title": "Classes Hierarchy",
         "data": Markup("\n".join(res)),
     }
 
