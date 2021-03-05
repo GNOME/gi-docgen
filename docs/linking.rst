@@ -59,7 +59,7 @@ The available qualifier fragments are:
 | `flags`    | A bitfield                  | ``[flags@Gdk.ModifierType]``                |
 +------------+-----------------------------+---------------------------------------------+
 | `func`     | A global or type function   | ``[func@Gtk.init]``, ``[func@show_uri]``,   |
-|            |                               ``[func@Gtk.Window.list_toplevels]``        |
+|            |                             | ``[func@Gtk.Window.list_toplevels]``        |
 +------------+-----------------------------+---------------------------------------------+
 | `iface`    | A GTypeInterface            | ``[iface@Gtk.Buildable]``                   |
 +------------+-----------------------------+---------------------------------------------+
