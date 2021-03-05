@@ -338,7 +338,7 @@ def _print_class_functions(cls, sections=[], is_last_class=False):
 
 
 def gen_tree(repository):
-    includes = ', '.join([str(r.namespace) for r in repository.includes])
+    includes = ', '.join([str(repository.includes[r]) for r in repository.includes])
     c_includes = ', '.join(repository.c_includes)
     packages = ', '.join(repository.packages)
 
