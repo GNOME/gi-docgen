@@ -66,6 +66,7 @@ FRAGMENT = {
     "domains": "error",
     "enums": "enum",
     "functions": "func",
+    "function_macros": "func",
     "interfaces": "iface",
     "structs": "struct",
     "unions": "union",
@@ -291,6 +292,7 @@ class TemplateArgument:
         self.is_list = isinstance(argument.target, gir.ListType)
         self.is_map = isinstance(argument.target, gir.MapType)
         self.is_varargs = isinstance(argument.target, gir.VarArgs)
+        self.is_macro = isinstance(call, gir.FunctionMacro)
         self.transfer = ARG_TRANSFER_MODES[argument.transfer]
         self.direction = DIRECTION_MODES[argument.direction]
         self.nullable = argument.nullable
@@ -359,6 +361,8 @@ class TemplateArgument:
     def c_decl(self):
         if self.is_varargs:
             return "..."
+        elif self.is_macro:
+            return f"{self.name}"
         else:
             return f"{self.type_cname} {self.name}"
 
@@ -485,7 +489,7 @@ class TemplateSignal:
         res += [f"{self.identifier} ("]
         res += [f"  {self.type_cname} self,"]
         for arg in self.arguments:
-            res += [f"  {arg.type_cname} {arg.name},"]
+            res += [f"  {arg.c_decl},"]
         res += ["  gpointer user_data"]
         res += [")"]
         return utils.code_highlight("\n".join(res))
@@ -655,9 +659,9 @@ class TemplateClassMethod:
             res += [f"  {self.class_type_cname}* self,"]
             for (idx, arg) in enumerate(self.arguments, start=1):
                 if idx == n_args - 1 and not self.throws:
-                    res += [f"  {arg.type_cname} {arg.name}"]
+                    res += [f"  {arg.c_decl}"]
                 else:
-                    res += [f"  {arg.type_cname} {arg.name},"]
+                    res += [f"  {arg.c_decl},"]
         if self.throws:
             res += ["  GError** error"]
         res += [")"]
@@ -669,6 +673,8 @@ class TemplateFunction:
         self.identifier = func.identifier
         self.name = func.name
         self.namespace = namespace.name
+
+        self.is_macro = isinstance(func, gir.FunctionMacro)
 
         self.throws = func.throws
 
@@ -712,20 +718,23 @@ class TemplateFunction:
     @property
     def c_decl(self):
         res = []
-        if self.return_value is None:
-            res += ["void"]
+        if self.is_macro:
+            res += [f"#define {self.identifier} ("]
         else:
-            res += [f"{self.return_value.type_cname}"]
-        res += [f"{self.identifier} ("]
+            if self.return_value is None:
+                res += ["void"]
+            else:
+                res += [f"{self.return_value.type_cname}"]
+            res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
         if n_args == 0:
             res += ["  void"]
         else:
             for (idx, arg) in enumerate(self.arguments):
                 if idx == n_args - 1 and not self.throws:
-                    res += [f"  {arg.type_cname} {arg.name}"]
+                    res += [f"  {arg.c_decl}"]
                 else:
-                    res += [f"  {arg.type_cname} {arg.name},"]
+                    res += [f"  {arg.c_decl},"]
         if self.throws:
             res += ["  GError** error"]
         res += [")"]
@@ -2068,6 +2077,32 @@ def _gen_callbacks(config, theme_config, output_dir, jinja_env, repository, all_
     return template_callbacks
 
 
+def _gen_function_macros(config, theme_config, output_dir, jinja_env, repository, all_functions):
+    namespace = repository.namespace
+
+    func_tmpl = jinja_env.get_template(theme_config.func_template)
+
+    template_functions = []
+
+    for func in all_functions:
+        func_file = os.path.join(output_dir, f"func.{func.name}.html")
+        log.info(f"Creating function macro file for {namespace.name}.{func.name}: {func_file}")
+
+        tmpl = TemplateFunction(namespace, func)
+        template_functions.append(tmpl)
+
+        with open(func_file, "w") as out:
+            content = func_tmpl.render({
+                'CONFIG': config,
+                'namespace': namespace,
+                'func': tmpl,
+            })
+
+            out.write(content)
+
+    return template_functions
+
+
 def gen_content_files(config, theme_config, content_dir, output_dir, jinja_env, namespace):
     content_files = []
 
@@ -2266,7 +2301,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
                 continue
 
-            if section in ["functions"]:
+            if section in ["functions", "function_macros"]:
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
                 keyword.set("name", f"{t.identifier} ()")
@@ -2318,6 +2353,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         "domains": sorted(namespace.get_error_domains(), key=lambda domain: domain.name.lower()),
         "enums": sorted(namespace.get_enumerations(), key=lambda enum: enum.name.lower()),
         "functions": sorted(namespace.get_functions(), key=lambda func: func.name.lower()),
+        "function_macros": sorted(namespace.get_effective_function_macros(), key=lambda func: func.name.lower()),
         "interfaces": sorted(namespace.get_interfaces(), key=lambda interface: interface.name.lower()),
         "structs": sorted(namespace.get_effective_records(), key=lambda record: record.name.lower()),
         "unions": sorted(namespace.get_unions(), key=lambda union: union.name.lower()),
@@ -2332,6 +2368,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         "domains": _gen_domains,
         "enums": _gen_enums,
         "functions": _gen_functions,
+        "function_macros": _gen_function_macros,
         "interfaces": _gen_interfaces,
         "structs": _gen_records,
         "unions": _gen_unions,

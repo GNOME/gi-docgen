@@ -547,6 +547,12 @@ class GirParser:
         res = ast.FunctionMacro(name=name, namespace=ns.name, identifier=identifier)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_parameters(params)
+        res.set_return_value(ast.ReturnValue(transfer='none',
+                                             target=ast.VoidType(),
+                                             nullable=False,
+                                             closure=-1, destroy=-1,
+                                             scope=None))
+        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         self._maybe_parse_docs(node, res)
         ns.add_function_macro(res)
 

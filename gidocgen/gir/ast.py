@@ -806,6 +806,34 @@ class Namespace:
     def get_function_macros(self) -> T.List[FunctionMacro]:
         return self._function_macros.values()
 
+    def get_effective_function_macros(self) -> T.List[FunctionMacro]:
+        def is_effective(f, ns):
+            # Lower-case identifiers are an automatic pass
+            if f.name.islower():
+                return True
+            # Try to eliminate the GObject type macros from the pool
+            t = f.name.split('_')
+            # Skip "is-a" macros
+            if 'IS' in t:
+                return False
+            # Skip "get class/iface" macros
+            if 'GET' in t:
+                return False
+            # Re-assemble into what most likely is a type name
+            s = "".join([x.capitalize() if len(x) > 2 else x for x in t])
+            # Skip "cast" macros
+            if ns.find_class(s) is not None:
+                return False
+            if ns.find_interface(s) is not None:
+                return False
+            if ns.find_record(s) is not None:
+                return False
+            # Anything that survived at this point is likely a valid function
+            # macro
+            return True
+
+        return [x for x in self._function_macros.values() if is_effective(x, self)]
+
     def get_callbacks(self) -> T.List[Callback]:
         return self._callbacks
 
@@ -819,7 +847,11 @@ class Namespace:
         return self._interfaces.get(iface)
 
     def find_function(self, func: str) -> T.Optional[Function]:
-        return self._functions.get(func)
+        if func in self._functions:
+            return self._functions.get(func)
+        if func in self._function_macros:
+            return self._function_macros.get(func)
+        return None
 
     def find_real_type(self, name: str) -> T.Optional[Type]:
         if name in self._aliases:

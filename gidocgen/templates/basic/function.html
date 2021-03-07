@@ -7,10 +7,32 @@
 <meta name="og:description" content="Reference for {{ namespace.name }}.{{ func.name }}"/>
 {% endblock %}
 
+{% block sidebar %}
+{% if func.is_macro %}
+<div class="section">
+  <h5>Function Macros</h5>
+  <div class="links">
+  {% for f in namespace.function_macross %}
+    <a class="function{% if func.name == f.name %} current{% endif %}" href="func.{{ f.name }}.html">{{ f.name }}</a>
+  {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="section">
+  <h5>Functions</h5>
+  <div class="links">
+  {% for f in namespace.functions %}
+    <a class="function{% if func.name == f.name %} current{% endif %}" href="func.{{ f.name }}.html">{{ f.name }}</a>
+  {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <section id="main" class="content">
   <header>
-    <h3>Function</h3>
+    <h3>Function {% if func.is_macro %}Macro{% endif %}</h3>
     <h1><a href="index.html">{{ namespace.name }}</a>.{{ func.name }}</h1>
   </header>
 
@@ -80,6 +102,7 @@
           {% for arg in func.arguments %}
           <tr class="arg-name">
             <td><code>{{ arg.name }}</code></td>
+            {% if not arg.is_macro %}
             <td>
             {%- if arg.link -%}
             {%- if arg.is_array -%}An array of&nbsp;{%- endif -%}
@@ -89,6 +112,7 @@
             <code>{{ arg.type_cname }}</code>
             {%- endif -%}
             </td>
+            {% endif %}
           </tr>
           <tr class="arg-description">
             <td>&nbsp;</td>
