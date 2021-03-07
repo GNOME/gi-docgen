@@ -636,12 +636,27 @@ kbd {
 .docblock table tr th:first-child,
 .docblock table tr td:first-child {
   padding-left: 0;
-  min-width: 12em;
 }
 
 .docblock table tr th:last-child,
 .docblock table tr td:last-child {
   padding-right: 0;
+}
+
+table.enum-members {
+  border-radius: var(--box-radius);
+  padding: var(--box-padding);
+  border: 1px solid;
+}
+
+table.enum-members tr th:first-child,
+table.enum-members tr td:first-child {
+  min-width: 25em;
+}
+
+table.enum-members tr th:last-child,
+table.enum-members tr td:last-child {
+  max-width: 35em;
 }
 
 .docblock ul li,
