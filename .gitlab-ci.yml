@@ -18,7 +18,7 @@ mypy:
 pages:
   stage: deploy
   script:
-    - dnf install -y python3-sphinx python3-sphinx_rtd_theme
+    - dnf install -y make python3-sphinx python3-sphinx_rtd_theme
     - cd docs
     - make
     - mv _build ../public
