@@ -75,11 +75,11 @@ class Info:
         self.deprecated_version = deprecated_version
         self.version = version
         self.stability = stability
-        self.attributes: T.Mapping[str, str] = {}
+        self.attributes: T.Mapping[str, T.Optional[str]] = {}
         self.doc: T.Optional[Doc] = None
         self.source_position: T.Optional[SourcePosition] = None
 
-    def add_attribute(self, name: str, value: T.Optional[str]) -> None:
+    def add_attribute(self, name: str, value: T.Optional[str] = None) -> None:
         self.attributes[name] = value
 
 
@@ -88,8 +88,9 @@ class GIRElement:
     def __init__(self, name: T.Optional[str] = None, namespace: T.Optional[str] = None):
         self.name = name
         self.namespace = namespace
-        if self.namespace is not None and '.' in self.name:
-            self.namespace = self.name.split('.')[0]
+        if self.namespace is not None:
+            if self.name is not None and '.' in self.name:
+                self.namespace = self.name.split('.')[0]
         self.info = Info()
 
     def set_introspectable(self, introspectable: bool) -> None:
@@ -125,7 +126,7 @@ class GIRElement:
         self.info.source_position = pos
 
     @property
-    def source_position(self) -> T.Optional[T.Tuple[str, str]]:
+    def source_position(self) -> T.Optional[T.Tuple[str, int]]:
         if self.info.source_position is None:
             return None
         return self.info.source_position.filename, self.info.source_position.line
@@ -699,6 +700,9 @@ class Namespace:
         self._records: T.Mapping[str, Record] = {}
         self._unions: T.Mapping[str, Union] = {}
 
+        self._symbols: T.Mapping[str, Type] = {}
+        self.repository: T.Optional[Repository] = None
+
         if identifier_prefix:
             self.identifier_prefix = identifier_prefix
         else:
@@ -860,7 +864,7 @@ class Repository:
         self._namespaces.append(ns)
         ns.repository = self
 
-    def resolve_empty_ctypes(self, seen_types: T.Mapping[str, T.List[Type]]):
+    def resolve_empty_ctypes(self, seen_types: T.Mapping[str, T.List[Type]]) -> None:
         for fqtn in seen_types:
             types = seen_types[fqtn]
             resolved_types = [t for t in types if t.resolved]
@@ -871,7 +875,7 @@ class Repository:
             self.types[fqtn] = resolved_types
             log.debug(f"Type: {fqtn}: {resolved_types}")
 
-    def resolve_interface_requires(self):
+    def resolve_interface_requires(self) -> None:
         def find_prerequisite_type(includes, ns, name):
             for repo in includes.values():
                 if repo.namespace.name != ns:
@@ -901,7 +905,7 @@ class Repository:
                 iface.prerequisite = prerequisite
                 log.debug(f"Prerequisite type for interface {iface}: {iface.prerequisite}")
 
-    def resolve_class_type(self):
+    def resolve_class_type(self) -> None:
         classes = self.namespace.get_classes()
         for cls in classes:
             if cls.ctype is None:
@@ -913,7 +917,7 @@ class Repository:
                 cls.ctype = t.base_ctype
                 log.debug(f"Updated C type for {cls}")
 
-    def resolve_class_implements(self):
+    def resolve_class_implements(self) -> None:
         def find_interface_type(includes, ns, name):
             for repo in includes.values():
                 if repo.namespace.name != ns:
@@ -945,7 +949,7 @@ class Repository:
                     cls.implements.append(iface_type)
             log.debug(f"Interfaces implemented by {cls}: {cls.implements}")
 
-    def resolve_class_ancestors(self):
+    def resolve_class_ancestors(self) -> None:
         def find_parent_class(includes, ns, name):
             for repo in includes.values():
                 if repo.namespace.name != ns:
@@ -980,7 +984,7 @@ class Repository:
             cls.parent = ancestors[0]
             log.debug(f"Ancestors for {cls}: parent: {cls.parent}, ancestors: {cls.ancestors}")
 
-    def resolve_moved_to(self):
+    def resolve_moved_to(self) -> None:
         functions = list(self.namespace.get_functions())
         old_len = len(functions)
         for func in functions[:]:
@@ -995,7 +999,7 @@ class Repository:
         diff = old_len - new_len
         log.debug(f"Removed {old_len} - {new_len} functions: {diff}")
 
-    def resolve_symbols(self):
+    def resolve_symbols(self) -> None:
         symbols: T.Mapping[str, Type] = {}
         for func in self.namespace.get_functions():
             symbols[func.identifier] = func
