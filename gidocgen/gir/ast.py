@@ -1003,6 +1003,8 @@ class Repository:
         symbols: T.Mapping[str, Type] = {}
         for func in self.namespace.get_functions():
             symbols[func.identifier] = func
+        for func in self.namespace.get_function_macros():
+            symbols[func.identifier] = func
         for cls in self.namespace.get_classes():
             for m in cls.constructors:
                 symbols[m.identifier] = cls
