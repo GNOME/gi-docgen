@@ -16,7 +16,7 @@ Standard sections and keys
 --------------------------
 
 The ``theme`` section
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 The ``theme`` section is used to define the theme being used by gi-docgen when
 generating the API reference of a project.
@@ -45,7 +45,7 @@ The following keys are used, if found:
   installed in the ``PATH``.
 
 The ``extra`` section
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 The ``extra`` section is used to define additional content used when
 generating the API reference of a project.

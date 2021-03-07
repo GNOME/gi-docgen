@@ -8,10 +8,8 @@ In order to use GI-DocGen, you will need:
   build process
 - a project configuration file
 
-For the former, you should read `the gobject-introspection documentation`_,
+For the former, you should read `the gobject-introspection documentation <https://gi.readthedocs.io/en/latest/>`__,
 which includes all the details on how to write introspectable API.
-
-.. _gobject-introspection documentation: https://gi.readthedocs.io/en/latest/
 
 Writing a project configuration file
 ------------------------------------
