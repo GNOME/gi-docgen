@@ -1,5 +1,6 @@
 stages:
   - check
+  - deploy
 
 flake8:
   stage: check
@@ -13,3 +14,16 @@ mypy:
     - dnf install -y python3-mypy
     - mypy --ignore-missing-imports --disallow-incomplete-defs gidocgen
   allow_failure: true
+
+pages:
+  stage: deploy
+  script:
+    - dnf install -y python3-sphinx python3-sphinx_rtd_theme
+    - cd docs
+    - make
+    - mv _build ../public
+  artifacts:
+    path:
+      - public
+  only:
+    - master
