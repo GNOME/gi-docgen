@@ -23,7 +23,7 @@ pages:
     - make
     - mv _build ../public
   artifacts:
-    path:
+    paths:
       - public
   only:
     - master
