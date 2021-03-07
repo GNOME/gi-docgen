@@ -99,18 +99,14 @@
       </h4>
 
       <div class="docblock">
-      <table>
+      <table class="enum-members">
         <tr>
           <th>Name</th>
-          <th>Nickname</th>
-          <th>Value</th>
           <th>Description</th>
         </tr>
       {% for member in enum.members %}
         <tr>
-          <td><code>{{ member.name }}</code></td>
-          <td><code>&quot;{{ member.nick }}&quot;</code></td>
-          <td><code>{{ member.value }}</code></td>
+          <td><code title="Value: {{ member.value }}">{{ member.name }}</code></td>
           <td>{{ member.description }}</td>
         </tr>
       {% endfor %}
