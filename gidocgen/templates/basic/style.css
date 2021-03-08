@@ -645,13 +645,20 @@ kbd {
 
 table.enum-members {
   border-radius: var(--box-radius);
-  padding: var(--box-padding);
-  border: 1px solid;
+  border: 1px solid var(--text-color-muted);
+  border-spacing: 0 0 !important;
+}
+
+table.enum-members tr th {
+  border-top-color: var(--body-bg);
+  background-color: var(--box-bg);
+  border-bottom: 1px solid var(--text-color-muted);
 }
 
 table.enum-members tr th:first-child,
 table.enum-members tr td:first-child {
   min-width: 25em;
+  padding-left: .5em;
 }
 
 table.enum-members tr th:last-child,
