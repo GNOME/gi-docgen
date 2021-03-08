@@ -51,7 +51,7 @@
           Description
           <a href="#description" class="anchor"></a>
           {% if CONFIG.source_location_url and class.docs_location %}
-          <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ class.docs_location }}">[src]</a>
+          <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(class.docs_location) }}">[src]</a>
           {% endif %}
         </h4>
 

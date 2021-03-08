@@ -44,6 +44,26 @@ The following keys are used, if found:
   Requires the ``dot`` utility from `GraphViz <https://graphviz.org/>`__
   installed in the ``PATH``.
 
+The ``source-location`` section
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``source-location`` section is used to define the location of the source
+code repository of a project to allow gi-docgen to create links from the API
+reference to the definition of symbols and the source of the documentation
+stanzas.
+
+The following keys are used, if found:
+
+``base_url``
+  The base URL for accessing a file in the source code repository.
+
+``file_format``
+  The format string used to point to a file, and a line in that file;
+  the string can contain the token ``{filename}``, which will be replaced
+  with the basename of the file; and the token ``{line}``, which will be
+  replaced with the line in the file. The default value for this key
+  is: ``{filename}#L{line}``.
+
 The ``extra`` section
 ~~~~~~~~~~~~~~~~~~~~~
 

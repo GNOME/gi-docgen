@@ -29,7 +29,7 @@
         Declaration
         <a href="#declaration" class="anchor"></a>
         {% if CONFIG.source_location_url and constant.source_location %}
-        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ constant.source_location }}">[src]</a>
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(constant.source_location) }}">[src]</a>
         {% endif %}
       </h4>
 
@@ -43,7 +43,7 @@
         Description
         <a href="#description" class="anchor"></a>
         {% if CONFIG.source_location_url and constant.docs_location %}
-        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ constant.docs_location }}">[src]</a>
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(constant.docs_location) }}">[src]</a>
         {% endif %}
       </h4>
 

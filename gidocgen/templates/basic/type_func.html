@@ -37,7 +37,7 @@
         Declaration
         <a href="#declaration" class="anchor"></a>
         {% if CONFIG.source_location_url and type_func.source_location %}
-        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ type_func.source_location }}">[src]</a>
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(type_func.source_location) }}">[src]</a>
         {% endif %}
       </h4>
 
@@ -51,7 +51,7 @@
         Description
         <a href="#description" class="anchor"></a>
         {% if CONFIG.source_location_url and type_func.docs_location %}
-        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ type_func.docs_location }}">[src]</a>
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(type_func.docs_location) }}">[src]</a>
         {% endif %}
       </h4>
 

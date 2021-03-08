@@ -44,7 +44,7 @@
         Declaration
         <a href="#declaration" class="anchor"></a>
         {% if CONFIG.source_location_url and enum.source_location %}
-        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ enum.source_location }}">[src]</a>
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(enum.source_location) }}">[src]</a>
         {% endif %}
       </h4>
 
@@ -58,7 +58,7 @@
         Description
         <a href="#description" class="anchor"></a>
         {% if CONFIG.source_location_url and enum.docs_location %}
-        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ enum.docs_location }}">[src]</a>
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(enum.docs_location) }}">[src]</a>
         {% endif %}
       </h4>
 

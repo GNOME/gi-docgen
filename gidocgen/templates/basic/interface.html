@@ -50,7 +50,7 @@
           Description
           <a href="#description" class="anchor"></a>
           {% if CONFIG.source_location_url and interface.docs_location %}
-          <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ interface.docs_location }}">[src]</a>
+          <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(interface.docs_location) }}">[src]</a>
           {% endif %}
         </h4>
 
@@ -191,7 +191,7 @@
         Interface structure
         <a href="#interface-struct" class="anchor"></a>
         {% if CONFIG.source_location_url and interface.source_location %}
-        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ interface.source_location }}">[src]</a>
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(interface.source_location) }}">[src]</a>
         {% endif %}
       </h4>
 

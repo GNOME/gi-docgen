@@ -48,7 +48,7 @@
         Description
         <a href="#description" class="anchor"></a>
         {% if CONFIG.source_location_url and signal.docs_location %}
-        <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ signal.docs_location }}">[src]</a>
+        <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(signal.docs_location) }}">[src]</a>
         {% endif %}
       </h4>
 

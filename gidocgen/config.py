@@ -4,6 +4,8 @@
 import os
 import toml
 
+from urllib.parse import urljoin
+
 from . import log
 
 
@@ -118,6 +120,11 @@ class GIDocConfig:
         return source_location.get('base_url', '')
 
     @property
+    def file_format(self):
+        source_location = self._config.get('source-location', {})
+        return source_location.get('file_format', '{filename}#L{line}')
+
+    @property
     def theme_name(self):
         return self.theme.get('name', '')
 
@@ -128,6 +135,14 @@ class GIDocConfig:
     @property
     def show_class_hierarchy(self):
         return self.theme.get('show_class_hierarchy', False)
+
+    def source_link(self, *args):
+        (filename, line) = args[0]
+        base_url = self.source_location_url
+        file_format = self.file_format
+        endpoint = file_format.replace('{filename}', filename)
+        endpoint = endpoint.replace('{line}', str(line))
+        return urljoin(base_url, endpoint)
 
 
 class GITemplateConfig:

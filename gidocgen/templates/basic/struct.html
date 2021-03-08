@@ -47,7 +47,7 @@
           Description
           <a href="#description" class="anchor"></a>
           {% if CONFIG.source_location_url and struct.docs_location %}
-          <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ struct.docs_location }}">[src]</a>
+          <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(struct.docs_location) }}">[src]</a>
           {% endif %}
         </h4>
 
@@ -62,7 +62,7 @@
           <h6 style="display:flex;">
             Structure members
             {% if CONFIG.source_location_url and struct.source_location %}
-            <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ struct.source_location }}">[src]</a>
+            <a class="srclink" title="go to source location" href="{{ CONFIG.source_link(struct.source_location) }}">[src]</a>
             {% endif %}
           </h6>
 

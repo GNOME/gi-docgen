@@ -174,7 +174,7 @@ class TemplateConstant:
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
             line = const.doc.line
-            const.docs_location = f"{filename}#L{line}"
+            const.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -211,7 +211,7 @@ class TemplateProperty:
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
             line = prop.doc.line
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -448,7 +448,7 @@ class TemplateSignal:
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
             line = signal.doc.line
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -507,7 +507,7 @@ class TemplateMethod:
             line = method.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -536,7 +536,7 @@ class TemplateMethod:
             filename, line = method.source_position
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.source_location = f"{filename}#L{line}"
+            self.source_location = (filename, line)
 
         self.introspectable = method.introspectable
 
@@ -624,7 +624,7 @@ class TemplateClassMethod:
             line = method.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -640,7 +640,7 @@ class TemplateClassMethod:
             filename, line = method.source_position
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.source_location = f"{filename}#L{line}"
+            self.source_location = (filename, line)
 
         self.introspectable = method.introspectable
 
@@ -685,7 +685,7 @@ class TemplateFunction:
             line = func.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -711,7 +711,7 @@ class TemplateFunction:
             filename, line = func.source_position
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.source_location = f"{filename}#L{line}"
+            self.source_location = (filename, line)
 
         self.introspectable = func.introspectable
 
@@ -754,7 +754,7 @@ class TemplateCallback:
             line = cb.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -890,7 +890,7 @@ class TemplateInterface:
             line = interface.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -1057,7 +1057,7 @@ class TemplateClass:
             line = cls.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -1226,7 +1226,7 @@ class TemplateRecord:
             line = record.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -1297,7 +1297,7 @@ class TemplateUnion:
             line = union.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -1369,7 +1369,7 @@ class TemplateAlias:
             line = alias.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -1402,7 +1402,7 @@ class TemplateMember:
             line = member.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
@@ -1429,7 +1429,7 @@ class TemplateEnum:
             line = enum.doc.line
             if filename.startswith('../'):
                 filename = filename.replace('../', '')
-            self.docs_location = f"{filename}#L{line}"
+            self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
 
