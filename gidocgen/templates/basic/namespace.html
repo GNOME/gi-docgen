@@ -125,7 +125,7 @@
           <tbody>
           {% for element in elements %}
           <tr class="section-item">
-            <td><a title="{{ element.name }}" href="{{ section_fragment }}.{{ element.name }}.html">{{ element.name }}</a></td>
+            <td><a title="{{ element.name }}" class="symbol" href="{{ section_fragment }}.{{ element.name }}.html">{{ element.name }}</a></td>
             {% if CONFIG.show_index_summary %}
             <td class="docblock-summary">{{ element.summary }}</td>
             {% endif %}
