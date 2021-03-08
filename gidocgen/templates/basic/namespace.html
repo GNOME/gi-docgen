@@ -11,11 +11,24 @@
 <div class="section">
   <h5>Sections</h5>
   <div class="links">
-  {% for symbol in symbols %}
-  {% if symbols[symbol]|length > 0 %}
-    <a href="#{{ symbol }}">{{ symbol|replace('_', ' ')|title }}</a>
+  {% macro section_link(elements, section_id, section_title) -%}
+  {% if elements|length > 0 %}
+    <a href="#{{ section_id }}">{{ section_title }}</a>
   {% endif %}
-  {% endfor %}
+  {%- endmacro %}
+
+  {{ section_link(symbols.classes, "classes", "Classes") }}
+  {{ section_link(symbols.interfaces, "interfaces", "Interfaces") }}
+  {{ section_link(symbols.structs, "structs", "Structs") }}
+  {{ section_link(symbols.unions, "unions", "Unions") }}
+  {{ section_link(symbols.aliases, "aliases", "Aliases") }}
+  {{ section_link(symbols.enums, "enums", "Enumerations") }}
+  {{ section_link(symbols.bitfields, "bitfields", "Bitfields") }}
+  {{ section_link(symbols.domains, "domains", "Error Domains") }}
+  {{ section_link(symbols.callbacks, "callbacks", "Callbacks") }}
+  {{ section_link(symbols.functions, "functions", "Functions") }}
+  {{ section_link(symbols.function_macros, "function_macros", "Function Macros") }}
+  {{ section_link(symbols.constants, "constants", "Constants") }}
   </div>
 </div>
 {% if CONFIG.dependencies|length > 0 %}
