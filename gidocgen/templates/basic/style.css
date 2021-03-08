@@ -664,6 +664,7 @@ table.enum-members tr td:first-child {
 table.enum-members tr th:last-child,
 table.enum-members tr td:last-child {
   max-width: 35em;
+  padding-right: .5em;
 }
 
 .docblock ul li,
