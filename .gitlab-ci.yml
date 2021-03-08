@@ -19,6 +19,12 @@ mypy:
     - mypy --ignore-missing-imports --disallow-incomplete-defs gidocgen
   allow_failure: true
 
+reuse:
+  stage: check
+  script:
+    - dnf install -y reuse
+    - reuse lint
+
 pages:
   stage: deploy
   script:
