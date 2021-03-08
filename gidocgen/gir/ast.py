@@ -946,7 +946,15 @@ class Repository:
                 else:
                     name = cls.name
                 t = self.find_type(name)
-                cls.ctype = t.base_ctype
+                if t is not None:
+                    cls.ctype = t.base_ctype
+                else:
+                    # This is kind of a kludge, but apparently we can get into
+                    # class definitions missing a c:type; if that happens, we
+                    # take the identifier prefix of the namespace and append the
+                    # class name, because that's the inverse of how g-ir-scanner
+                    # determines the class name
+                    cls.ctype = f"{self.namespace.identifier_prefix[0]}{cls.name}"
                 log.debug(f"Updated C type for {cls}")
 
     def resolve_class_implements(self) -> None:
