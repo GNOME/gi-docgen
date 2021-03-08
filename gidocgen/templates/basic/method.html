@@ -33,9 +33,9 @@
 
   <section>
     <div class="declaration toggle-wrapper">
-      <h4 style="display:flex;">
+      <h4 style="display:flex;" id="declaration">
         Declaration
-        <a class="anchor" name="declaration"/>
+        <a class="anchor" href="#declaration"></a>
         {% if CONFIG.source_location_url and method.source_location %}
         <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ method.source_location }}">[src]</a>
         {% endif %}
@@ -47,9 +47,9 @@
     </div>
 
     <div class="description toggle-wrapper">
-      <h4 style="display:flex;">
+      <h4 style="display:flex;" id="description">
         Description
-        <a class="anchor" name="description"/>
+        <a class="anchor" href="#description"></a>
         {% if CONFIG.source_location_url and method.docs_location %}
         <a class="srclink" title="go to source location" href="{{ CONFIG.source_location_url }}/{{ method.docs_location }}">[src]</a>
         {% endif %}
