@@ -896,6 +896,19 @@ class Repository:
         self._namespaces.append(ns)
         ns.repository = self
 
+    def get_namespace(self, ns: str) -> T.Optional[Namespace]:
+        for namespace in self._namespaces:
+            if namespace.name == ns:
+                return namespace
+        return None
+
+    def find_included_namespace(self, ns: str) -> T.Optional[Namespace]:
+        for repo_name in self.includes:
+            repo = self.includes[repo_name]
+            if repo.namespace.name == ns:
+                return repo.namespace
+        return None
+
     def resolve_empty_ctypes(self, seen_types: T.Mapping[str, T.List[Type]]) -> None:
         for fqtn in seen_types:
             types = seen_types[fqtn]
