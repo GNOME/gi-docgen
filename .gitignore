@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2020 GNOME Foundation
+# SPDX-FileCopyrightText: 2021 GNOME Foundation
 #
 # SPDX-License-Identifier: CC0-1.0
+
 gidocgen/__pycache__/*.pyc
 gidocgen/gir/__pycache__/*.pyc
 gi_docgen.egg-info/

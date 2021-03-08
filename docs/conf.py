@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 GNOME Foundation
+#
+# SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
+
 project = 'gi-docgen'
 copyright = '2021, Emmanuele Bassi'
 author = 'Emmanuele Bassi'
