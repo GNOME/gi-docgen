@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2021 GNOME Foundation
+
+SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
+-->
+
 # Contribution guidelines
 
 Thank you for considering contributing to the GI-DocGen project!
