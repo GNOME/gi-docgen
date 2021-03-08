@@ -679,7 +679,6 @@ table.enum-members tr td:last-child {
 
 /*************************************************************
  SYMBOLS
- TODO: add a 'symbol' class in templates to avoid this hack
 **************************************************************/
 .symbol,
 .constructors h6,
@@ -689,18 +688,7 @@ table.enum-members tr td:last-child {
 .type-funcs h6,
 .implements a,
 .ancestors a,
-.sidebar .links a,
-#classes + .docblock a,
-#ancestors + .docblock a,
-#interfaces + .docblock a,
-#structs + .docblock a,
-#aliases + .docblock a,
-#enums + .docblock a,
-#bitfields + .docblock a,
-#domains + .docblock a,
-#callbacks + .docblock a,
-#constants + .docblock a,
-#functions + .docblock a
+.sidebar .links a
 {
   font-family: var(--symbol-font-family);
   font-size: calc(1em * var(--symbol-font-scale));
