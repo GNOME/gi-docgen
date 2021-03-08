@@ -256,19 +256,27 @@ class LinkGenerator:
                                   self._fragment, self._endpoint,
                                   "Invalid type link")
         if ns == self._namespace.name:
-            t = self._namespace.find_real_type(name)
-            if t is not None and t.base_ctype is not None:
-                self._name = name
-                self._type = t.base_ctype
-                return None
-            else:
-                return LinkParseError(self._line, self._start, self._end,
-                                      self._fragment, self._endpoint,
-                                      f"Unable to find type '{ns}.{name}'")
+            namespace = self._namespace
+            self._external = False
+            self._ns = ns
         else:
-            self._external = True
-            self._fragment = None
+            repository = self._namespace.repository
+            namespace = repository.find_included_namespace(ns)
+            if namespace is not None:
+                self._external = True
+                self._ns = namespace.name
+            else:
+                self._fragment = None
+                return None
+        t = namespace.find_real_type(name)
+        if t is not None and t.base_ctype is not None:
+            self._name = name
+            self._type = t.base_ctype
             return None
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  f"Unable to find type '{ns}.{name}'")
 
     def _parse_property(self):
         res = PROPERTY_RE.match(self._endpoint)
@@ -291,24 +299,32 @@ class LinkGenerator:
                                   self._fragment, self._endpoint,
                                   "Invalid property link")
         if ns == self._namespace.name:
-            t = self._namespace.find_real_type(name)
-            if t is not None and t.base_ctype is not None:
-                self._type = t.base_ctype
-                self._name = name
-            else:
-                return LinkParseError(self._line, self._start, self._end,
-                                      self._fragment, self._endpoint,
-                                      f"Unable to find type '{ns}.{name}'")
-            if (isinstance(t, gir.Class) or isinstance(t, gir.Interface)) and pname in t.properties:
-                self._property_name = pname
-            else:
-                return LinkParseError(self._line, self._start, self._end,
-                                      self._fragment, self._endpoint,
-                                      f"Invalid property '{pname}' for type '{ns}.{name}'")
+            namespace = self._namespace
+            self._external = False
+            self._ns = ns
         else:
-            self._external = True
-            self._fragment = None
-            return None
+            repository = self._namespace.repository
+            namespace = repository.find_included_namespace(ns)
+            if namespace is not None:
+                self._external = True
+                self._ns = ns
+            else:
+                self._fragment = None
+                return None
+        t = namespace.find_real_type(name)
+        if t is not None and t.base_ctype is not None:
+            self._type = t.base_ctype
+            self._name = name
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  f"Unable to find type '{ns}.{name}'")
+        if (isinstance(t, gir.Class) or isinstance(t, gir.Interface)) and pname in t.properties:
+            self._property_name = pname
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  f"Invalid property '{pname}' for type '{ns}.{name}'")
 
     def _parse_signal(self):
         res = SIGNAL_RE.match(self._endpoint)
@@ -331,24 +347,32 @@ class LinkGenerator:
                                   self._fragment, self._endpoint,
                                   "Invalid signal link")
         if ns == self._namespace.name:
-            t = self._namespace.find_real_type(name)
-            if t is not None and t.base_ctype is not None:
-                self._type = t.base_ctype
-                self._name = name
-            else:
-                return LinkParseError(self._line, self._start, self._end,
-                                      self._fragment, self._endpoint,
-                                      f"Unable to find type '{ns}.{name}'")
-            if (isinstance(t, gir.Class) or isinstance(t, gir.Interface)) and sname in t.signals:
-                self._signal_name = sname
-            else:
-                return LinkParseError(self._line, self._start, self._end,
-                                      self._fragment, self._endpoint,
-                                      f"Invalid signal name '{sname}' for type '{ns}.{name}'")
+            namespace = self._namespace
+            self._external = False
+            self._ns = ns
         else:
-            self._external = True
-            self._fragment = None
-            return None
+            repository = self._namespace.repository
+            namespace = repository.find_included_namespace(ns)
+            if namespace is not None:
+                self._external = True
+                self._ns = namespace.name
+            else:
+                self._fragment = None
+                return None
+        t = namespace.find_real_type(name)
+        if t is not None and t.base_ctype is not None:
+            self._type = t.base_ctype
+            self._name = name
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  f"Unable to find type '{ns}.{name}'")
+        if (isinstance(t, gir.Class) or isinstance(t, gir.Interface)) and sname in t.signals:
+            self._signal_name = sname
+        else:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  f"Invalid signal name '{sname}' for type '{ns}.{name}'")
 
     def _parse_method(self):
         res = METHOD_RE.match(self._endpoint)
@@ -369,46 +393,53 @@ class LinkGenerator:
                                   self._fragment, self._endpoint,
                                   "Invalid method link")
         if ns == self._namespace.name:
-            t = self._namespace.find_real_type(name)
-            if t is not None and t.base_ctype is not None:
-                self._type = t.base_ctype
-                self._method_name = method
-                # method@Foo.BarClass.add_name -> class_method.Bar.add_name.html
-                if isinstance(t, gir.Record) and t.struct_for is not None:
-                    self._name = t.struct_for
-                    self._fragment = "class_method"
-                elif self._fragment == "vfunc" and t.type_struct is not None:
-                    self._name = name
-                    self._type = t.type_struct
-                    self._ns = ns
-                else:
-                    self._name = name
+            namespace = self._namespace
+            self._external = False
+            self._ns = ns
+        else:
+            repository = self._namespace.repository
+            namespace = repository.find_included_namespace(ns)
+            if namespace is not None:
+                self._ns = namespace.name
+                self._external = True
             else:
-                return LinkParseError(self._line, self._start, self._end,
-                                      self._fragment, self._endpoint,
-                                      f"Unable to find type '{ns}.{name}'")
-            if self._fragment == "ctor":
-                methods = getattr(t, "constructors", [])
-            elif self._fragment in ["method", "class_method"]:
-                methods = getattr(t, "methods", [])
-            elif self._fragment == "vfunc":
-                methods = getattr(t, "virtual_methods", [])
+                self._fragment = None
+                return None
+        t = namespace.find_real_type(name)
+        if t is not None and t.base_ctype is not None:
+            self._type = t.base_ctype
+            self._method_name = method
+            # method@Foo.BarClass.add_name -> class_method.Bar.add_name.html
+            if isinstance(t, gir.Record) and t.struct_for is not None:
+                self._name = t.struct_for
+                self._fragment = "class_method"
+            elif self._fragment == "vfunc" and t.type_struct is not None:
+                self._name = name
+                self._type = t.type_struct
             else:
-                methods = []
-            for m in methods:
-                if m.name == method:
-                    if self._fragment == "vfunc":
-                        self._vfunc_name = m.name
-                    else:
-                        self._symbol_name = f"{m.identifier}()"
-                    return None
+                self._name = name
+        else:
             return LinkParseError(self._line, self._start, self._end,
                                   self._fragment, self._endpoint,
-                                  f"Unable to find method '{ns}.{name}.{method}'")
+                                  f"Unable to find type '{ns}.{name}'")
+        if self._fragment == "ctor":
+            methods = getattr(t, "constructors", [])
+        elif self._fragment in ["method", "class_method"]:
+            methods = getattr(t, "methods", [])
+        elif self._fragment == "vfunc":
+            methods = getattr(t, "virtual_methods", [])
         else:
-            self._external = True
-            self._fragment = None
-            return None
+            methods = []
+        for m in methods:
+            if m.name == method:
+                if self._fragment == "vfunc":
+                    self._vfunc_name = m.name
+                else:
+                    self._symbol_name = f"{m.identifier}()"
+                return None
+        return LinkParseError(self._line, self._start, self._end,
+                              self._fragment, self._endpoint,
+                              f"Unable to find method '{ns}.{name}.{method}'")
 
     def _parse_func(self):
         tokens = self._endpoint.split('.')
@@ -441,36 +472,45 @@ class LinkGenerator:
                                   self._fragment, self._endpoint,
                                   "Invalid function link")
         if ns == self._namespace.name:
-            if name is None:
-                t = self._namespace.find_function(func_name)
-                if t is not None:
-                    self._name = None
-                    self._func_name = func_name
-                    self._symbol_name = f"{t.identifier}()"
-                    return None
-                else:
-                    return LinkParseError(self._line, self._start, self._end,
-                                          self._fragment, self._endpoint,
-                                          f"Unable to find function '{ns}.{func_name}'")
+            namespace = self._namespace
+            self._external = False
+            self._ns = ns
+        else:
+            repository = self._namespace.repository
+            namespace = repository.find_included_namespace(ns)
+            if namespace is not None:
+                self._external = True
+                self._ns = namespace.name
             else:
-                t = self._namespace.find_real_type(name)
-                if t is None:
-                    return LinkParseError(self._line, self._start, self._end,
-                                          self._fragment, self._endpoint,
-                                          f"Unable to find type '{ns}.{name}'")
-                for func in t.functions:
-                    if func.name == func_name:
-                        self._name = name
-                        self._func_name = func.name
-                        self._symbol_name = f"{func.identifier}()"
-                        return None
+                self._fragment = None
+                log.warning(f"Namespace {ns} not found for link {self._endpoint}")
+                return None
+        if name is None:
+            t = namespace.find_function(func_name)
+            if t is not None:
+                self._name = None
+                self._func_name = func_name
+                self._symbol_name = f"{t.identifier}()"
+                return None
+            else:
                 return LinkParseError(self._line, self._start, self._end,
                                       self._fragment, self._endpoint,
-                                      f"Unable to find function '{ns}.{name}.{func_name}'")
+                                      f"Unable to find function '{ns}.{func_name}'")
         else:
-            self._external = True
-            self._fragment = None
-            return None
+            t = namespace.find_real_type(name)
+            if t is None:
+                return LinkParseError(self._line, self._start, self._end,
+                                      self._fragment, self._endpoint,
+                                      f"Unable to find type '{ns}.{name}'")
+            for func in t.functions:
+                if func.name == func_name:
+                    self._name = name
+                    self._func_name = func.name
+                    self._symbol_name = f"{func.identifier}()"
+                    return None
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  f"Unable to find function '{ns}.{name}.{func_name}'")
 
     @property
     def text(self):
@@ -489,9 +529,7 @@ class LinkGenerator:
 
     @property
     def href(self):
-        if self._external:
-            return None
-        elif self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
+        if self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
             return f"{self._fragment}.{self._name}.html"
         elif self._fragment == 'property':
             return f"property.{self._name}.{self._property_name}.html"
@@ -509,10 +547,19 @@ class LinkGenerator:
 
     def __str__(self):
         text = self.text
-        href = self.href
-        if self._no_link or href is None:
+        if self._no_link:
             return text
-        return f"<a href=\"{href}\" target=\"_blank\">{text}</a>"
+        link = self.href
+        if link is None:
+            return text
+        if self._external:
+            data_namespace = f"data-namespace=\"{self._ns}\""
+            data_link = f"data-link=\"{link}\""
+            href = "href=\"javascript:void(0)\""
+            css = "class=\"external\""
+            return f"<a {href} {data_namespace} {data_link} {css}>{text}</a>"
+        else:
+            return f"<a href=\"{link}\">{text}</a>"
 
 
 def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
