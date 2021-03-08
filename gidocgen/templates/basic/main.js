@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2021 GNOME Foundation
+// SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
+
 // eslint-disable-next-line no-unused-vars
 function hasClass(elem, className) {
     return elem && elem.classList && elem.classList.contains(className);
@@ -129,6 +132,31 @@ window.addEventListener("load", function() {
         }
     }
 
+    function resolveNamespaceLink(namespace) {
+        try {
+            let urlMap = new Map(baseURLs);
+            if (urlMap.has(namespace)) {
+                return urlMap.get(namespace);
+            }
+            return '';
+        } catch (e) {
+            return '';
+        }
+    }
+
     window.onscroll = toggleScrollButton;
     btnToTop.onclick = scrollBackTop;
+
+    onEachLazy(document.getElementsByClassName("external"), function(e) {
+        if (e.tagName == "A" && e.dataset.hasOwnProperty('namespace')) {
+            var data_namespace = e.dataset.namespace
+            var data_link = e.dataset.link
+            var base_url = resolveNamespaceLink(data_namespace)
+            if (base_url !== '') {
+                e.href = base_url + data_link;
+            } else {
+                e.title = "No reference to the " + data_namespace + " namespace";
+            }
+        }
+    });
 }, false);

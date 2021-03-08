@@ -51,6 +51,10 @@ class GIDocConfig:
         return self.library.get('description', default)
 
     @property
+    def urlmap_file(self):
+        return self.extra.get('urlmap_file')
+
+    @property
     def version(self):
         return self.library.get('version', 'Unknown')
 

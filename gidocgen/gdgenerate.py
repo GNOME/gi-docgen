@@ -2455,6 +2455,11 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         dst = os.path.join(ns_dir, extra_file)
         copy_files.append((src, dst))
 
+    if config.urlmap_file is not None:
+        src = os.path.join(content_dir, config.urlmap_file)
+        dst = os.path.join(ns_dir, os.path.basename(config.urlmap_file))
+        copy_files.append((src, dst))
+
     copy_files.extend(content_images)
 
     def copy_worker(src, dst):
