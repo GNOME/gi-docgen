@@ -86,3 +86,41 @@ Additionally, the ``id`` fragment, followed by a C symbol identifier, will try t
     [id@gtk_widget_show]
 
 The ``id`` fragment can only be used for symbols within the current namespace.
+
+It's important to note that the ``method`` and ``func`` fragments can have
+multiple meanings:
+
+- the ``method`` fragment will match both instance and class methods, depending
+  on the type used; for instance, to match an instance method you should use the
+  type name, and to match a class method you should use the class name. The class
+  method should not be confused with the ``vfunc`` fragment, which uses the type
+  name and links to virtual methods defined in the class or interface structure.
+  Class methods take the class pointer as their first argument, whereas virtual
+  methods take the instance pointer as their first argument.
+
+::
+
+    // will link to gtk_widget_show()
+    [method@Gtk.Widget.show]
+
+    // will link to gtk_widget_class_add_binding()
+    [method@Gtk.WidgetClass.add_binding]
+
+    // will link to GtkWidgetClass.show
+    [vfunc@Gtk.Widget.show]
+
+
+- similarly, the ``func`` fragment will match global functions and type
+  functions, depending on whether the link contains a type or not. Additionally,
+  ``func`` will match function macros, which are part of the global namespace.
+
+::
+
+    // will link to gtk_show_uri()
+    [func@Gtk.show_uri]
+
+    // will link to gtk_window_list_toplevels()
+    [func@Gtk.Window.list_toplevels]
+
+    // will link to gtk_widget_class_bind_template_child()
+    [func@Gtk.widget_class_bind_template_child]
