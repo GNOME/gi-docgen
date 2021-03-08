@@ -55,11 +55,16 @@ python3 setup.py install
 
 ## Usage
 
-First, read [the GI-DocGen tutorial](./docs/tutorial.rst).
+First, read [the GI-DocGen tutorial](https://ebassi.pages.gitlab.gnome.org/gi-docgen/tutorial.html).
+
+The documentation for GI-DocGen is [available online](https://ebassi.pages.gitlab.gnome.org/gi-docgen/).
+
+The `examples` directory in the repository contains simple project files for
+various GNOME libraries.
 
 ## Copyright and Licensing terms
 
-Copyright 2020  GNOME Foundation
+Copyright 2021  GNOME Foundation
 
 GI-DocGen is released under the terms of the Apache License, version 2.0, or
 under the terms of the GNU General Publice License, either version 3.0 or,
