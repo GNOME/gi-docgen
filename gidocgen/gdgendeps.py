@@ -31,7 +31,8 @@ def gen_dependencies(repository, config, options):
     outfile.write(options.config)
     outfile.write("\n")
 
-    for include in repository.includes:
+    for name in repository.includes:
+        include = repository.includes[name]
         if include.girfile is not None:
             outfile.write(include.girfile)
             outfile.write("\n")
