@@ -578,7 +578,7 @@ class LinkGenerator:
             return f"<a href=\"{link}\">{text}</a>"
 
 
-def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
+def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plain=False):
     processed_text = []
 
     code_block_text = []
@@ -640,6 +640,9 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
                 processed_text.append(line)
             else:
                 processed_text.append("".join(new_line))
+
+    if plain:
+        return "\n".join(processed_text)
 
     if md is None:
         md_ext = extensions.copy()
