@@ -3,17 +3,34 @@
 # SPDX-License-Identifier: CC0-1.0
 
 stages:
+  - build
   - check
   - deploy
 
+meson-build:
+  stage: build
+  needs: []
+  script:
+    - dnf install -y meson ninja python3-flake8 python3-mypy python3-markdown python3-jinja python3-toml python3-typogrify
+    - meson _build .
+    - meson test -C _build
+
+pip-build:
+  stage: build
+  needs: []
+  script:
+    - python -m pip install --user -e .
+
 flake8:
   stage: check
+  needs: []
   script:
     - dnf install -y python3-flake8
     - flake8 --ignore E501,E402,F405,W503 --show-source gidocgen
 
 mypy:
   stage: check
+  needs: []
   script:
     - dnf install -y python3-mypy
     - mypy --ignore-missing-imports --disallow-incomplete-defs gidocgen
@@ -21,12 +38,14 @@ mypy:
 
 reuse:
   stage: check
+  needs: []
   script:
     - dnf install -y reuse
     - reuse lint
 
 pages:
   stage: deploy
+  needs: []
   script:
     - dnf install -y make python3-sphinx python3-sphinx_rtd_theme
     - cd docs
