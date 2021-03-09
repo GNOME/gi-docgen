@@ -107,6 +107,10 @@ class GIDocConfig:
         return self.library.get('devhelp', False)
 
     @property
+    def search_index(self):
+        return self.library.get('search_index', False)
+
+    @property
     def content_files(self):
         return self.extra.get('content_files', [])
 
