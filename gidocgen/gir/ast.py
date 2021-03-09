@@ -846,6 +846,21 @@ class Namespace:
     def find_interface(self, iface: str) -> T.Optional[Interface]:
         return self._interfaces.get(iface)
 
+    def find_union(self, union: str) -> T.Optional[Union]:
+        return self._unions.get(union)
+
+    def find_enumeration(self, enum: str) -> T.Optional[Enumeration]:
+        return self._enumerations.get(enum)
+
+    def find_bitfield(self, bitfield: str) -> T.Optional[BitField]:
+        return self._bitfields.get(bitfield)
+
+    def find_error_domain(self, domain: str) -> T.Optional[ErrorDomain]:
+        return self._error_domains.get(domain)
+
+    def find_alias(self, alias: str) -> T.Optional[Alias]:
+        return self._aliases.get(alias)
+
     def find_function(self, func: str) -> T.Optional[Function]:
         if func in self._functions:
             return self._functions.get(func)
