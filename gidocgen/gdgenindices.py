@@ -431,7 +431,7 @@ def gen_indices(config, repository, content_dir, output_dir):
         log.debug(f"Generating symbols for section {section}")
         generator(config, index, repository, s)
 
-    data = json.dumps(index)
+    data = json.dumps(index, separators=(',', ':'))
     index_file = os.path.join(output_dir, "index.json")
     log.info(f"Creating index file for {namespace.name}-{namespace.version}: {index_file}")
     with open(index_file, "w") as out:
