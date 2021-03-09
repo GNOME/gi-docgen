@@ -2,305 +2,448 @@
 # SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
 import argparse
+import json
 import os
 import sys
 
-from . import gir, log
+from . import config, core, gir, log, utils
 
 
-HELP_MSG = "Generates the symbol indices"
+HELP_MSG = "Generates the symbol indices for search"
 
 
-def _gen_aliases(output_file, output_format, ns_name, ns_version, symbols):
-    with open(output_file, 'w') as out:
-        n_aliases = len(symbols)
-
-        if output_format == "json":
-            out.write("[")
-            if n_aliases != 0:
-                out.write("\n")
-
-        for (i, alias) in enumerate(symbols):
-            alias_name = f"{ns_name}.{alias.name}"
-            alias_type = alias.ctype
-            target_type = alias.target.ctype
-            alias_link = f"[alias.{alias.name}]"
-
-            if output_format == "csv":
-                out.write(f"{alias_name},{alias_type},{target_type},{alias_link}\n")
-            elif output_format == "json":
-                line = f'  {{ "name": "{alias_name}", "ctype": "{alias_type}", "target-ctype": "{target_type}", "link": "{alias_link}" }}'
-                out.write(line)
-                if i == n_aliases - 1:
-                    out.write("\n")
-                else:
-                    out.write(",\n")
-
-        if output_format == "json":
-            out.write("]\n")
+def add_index_terms(index, terms, docid):
+    for term in terms:
+        docs = index.setdefault(term, [])
+        if docid not in docs:
+            docs.append(docid)
 
 
-def _gen_classes(output_file, output_format, ns_name, ns_version, symbols):
-    with open(output_file, 'w') as out:
-        n_classes = len(symbols)
+def _gen_aliases(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
 
-        if output_format == "json":
-            out.write("[")
-            if n_classes != 0:
-                out.write("\n")
-
-        for (i, cls) in enumerate(symbols):
-            class_name = f"{ns_name}.{cls.name}"
-            class_type = cls.ctype
-            class_link = f"[class.{cls.name}]"
-
-            if output_format == "csv":
-                out.write(f"{class_name},{class_type},{class_link}\n")
-            elif output_format == "json":
-                line = f'  {{ "name": "{class_name}", "ctype": "{class_type}", "link": "{class_link}" }}'
-                out.write(line)
-                if i == n_classes - 1:
-                    out.write("\n")
-                else:
-                    out.write(",\n")
-
-        if output_format == "json":
-            out.write("]\n")
+    for alias in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "alias", "name": alias.name, "ctype": alias.base_ctype})
+        add_index_terms(index_terms, utils.index_identifier(alias.name), idx)
+        if alias.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(alias.doc.content), idx)
 
 
-def _gen_constants(output_file, output_format, ns_name, ns_version, symbols):
-    with open(output_file, 'w') as out:
-        n_constants = len(symbols)
+def _gen_bitfields(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
 
-        if output_format == "json":
-            out.write("[")
-            if n_constants != 0:
-                out.write("\n")
+    for bitfield in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "bitfield", "name": bitfield.name, "ctype": bitfield.base_ctype})
+        add_index_terms(index_terms, utils.index_identifier(bitfield.name), idx)
+        if bitfield.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(bitfield.doc.content), idx)
 
-        for (i, constant) in enumerate(symbols):
-            constant_name = f"{ns_name}.{constant.name}"
-            constant_type = constant.ctype
-            constant_link = f"[const.{constant.name}]"
+        for member in bitfield.members:
+            if member.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(member.doc.content), idx)
 
-            if output_format == "csv":
-                out.write(f"{constant_name},{constant_type},{constant_link}\n")
-            elif output_format == "json":
-                line = f'  {{ "name": "{constant_name}", "ctype": "{constant_type}", "link": "{constant_link}"  }}'
-                out.write(line)
-                if i == n_constants - 1:
-                    out.write("\n")
-                else:
-                    out.write(",\n")
-
-        if output_format == "json":
-            out.write("]\n")
+        for func in bitfield.functions:
+            func_idx = len(index_symbols)
+            index_symbols.append({"type": "type_func", "name": func.name, "type_name": bitfield.name, "ident": func.identifier})
+            add_index_terms(index_terms, utils.index_symbol(func.name), func_idx)
+            if func.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(func.doc.content), func_idx)
 
 
-def _gen_enums(output_file, output_format, ns_name, ns_version, symbols):
-    with open(output_file, 'w') as out:
-        n_enums = len(symbols)
+def _gen_callbacks(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
 
-        if output_format == "json":
-            out.write("[")
-            if n_enums != 0:
-                out.write("\n")
-
-        for (i, enum) in enumerate(symbols):
-            enum_name = f"{ns_name}.{enum.name}"
-            enum_type = enum.ctype
-            enum_link = f"[enum.{enum.name}]"
-
-            if output_format == "csv":
-                out.write(f"{enum_name},{enum_type},{enum_link}\n")
-            elif output_format == "json":
-                line = f'  {{ "name": "{enum_name}", "ctype": "{enum_type}", "link": "{enum_link}" }}'
-                out.write(line)
-                if i == n_enums - 1:
-                    out.write("\n")
-                else:
-                    out.write(",\n")
-
-        if output_format == "json":
-            out.write("]\n")
+    for callback in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "callback", "name": callback.name})
+        add_index_terms(index_terms, utils.index_identifier(callback.name), idx)
+        if callback.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(callback.doc.content), idx)
 
 
-def _gen_domains(output_file, output_format, ns_name, ns_version, symbols):
-    with open(output_file, 'w') as out:
-        n_enums = len(symbols)
+def _gen_classes(config, index, repository, symbols):
+    namespace = repository.namespace
 
-        if output_format == "json":
-            out.write("[")
-            if n_enums != 0:
-                out.write("\n")
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
 
-        for (i, enum) in enumerate(symbols):
-            domain_name = f"{ns_name}.{enum.name}"
-            domain_type = enum.ctype
-            domain_quark = enum.domain
-            domain_link = f"[error.{enum.name}]"
+    for cls in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "class", "name": cls.name, "ctype": cls.base_ctype})
+        add_index_terms(index_terms, utils.index_identifier(cls.name), idx)
+        if cls.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(cls.doc.content), idx)
 
-            if output_format == "csv":
-                out.write(f"{domain_name},{domain_type},{domain_link},{domain_quark}\n")
-            elif output_format == "json":
-                line = f'  {{ "name": "{domain_name}", "ctype": "{domain_type}", "domain": "{domain_quark}", "link": "{domain_link}" }}'
-                out.write(line)
-                if i == n_enums - 1:
-                    out.write("\n")
-                else:
-                    out.write(",\n")
+        for ctor in cls.constructors:
+            ctor_idx = len(index_symbols)
+            index_symbols.append({"type": "ctor", "name": ctor.name, "type_name": cls.name, "ident": ctor.identifier})
+            add_index_terms(index_terms, utils.index_symbol(ctor.name), ctor_idx)
+            if ctor.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(ctor.doc.content), ctor_idx)
 
-        if output_format == "json":
-            out.write("]\n")
+        for method in cls.methods:
+            method_idx = len(index_symbols)
+            index_symbols.append({"type": "method", "name": method.name, "type_name": cls.name, "ident": method.identifier})
+            add_index_terms(index_terms, utils.index_symbol(method.name), method_idx)
+            if method.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(method.doc.content), method_idx)
 
+        for func in cls.functions:
+            func_idx = len(index_symbols)
+            index_symbols.append({"type": "type_func", "name": func.name, "type_name": cls.name, "ident": func.identifier})
+            add_index_terms(index_terms, utils.index_symbol(func.name), func_idx)
+            if func.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(func.doc.content), func_idx)
 
-def _gen_interfaces(output_file, output_format, ns_name, ns_version, symbols):
-    with open(output_file, 'w') as out:
-        n_interfaces = len(symbols)
+        for prop_name, prop in cls.properties.items():
+            prop_idx = len(index_symbols)
+            index_symbols.append({"type": "property", "name": prop.name, "type_name": cls.name})
+            add_index_terms(index_terms, utils.index_symbol(prop.name), prop_idx)
+            if prop.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(prop.doc.content), prop_idx)
 
-        if output_format == "json":
-            out.write("[")
-            if n_interfaces != 0:
-                out.write("\n")
+        for signal_name, signal in cls.signals.items():
+            signal_idx = len(index_symbols)
+            index_symbols.append({"type": "signal", "name": signal.name, "type_name": cls.name})
+            add_index_terms(index_terms, utils.index_symbol(signal.name), signal_idx)
+            if signal.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(signal.doc.content), signal_idx)
 
-        for (i, iface) in enumerate(symbols):
-            iface_name = f"{ns_name}.{iface.name}"
-            iface_type = iface.ctype
-            iface_link = f"[iface.{iface.name}]"
+        for vfunc in cls.virtual_methods:
+            vfunc_idx = len(index_symbols)
+            index_symbols.append({"type": "vfunc", "name": vfunc.name, "type_name": cls.name})
+            add_index_terms(index_terms, utils.index_symbol(vfunc.name), vfunc_idx)
+            if vfunc.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(vfunc.doc.content), vfunc_idx)
 
-            if output_format == "csv":
-                out.write(f"{iface_name},{iface_type},{iface_link}\n")
-            elif output_format == "json":
-                line = f'  {{ "name": "{iface_name}", "ctype": "{iface_type}", "link": "{iface_link}" }}'
-                out.write(line)
-                if i == n_interfaces - 1:
-                    out.write("\n")
-                else:
-                    out.write(",\n")
-
-        if output_format == "json":
-            out.write("]\n")
-
-
-def _gen_records(output_file, output_format, ns_name, ns_version, symbols):
-    with open(output_file, 'w') as out:
-        n_records = len(symbols)
-
-        if output_format == "json":
-            out.write("[")
-            if n_records != 0:
-                out.write("\n")
-
-        for (i, record) in enumerate(symbols):
-            record_name = f"{ns_name}.{record.name}"
-            record_type = record.ctype
-            record_link = f"[struct.{record.name}]"
-
-            if output_format == "csv":
-                out.write(f"{record_name},{record_type},{record_link}\n")
-            elif output_format == "json":
-                line = f'  {{ "name": "{record_name}", "ctype": "{record_type}", "link": "{record_link}" }}'
-                out.write(line)
-                if i == n_records - 1:
-                    out.write("\n")
-                else:
-                    out.write(",\n")
-
-        if output_format == "json":
-            out.write("]\n")
+        if cls.type_struct is not None:
+            cls_struct = namespace.find_record(cls.type_struct)
+            for cls_method in cls_struct.methods:
+                cls_method_idx = len(index_symbols)
+                index_symbols.append({
+                    "type": "class_method",
+                    "name": cls_method.name,
+                    "type_name": cls_struct.name,
+                    "struct_for": cls_struct.struct_for,
+                    "ident": cls_method.identifier,
+                })
+                add_index_terms(index_terms, utils.index_symbol(cls_method.name), cls_method_idx)
+                if cls_method.doc is not None:
+                    add_index_terms(index_terms, utils.preprocess_index(cls_method.doc.content), cls_method_idx)
 
 
-def _gen_unions(output_file, output_format, ns_name, ns_version, symbols):
-    with open(output_file, 'w') as out:
-        n_unions = len(symbols)
+def _gen_constants(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
 
-        if output_format == "json":
-            out.write("[")
-            if n_unions != 0:
-                out.write("\n")
-
-        for (i, union) in enumerate(symbols):
-            union_name = f"{ns_name}.{union.name}"
-            union_type = union.ctype
-            union_link = f"[union.{union.name}]"
-
-            if output_format == "csv":
-                out.write(f"{union_name},{union_type},{union_link}\n")
-            elif output_format == "json":
-                line = f'  {{ "name": "{union_name}", "ctype": "{union_type}", "link": "{union_link}" }}'
-                out.write(line)
-                if i == n_unions - 1:
-                    out.write("\n")
-                else:
-                    out.write(",\n")
-
-        if output_format == "json":
-            out.write("]\n")
+    for const in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "constant", "name": const.name, "ident": const.ctype})
+        add_index_terms(index_terms, utils.index_symbol(const.name), idx)
+        if const.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(const.doc.content), idx)
 
 
-def gen_indices(repository, options, output_dir):
-    """
-    Generates the indices of the symbols inside @repository.
+def _gen_domains(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
 
-    The default @output_format is JSON.
+    for domain in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "domain", "name": domain.name, "ctype": domain.base_ctype})
+        add_index_terms(index_terms, utils.index_identifier(domain.name), idx)
+        if domain.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(domain.doc.content), idx)
 
-    If @output_dir is None, the current directory will be used.
-    """
+        for member in domain.members:
+            if member.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(member.doc.content), idx)
+
+        for func in domain.functions:
+            func_idx = len(index_symbols)
+            index_symbols.append({"type": "type_func", "name": func.name, "type_name": domain.name, "ident": func.identifier})
+            add_index_terms(index_terms, utils.index_symbol(func.name), func_idx)
+            if func.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(func.doc.content), func_idx)
+
+
+def _gen_enums(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
+
+    for enum in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "enum", "name": enum.name, "ctype": enum.base_ctype})
+        add_index_terms(index_terms, utils.index_identifier(enum.name), idx)
+        if enum.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(enum.doc.content), idx)
+
+        for member in enum.members:
+            if member.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(member.doc.content), idx)
+
+        for func in enum.functions:
+            func_idx = len(index_symbols)
+            index_symbols.append({"type": "type_func", "name": func.name, "type_name": enum.name, "ident": func.identifier})
+            add_index_terms(index_terms, utils.index_symbol(func.name), func_idx)
+            if func.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(func.doc.content), func_idx)
+
+
+def _gen_functions(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
+
+    for func in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "function", "name": func.name, "ident": func.identifier})
+        add_index_terms(index_terms, utils.index_symbol(func.name), idx)
+        if func.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(func.doc.content), idx)
+
+
+def _gen_function_macros(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
+
+    for func in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "function_macro", "name": func.name, "ident": func.identifier})
+        add_index_terms(index_terms, utils.index_symbol(func.name), idx)
+        if func.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(func.doc.content), idx)
+
+
+def _gen_interfaces(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
+
+    for iface in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "interface", "name": iface.name, "ctype": iface.base_ctype})
+        add_index_terms(index_terms, utils.index_identifier(iface.name), idx)
+        if iface.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(iface.doc.content), idx)
+
+        for method in iface.methods:
+            method_idx = len(index_symbols)
+            index_symbols.append({
+                "type": "method",
+                "name": method.name,
+                "type_name": iface.name,
+                "ident": method.identifier,
+            })
+            add_index_terms(index_terms, utils.index_symbol(method.name), method_idx)
+            if method.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(method.doc.content), method_idx)
+
+        for func in iface.functions:
+            func_idx = len(index_symbols)
+            index_symbols.append({
+                "type": "type_func",
+                "name": func.name,
+                "type_name": iface.name,
+                "ident": func.identifier,
+            })
+            add_index_terms(index_terms, utils.index_symbol(func.name), func_idx)
+            if func.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(func.doc.content), func_idx)
+
+        for prop_name, prop in iface.properties.items():
+            prop_idx = len(index_symbols)
+            index_symbols.append({"type": "property", "name": prop.name, "type_name": iface.name})
+            add_index_terms(index_terms, utils.index_symbol(prop.name), prop_idx)
+            if prop.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(prop.doc.content), prop_idx)
+
+        for signal_name, signal in iface.signals.items():
+            signal_idx = len(index_symbols)
+            index_symbols.append({"type": "signal", "name": signal.name, "type_name": iface.name})
+            add_index_terms(index_terms, utils.index_symbol(signal.name), signal_idx)
+            if signal.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(signal.doc.content), signal_idx)
+
+        for vfunc in iface.virtual_methods:
+            vfunc_idx = len(index_symbols)
+            index_symbols.append({"type": "vfunc", "name": vfunc.name, "type_name": iface.name})
+            add_index_terms(index_terms, utils.index_symbol(vfunc.name), vfunc_idx)
+            if vfunc.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(vfunc.doc.content), vfunc_idx)
+
+
+def _gen_records(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
+
+    for record in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "record", "name": record.name, "ctype": record.base_ctype})
+        add_index_terms(index_terms, utils.index_identifier(record.name), idx)
+        if record.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(record.doc.content), idx)
+
+        for ctor in record.constructors:
+            ctor_idx = len(index_symbols)
+            index_symbols.append({
+                "type": "ctor",
+                "name": ctor.name,
+                "type_name": record.name,
+                "ident": ctor.identifier,
+            })
+            add_index_terms(index_terms, utils.index_symbol(ctor.name), ctor_idx)
+            if ctor.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(ctor.doc.content), ctor_idx)
+
+        for method in record.methods:
+            method_idx = len(index_symbols)
+            index_symbols.append({
+                "type": "method",
+                "name": method.name,
+                "type_name": record.name,
+                "ident": method.identifier,
+            })
+            add_index_terms(index_terms, utils.index_symbol(method.name), method_idx)
+            if method.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(method.doc.content), method_idx)
+
+        for func in record.functions:
+            func_idx = len(index_symbols)
+            index_symbols.append({
+                "type": "type_func",
+                "name": func.name,
+                "type_name": record.name,
+                "ident": func.identifier,
+            })
+            add_index_terms(index_terms, utils.index_symbol(func.name), func_idx)
+            if func.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(func.doc.content), func_idx)
+
+
+def _gen_unions(config, index, repository, symbols):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
+
+    for union in symbols:
+        idx = len(index_symbols)
+        index_symbols.append({"type": "union", "name": union.name, "ctype": union.base_ctype})
+        add_index_terms(index_terms, utils.index_identifier(union.name), idx)
+        if union.doc is not None:
+            add_index_terms(index_terms, utils.preprocess_index(union.doc.content), idx)
+
+        for ctor in union.constructors:
+            ctor_idx = len(index_symbols)
+            index_symbols.append({
+                "type": "ctor",
+                "name": ctor.name,
+                "type_name": union.name,
+                "ident": ctor.identifier,
+            })
+            add_index_terms(index_terms, utils.index_symbol(ctor.name), ctor_idx)
+            if ctor.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(ctor.doc.content), ctor_idx)
+
+        for method in union.methods:
+            method_idx = len(index_symbols)
+            index_symbols.append({
+                "type": "method",
+                "name": method.name,
+                "type_name": union.name,
+                "ident": method.identifier,
+            })
+            add_index_terms(index_terms, utils.index_symbol(method.name), method_idx)
+            if method.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(method.doc.content), method_idx)
+
+        for func in union.functions:
+            func_idx = len(index_symbols)
+            index_symbols.append({
+                "type": "type_func",
+                "name": func.name,
+                "type_name": union.name,
+                "ident": func.identifier,
+            })
+            add_index_terms(index_terms, utils.index_symbol(func.name), func_idx)
+            if func.doc is not None:
+                add_index_terms(index_terms, utils.preprocess_index(func.doc.content), func_idx)
+
+
+def gen_indices(config, repository, content_dir, output_dir):
     namespace = repository.namespace
 
     symbols = {
         "aliases": sorted(namespace.get_aliases(), key=lambda alias: alias.name.lower()),
         "bitfields": sorted(namespace.get_bitfields(), key=lambda bitfield: bitfield.name.lower()),
+        "callbacks": sorted(namespace.get_callbacks(), key=lambda callback: callback.name.lower()),
         "classes": sorted(namespace.get_classes(), key=lambda cls: cls.name.lower()),
         "constants": sorted(namespace.get_constants(), key=lambda const: const.name.lower()),
         "domains": sorted(namespace.get_error_domains(), key=lambda domain: domain.name.lower()),
         "enums": sorted(namespace.get_enumerations(), key=lambda enum: enum.name.lower()),
         "functions": sorted(namespace.get_functions(), key=lambda func: func.name.lower()),
+        "function_macros": sorted(namespace.get_effective_function_macros(), key=lambda func: func.name.lower()),
         "interfaces": sorted(namespace.get_interfaces(), key=lambda interface: interface.name.lower()),
-        "records": sorted(namespace.get_records(), key=lambda record: record.name.lower()),
+        "structs": sorted(namespace.get_effective_records(), key=lambda record: record.name.lower()),
         "unions": sorted(namespace.get_unions(), key=lambda union: union.name.lower()),
     }
 
     all_indices = {
         "aliases": _gen_aliases,
-        "bitfields": _gen_enums,
+        "bitfields": _gen_bitfields,
+        "callbacks": _gen_callbacks,
         "classes": _gen_classes,
         "constants": _gen_constants,
         "domains": _gen_domains,
         "enums": _gen_enums,
+        "functions": _gen_functions,
+        "function_macros": _gen_function_macros,
         "interfaces": _gen_interfaces,
-        "records": _gen_records,
+        "structs": _gen_records,
         "unions": _gen_unions,
     }
 
-    if options.sections == [] or options.sections == ["all"]:
-        gen_indices = list(all_indices.keys())
-    else:
-        gen_indices = options.sections
+    index = {
+        "meta": {
+            "ns": namespace.name,
+            "version": namespace.version,
+            "generator": "gi-docgen",
+            "generator-version": core.version,
+        },
+        "symbols": [],
+        "terms": {},
+    }
 
-    log.info(f"Generating references for: {gen_indices}")
-
-    for section in gen_indices:
+    # Each section is isolated, so we run it into a thread pool
+    for section in all_indices:
         generator = all_indices.get(section, None)
         if generator is None:
-            log.warning(f"No generator for section {section}")
+            log.error(f"No generator for section {section}")
             continue
 
-        s = symbols.get(section, [])
+        s = symbols.get(section, None)
         if s is None:
-            log.warning(f"No symbols for section {section}")
+            log.debug(f"No symbols for section {section}")
             continue
 
-        output_file = os.path.join(output_dir, f"{namespace.name}-{namespace.version}.{section}")
-        generator(output_file, options.format, namespace.name, namespace.version, s)
+        log.debug(f"Generating symbols for section {section}")
+        generator(config, index, repository, s)
+
+    data = json.dumps(index)
+    index_file = os.path.join(output_dir, "index.json")
+    log.info(f"Creating index file for {namespace.name}-{namespace.version}: {index_file}")
+    with open(index_file, "w") as out:
+        out.write(data)
 
 
 def add_args(parser):
     parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[],
                         help="include paths for other GIR files")
+    parser.add_argument("-C", "--config", metavar="FILE", help="the configuration file")
+    parser.add_argument("--content-dir", default=None, help="the base directory with the extra content")
     parser.add_argument("--dry-run", action="store_true", help="parses the GIR file without generating files")
-    parser.add_argument("--format", default="json", choices=["csv", "json"], help="output format")
-    parser.add_argument("--section", action="append", dest="sections", default=[],
-                        help="the sections to generate, or 'all'")
     parser.add_argument("--output-dir", default=None, help="the output directory for the index files")
     parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'),
                         default=sys.stdin, help="the GIR file to parse")
@@ -311,18 +454,27 @@ def run(options):
     xdg_data_home = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
 
     paths = []
+    paths.extend(options.include_paths)
     paths.append(os.getcwd())
     paths.append(os.path.join(xdg_data_home, "gir-1.0"))
     paths.extend([os.path.join(x, "gir-1.0") for x in xdg_data_dirs])
 
-    log.info(f"Search paths: {paths}")
+    log.info(f"Loading config file: {options.config}")
+
+    conf = config.GIDocConfig(options.config)
 
     output_dir = options.output_dir or os.getcwd()
+    content_dir = options.content_dir or os.getcwd()
 
+    log.debug(f"Search paths: {paths}")
+    log.info(f"Output directory: {output_dir}")
+
+    log.info("Parsing GIR file")
     parser = gir.GirParser(search_paths=paths)
     parser.parse(options.infile)
 
     if not options.dry_run:
-        gen_indices(parser.get_repository(), options, output_dir)
+        log.checkpoint()
+        gen_indices(conf, parser.get_repository(), content_dir, output_dir)
 
     return 0

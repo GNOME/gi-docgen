@@ -110,6 +110,10 @@ METHOD_RE = re.compile(
     ''',
     re.VERBOSE)
 
+CAMEL_CASE_START_RE = re.compile(r"([A-Z]+)([A-Z][a-z])")
+
+CAMEL_CASE_CHUNK_RE = re.compile(r"([a-z\d])([A-Z])")
+
 LANGUAGE_MAP = {
     'c': 'c',
     'css': 'css',
@@ -134,6 +138,18 @@ MD_EXTENSIONS_CONF = {
     'codehilite': {'guess_lang': False},
     'toc': {'permalink_class': 'md-anchor', 'permalink': ''},
 }
+
+EN_STOPWORDS = set("""
+a  and  are  as  at
+be  but  by
+for
+if  in  into  is  it
+near  no  not
+of  on  or
+such
+that  the  their  then  there  these  they  this  to
+was  will  with
+""".split())
 
 
 def process_language(lang):
@@ -635,6 +651,84 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[]):
         text = md.reset().convert("\n".join(processed_text))
 
     return Markup(typogrify(text, ignore_tags=['h1', 'h2', 'h3', 'h4']))
+
+
+def preprocess_index(text):
+    processed_text = []
+
+    inside_code_block = False
+    for line in text.split("\n"):
+        if not inside_code_block and (line.startswith('```') or line.startswith('|[')):
+            inside_code_block = True
+            continue
+
+        if inside_code_block and (line.startswith('```') or line.startswith(']|')):
+            inside_code_block = False
+            continue
+
+        if not inside_code_block:
+            new_line = []
+            idx = 0
+            for m in LINK_RE.finditer(line, idx):
+                start = m.start()
+                end = m.end()
+                left_pad = line[idx:start]
+                replacement = re.sub(LINK_RE, '', line[start:end])
+                new_line.append(left_pad)
+                new_line.append(replacement)
+                idx = end
+            new_line.append(line[idx:])
+
+            if len(new_line) == 0:
+                processed_text.append(line)
+            else:
+                processed_text.append("".join(new_line))
+
+    data = " ".join(processed_text)
+    terms = set()
+    for chunk in data.split(" "):
+        if chunk in ["\n", "\r", "\r\n"]:
+            continue
+        chunk = re.sub(r"`(\w+)`", r"\g<1>", chunk)
+        chunk = re.sub(r"[,\.:;`]$", '', chunk)
+        if chunk.startswith('%') or chunk.startswith('#') or chunk.startswith('@'):
+            continue
+        if chunk.startswith('!['):
+            continue
+        chunk = re.sub(r"[\(\)]+", '', chunk)
+        term = chunk.lower()
+        if term in EN_STOPWORDS:
+            continue
+        terms.add(term)
+    return terms
+
+
+def canonicalize(symbol):
+    return symbol.replace('-', '_')
+
+
+def index_identifier(symbol):
+    """Chunks an identifier (e.g. EventControllerClik) into terms useful for indexing."""
+    symbol = re.sub(CAMEL_CASE_START_RE, r"\g<1>_\g<2>", symbol)
+    symbol = re.sub(CAMEL_CASE_CHUNK_RE, r"\g<1>_\g<2>", symbol)
+    symbol = symbol.replace('-', '_')
+    symbol = symbol.lower()
+    terms = set()
+    for chunk in symbol.split('_'):
+        if chunk in EN_STOPWORDS:
+            continue
+        terms.add(chunk)
+    return terms
+
+
+def index_symbol(symbol):
+    """Chunks a symbol (e.g. set_layout_manager) into terms useful for indexing."""
+    terms = set()
+    for chunk in canonicalize(symbol).split('_'):
+        if chunk in EN_STOPWORDS:
+            continue
+        terms.add(chunk)
+    return terms
 
 
 def code_highlight(text, language='c'):
