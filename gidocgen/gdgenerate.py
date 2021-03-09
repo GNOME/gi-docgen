@@ -14,6 +14,7 @@ import xml.etree.ElementTree as etree
 from markupsafe import Markup
 
 from . import config, gir, log, utils
+from . import gdgenindices
 
 
 HELP_MSG = "Generates the reference"
@@ -2428,7 +2429,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
 
     ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
     ns_file = os.path.join(ns_dir, "index.html")
-    log.info(f"Creating namespace index file for {namespace.name}.{namespace.version}: {ns_file}")
+    log.info(f"Creating namespace index file for {namespace.name}-{namespace.version}: {ns_file}")
     with open(ns_file, "w") as out:
         out.write(ns_tmpl.render({
             "CONFIG": config,
@@ -2440,9 +2441,12 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
 
     if config.devhelp:
         devhelp_file = os.path.join(ns_dir, f"{namespace.name}-{namespace.version}.devhelp2")
-        log.info(f"Creating DevHelp file for {namespace.name}.{namespace.version}: {devhelp_file}")
+        log.info(f"Creating DevHelp file for {namespace.name}-{namespace.version}: {devhelp_file}")
         res = gen_devhelp(config, repository, namespace, template_symbols, content_files)
         res.write(devhelp_file, encoding="UTF-8")
+
+    if config.search_index:
+        gdgenindices.gen_indices(config, repository, content_dir, ns_dir)
 
     copy_files = []
     if theme_config.css is not None:
