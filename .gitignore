@@ -6,5 +6,5 @@
 gidocgen/__pycache__/*.pyc
 gidocgen/gir/__pycache__/*.pyc
 gi_docgen.egg-info/
-.*.swpi
+.*.swp
 .eggs
