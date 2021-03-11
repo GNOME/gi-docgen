@@ -36,6 +36,7 @@ style = "style.css"
 [extra_files]
 files = [
   "main.js",
+  "search.js",
   "pygment.css",
   "fonts.css",
   "RedHatDisplay-Regular.woff2",

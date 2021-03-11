@@ -40,7 +40,6 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
   <script src="{{ CONFIG.urlmap_file }}"></script>
   {% endif %}
   <script src="main.js"></script>
-
   <!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 </head>
 
@@ -51,6 +50,13 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       {% if CONFIG.logo_url %}
       <div class="section">
         <img src="{{ CONFIG.logo_url }}" class="logo"/>
+      </div>
+      {% endif %}
+      {% if CONFIG.search_index %}
+      <div class="search section">
+        <form id="search-form" method="GET">
+          <input class="search-input" type="text" name="q" placeholder="Search docs"/>
+        </form>
       </div>
       {% endif %}
       <div class="section namespace">
@@ -69,6 +75,12 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
     {% endblock %}
 
     {% block content %}{% endblock %}
+
+    <section id="search" class="content hidden"></section>
+
+    {% if CONFIG.search_index %}
+    <script src="search.js"></script>
+    {% endif %}
 
     <footer>
     {% block footer %}{% endblock %}
