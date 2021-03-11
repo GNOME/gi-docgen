@@ -388,5 +388,7 @@ window.addEventListener("load", function() {
         }
     });
 
-    buildIndex('index.json');
+    if (window.buildIndex) {
+        window.buildIndex('index.json');
+    }
 }, false);

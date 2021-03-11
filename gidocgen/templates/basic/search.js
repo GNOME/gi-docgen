@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
-function buildIndex(rawSearchIndex) {
+window.buildIndex = function (rawSearchIndex) {
     let request = new XMLHttpRequest();
     request.open('GET', rawSearchIndex, true);
     request.onreadystatechange = function() {
