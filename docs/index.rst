@@ -78,7 +78,10 @@ run the following command:
 Usage
 -----
 
-First, read :doc:`tutorial`
+First, read :doc:`tutorial`.
+
+Additional documentation on how to control the generation of your project's
+API reference is available in the :doc:`project-configuration` page.
 
 Copyright and Licensing terms
 -----------------------------
