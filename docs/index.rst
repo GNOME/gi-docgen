@@ -17,6 +17,7 @@ Welcome to gi-docgen's documentation!
    linking
    attributes
    templates
+   tools/index
 
 
 GI-DocGen is a document generator for GObject-based libraries. GObject is

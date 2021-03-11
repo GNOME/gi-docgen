@@ -4,7 +4,7 @@
 
 all: _build
 
-_build: Makefile *.rst conf.py
+_build: Makefile *.rst */*.rst conf.py
 	python3 -m sphinx  -b html . _build
 
 linkcheck:
