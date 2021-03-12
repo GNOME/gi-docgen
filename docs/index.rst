@@ -63,19 +63,6 @@ To update GI-DocGen, run the following command:
 
     pip3 install --user --upgrade gi-docgen
 
-Installing GI-DocGen from source
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can also install GI-DocGen from a local copy of its source code
-repository, but we recommend the methods above for easier and more stable
-updates. Please make sure the requirements for the installation via pip are
-present on your machine. Once you are inside the source code directory,
-run the following command:
-
-::
-
-    python3 setup.py install
-
 Usage
 -----
 
