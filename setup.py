@@ -29,9 +29,10 @@ package_data = {
         "templates/basic/basic.toml",
         "templates/basic/*.css",
         "templates/basic/*.html",
+        "templates/basic/*.js",
+        "templates/basic/*.txt",
         "templates/basic/*.woff2",
         "templates/basic/*.woff",
-        "templates/basic/*.txt",
     ],
 }
 
