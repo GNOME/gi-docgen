@@ -3,7 +3,6 @@
 
 import argparse
 import shutil
-import sys
 import traceback
 
 from . import log
@@ -115,19 +114,3 @@ class GIDocGenApp:
         else:
             self.parser.print_help()
         return 0
-
-
-def run_main(args):
-    """
-    Main entry point. Instantiates the GIDocGen application and runs it.
-    """
-    if sys.version_info < (3, 6):
-        print('GIDocGen requires Python >= 3.6, but you have version ' + sys.version_info)
-        print('Please update your environment to use GIDocGen.')
-        return 1
-
-    return GIDocGenApp().run(args)
-
-
-if __name__ == '__main__':
-    sys.exit(run_main(sys.argv[1:]))

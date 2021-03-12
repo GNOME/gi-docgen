@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: gi-docgen
+Upstream-Contact: Emmanuele Bassi <ebassi@gnome.org>
+Source: https://gitlab.gnome.org/ebassi/gi-docgen
+
+Files: poetry.lock
+Copyright: 2021  GNOME Foundation
+License: Apache-2.0 OR GPL-3.0-or-later
