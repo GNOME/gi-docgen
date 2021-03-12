@@ -1,7 +1,7 @@
 <!--
 SPDX-FileCopyrightText: 2021 GNOME Foundation
 
-SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
+SPDX-License-Identifier: CC-BY-SA-3.0
 -->
 
 # GNOME Code of Conduct
