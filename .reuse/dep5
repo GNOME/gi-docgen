@@ -6,3 +6,11 @@ Source: https://gitlab.gnome.org/ebassi/gi-docgen
 Files: poetry.lock
 Copyright: 2021  GNOME Foundation
 License: Apache-2.0 OR GPL-3.0-or-later
+
+Files: gidocgen/templates/basic/*.woff
+Copyright: 2019  Red Hat Inc.
+License: OFL-1.1
+
+Files: gidocgen/templates/basic/*.woff2
+Copyright: 2019  Red Hat Inc.
+License: OFL-1.1
