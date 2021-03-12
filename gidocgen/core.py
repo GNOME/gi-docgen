@@ -10,4 +10,3 @@ try:
 except importlib_metadata.PackageNotFoundError:
     # when the package isn't installed.
     version = "0.0.0"
-

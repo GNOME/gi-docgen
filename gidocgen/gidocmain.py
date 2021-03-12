@@ -3,7 +3,6 @@
 
 import argparse
 import shutil
-import sys
 import traceback
 
 from . import log
