@@ -1,0 +1,5 @@
+file-pattern = test_*.py
+verbose = 2
+no-skip-report = true
+quiet-stdout = true
+run-coverage = true
