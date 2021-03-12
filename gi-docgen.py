@@ -14,4 +14,5 @@ if (gidocgen_bin.parent / 'gidocgen').is_dir():
 from gidocgen import gidocmain
 
 if __name__ == '__main__':
-    sys.exit(gidocmain.run_main(sys.argv[1:]))
+    app = gidocmain.GIDocGenApp()
+    sys.exit(app.run(sys.argv[1:]))
