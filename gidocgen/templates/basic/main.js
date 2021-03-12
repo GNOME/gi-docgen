@@ -69,14 +69,27 @@ function getSearchInput() {
 }
 
 function getQueryStringParams() {
-        var params = {};
-        window.location.search.substring(1).split('&').
-            map(function(s) {
-                var pair = s.split('=');
-                params[decodeURIComponent(pair[0])] =
-                    typeof pair[1] === 'undefined' ? null : decodeURIComponent(pair[1]);
-            });
-        return params;
+    var params = {};
+    window.location.search.substring(1).split('&').
+        map(function(s) {
+            var pair = s.split('=');
+            params[decodeURIComponent(pair[0])] =
+                typeof pair[1] === 'undefined' ? null : decodeURIComponent(pair[1]);
+        });
+    return params;
+}
+
+function getQuery(query) {
+    var query_lower = query.toLowerCase(),
+        query_split = query_lower.split('+');
+
+    query_split = query_split.filter(function(chunk) { return chunk !== ""; });
+
+    return {
+        raw: query,
+        terms: query_split,
+        user: query_split.join(' '),
+    }
 }
 
 window.initSearch = function(searchIndex) {
@@ -91,12 +104,6 @@ window.initSearch = function(searchIndex) {
         }
 
         function runQuery(query) {
-            var query_lower = query.toLowerCase(),
-                results = [],
-                query_split = query_lower.split(' ');
-
-            query_split = query_split.filter(function(chunk) { return chunk !== ""; });
-
             function getDocumentFromId(id) {
                 if (typeof id === "number") {
                     return searchSymbols[id];
@@ -179,9 +186,74 @@ window.initSearch = function(searchIndex) {
                 return null;
             }
 
-            query_split.forEach(function(term) {
+            const PREDICATE_ALL = 0;
+            const PREDICATE_ANY = 1;
+
+            function uniqueResults(arrays) {
+                var unique = [];
+
+                for (var it = 0; it < arrays.length; it++) {
+                    arrays[it].forEach(function(e) {
+                        if (unique.findIndex((doc) => doc.type === e.type && doc.name === e.name) == -1) {
+                            unique.push(e);
+                        }
+                    });
+                }
+
+                return unique;
+            }
+
+            function mergeArrays(arrays, predicate) {
+                if (predicate === PREDICATE_ANY) {
+                    return uniqueResults(arrays);
+                }
+
+                if (predicate === PREDICATE_ALL) {
+                    // find the smallest array
+                    var smallest = 1000000;
+                    for (var it = 0; it < arrays.length; it++) {
+                        if (arrays[it].length < smallest) {
+                            smallest = it;
+                        }
+                    }
+
+                    if (smallest > arrays.length) {
+                        return [];
+                    }
+
+                    var results = [];
+
+                    // check for elements in every array
+                    arrays[smallest].forEach(function(e) {
+                        var found = [];
+                        for (var it = 0; it < arrays.length; it++) {
+                            if (it == smallest) {
+                                found.push(smallest);
+                            } else {
+                                if (arrays[it].findIndex((doc) => doc.type === e.type && doc.name === e.name) != -1) {
+                                    found.push(it);
+                                }
+                            }
+                        }
+                        if (found.length === arrays.length) {
+                            results.push(e);
+                        }
+                    });
+
+                    return results;
+                }
+
+                return [];
+            }
+
+            var termIndex = 0;
+            var results = [];
+
+            query.terms.forEach(function(term) {
                 if (searchTerms.hasOwnProperty(term)) {
-                    docs = searchTerms[term];
+                    var docs = searchTerms[term];
+
+                    results[termIndex] = [];
 
                     docs.forEach(function(id) {
                         var doc = getDocumentFromId(id);
@@ -194,13 +266,25 @@ window.initSearch = function(searchIndex) {
                                 href: getLinkForDocument(doc),
                             };
 
-                            results.push(res);
+                            results[termIndex].push(res);
                         }
                     });
+
+                    termIndex += 1;
                 }
             });
 
-            return results;
+            if (query.terms.length == 1) {
+                return {
+                    all: results[0],
+                    any: results[0],
+                }
+            }
+
+            return {
+                all: mergeArrays(results, PREDICATE_ALL),
+                any: mergeArrays(results, PREDICATE_ANY),
+            }
         }
 
         function showSearchResults(search) {
@@ -225,12 +309,12 @@ window.initSearch = function(searchIndex) {
             var output = "";
 
             if (results.length > 0) {
-                output += "<table class=\"results\">";
+                output += "<table class=\"results\">" +
+                          "<tr><th>Type</th><th>Name</th></tr>";
 
                 results.forEach(function(item) {
                     output += "<tr>" +
                               "<td class=\"result " + item.type + "\">[" + item.type + "]</td>" +
-                              "<td>" + item.name + "</td>" +
                               "<td><a href=\"" + item.href + "\"><code>" + item.text + "</code></a></td>" +
                               "</tr>";
                 });
@@ -243,39 +327,38 @@ window.initSearch = function(searchIndex) {
             return output;
         }
 
-        function showResults(results) {
+        function showResults(query, results) {
             var search = getSearchElement();
-            var query = search_input.value;
 
-            var output = "<h1>Results for &quot;" + query + "&quot; (" + results.length + ")</h1>" +
-                "<div id=\"search-results\">" +
-                addResults(results) +
-                "</div>";
+            var output = "<h1>Results for &quot;" + query.user + "&quot; (" + results.all.length + ")</h1>" +
+                         "<div id=\"search-results\">" +
+                         addResults(results.all) +
+                         "</div>";
 
             search.innerHTML = output;
             showSearchResults(search);
         }
 
         function search() {
-            var query = getQueryStringParams().q;
+            var query = getQuery(getQueryStringParams().q);
 
             if (search_input.value === "" && query) {
-                if (query.length === 0) {
+                if (query.terms.length === 0) {
                     return;
                 }
 
-                search_input.value = query;
+                search_input.value = query.user;
             }
 
-            window.title = "Results for: " + query;
+            window.title = "Results for: " + query.user;
 
-            showResults(runQuery(query));
+            showResults(query, runQuery(query));
         }
 
         window.onpageshow = function() {
-            var query = getQueryStringParams().q;
+            var query = getQuery(getQueryStringParams().q);
             if (search_input.value === "" && query) {
-                search_input.value = query;
+                search_input.value = query.user;
             }
             search();
         };
