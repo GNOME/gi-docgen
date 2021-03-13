@@ -56,6 +56,25 @@ The documentation for GI-DocGen is [available online](https://ebassi.pages.gitla
 The `examples` directory in the repository contains simple project files for
 various GNOME libraries.
 
+## Disclaimer
+
+GI-DocGen is **not** a general purpose documentation tool for C libraries.
+
+While GI-DocGen can be used to generate API references for most GObject/C
+libraries that expose introspection data, its main goal is to generate the
+reference for GTK and its immediate dependencies. Any and all attempts at
+making this tool more generic, or to cover more use cases, will be weighted
+heavily against its primary goal.
+
+The recommended use of GI-DocGen is to add it as a sub-project to your
+[Meson build system](https://mesonbuild.com).
+
+If you need a general purpose documentation tool, I strongly recommend:
+
+ - [HotDoc](https://hotdoc.github.io/)
+ - [Doxygen](https://www.doxygen.nl/index.html)
+ - [GTK-Doc](https://gitlab.gnome.org/GNOME/gtk-doc/)
+
 ## Copyright and Licensing terms
 
 Copyright 2021  GNOME Foundation

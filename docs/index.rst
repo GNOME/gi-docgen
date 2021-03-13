@@ -71,6 +71,23 @@ First, read :doc:`tutorial`.
 Additional documentation on how to control the generation of your project's
 API reference is available in the :doc:`project-configuration` page.
 
+Disclaimer
+----------
+
+GI-DocGen is **not** a general purpose documentation tool for C libraries.
+
+While GI-DocGen can be used to generate API references for most GObject/C
+libraries that expose introspection data, its main goal is to generate the
+reference for GTK and its immediate dependencies. Any and all attempts at
+making this tool more generic, or to cover more use cases, will be weighted
+heavily against its primary goal.
+
+If you need a general purpose documentation tool, I strongly recommend:
+
+- `HotDoc <https://hotdoc.github.io/>`__
+- `Doxygen <https://www.doxygen.nl/index.html>`__
+- `GTK-Doc <https://gitlab.gnome.org/GNOME/gtk-doc/>`__
+
 Copyright and Licensing terms
 -----------------------------
 
