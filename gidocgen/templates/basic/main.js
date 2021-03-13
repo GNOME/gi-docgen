@@ -143,6 +143,8 @@ window.initSearch = function(searchIndex) {
                         return "property." + doc.type_name + "." + doc.name + ".html";
                     case "record":
                         return "struct." + doc.name + ".html";
+                    case "signal":
+                        return "signal." + doc.type_name + "." + doc.name + ".html";
                     case "type_func":
                         return "type_func." + doc.type_name + "." + doc.name + ".html";
                     case "union":
