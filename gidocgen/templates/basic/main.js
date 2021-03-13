@@ -212,8 +212,8 @@ window.initSearch = function(searchIndex) {
 
                 if (predicate === PREDICATE_ALL) {
                     // find the smallest array
-                    var smallest = 1000000;
-                    for (var it = 0; it < arrays.length; it++) {
+                    var smallest = 0; 
+                    for (var it = 1; it < arrays.length; it++) {
                         if (arrays[it].length < smallest) {
                             smallest = it;
                         }
@@ -225,7 +225,7 @@ window.initSearch = function(searchIndex) {
 
                     var results = [];
 
-                    // check for elements in every array
+                    // check for elements present in all arrays
                     arrays[smallest].forEach(function(e) {
                         var found = [];
                         for (var it = 0; it < arrays.length; it++) {
@@ -252,8 +252,9 @@ window.initSearch = function(searchIndex) {
             var results = [];
 
             query.terms.forEach(function(term) {
-                if (searchTerms.hasOwnProperty(term)) {
-                    var docs = searchTerms[term];
+                var stemmed_term = stemmer(term);
+                if (searchTerms.hasOwnProperty(stemmed_term)) {
+                    var docs = searchTerms[stemmed_term];
 
                     results[termIndex] = [];
 
@@ -276,16 +277,21 @@ window.initSearch = function(searchIndex) {
                 }
             });
 
-            if (query.terms.length == 1) {
+            if (termIndex == 0) {
+                return {
+                    all: [],
+                    any: [],
+                }
+            } else if (termIndex == 1) {
                 return {
                     all: results[0],
                     any: results[0],
                 }
-            }
-
-            return {
-                all: mergeArrays(results, PREDICATE_ALL),
-                any: mergeArrays(results, PREDICATE_ANY),
+            } else {
+                return {
+                    all: mergeArrays(results, PREDICATE_ALL),
+                    any: mergeArrays(results, PREDICATE_ANY),
+                }
             }
         }
 

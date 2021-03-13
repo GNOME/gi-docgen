@@ -37,6 +37,7 @@ style = "style.css"
 files = [
   "main.js",
   "search.js",
+  "stemmer.js",
   "pygment.css",
   "fonts.css",
   "RedHatDisplay-Regular.woff2",

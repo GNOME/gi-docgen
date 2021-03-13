@@ -13,7 +13,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from typogrify.filters import typogrify
 
-from . import gir, log, mdext
+from . import gir, log, mdext, porter
 
 
 # The beginning of a gtk-doc code block:
@@ -656,7 +656,13 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plai
     return Markup(typogrify(text, ignore_tags=['h1', 'h2', 'h3', 'h4']))
 
 
-def preprocess_index(text):
+def stem(word, stemmer=None):
+    if stemmer is None:
+        stemmer = porter.PorterStemmer()
+    return stemmer.stem(word, 0, len(word) - 1)
+
+
+def preprocess_index(text, stemmer=None):
     processed_text = []
 
     inside_code_block = False
@@ -702,7 +708,7 @@ def preprocess_index(text):
         term = chunk.lower()
         if term in EN_STOPWORDS:
             continue
-        terms.add(term)
+        terms.add(stem(term, stemmer))
     return terms
 
 
@@ -710,7 +716,7 @@ def canonicalize(symbol):
     return symbol.replace('-', '_')
 
 
-def index_identifier(symbol):
+def index_identifier(symbol, stemmer=None):
     """Chunks an identifier (e.g. EventControllerClik) into terms useful for indexing."""
     symbol = re.sub(CAMEL_CASE_START_RE, r"\g<1>_\g<2>", symbol)
     symbol = re.sub(CAMEL_CASE_CHUNK_RE, r"\g<1>_\g<2>", symbol)
@@ -720,17 +726,17 @@ def index_identifier(symbol):
     for chunk in symbol.split('_'):
         if chunk in EN_STOPWORDS:
             continue
-        terms.add(chunk)
+        terms.add(stem(chunk, stemmer))
     return terms
 
 
-def index_symbol(symbol):
+def index_symbol(symbol, stemmer=None):
     """Chunks a symbol (e.g. set_layout_manager) into terms useful for indexing."""
     terms = set()
     for chunk in canonicalize(symbol).split('_'):
         if chunk in EN_STOPWORDS:
             continue
-        terms.add(chunk)
+        terms.add(stem(chunk, stemmer))
     return terms
 
 
