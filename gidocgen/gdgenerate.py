@@ -2305,7 +2305,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             if section in ["functions", "function_macros"]:
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
-                keyword.set("name", f"{t.identifier} ()")
+                keyword.set("name", f"{t.identifier}")
                 keyword.set("link", f"func.{t.name}.html")
                 continue
 
