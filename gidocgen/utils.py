@@ -653,6 +653,9 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plai
     else:
         text = md.reset().convert("\n".join(processed_text))
 
+    if plain:
+        return re.sub(r'<[^<]+?>', '', text)
+
     return Markup(typogrify(text, ignore_tags=['h1', 'h2', 'h3', 'h4']))
 
 
@@ -662,7 +665,7 @@ def stem(word, stemmer=None):
     return stemmer.stem(word, 0, len(word) - 1)
 
 
-def preprocess_index(text, stemmer=None):
+def index_description(text, stemmer=None):
     processed_text = []
 
     inside_code_block = False
@@ -676,34 +679,24 @@ def preprocess_index(text, stemmer=None):
             continue
 
         if not inside_code_block:
-            new_line = []
-            idx = 0
-            for m in LINK_RE.finditer(line, idx):
-                start = m.start()
-                end = m.end()
-                left_pad = line[idx:start]
-                replacement = re.sub(LINK_RE, '', line[start:end])
-                new_line.append(left_pad)
-                new_line.append(replacement)
-                idx = end
-            new_line.append(line[idx:])
-
-            if len(new_line) == 0:
-                processed_text.append(line)
-            else:
-                processed_text.append("".join(new_line))
+            processed_text.append(line)
 
     data = " ".join(processed_text)
     terms = set()
     for chunk in data.split(" "):
         if chunk in ["\n", "\r", "\r\n"]:
             continue
-        chunk = re.sub(r"`(\w+)`", r"\g<1>", chunk)
-        chunk = re.sub(r"[,\.:;`]$", '', chunk)
-        if chunk.startswith('%') or chunk.startswith('#') or chunk.startswith('@'):
+        # Skip gtk-doc sygils
+        if chunk.startswith('%') or chunk.startswith('#') or chunk.startswith('@') or chunk.endswith('()'):
             continue
+        # Skip gi-docgen links
+        if chunk.startswith('[') and chunk.endswith(']') and '@' in chunk:
+            continue
+        # Skip images
         if chunk.startswith('!['):
             continue
+        chunk = re.sub(r"`(\w+)`", r"\g<1>", chunk)
+        chunk = re.sub(r"[,\.:;`]$", '', chunk)
         chunk = re.sub(r"[\(\)]+", '', chunk)
         term = chunk.lower()
         if term in EN_STOPWORDS:
