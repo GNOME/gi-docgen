@@ -671,6 +671,7 @@ table.results {
   border-radius: var(--box-radius);
   border: 1px solid var(--text-color-muted);
   border-spacing: 0 0 !important;
+  font-size: 80%;
 }
 
 table.enum-members tr th,
@@ -697,6 +698,10 @@ table.results tr th:last-child,
 table.results tr td:last-child {
   max-width: 35em;
   padding-right: .5em;
+}
+
+table.results tr td code {
+  font-size: 100%;
 }
 
 .docblock ul li,
