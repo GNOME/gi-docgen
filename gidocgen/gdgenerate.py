@@ -75,10 +75,13 @@ FRAGMENT = {
 
 
 def type_name_to_cname(fqtn, is_pointer=False):
-    ns, name = fqtn.split('.', 1)
     res = []
-    res.append(ns)
-    res.append(name)
+    try:
+        ns, name = fqtn.split('.', 1)
+        res.append(ns)
+        res.append(name)
+    except ValueError:
+        res.append(fqtn.replace('.', ''))
     if is_pointer:
         res.append('*')
     return "".join(res)
@@ -159,6 +162,28 @@ def gen_index_signal(signal, namespace, md=None):
     }
 
 
+def gen_type_link(namespace, name):
+    t = namespace.find_real_type(name)
+    if t is not None:
+        if isinstance(t, gir.Alias):
+            return f"<a href=\"alias.{name}.html\"><code>{t.ctype}</code></a>"
+        elif isinstance(t, gir.BitField):
+            return f"<a href=\"flags.{name}.html\"><code>{t.ctype}</code></a>"
+        elif isinstance(t, gir.Class):
+            return f"<a href=\"class.{name}.html\"><code>{t.ctype}</code></a>"
+        elif isinstance(t, gir.ErrorDomain):
+            return f"<a href=\"error.{name}.html\"><code>{t.ctype}</code></a>"
+        elif isinstance(t, gir.Enumeration):
+            return f"<a href=\"enum.{name}.html\"><code>{t.ctype}</code></a>"
+        elif isinstance(t, gir.Interface):
+            return f"<a href=\"iface.{name}.html\"><code>{t.ctype}</code></a>"
+        elif isinstance(t, gir.Record):
+            return f"<a href=\"struct.{name}.html\"><code>{t.ctype}</code></a>"
+        elif isinstance(t, gir.Union):
+            return f"<a href=\"union.{name}.html\"><code>{t.ctype}</code></a>"
+    return f"<code>{namespace.identifier_prefix[0]}{name}</code>"
+
+
 class TemplateConstant:
     def __init__(self, namespace, const):
         self.value = const.value
@@ -203,6 +228,8 @@ class TemplateProperty:
         self.name = prop.name
         self.type_name = prop.target.name
         self.type_cname = prop.target.ctype
+        if self.type_cname is None:
+            self.type_cname = type_name_to_cname(prop.target.name, True)
         self.readable = prop.readable
         self.writable = prop.writable
         self.construct = prop.construct
@@ -284,6 +311,27 @@ class TemplateProperty:
                     self.attributes[label] = transform(namespace, prop, value)
             else:
                 self.attributes[name] = value
+        if self.type_name is not None:
+            name = self.type_name
+        else:
+            name = None
+        if name is not None:
+            if name.startswith(namespace.name):
+                self.link = gen_type_link(namespace, name[len(namespace.name) + 1:])
+
+    @property
+    def c_decl(self):
+        flags = []
+        if self.readable:
+            flags += ['read']
+        if self.writable:
+            flags += ['write']
+        if self.construct:
+            flags += ['construct']
+        if self.construct_only:
+            flags += ['construct-only']
+        flags = ", ".join(flags)
+        return f"property {self.name}: {self.type_name} [ {flags} ]"
 
 
 class TemplateArgument:
@@ -333,25 +381,7 @@ class TemplateArgument:
             name = None
         if name is not None:
             if name.startswith(namespace.name):
-                name = name[len(namespace.name) + 1:]
-                t = namespace.find_real_type(name)
-                if t is not None:
-                    if isinstance(t, gir.Alias):
-                        self.link = f"<a href=\"alias.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.BitField):
-                        self.link = f"<a href=\"flags.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.Class):
-                        self.link = f"<a href=\"class.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.ErrorDomain):
-                        self.link = f"<a href=\"error.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.Enumeration):
-                        self.link = f"<a href=\"enum.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.Interface):
-                        self.link = f"<a href=\"iface.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.Record):
-                        self.link = f"<a href=\"struct.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.Union):
-                        self.link = f"<a href=\"union.{name}.html\"><code>{t.ctype}</code></a>"
+                self.link = gen_type_link(namespace, name[len(namespace.name) + 1:])
             else:
                 if self.is_array:
                     self.link = f"<code>{self.value_type_cname}</code>"
@@ -410,25 +440,7 @@ class TemplateReturnValue:
             name = None
         if name is not None:
             if name.startswith(namespace.name):
-                name = name[len(namespace.name) + 1:]
-                t = namespace.find_real_type(name)
-                if t is not None:
-                    if isinstance(t, gir.Alias):
-                        self.link = f"<a href=\"alias.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.BitField):
-                        self.link = f"<a href=\"flags.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.Class):
-                        self.link = f"<a href=\"class.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.ErrorDomain):
-                        self.link = f"<a href=\"error.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.Enumeration):
-                        self.link = f"<a href=\"enum.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.Interface):
-                        self.link = f"<a href=\"iface.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.Record):
-                        self.link = f"<a href=\"struct.{name}.html\"><code>{t.ctype}</code></a>"
-                    elif isinstance(t, gir.Union):
-                        self.link = f"<a href=\"union.{name}.html\"><code>{t.ctype}</code></a>"
+                self.link = gen_type_link(namespace, name[len(namespace.name) + 1:])
             else:
                 if self.is_array:
                     self.link = f"<code>{self.value_type_cname}</code>"
