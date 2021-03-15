@@ -2332,17 +2332,6 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             continue
 
         for t in types:
-            if section in ["bitfields", "domains", "enums"]:
-                keyword = etree.SubElement(functions, "keyword")
-                keyword.set("type", "enum")
-                keyword.set("name", t.type_cname)
-                keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
-                if t.available_since is not None:
-                    keyword.set("since", t.available_since)
-                if t.deprecated_since is not None:
-                    keyword.set("deprecated", t.deprecated_since.version)
-                continue
-
             if section in ["functions", "function_macros"]:
                 keyword = etree.SubElement(functions, "keyword")
                 if section == "functions":
@@ -2368,10 +2357,12 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                     keyword.set("deprecated", t.deprecated_since.version)
                 continue
 
-            if section in ["aliases", "classes", "interfaces", "structs", "unions"]:
+            if section in ["aliases", "bitfields", "classes", "domains", "enums", "interfaces", "structs", "unions"]:
                 keyword = etree.SubElement(functions, "keyword")
                 if section == "aliases":
                     keyword.set("type", "typedef")
+                elif section in ["bitfields", "domains", "enums"]:
+                    keyword.set("type", "enum")
                 elif section == "unions":
                     keyword.set("type", "union")
                 else:
