@@ -2335,7 +2335,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             if section in ["bitfields", "domains", "enums"]:
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "enum")
-                keyword.set("name", f"{t.type_cname}")
+                keyword.set("name", t.type_cname)
                 keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
                 if t.available_since is not None:
                     keyword.set("since", t.available_since)
@@ -2349,7 +2349,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                     keyword.set("type", "function")
                 else:
                     keyword.set("type", "macro")
-                keyword.set("name", f"{t.identifier}")
+                keyword.set("name", t.identifier)
                 keyword.set("link", f"func.{t.name}.html")
                 if t.available_since is not None:
                     keyword.set("since", t.available_since)
@@ -2365,7 +2365,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                     keyword.set("type", "union")
                 else:
                     keyword.set("type", "struct")
-                keyword.set("name", f"{t.type_cname}")
+                keyword.set("name", t.type_cname)
                 keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
                 if t.available_since is not None:
                     keyword.set("since", t.available_since)
@@ -2375,7 +2375,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             for m in getattr(t, "methods", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
-                keyword.set("name", f"{m['identifier']}")
+                keyword.set("name", m['identifier'])
                 keyword.set("link", f"method.{t.name}.{m['name']}.html")
                 if m["available_since"] is not None:
                     keyword.set("since", m["available_since"])
@@ -2385,7 +2385,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             for c in getattr(t, "ctors", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
-                keyword.set("name", f"{c['identifier']}")
+                keyword.set("name", c['identifier'])
                 keyword.set("link", f"ctor.{t.name}.{c['name']}.html")
                 if c["available_since"] is not None:
                     keyword.set("since", c["available_since"])
@@ -2395,7 +2395,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             for f in getattr(t, "type_funcs", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
-                keyword.set("name", f"{f['identifier']}")
+                keyword.set("name", f['identifier'])
                 keyword.set("link", f"type_func.{t.name}.{f['name']}.html")
                 if f["available_since"] is not None:
                     keyword.set("since", f["available_since"])
@@ -2405,7 +2405,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             for m in getattr(t, "class_methods", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
-                keyword.set("name", f"{m['identifier']}")
+                keyword.set("name", m['identifier'])
                 keyword.set("link", f"class_method.{t.name}.{m['name']}.html")
                 if m["available_since"] is not None:
                     keyword.set("since", m["available_since"])
