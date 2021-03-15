@@ -308,6 +308,7 @@ window.initSearch = function(searchIndex) {
                                 type: doc.type,
                                 text: getTextForDocument(doc),
                                 href: getLinkForDocument(doc),
+                                summary: doc.summary,
                             };
 
                             if (q.type === null || (q.type === doc.type)) {
@@ -361,12 +362,14 @@ window.initSearch = function(searchIndex) {
 
             if (results.length > 0) {
                 output += "<table class=\"results\">" +
-                          "<tr><th>Type</th><th>Name</th></tr>";
+                          "<tr><th>Name</th><th>Description</th></tr>";
 
                 results.forEach(function(item) {
                     output += "<tr>" +
-                              "<td class=\"result " + item.type + "\">[" + item.type + "]</td>" +
-                              "<td><a href=\"" + item.href + "\"><code>" + item.text + "</code></a></td>" +
+                              "<td class=\"result " + item.type + "\">" +
+                              "<a href=\"" + item.href + "\"><code>" + item.text + "</code></a>" +
+                              "</td>" +
+                              "<td>" + item.summary + "</td>" +
                               "</tr>";
                 });
 
