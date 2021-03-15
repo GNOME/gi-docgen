@@ -2282,7 +2282,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             continue
 
         sub = etree.SubElement(chapters, "sub")
-        sub.set("name", section.capitalize())
+        sub.set("name", section.replace("_", " ").capitalize())
 
         for t in types:
             sub_section = etree.SubElement(sub, "sub")
