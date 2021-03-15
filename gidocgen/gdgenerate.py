@@ -2374,6 +2374,12 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 if t.deprecated_since is not None:
                     keyword.set("deprecated", t.deprecated_since.version)
 
+            for m in getattr(t, "members", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "constant")
+                keyword.set("name", m.name)
+                keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+
             for m in getattr(t, "methods", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
