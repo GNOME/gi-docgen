@@ -2357,6 +2357,17 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                     keyword.set("deprecated", t.deprecated_since.version)
                 continue
 
+            if section == "constants":
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "constant")
+                keyword.set("name", t.identifier)
+                keyword.set("link", f"constant.{t.name}.html")
+                if t.available_since is not None:
+                    keyword.set("since", t.available_since)
+                if t.deprecated_since is not None:
+                    keyword.set("deprecated", t.deprecated_since.version)
+                continue
+
             if section in ["aliases", "classes", "interfaces", "structs", "unions"]:
                 keyword = etree.SubElement(functions, "keyword")
                 if section == "aliases":
