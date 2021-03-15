@@ -578,7 +578,7 @@ class LinkGenerator:
             return f"<a href=\"{link}\">{text}</a>"
 
 
-def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plain=False):
+def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plain=False, max_length=10):
     processed_text = []
 
     code_block_text = []
@@ -642,7 +642,15 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plai
                 processed_text.append("".join(new_line))
 
     if plain:
-        return "\n".join(processed_text)
+        text = text.replace('\n', ' ')
+        text = re.sub(r'<[^<]+?>', '', text)
+        if max_length > 0:
+            words = text.split(' ')
+            if len(words) > max_length:
+                words = words[:max_length - 1]
+                words.append('...')
+                text = ' '.join(words)
+        return text
 
     if md is None:
         md_ext = extensions.copy()
@@ -652,9 +660,6 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plai
                                  extension_configs=MD_EXTENSIONS_CONF)
     else:
         text = md.reset().convert("\n".join(processed_text))
-
-    if plain:
-        return re.sub(r'<[^<]+?>', '', text)
 
     return Markup(typogrify(text, ignore_tags=['h1', 'h2', 'h3', 'h4']))
 
@@ -684,6 +689,7 @@ def index_description(text, stemmer=None):
     data = " ".join(processed_text)
     terms = set()
     for chunk in data.split(" "):
+        chunk = chunk.lower()
         if chunk in ["\n", "\r", "\r\n"]:
             continue
         # Skip gtk-doc sygils
@@ -695,13 +701,12 @@ def index_description(text, stemmer=None):
         # Skip images
         if chunk.startswith('!['):
             continue
+        if chunk in EN_STOPWORDS:
+            continue
         chunk = re.sub(r"`(\w+)`", r"\g<1>", chunk)
         chunk = re.sub(r"[,\.:;`]$", '', chunk)
         chunk = re.sub(r"[\(\)]+", '', chunk)
-        term = chunk.lower()
-        if term in EN_STOPWORDS:
-            continue
-        terms.add(stem(term, stemmer))
+        terms.add(stem(chunk, stemmer))
     return terms
 
 
