@@ -384,9 +384,19 @@ window.initSearch = function(searchIndex) {
         function showResults(query, results) {
             var search = getSearchElement();
 
-            var output = "<h1>Results for &quot;" + query.user + "&quot; (" + results.all.length + ")</h1>" +
+            var res = [];
+            var len = 0;
+            if (results.all.length > 0) {
+                res = results.all;
+                len = results.all.length;
+            } else {
+                res = results.any;
+                len = results.any.length;
+            }
+
+            var output = "<h1>Results for &quot;" + query.user + "&quot; (" + len + ")</h1>" +
                          "<div id=\"search-results\">" +
-                         addResults(results.all) +
+                         addResults(res) +
                          "</div>";
 
             search.innerHTML = output;
