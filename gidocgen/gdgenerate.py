@@ -2319,7 +2319,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
 
         sub = etree.SubElement(chapters, "sub")
         sub.set("name", section.replace("_", " ").capitalize())
-        sub.set("link", "index.html")
+        sub.set("link", f"index.html#{section}")
 
         for t in types:
             sub_section = etree.SubElement(sub, "sub")
