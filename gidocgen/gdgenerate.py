@@ -2380,6 +2380,25 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 keyword.set("name", m.name)
                 keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
 
+            for f in getattr(t, "fields", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "member")
+                keyword.set("name", f"{t.type_cname}.{f.name}")
+                keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+
+            class_struct = getattr(t, "class_struct", None)
+            if class_struct is not None:
+                for f in getattr(class_struct, "fields", []):
+                    keyword = etree.SubElement(functions, "keyword")
+                    keyword.set("type", "member")
+                    keyword.set("name", f"{t.class_name}.{f.name}")
+                    if section == "class":
+                        keyword.set("link", f"class.{t.name}.html#class-struct")
+                    elif section == "interface":
+                        keyword.set("link", f"iface.{t.name}.html#interface-struct")
+                    else:
+                        keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+
             for m in getattr(t, "methods", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
