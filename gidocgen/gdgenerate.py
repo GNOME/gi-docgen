@@ -2335,40 +2335,102 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             if section in ["bitfields", "domains", "enums"]:
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "enum")
-                keyword.set("name", f"enum {t.type_cname}")
+                keyword.set("name", f"{t.type_cname}")
                 keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+                if t.available_since is not None:
+                    keyword.set("since", t.available_since)
+                if t.deprecated_since is not None:
+                    keyword.set("deprecated", t.deprecated_since.version)
                 continue
 
             if section in ["functions", "function_macros"]:
                 keyword = etree.SubElement(functions, "keyword")
-                keyword.set("type", "function")
+                if section == "functions":
+                    keyword.set("type", "function")
+                else:
+                    keyword.set("type", "macro")
                 keyword.set("name", f"{t.identifier}")
                 keyword.set("link", f"func.{t.name}.html")
+                if t.available_since is not None:
+                    keyword.set("since", t.available_since)
+                if t.deprecated_since is not None:
+                    keyword.set("deprecated", t.deprecated_since.version)
                 continue
 
             if section in ["aliases", "classes", "interfaces", "structs", "unions"]:
                 keyword = etree.SubElement(functions, "keyword")
-                keyword.set("type", "struct")
-                keyword.set("name", f"struct {t.type_cname}")
+                if section == "aliases":
+                    keyword.set("type", "typedef")
+                elif section == "unions":
+                    keyword.set("type", "union")
+                else:
+                    keyword.set("type", "struct")
+                keyword.set("name", f"{t.type_cname}")
                 keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+                if t.available_since is not None:
+                    keyword.set("since", t.available_since)
+                if t.deprecated_since is not None:
+                    keyword.set("deprecated", t.deprecated_since.version)
 
             for m in getattr(t, "methods", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
-                keyword.set("name", f"{m['identifier']} ()")
+                keyword.set("name", f"{m['identifier']}")
                 keyword.set("link", f"method.{t.name}.{m['name']}.html")
+                if m["available_since"] is not None:
+                    keyword.set("since", m["available_since"])
+                if m["deprecated_since"] is not None:
+                    keyword.set("deprecated", m["deprecated_since"])
+
+            for c in getattr(t, "ctors", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "function")
+                keyword.set("name", f"{c['identifier']}")
+                keyword.set("link", f"ctor.{t.name}.{c['name']}.html")
+                if c["available_since"] is not None:
+                    keyword.set("since", c["available_since"])
+                if c["deprecated_since"] is not None:
+                    keyword.set("deprecated", c["deprecated_since"])
+
+            for f in getattr(t, "type_funcs", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "function")
+                keyword.set("name", f"{f['identifier']}")
+                keyword.set("link", f"type_func.{t.name}.{f['name']}.html")
+                if f["available_since"] is not None:
+                    keyword.set("since", f["available_since"])
+                if f["deprecated_since"] is not None:
+                    keyword.set("deprecated", f["deprecated_since"])
+
+            for m in getattr(t, "class_methods", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "function")
+                keyword.set("name", f"{m['identifier']}")
+                keyword.set("link", f"class_method.{t.name}.{m['name']}.html")
+                if m["available_since"] is not None:
+                    keyword.set("since", m["available_since"])
+                if m["deprecated_since"] is not None:
+                    keyword.set("deprecated", m["deprecated_since"])
 
             for p in getattr(t, "properties", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "property")
                 keyword.set("name", f"The {t.type_cname}:{p['name']} property")
                 keyword.set("link", f"property.{t.name}.{p['name']}.html")
+                if p["available_since"] is not None:
+                    keyword.set("since", p["available_since"])
+                if p["deprecated_since"] is not None:
+                    keyword.set("deprecated", p["deprecated_since"])
 
             for s in getattr(t, "signals", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "signal")
                 keyword.set("name", f"The {t.type_cname}::{s['name']} signal")
                 keyword.set("link", f"signal.{t.name}.{s['name']}.html")
+                if s["available_since"] is not None:
+                    keyword.set("since", s["available_since"])
+                if s["deprecated_since"] is not None:
+                    keyword.set("deprecated", s["deprecated_since"])
 
     return etree.ElementTree(book)
 
