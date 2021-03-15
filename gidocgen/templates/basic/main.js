@@ -423,7 +423,9 @@ window.addEventListener("load", function() {
     }
 
     onEachLazy(document.getElementsByClassName("toggle-wrapper"), function(e) {
-        collapsedByDefault = hasClass(e, "default-hide");
+        let sectionHeader = e.querySelector(".section-header");
+        let fragmentMatches = sectionHeader !== null && location.hash === "#" + sectionHeader.getAttribute('id');
+        collapsedByDefault = hasClass(e, "default-hide") && !fragmentMatches;
         var toggle = createToggle(collapsedByDefault);
         toggle.onclick = toggleClicked;
         e.insertBefore(toggle, e.firstChild);
@@ -483,3 +485,21 @@ window.addEventListener("load", function() {
         window.buildIndex('index.json');
     }
 }, false);
+
+window.addEventListener("hashchange", function() {
+    "use strict;"
+
+    // When URL fragment changes to ID of a collapsible section,
+    // expand it when it is collapsed.
+    // This is useful for clicking section links in the sidebar on the index page.
+    const sectionHeader = document.querySelector(".section-header" + location.hash);
+    if (sectionHeader !== null) {
+        const parent = sectionHeader.parentNode;
+        if (hasClass(parent, "toggle-wrapper")) {
+            const toggle = parent.querySelector(".collapse-toggle");
+            if (hasClass(toggle, "collapsed")) {
+                toggle.click();
+            }
+        }
+    }
+});
