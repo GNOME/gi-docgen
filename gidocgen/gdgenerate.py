@@ -61,7 +61,7 @@ SIGNAL_WHEN = {
 FRAGMENT = {
     "aliases": "alias",
     "bitfields": "flags",
-    "callbacks": "cb",
+    "callbacks": "callback",
     "classes": "class",
     "constants": "const",
     "domains": "error",
