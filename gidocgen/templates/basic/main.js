@@ -188,6 +188,46 @@ window.initSearch = function(searchIndex) {
                 return null;
             }
 
+            var queryTypes = [
+                "alias",
+                "bitfield",
+                "callback",
+                "class",
+                "constant",
+                "ctor",
+                "domain",
+                "enum",
+                "function_macro",
+                "function",
+                "interface",
+                "method",
+                "property",
+                "record",
+                "signal",
+                "type_func",
+                "union",
+                "vfunc",
+            ];
+
+            var query_re = new RegExp("^(" + queryTypes.join('|') + ")\\s*:\\s*", 'i');
+
+            function matchType(term) {
+                var matches = term.match(query_re);
+                if (matches) {
+                    var type = matches[1];
+                    var query = term.substring(matches[0].length);
+                    return {
+                        type: type,
+                        term: query,
+                    }
+                }
+
+                return {
+                    type: null,
+                    term: term,
+                }
+            }
+
             const PREDICATE_ALL = 0;
             const PREDICATE_ANY = 1;
 
@@ -252,7 +292,8 @@ window.initSearch = function(searchIndex) {
             var results = [];
 
             query.terms.forEach(function(term) {
-                var stemmed_term = stemmer(term);
+                var q = matchType(term);
+                var stemmed_term = stemmer(q.term);
                 if (searchTerms.hasOwnProperty(stemmed_term)) {
                     var docs = searchTerms[stemmed_term];
 
@@ -269,7 +310,9 @@ window.initSearch = function(searchIndex) {
                                 href: getLinkForDocument(doc),
                             };
 
-                            results[termIndex].push(res);
+                            if (q.type === null || (q.type === doc.type)) {
+                                results[termIndex].push(res);
+                            }
                         }
                     });
 
