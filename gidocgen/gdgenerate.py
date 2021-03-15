@@ -2440,7 +2440,8 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         }))
 
     if config.devhelp:
-        devhelp_file = os.path.join(ns_dir, f"{namespace.name}-{namespace.version}.devhelp2")
+        # Devhelp expects the book file to have the same basename as the directory it is in.
+        devhelp_file = os.path.join(ns_dir, f"{os.path.basename(ns_dir)}.devhelp2")
         log.info(f"Creating DevHelp file for {namespace.name}-{namespace.version}: {devhelp_file}")
         res = gen_devhelp(config, repository, namespace, template_symbols, content_files)
         res.write(devhelp_file, encoding="UTF-8")
