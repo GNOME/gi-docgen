@@ -188,6 +188,8 @@ class TemplateConstant:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = const.introspectable
 
@@ -224,6 +226,8 @@ class TemplateProperty:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = prop.introspectable
 
@@ -477,6 +481,8 @@ class TemplateSignal:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = signal.introspectable
 
@@ -532,6 +538,8 @@ class TemplateMethod:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         if method.source_position is not None:
             filename, line = method.source_position
@@ -637,6 +645,18 @@ class TemplateClassMethod:
         if not isinstance(method.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(namespace, method, method.return_value)
 
+        self.stability = method.stability
+        self.attributes = method.attributes
+        self.available_since = method.available_since
+        if method.deprecated_since is not None:
+            (version, msg) = method.deprecated_since
+            self.deprecated_since = {
+                "version": version,
+                "message": utils.preprocess_docs(msg, namespace),
+            }
+        else:
+            self.deprecated_since = None
+
         if method.source_position is not None:
             filename, line = method.source_position
             if filename.startswith('../'):
@@ -707,6 +727,8 @@ class TemplateFunction:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         if func.source_position is not None:
             filename, line = func.source_position
@@ -778,6 +800,8 @@ class TemplateCallback:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = cb.introspectable
 
@@ -904,6 +928,8 @@ class TemplateInterface:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = interface.introspectable
 
@@ -1071,6 +1097,8 @@ class TemplateClass:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = cls.introspectable
 
@@ -1240,6 +1268,8 @@ class TemplateRecord:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = record.introspectable
 
@@ -1311,6 +1341,8 @@ class TemplateUnion:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = union.introspectable
 
@@ -1384,6 +1416,8 @@ class TemplateAlias:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = alias.introspectable
 
@@ -1444,6 +1478,8 @@ class TemplateEnum:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = enum.introspectable
 
@@ -2283,6 +2319,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
 
         sub = etree.SubElement(chapters, "sub")
         sub.set("name", section.replace("_", " ").capitalize())
+        sub.set("link", "index.html")
 
         for t in types:
             sub_section = etree.SubElement(sub, "sub")
@@ -2295,43 +2332,132 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
             continue
 
         for t in types:
-            if section in ["bitfields", "domains", "enums"]:
-                keyword = etree.SubElement(functions, "keyword")
-                keyword.set("type", "enum")
-                keyword.set("name", f"enum {t.type_cname}")
-                keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
-                continue
-
             if section in ["functions", "function_macros"]:
                 keyword = etree.SubElement(functions, "keyword")
-                keyword.set("type", "function")
-                keyword.set("name", f"{t.identifier} ()")
+                if section == "functions":
+                    keyword.set("type", "function")
+                else:
+                    keyword.set("type", "macro")
+                keyword.set("name", t.identifier)
                 keyword.set("link", f"func.{t.name}.html")
+                if t.available_since is not None:
+                    keyword.set("since", t.available_since)
+                if t.deprecated_since is not None:
+                    keyword.set("deprecated", t.deprecated_since.version)
                 continue
 
-            if section in ["aliases", "classes", "interfaces", "structs", "unions"]:
+            if section == "constants":
                 keyword = etree.SubElement(functions, "keyword")
-                keyword.set("type", "struct")
-                keyword.set("name", f"struct {t.type_cname}")
+                keyword.set("type", "constant")
+                keyword.set("name", t.identifier)
+                keyword.set("link", f"constant.{t.name}.html")
+                if t.available_since is not None:
+                    keyword.set("since", t.available_since)
+                if t.deprecated_since is not None:
+                    keyword.set("deprecated", t.deprecated_since.version)
+                continue
+
+            if section in ["aliases", "bitfields", "classes", "domains", "enums", "interfaces", "structs", "unions"]:
+                keyword = etree.SubElement(functions, "keyword")
+                if section == "aliases":
+                    keyword.set("type", "typedef")
+                elif section in ["bitfields", "domains", "enums"]:
+                    keyword.set("type", "enum")
+                elif section == "unions":
+                    keyword.set("type", "union")
+                else:
+                    keyword.set("type", "struct")
+                keyword.set("name", t.type_cname)
                 keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+                if t.available_since is not None:
+                    keyword.set("since", t.available_since)
+                if t.deprecated_since is not None:
+                    keyword.set("deprecated", t.deprecated_since.version)
+
+            for m in getattr(t, "members", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "constant")
+                keyword.set("name", m.name)
+                keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+
+            for f in getattr(t, "fields", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "member")
+                keyword.set("name", f"{t.type_cname}.{f.name}")
+                keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
+
+            class_struct = getattr(t, "class_struct", None)
+            if class_struct is not None:
+                for f in getattr(class_struct, "fields", []):
+                    keyword = etree.SubElement(functions, "keyword")
+                    keyword.set("type", "member")
+                    keyword.set("name", f"{t.class_name}.{f.name}")
+                    if section == "class":
+                        keyword.set("link", f"class.{t.name}.html#class-struct")
+                    elif section == "interface":
+                        keyword.set("link", f"iface.{t.name}.html#interface-struct")
+                    else:
+                        keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
 
             for m in getattr(t, "methods", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "function")
-                keyword.set("name", f"{m['identifier']} ()")
+                keyword.set("name", m['identifier'])
                 keyword.set("link", f"method.{t.name}.{m['name']}.html")
+                if m["available_since"] is not None:
+                    keyword.set("since", m["available_since"])
+                if m["deprecated_since"] is not None:
+                    keyword.set("deprecated", m["deprecated_since"])
+
+            for c in getattr(t, "ctors", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "function")
+                keyword.set("name", c['identifier'])
+                keyword.set("link", f"ctor.{t.name}.{c['name']}.html")
+                if c["available_since"] is not None:
+                    keyword.set("since", c["available_since"])
+                if c["deprecated_since"] is not None:
+                    keyword.set("deprecated", c["deprecated_since"])
+
+            for f in getattr(t, "type_funcs", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "function")
+                keyword.set("name", f['identifier'])
+                keyword.set("link", f"type_func.{t.name}.{f['name']}.html")
+                if f["available_since"] is not None:
+                    keyword.set("since", f["available_since"])
+                if f["deprecated_since"] is not None:
+                    keyword.set("deprecated", f["deprecated_since"])
+
+            for m in getattr(t, "class_methods", []):
+                keyword = etree.SubElement(functions, "keyword")
+                keyword.set("type", "function")
+                keyword.set("name", m['identifier'])
+                keyword.set("link", f"class_method.{t.name}.{m['name']}.html")
+                if m["available_since"] is not None:
+                    keyword.set("since", m["available_since"])
+                if m["deprecated_since"] is not None:
+                    keyword.set("deprecated", m["deprecated_since"])
 
             for p in getattr(t, "properties", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "property")
                 keyword.set("name", f"The {t.type_cname}:{p['name']} property")
                 keyword.set("link", f"property.{t.name}.{p['name']}.html")
+                if p["available_since"] is not None:
+                    keyword.set("since", p["available_since"])
+                if p["deprecated_since"] is not None:
+                    keyword.set("deprecated", p["deprecated_since"])
 
             for s in getattr(t, "signals", []):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "signal")
                 keyword.set("name", f"The {t.type_cname}::{s['name']} signal")
                 keyword.set("link", f"signal.{t.name}.{s['name']}.html")
+                if s["available_since"] is not None:
+                    keyword.set("since", s["available_since"])
+                if s["deprecated_since"] is not None:
+                    keyword.set("deprecated", s["deprecated_since"])
 
     return etree.ElementTree(book)
 
