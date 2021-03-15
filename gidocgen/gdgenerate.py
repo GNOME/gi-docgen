@@ -188,6 +188,8 @@ class TemplateConstant:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = const.introspectable
 
@@ -224,6 +226,8 @@ class TemplateProperty:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = prop.introspectable
 
@@ -477,6 +481,8 @@ class TemplateSignal:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = signal.introspectable
 
@@ -532,6 +538,8 @@ class TemplateMethod:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         if method.source_position is not None:
             filename, line = method.source_position
@@ -707,6 +715,8 @@ class TemplateFunction:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         if func.source_position is not None:
             filename, line = func.source_position
@@ -778,6 +788,8 @@ class TemplateCallback:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = cb.introspectable
 
@@ -904,6 +916,8 @@ class TemplateInterface:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = interface.introspectable
 
@@ -1071,6 +1085,8 @@ class TemplateClass:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = cls.introspectable
 
@@ -1240,6 +1256,8 @@ class TemplateRecord:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = record.introspectable
 
@@ -1311,6 +1329,8 @@ class TemplateUnion:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = union.introspectable
 
@@ -1384,6 +1404,8 @@ class TemplateAlias:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = alias.introspectable
 
@@ -1444,6 +1466,8 @@ class TemplateEnum:
                 "version": version,
                 "message": utils.preprocess_docs(msg, namespace, md=md),
             }
+        else:
+            self.deprecated_since = None
 
         self.introspectable = enum.introspectable
 
