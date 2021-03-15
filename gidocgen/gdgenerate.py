@@ -645,6 +645,18 @@ class TemplateClassMethod:
         if not isinstance(method.return_value.target, gir.VoidType):
             self.return_value = TemplateReturnValue(namespace, method, method.return_value)
 
+        self.stability = method.stability
+        self.attributes = method.attributes
+        self.available_since = method.available_since
+        if method.deprecated_since is not None:
+            (version, msg) = method.deprecated_since
+            self.deprecated_since = {
+                "version": version,
+                "message": utils.preprocess_docs(msg, namespace),
+            }
+        else:
+            self.deprecated_since = None
+
         if method.source_position is not None:
             filename, line = method.source_position
             if filename.startswith('../'):
