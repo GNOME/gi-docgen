@@ -45,7 +45,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       </h4>
 
       <div class="docblock">
-        <pre><code>{{ property.name }}: {{ property.type_name }}</code></pre>
+        <pre><code>{{ property.c_decl|safe }}</code></pre>
       </div>
     </div>
 
@@ -64,6 +64,15 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
       <div class="docblock">
         <table>
+          <tr><td>Type:</td>
+            <td>
+            {%- if property.link -%}
+            {{ property.link|safe }}
+            {%- else -%}
+            <code>{{ property.type_cname }}</code>
+            {%- endif -%}
+            </td>
+          </tr>
           {% if property.stability %}
           <tr><td>Stability:</td><td>{{ property.stability }}</td></tr>
           {% endif %}
