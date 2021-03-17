@@ -2355,7 +2355,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 if t.available_since is not None:
                     keyword.set("since", t.available_since)
                 if t.deprecated_since is not None:
-                    keyword.set("deprecated", t.deprecated_since.version)
+                    keyword.set("deprecated", t.deprecated_since["version"])
                 continue
 
             if section == "constants":
@@ -2366,7 +2366,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 if t.available_since is not None:
                     keyword.set("since", t.available_since)
                 if t.deprecated_since is not None:
-                    keyword.set("deprecated", t.deprecated_since.version)
+                    keyword.set("deprecated", t.deprecated_since["version"])
                 continue
 
             if section in ["aliases", "bitfields", "classes", "domains", "enums", "interfaces", "structs", "unions"]:
@@ -2384,7 +2384,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 if t.available_since is not None:
                     keyword.set("since", t.available_since)
                 if t.deprecated_since is not None:
-                    keyword.set("deprecated", t.deprecated_since.version)
+                    keyword.set("deprecated", t.deprecated_since["version"])
 
             for m in getattr(t, "members", []):
                 keyword = etree.SubElement(functions, "keyword")
