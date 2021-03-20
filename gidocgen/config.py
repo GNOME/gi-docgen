@@ -148,6 +148,24 @@ class GIDocConfig:
         endpoint = endpoint.replace('{line}', str(line))
         return urljoin(base_url, endpoint)
 
+    @property
+    def objects(self):
+        return self._config.get('object', {})
+
+    def is_hidden(self, name, category=None, key=None):
+        for obj in self.objects:
+            if obj['name'] == name:
+                if category is None:
+                    return obj.get('hidden', False)
+                else:
+                    obj_category = obj.get(category)
+                    if obj_category is None:
+                        return False
+                    for c in obj_category:
+                        if c['name'] == key:
+                            return c.get('hidden', False)
+        return False
+
 
 class GITemplateConfig:
     """Load and represent the template configuration"""

@@ -1548,6 +1548,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
     template_classes = []
 
     for cls in all_classes:
+        if config.is_hidden(cls.name):
+            log.debug(f"Skipping hidden class {cls.name}")
+            continue
         class_file = os.path.join(output_dir, f"class.{cls.name}.html")
         log.info(f"Creating class file for {namespace.name}.{cls.name}: {class_file}")
 
@@ -1597,6 +1600,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                 }))
 
         for prop in cls.properties.values():
+            if config.is_hidden(cls.name, 'property', prop.name):
+                log.debug(f"Skipping hidden property {cls.name}.{prop.name}")
+                continue
             p = TemplateProperty(namespace, cls, prop)
             prop_file = os.path.join(output_dir, f"property.{cls.name}.{prop.name}.html")
             log.debug(f"Creating property file for {namespace.name}.{cls.name}.{prop.name}: {prop_file}")
@@ -1610,6 +1616,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                 }))
 
         for signal in cls.signals.values():
+            if config.is_hidden(cls.name, 'signal', signal.name):
+                log.debug(f"Skipping hidden signal {cls.name}.{signal.name}")
+                continue
             s = TemplateSignal(namespace, cls, signal)
             signal_file = os.path.join(output_dir, f"signal.{cls.name}.{signal.name}.html")
             log.debug(f"Creating signal file for {namespace.name}.{cls.name}.{signal.name}: {signal_file}")
@@ -1680,6 +1689,9 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
     template_interfaces = []
 
     for iface in all_interfaces:
+        if config.is_hidden(iface.name):
+            log.debug(f"Skipping hidden interface {iface.name}")
+            continue
         iface_file = os.path.join(output_dir, f"iface.{iface.name}.html")
         log.info(f"Creating interface file for {namespace.name}.{iface.name}: {iface_file}")
 
@@ -1707,6 +1719,9 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                 }))
 
         for prop in iface.properties.values():
+            if config.is_hidden(iface.name, 'property', prop.name):
+                log.debug(f"Skipping hidden property {iface.name}.{prop.name}")
+                continue
             p = TemplateProperty(namespace, iface, prop)
             prop_file = os.path.join(output_dir, f"property.{iface.name}.{prop.name}.html")
             log.debug(f"Creating property file for {namespace.name}.{iface.name}.{prop.name}: {prop_file}")
@@ -1720,6 +1735,9 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                 }))
 
         for signal in iface.signals.values():
+            if config.is_hidden(iface.name, 'signal', signal.name):
+                log.debug(f"Skipping hidden property {iface.name}.{signal.name}")
+                continue
             s = TemplateSignal(namespace, iface, signal)
             signal_file = os.path.join(output_dir, f"signal.{iface.name}.{signal.name}.html")
             log.debug(f"Creating signal file for {namespace.name}.{iface.name}.{signal.name}: {signal_file}")
@@ -1785,6 +1803,9 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
     template_enums = []
 
     for enum in all_enums:
+        if config.is_hidden(enum.name):
+            log.debug(f"Skipping hidden enum {enum.name}")
+            continue
         enum_file = os.path.join(output_dir, f"enum.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
@@ -1823,6 +1844,9 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
     template_bitfields = []
 
     for enum in all_enums:
+        if config.is_hidden(enum.name):
+            log.debug(f"Skipping hidden bitfield {enum.name}")
+            continue
         enum_file = os.path.join(output_dir, f"flags.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
@@ -1861,6 +1885,9 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
     template_domains = []
 
     for enum in all_enums:
+        if config.is_hidden(enum.name):
+            log.debug(f"Skipping hidden domain {enum.name}")
+            continue
         enum_file = os.path.join(output_dir, f"error.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
@@ -1898,6 +1925,9 @@ def _gen_constants(config, theme_config, output_dir, jinja_env, repository, all_
     template_constants = []
 
     for const in all_constants:
+        if config.is_hidden(const.name):
+            log.debug(f"Skipping hidden constant {const.name}")
+            continue
         const_file = os.path.join(output_dir, f"const.{const.name}.html")
         log.info(f"Creating constant file for {namespace.name}.{const.name}: {const_file}")
 
@@ -1922,6 +1952,9 @@ def _gen_aliases(config, theme_config, output_dir, jinja_env, repository, all_al
     template_aliases = []
 
     for alias in all_aliases:
+        if config.is_hidden(alias.name):
+            log.debug(f"Skipping hidden alias {alias.name}")
+            continue
         alias_file = os.path.join(output_dir, f"alias.{alias.name}.html")
         log.info(f"Creating alias file for {namespace.name}.{alias.name}: {alias_file}")
 
@@ -1950,6 +1983,9 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
     template_records = []
 
     for record in all_records:
+        if config.is_hidden(record.name):
+            log.debug(f"Skipping hidden record {record.name}")
+            continue
         record_file = os.path.join(output_dir, f"struct.{record.name}.html")
         log.info(f"Creating record file for {namespace.name}.{record.name}: {record_file}")
 
@@ -2017,6 +2053,9 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
     template_unions = []
 
     for union in all_unions:
+        if config.is_hidden(union.name):
+            log.debug(f"Skipping hidden union {union.name}")
+            continue
         union_file = os.path.join(output_dir, f"union.{union.name}.html")
         log.info(f"Creating union file for {namespace.name}.{union.name}: {union_file}")
 
@@ -2082,6 +2121,9 @@ def _gen_functions(config, theme_config, output_dir, jinja_env, repository, all_
     template_functions = []
 
     for func in all_functions:
+        if config.is_hidden(func.name):
+            log.debug(f"Skipping hidden function {func.name}")
+            continue
         func_file = os.path.join(output_dir, f"func.{func.name}.html")
         log.info(f"Creating function file for {namespace.name}.{func.name}: {func_file}")
 
@@ -2108,6 +2150,9 @@ def _gen_callbacks(config, theme_config, output_dir, jinja_env, repository, all_
     template_callbacks = []
 
     for func in all_callbacks:
+        if config.is_hidden(func.name):
+            log.debug(f"Skipping hidden callback {func.name}")
+            continue
         func_file = os.path.join(output_dir, f"callback.{func.name}.html")
         log.info(f"Creating callback file for {namespace.name}.{func.name}: {func_file}")
 
@@ -2134,6 +2179,9 @@ def _gen_function_macros(config, theme_config, output_dir, jinja_env, repository
     template_functions = []
 
     for func in all_functions:
+        if config.is_hidden(func.name):
+            log.debug(f"Skipping hidden macro {func.name}")
+            continue
         func_file = os.path.join(output_dir, f"func.{func.name}.html")
         log.info(f"Creating function macro file for {namespace.name}.{func.name}: {func_file}")
 

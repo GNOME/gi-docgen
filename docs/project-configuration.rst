@@ -135,3 +135,65 @@ The following keys are used, if found:
   A list of files, relative to the directory specified by the
   ``--content-dir`` command line argument. The files will be copied
   in the root directory of the namespace.
+
+Symbol overrides
+----------------
+
+Visibility
+~~~~~~~~~~
+
+It is possible to override the visibility of types, properties, and symbols in
+the introspection data from within the project configuration file.
+
+The following example will hide the type ``Protected``:
+
+::
+
+    [[object]]
+    name = "Protected"
+    hidden = true
+
+The type will be skipped when generating the API reference and the search index.
+This annotation applies to all possible top-level types:
+
+ - aliases
+ - bitfields
+ - callbacks
+ - classes
+ - domains
+ - enums
+ - functions
+ - function macros
+ - interfaces
+ - records
+ - unions
+
+The following example will hide the ``backend`` property on the ``Printer`` type:
+
+::
+
+    [[object]]
+    name = "Printer"
+
+      [[object.property]]
+      name = "backend"
+      hidden = true
+
+The following example will hide the ``private-changed`` signal on the
+``StyleProvider`` type:
+
+::
+
+    [[object]]
+    name = "StyleProvider"
+
+      [[object.signal]]
+      name = "private-changed"
+      hidden = true
+
+The ``object`` key is always an array of dictionaries; each element in the array
+has a ``name`` key, used to match it; it can also have a ``property`` and a
+``signal`` keys, each containing an array of dictionaries with a ``name`` key.
+
+The ``hidden`` key can be used in both an ``object`` element, or in the
+``property`` and ``signal`` elements.

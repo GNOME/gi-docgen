@@ -26,6 +26,9 @@ def _gen_aliases(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for alias in symbols:
+        if config.is_hidden(alias.name):
+            log.debug(f"Skipping hidden type {alias.name}")
+            continue
         idx = len(index_symbols)
         if alias.doc is not None:
             description = alias.doc.content
@@ -46,6 +49,9 @@ def _gen_bitfields(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for bitfield in symbols:
+        if config.is_hidden(bitfield.name):
+            log.debug(f"Skipping hidden type {bitfield.name}")
+            continue
         idx = len(index_symbols)
         if bitfield.doc is not None:
             description = bitfield.doc.content
@@ -86,6 +92,9 @@ def _gen_callbacks(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for callback in symbols:
+        if config.is_hidden(callback.name):
+            log.debug(f"Skipping hidden callback {callback.name}")
+            continue
         idx = len(index_symbols)
         if callback.doc is not None:
             cb_desc = callback.doc.content
@@ -107,6 +116,9 @@ def _gen_classes(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for cls in symbols:
+        if config.is_hidden(cls.name):
+            log.debug(f"Skipping hidden type {cls.name}")
+            continue
         idx = len(index_symbols)
         if cls.doc is not None:
             cls_desc = cls.doc.content
@@ -170,6 +182,9 @@ def _gen_classes(config, stemmer, index, repository, symbols):
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
         for prop_name, prop in cls.properties.items():
+            if config.is_hidden(cls.name, 'property', prop_name):
+                log.debug(f"Skipping hidden property {cls.name}.{prop_name}")
+                continue
             prop_idx = len(index_symbols)
             if prop.doc is not None:
                 prop_desc = prop.doc.content
@@ -185,6 +200,9 @@ def _gen_classes(config, stemmer, index, repository, symbols):
             add_index_terms(index_terms, utils.index_description(prop_desc, stemmer), prop_idx)
 
         for signal_name, signal in cls.signals.items():
+            if config.is_hidden(cls.name, 'signal', signal_name):
+                log.debug(f"Skipping hidden signal {cls.name}.{signal_name}")
+                continue
             signal_idx = len(index_symbols)
             if signal.doc is not None:
                 signal_desc = signal.doc.content
@@ -239,6 +257,9 @@ def _gen_constants(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for const in symbols:
+        if config.is_hidden(const.name):
+            log.debug(f"Skipping hidden const {const.name}")
+            continue
         idx = len(index_symbols)
         if const.doc is not None:
             const_desc = const.doc.content
@@ -259,6 +280,9 @@ def _gen_domains(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for domain in symbols:
+        if config.is_hidden(domain.name):
+            log.debug(f"Skipping hidden type {domain.name}")
+            continue
         idx = len(index_symbols)
         if domain.doc is not None:
             domain_desc = domain.doc.content
@@ -299,6 +323,9 @@ def _gen_enums(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for enum in symbols:
+        if config.is_hidden(enum.name):
+            log.debug(f"Skipping hidden type {enum.name}")
+            continue
         idx = len(index_symbols)
         if enum.doc is not None:
             enum_desc = enum.doc.content
@@ -339,6 +366,9 @@ def _gen_functions(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for func in symbols:
+        if config.is_hidden(func.name):
+            log.debug(f"Skipping hidden function {func.name}")
+            continue
         idx = len(index_symbols)
         if func.doc is not None:
             func_desc = func.doc.content
@@ -359,6 +389,9 @@ def _gen_function_macros(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for func in symbols:
+        if config.is_hidden(func.name):
+            log.debug(f"Skipping hidden macro {func.name}")
+            continue
         idx = len(index_symbols)
         if func.doc is not None:
             func_desc = func.doc.content
@@ -379,6 +412,9 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for iface in symbols:
+        if config.is_hidden(iface.name):
+            log.debug(f"Skipping hidden type {iface.name}")
+            continue
         idx = len(index_symbols)
         if iface.doc is not None:
             iface_desc = iface.doc.content
@@ -426,6 +462,9 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
         for prop_name, prop in iface.properties.items():
+            if config.is_hidden(iface.name, 'property', prop_name):
+                log.debug(f"Skipping hidden property {iface.name}.{prop_name}")
+                continue
             prop_idx = len(index_symbols)
             if prop.doc is not None:
                 prop_desc = prop.doc.content
@@ -441,6 +480,9 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
             add_index_terms(index_terms, utils.index_description(prop_desc, stemmer), prop_idx)
 
         for signal_name, signal in iface.signals.items():
+            if config.is_hidden(iface.name, 'signal', signal_name):
+                log.debug(f"Skipping hidden signal {iface.name}.{signal_name}")
+                continue
             signal_idx = len(index_symbols)
             if signal.doc is not None:
                 signal_desc = signal.doc.content
@@ -476,6 +518,9 @@ def _gen_records(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for record in symbols:
+        if config.is_hidden(record.name):
+            log.debug(f"Skipping hidden type {record.name}")
+            continue
         idx = len(index_symbols)
         if record.doc is not None:
             desc = record.doc.content
@@ -544,6 +589,9 @@ def _gen_unions(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for union in symbols:
+        if config.is_hidden(union.name):
+            log.debug(f"Skipping hidden type {union.name}")
+            continue
         idx = len(index_symbols)
         if union.doc is not None:
             desc = union.doc.content
