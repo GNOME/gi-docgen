@@ -2402,7 +2402,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 keyword.set("link", f"func.{t.name}.html")
                 if t.available_since is not None:
                     keyword.set("since", t.available_since)
-                if t.deprecated_since is not None:
+                if t.deprecated_since is not None and t.deprecated_since["version"] is not None:
                     keyword.set("deprecated", t.deprecated_since["version"])
                 continue
 
@@ -2413,7 +2413,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 keyword.set("link", f"constant.{t.name}.html")
                 if t.available_since is not None:
                     keyword.set("since", t.available_since)
-                if t.deprecated_since is not None:
+                if t.deprecated_since is not None and t.deprecated_since["version"] is not None:
                     keyword.set("deprecated", t.deprecated_since["version"])
                 continue
 
@@ -2431,7 +2431,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 keyword.set("link", f"{FRAGMENT[section]}.{t.name}.html")
                 if t.available_since is not None:
                     keyword.set("since", t.available_since)
-                if t.deprecated_since is not None:
+                if t.deprecated_since is not None and t.deprecated_since["version"] is not None:
                     keyword.set("deprecated", t.deprecated_since["version"])
 
             for m in getattr(t, "members", []):
