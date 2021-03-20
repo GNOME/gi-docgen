@@ -92,6 +92,9 @@ def _gen_callbacks(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for callback in symbols:
+        if config.is_hidden(callback.name):
+            log.debug(f"Skipping hidden callback {callback.name}")
+            continue
         idx = len(index_symbols)
         if callback.doc is not None:
             cb_desc = callback.doc.content
@@ -254,6 +257,9 @@ def _gen_constants(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for const in symbols:
+        if config.is_hidden(const.name):
+            log.debug(f"Skipping hidden const {const.name}")
+            continue
         idx = len(index_symbols)
         if const.doc is not None:
             const_desc = const.doc.content
@@ -360,6 +366,9 @@ def _gen_functions(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for func in symbols:
+        if config.is_hidden(func.name):
+            log.debug(f"Skipping hidden function {func.name}")
+            continue
         idx = len(index_symbols)
         if func.doc is not None:
             func_desc = func.doc.content
@@ -380,6 +389,9 @@ def _gen_function_macros(config, stemmer, index, repository, symbols):
     index_terms = index["terms"]
 
     for func in symbols:
+        if config.is_hidden(func.name):
+            log.debug(f"Skipping hidden macro {func.name}")
+            continue
         idx = len(index_symbols)
         if func.doc is not None:
             func_desc = func.doc.content
