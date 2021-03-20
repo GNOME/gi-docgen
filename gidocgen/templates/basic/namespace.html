@@ -84,7 +84,10 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
   {% if CONFIG.dependencies|length > 0 %}
   <section>
     <div class="toggle-wrapper">
-      <h4 id="dependencies">Dependencies</a></h4>
+      <h4 id="dependencies" style="display:flex;">
+        Dependencies
+        <a href="#dependencies" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         <table>
@@ -107,7 +110,10 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
   {% if content_files|length > 0 %}
   <section>
     <div class="toggle-wrapper">
-      <h4 id="extra">Additional documentation</a></h4>
+      <h4 id="extra" style="display:flex;">
+        Additional documentation
+        <a href="#extra" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         <ul>
@@ -124,7 +130,10 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
   {% if elements|length > 0 %}
   <section>
     <div class="toggle-wrapper default-hide">
-      <h4 id="{{ section_id }}" class="section-header">{{ section_title }}</h4>
+      <h4 id="{{ section_id }}" class="section-header" style="display:flex;">
+        {{ section_title }}
+        <a href="#{{ section_id }}" class="anchor"></a>
+      </h4>
 
       <div class="docblock">
         <table style="display:block;">
