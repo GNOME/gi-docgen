@@ -154,6 +154,19 @@ The following example will hide the type ``Protected``:
     hidden = true
 
 The type will be skipped when generating the API reference and the search index.
+This annotation applies to all possible top-level types:
+
+ - aliases
+ - bitfields
+ - callbacks
+ - classes
+ - domains
+ - enums
+ - functions
+ - function macros
+ - interfaces
+ - records
+ - unions
 
 The following example will hide the ``backend`` property on the ``Printer`` type:
 
