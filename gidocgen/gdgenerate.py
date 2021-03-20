@@ -1925,6 +1925,9 @@ def _gen_constants(config, theme_config, output_dir, jinja_env, repository, all_
     template_constants = []
 
     for const in all_constants:
+        if config.is_hidden(const.name):
+            log.debug(f"Skipping hidden constant {const.name}")
+            continue
         const_file = os.path.join(output_dir, f"const.{const.name}.html")
         log.info(f"Creating constant file for {namespace.name}.{const.name}: {const_file}")
 
@@ -2118,6 +2121,9 @@ def _gen_functions(config, theme_config, output_dir, jinja_env, repository, all_
     template_functions = []
 
     for func in all_functions:
+        if config.is_hidden(func.name):
+            log.debug(f"Skipping hidden function {func.name}")
+            continue
         func_file = os.path.join(output_dir, f"func.{func.name}.html")
         log.info(f"Creating function file for {namespace.name}.{func.name}: {func_file}")
 
@@ -2144,6 +2150,9 @@ def _gen_callbacks(config, theme_config, output_dir, jinja_env, repository, all_
     template_callbacks = []
 
     for func in all_callbacks:
+        if config.is_hidden(func.name):
+            log.debug(f"Skipping hidden callback {func.name}")
+            continue
         func_file = os.path.join(output_dir, f"callback.{func.name}.html")
         log.info(f"Creating callback file for {namespace.name}.{func.name}: {func_file}")
 
@@ -2170,6 +2179,9 @@ def _gen_function_macros(config, theme_config, output_dir, jinja_env, repository
     template_functions = []
 
     for func in all_functions:
+        if config.is_hidden(func.name):
+            log.debug(f"Skipping hidden macro {func.name}")
+            continue
         func_file = os.path.join(output_dir, f"func.{func.name}.html")
         log.info(f"Creating function macro file for {namespace.name}.{func.name}: {func_file}")
 
