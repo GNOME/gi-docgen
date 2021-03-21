@@ -22,11 +22,9 @@ configure_file(
   input: 'gi-docgen.py',
   output: 'gi-docgen',
   copy: true,
-  install: true,
+  install: not meson.is_subproject(),
   install_dir: get_option('bindir'),
 )
-
-install_subdir('gidocgen', install_dir: py.get_install_dir())
 
 # When using gi-docgen as a sub-project
 dummy_dep = declare_dependency()
@@ -34,6 +32,8 @@ meson.override_find_program('gi-docgen', find_program('gi-docgen.py'))
 
 # Development tests should not be run when in a subproject
 if not meson.is_subproject()
+  install_subdir('gidocgen', install_dir: py.get_install_dir())
+
   flake8 = find_program('flake8', required: false)
   if flake8.found()
     test('flake8',
