@@ -3,6 +3,7 @@
 
 import argparse
 import shutil
+import sys
 import traceback
 
 from . import log
@@ -114,3 +115,8 @@ class GIDocGenApp:
         else:
             self.parser.print_help()
         return 0
+
+
+def main():
+    """The entry point expected by setuptools"""
+    return GIDocGenApp().run(sys.argv[1:])
