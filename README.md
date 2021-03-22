@@ -66,8 +66,12 @@ reference for GTK and its immediate dependencies. Any and all attempts at
 making this tool more generic, or to cover more use cases, will be weighted
 heavily against its primary goal.
 
-The recommended use of GI-DocGen is to add it as a sub-project to your
-[Meson build system](https://mesonbuild.com).
+GI-DocGen is still in development. The recommended use of GI-DocGen is to
+add it as a sub-project to your [Meson build system](https://mesonbuild.com),
+and vendor it when releasing dist archives.
+
+You should **not** depend on a system-wide installation until GI-DocGen is
+declared stable.
 
 If you need a general purpose documentation tool, I strongly recommend:
 
