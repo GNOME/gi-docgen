@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
 project('gi-docgen',
-  version: '2021.2',
+  version: '2021.3',
   meson_version: '>= 0.55.0',
 )
 
@@ -29,6 +29,16 @@ configure_file(
 # When using gi-docgen as a sub-project
 dummy_dep = declare_dependency()
 meson.override_find_program('gi-docgen', find_program('gi-docgen.py'))
+
+pkgconf = configuration_data()
+pkgconf.set('VERSION', meson.project_version())
+configure_file(
+  input: 'gi-docgen.pc.in',
+  output: 'gi-docgen.pc',
+  configuration: pkgconf,
+  install: not meson.is_subproject(),
+  install_dir: get_option('datadir') / 'pkgconfig',
+)
 
 # Development tests should not be run when in a subproject
 if not meson.is_subproject()

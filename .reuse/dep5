@@ -3,9 +3,9 @@ Upstream-Name: gi-docgen
 Upstream-Contact: Emmanuele Bassi <ebassi@gnome.org>
 Source: https://gitlab.gnome.org/ebassi/gi-docgen
 
-Files: poetry.lock
+Files: gi-docgen.pc.in
 Copyright: 2021  GNOME Foundation
-License: Apache-2.0 OR GPL-3.0-or-later
+License: CC0-1.0
 
 Files: gidocgen/templates/basic/*.woff
 Copyright: 2019  Red Hat Inc.

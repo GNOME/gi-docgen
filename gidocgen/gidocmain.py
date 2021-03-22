@@ -3,9 +3,10 @@
 
 import argparse
 import shutil
+import sys
 import traceback
 
-from . import log
+from . import core, log
 from . import gdindex, gdgenerate, gdgenindices, gdgendeps, gdsearch
 
 
@@ -56,7 +57,7 @@ class GIDocGenApp:
         """
         known_commands = list(self.commands.keys()) + ['-h', '--help']
         if not args or args[0] not in known_commands:
-            args = ['help']
+            args = ['help'] + args
 
         options = self.parser.parse_args(args)
 
@@ -102,10 +103,13 @@ class GIDocGenApp:
             self.commands[i] = p
 
     def add_help_args(self, parser):
+        parser.add_argument("-v", "--version", action="store_true", help="show the version of gi-docgen")
         parser.add_argument('command', nargs='?')
 
     def run_help_cmd(self, options):
-        if options.command:
+        if options.version:
+            print(core.version)
+        elif options.command:
             known_commands = list(self.commands.keys())
             if options.command not in known_commands:
                 log.error(f'Unknown command {options.command}.')
@@ -114,3 +118,8 @@ class GIDocGenApp:
         else:
             self.parser.print_help()
         return 0
+
+
+def main():
+    """The entry point expected by setuptools"""
+    return GIDocGenApp().run(sys.argv[1:])
