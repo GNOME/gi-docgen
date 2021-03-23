@@ -140,8 +140,8 @@ done by defining a JavaScript map called ``baseURLs`` like this:
 ::
 
     baseURLs = [
-      [ 'Pango', 'https://gnome.pages.gitlab.gnome..org/pango/pango/' ],
-      [ 'PangoCairo', 'https://gnome.pages.gitlab.gnome..org/pango/pangocairo/' ],
+      [ 'Pango', 'https://gnome.pages.gitlab.gnome.org/pango/Pango/' ],
+      [ 'PangoCairo', 'https://gnome.pages.gitlab.gnome.org/pango/PangoCairo/' ],
     ]
 
 And specifying the path of the JavaScript file into the ``extras`` section
