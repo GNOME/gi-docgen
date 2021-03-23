@@ -136,6 +136,19 @@ The following keys are used, if found:
   ``--content-dir`` command line argument. The files will be copied
   in the root directory of the namespace.
 
+``urlmap_file``
+  Path of a JavaScript file that defines the mapping from namespaces
+  to url prefixes for resolving links to external symbols, as a
+  JavaScript map with the name `baseURLs`:
+
+::
+
+    baseURLs = [
+      [ 'Pango', 'https://gnome.pages.gitlab.gnome..org/pango/pango/' ],
+      [ 'PangoCairo', 'https://gnome.pages.gitlab.gnome..org/pango/pangocairo/' ],
+    ]
+
+
 Symbol overrides
 ----------------
 
