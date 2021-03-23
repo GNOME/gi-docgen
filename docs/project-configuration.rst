@@ -144,8 +144,8 @@ The following keys are used, if found:
 ::
 
     baseURLs = [
-      [ 'Pango', 'https://gnome.pages.gitlab.gnome..org/pango/pango/' ],
-      [ 'PangoCairo', 'https://gnome.pages.gitlab.gnome..org/pango/pangocairo/' ],
+      [ 'Pango', 'https://gnome.pages.gitlab.gnome.org/pango/Pango/' ],
+      [ 'PangoCairo', 'https://gnome.pages.gitlab.gnome.org/pango/PangoCairo/' ],
     ]
 
 
