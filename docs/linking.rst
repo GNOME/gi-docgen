@@ -128,3 +128,21 @@ multiple meanings:
 
     // will link to gtk_widget_class_bind_template_child()
     [func@Gtk.widget_class_bind_template_child]
+
+External Links
+--------------
+
+Gi-docgen can use the same syntax to point to symbols in other namespaces
+with gi-docgen-generated documentation, as long as you provide it with
+a mapping from the namespace names to a base url for the docs. This is
+done by defining a JavaScript map called ``baseURLs`` like this:
+
+::
+
+    baseURLs = [
+      [ 'Pango', 'https://gnome.pages.gitlab.gnome..org/pango/pango/' ],
+      [ 'PangoCairo', 'https://gnome.pages.gitlab.gnome..org/pango/pangocairo/' ],
+    ]
+
+And specifying the path of the JavaScript file into the ``extras`` section
+of the project configuration, in the ``urlmap_file`` key.
