@@ -81,7 +81,7 @@ a ``source-location`` section:
         # The format for links, using "filename" and "line" for the format
         file_format = "{filename}#L{line}"
 
-If your library has additiona content, in the form of Markdown files that you
+If your library has additional content, in the form of Markdown files that you
 wish to include in the generated API reference, you can use the ``extra`` section:
 
 ::
