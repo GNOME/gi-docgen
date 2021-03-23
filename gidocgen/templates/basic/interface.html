@@ -234,31 +234,6 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
     {% endif %}
 
     {% if interface.class_methods %}
-    <div class="methods toggle-wrapper">
-      <h4 id="interface-functions">
-        Interface functions
-        <a href="#interface-functions" class="anchor"></a>
-      </h4>
-
-      <div class="docblock">
-      {% for method in interface.class_methods %}
-      <div class="{% if method.deprecated_since %}deprecated{% endif %}">
-        <h6><a href="class_method.{{ interface.class_name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
-
-        <div class="docblock">
-          {{ method.summary }}
-        </div>
-
-        {% if method.deprecated_since %}
-        <div class="docblock"><p>Deprecated since: {{ method.deprecated_since.version }}</p></div>
-        {% endif %}
-      </div>
-      {% endfor %}
-      </div>
-    </div>
-    {% endif %} 
-
-    {% if interface.class_methods %}
     <div class="toggle-wrapper methods">
       <h4 id="interface-methods">
         Interface methods
