@@ -53,6 +53,11 @@ package_data = {
     ],
 }
 
+data_files = [
+    ('share/pkgconfig', ['gi-docgen.pc']),
+    ('share/man/man1', ['gi-docgen.1']),
+]
+
 if __name__ == '__main__':
     setup(
         cmdclass={
@@ -67,5 +72,5 @@ if __name__ == '__main__':
         packages=packages,
         package_data=package_data,
         entry_points=entries,
-        data_files=[('share/pkgconfig', ['gi-docgen.pc'])],
+        data_files=data_files,
     )
