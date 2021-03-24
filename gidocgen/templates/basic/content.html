@@ -9,8 +9,10 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 {% block title %}{{ namespace.name }} &ndash; {{ namespace.version }}: {{ content.title }}{% endblock %}
 
 {% block meta_other %}
-  <meta name="og:title" content="{{ namespace.name }}-{{ namespace.version }}: {{ content.title }}"/>
-  <meta name="og:description" content="Reference for {{ namespace.name }}-{{ namespace.version }}"/>
+  <meta property="og:title" content="{{ namespace.name }}: {{ content.title }}"/>
+  <meta property="og:description" content="Reference for {{ namespace.name }}-{{ namespace.version }}: {{ content.title }}"/>
+  <meta name="twitter:title" content="{{ namespace.name }}: {{ content.title }}"/>
+  <meta name="twitter:description" content="Reference for {{ namespace.name }}-{{ namespace.version }}: {{ content.title }}"/>
 {% endblock %}
 
 {% block content %}

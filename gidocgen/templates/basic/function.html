@@ -9,8 +9,10 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 {% block title %}{{ namespace.name }}.{{ func.name }}{% endblock %}
 
 {% block meta_other %}
-<meta name="og:title" content="{{ namespace.name }}.{{ func.name }}"/>
-<meta name="og:description" content="Reference for {{ namespace.name }}.{{ func.name }}"/>
+  <meta property="og:title" content="{{ namespace.name }}.{{ func.name }}"/>
+  <meta property="og:description" content="Reference for {{ namespace.name }}.{{ func.name }}"/>
+  <meta name="twitter:title" content="{{ namespace.name }}.{{ func.name }}"/>
+  <meta name="twitter:description" content="Reference for {{ namespace.name }}.{{ func.name }}"/>
 {% endblock %}
 
 {% block sidebar %}

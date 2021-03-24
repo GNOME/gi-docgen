@@ -7,30 +7,33 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>{% block title %}{{ LIBRARY_NAME }}{% endblock %}</title>
+  <title>{% block title %}{{ namespace.name }}{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <meta charset="utf-8" />
 
-  <meta property="og:site_name" content="{{ SITENAME }}"/>
-  <meta property="og:title" content="{{ SITENAME }}"/>
-  <meta property="og:url" content="{{ SITEURL }}"/>
+  {% if CONFIG.site_url %}
+  <meta property="og:url" content="{{ CONFIG.site_url }}"/>
+  {% endif %}
   <meta property="og:type" content="website"/>
 
-  {% if LOGO_FILE %}
-  <meta property="og:image:width" content="512"/>
-  <meta property="og:image:height" content="512"/>
-  <meta property="og:image:secure_url" content="{{ SITEURL }}/{{ LOGO_FILE }}"/>
-  <meta property="og:image:alt" content="{{ LIBRARY_NAME }}"/>
+  {% if CONFIG.logo_url %}
+  <meta property="og:image:width" content="256"/>
+  <meta property="og:image:height" content="256"/>
+  <meta property="og:image:secure_url" content="{{ CONFIG.logo_url }}"/>
+  <meta property="og:image:alt" content="{{ namespace.name }}-{{ namespace.version }}"/>
   {% endif %}
 
   {% block meta_other %}{% endblock %}
 
-  <meta name="twitter:title" content="{{ SITENAME }}"/>
-  <meta name="twitter:url" content="{{ SITEURL }}"/>
+  {% if CONFIG.site_url %}
+  <meta name="twitter:url" content="{{ CONFIG.site_url }}"/>
+  {% endif %}
   <meta name="twitter:card" content="summary"/>
 
-  <link rel="canonical" href="{{ SITEURL }}"/>
+  {% if CONFIG.site_url %}
+  <link rel="canonical" href="{{ CONFIG.site_url }}"/>
+  {% endif %}
 
   <link rel="stylesheet" href="style.css" type="text/css" />
 

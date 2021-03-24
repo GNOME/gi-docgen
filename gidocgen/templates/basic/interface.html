@@ -9,8 +9,10 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 {% block title %}{{ namespace.name }}.{{ interface.name }}{% endblock %}
 
 {% block meta_other %}
-  <meta name="og:title" content="{{ namespace.name }}.{{ interface.name }}"/>
-  <meta name="og:description" content="Reference for {{ namespace.name }}.{{ interface.name }}"/>
+  <meta property="og:title" content="{{ namespace.name }}.{{ interface.name }}"/>
+  <meta property="og:description" content="Reference for {{ namespace.name }}.{{ interface.name }}"/>
+  <meta name="twitter:title" content="{{ namespace.name }}.{{ interface.name }}"/>
+  <meta name="twitter:description" content="Reference for {{ namespace.name }}.{{ interface.name }}"/>
 {% endblock %}
 
 {% macro sidebar_block(elements, iface_name, section_title, section_class, section_fragment) -%}
