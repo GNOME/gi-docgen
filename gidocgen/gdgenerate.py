@@ -2418,6 +2418,9 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 continue
 
             if section in ["aliases", "bitfields", "classes", "domains", "enums", "interfaces", "structs", "unions"]:
+                # Skip anonymous types; e.g. GValue's anonymous union
+                if t.type_cname is None:
+                    continue
                 keyword = etree.SubElement(functions, "keyword")
                 if section == "aliases":
                     keyword.set("type", "typedef")
