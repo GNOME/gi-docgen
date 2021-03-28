@@ -809,8 +809,12 @@ def find_program(bin_name, path=None):
 
 
 def default_search_paths():
-    xdg_data_dirs = os.environ.get("XDG_DATA_DIRS", "/usr/share:/usr/local/share").split(":")
-    xdg_data_home = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
+    if not sys.platform == 'win32':
+        xdg_data_dirs = os.environ.get("XDG_DATA_DIRS", "/usr/share:/usr/local/share").split(":")
+        xdg_data_home = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
+    else:
+        xdg_data_dirs = None
+        xdg_data_home = None
 
     paths = []
     paths.append(os.getcwd())
