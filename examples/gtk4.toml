@@ -59,6 +59,6 @@ name = "StyleProvider"
 name = "Printer"
   # GTK_TYPE_PRINT_BACKEND is private to GTK, which makes this
   # property less than useful
-  [[object.property]
+  [[object.property]]
   name = "backend"
   hidden = true
