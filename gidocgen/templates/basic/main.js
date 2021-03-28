@@ -537,6 +537,22 @@ window.addEventListener("load", function() {
         }
     });
 
+    if (navigator.clipboard) {
+        onEachLazy(document.getElementsByClassName("codehilite"), function(e) {
+            var button = document.createElement("button");
+            button.className = "copy-button";
+            button.innerText = "Copy";
+            button.title = "Copy code to clipboard";
+
+            var text = e.innerText;
+            button.addEventListener("click", () => {
+                navigator.clipboard.writeText(text);
+            });
+
+            e.appendChild(button);
+        });
+    }
+
     if (window.buildIndex) {
         window.buildIndex('index.json');
     }
