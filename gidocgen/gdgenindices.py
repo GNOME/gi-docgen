@@ -735,24 +735,18 @@ def add_args(parser):
 
 
 def run(options):
-    xdg_data_dirs = os.environ.get("XDG_DATA_DIRS", "/usr/share:/usr/local/share").split(":")
-    xdg_data_home = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
-
-    paths = []
-    paths.extend(options.include_paths)
-    paths.append(os.getcwd())
-    paths.append(os.path.join(xdg_data_home, "gir-1.0"))
-    paths.extend([os.path.join(x, "gir-1.0") for x in xdg_data_dirs])
-
     log.info(f"Loading config file: {options.config}")
 
     conf = config.GIDocConfig(options.config)
 
     output_dir = options.output_dir or os.getcwd()
     content_dir = options.content_dir or os.getcwd()
-
-    log.debug(f"Search paths: {paths}")
     log.info(f"Output directory: {output_dir}")
+
+    paths = []
+    paths.extend(options.include_paths)
+    paths.extend(utils.default_search_paths())
+    log.debug(f"Search paths: {paths}")
 
     log.info("Parsing GIR file")
     parser = gir.GirParser(search_paths=paths)
