@@ -55,7 +55,7 @@ package_data = {
 
 data_files = [
     ('share/pkgconfig', ['gi-docgen.pc']),
-    ('share/man/man1', ['gi-docgen.1']),
+    ('share/man/man1', ['docs/gi-docgen.1']),
 ]
 
 if __name__ == '__main__':
