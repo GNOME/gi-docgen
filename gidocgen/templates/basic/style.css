@@ -63,7 +63,7 @@
   --prefered-content-width: 90ch; /* The preferred width for the readable content */
   --anchor-sign: "#";
 
-} 
+}
 
 /*********************************
  * DARK THEME (overrides)
@@ -218,7 +218,7 @@ blockquote {
   margin: var(--box--margin);
 }
 
-code, 
+code,
 pre {
   font-family: var(--monospace-font-family);
   font-size: var(--monospace-font-size);
@@ -261,6 +261,13 @@ h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
 
 strong, b {
   font-weight: 600;
+}
+
+/* fix alignment of images on small screen */
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
 }
 
 /* fix unwanted margins in tables, code, lists and blockquotes */
