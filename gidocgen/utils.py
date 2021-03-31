@@ -818,6 +818,9 @@ def default_search_paths():
 
     paths = []
     paths.append(os.getcwd())
+    # Add sys.base_prefix when using MSYS2
+    if sys.platform == 'win32' and 'GCC' in sys.version:
+        paths.append(os.path.join(sys.base_prefix, 'share', 'gir-1.0'))
     if xdg_data_home is not None:
         paths.append(os.path.join(xdg_data_home, "gir-1.0"))
     if xdg_data_dirs is not None:
