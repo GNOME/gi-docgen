@@ -40,6 +40,7 @@ def _gen_aliases(config, stemmer, index, repository, symbols):
             "ctype": alias.base_ctype,
             "summary": utils.preprocess_docs(description, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [alias.base_ctype.lower()], idx)
         add_index_terms(index_terms, utils.index_identifier(alias.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(description, stemmer), idx)
 
@@ -63,10 +64,12 @@ def _gen_bitfields(config, stemmer, index, repository, symbols):
             "ctype": bitfield.base_ctype,
             "summary": utils.preprocess_docs(description, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [bitfield.base_ctype.lower()], idx)
         add_index_terms(index_terms, utils.index_identifier(bitfield.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(description, stemmer), idx)
 
         for member in bitfield.members:
+            add_index_terms(index_terms, [member.name], idx)
             if member.doc is not None:
                 add_index_terms(index_terms, utils.index_description(member.doc.content, stemmer), idx)
 
@@ -83,6 +86,7 @@ def _gen_bitfields(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True)
             })
+            add_index_terms(index_terms, [func.identifier], func_idx)
             add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
@@ -105,6 +109,7 @@ def _gen_callbacks(config, stemmer, index, repository, symbols):
             "name": callback.name,
             "summary": utils.preprocess_docs(cb_desc, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [callback.name.lower()], idx)
         add_index_terms(index_terms, utils.index_identifier(callback.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(cb_desc, stemmer), idx)
 
@@ -130,6 +135,7 @@ def _gen_classes(config, stemmer, index, repository, symbols):
             "ctype": cls.base_ctype,
             "summary": utils.preprocess_docs(cls_desc, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [cls.base_ctype.lower()], idx)
         add_index_terms(index_terms, utils.index_identifier(cls.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(cls_desc, stemmer), idx)
 
@@ -146,6 +152,7 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 "ident": ctor.identifier,
                 "summary": utils.preprocess_docs(ctor_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [ctor.identifier], ctor_idx)
             add_index_terms(index_terms, utils.index_symbol(ctor.name, stemmer), ctor_idx)
             add_index_terms(index_terms, utils.index_description(ctor_desc, stemmer), ctor_idx)
 
@@ -162,6 +169,7 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [method.identifier], ctor_idx)
             add_index_terms(index_terms, utils.index_symbol(method.name, stemmer), method_idx)
             add_index_terms(index_terms, utils.index_description(method_desc, stemmer), method_idx)
 
@@ -178,6 +186,7 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [func.identifier], func_idx)
             add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
@@ -248,6 +257,7 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                     "ident": cls_method.identifier,
                     "summary": utils.preprocess_docs(cls_method_desc, repository.namespace, summary=True, plain=True),
                 })
+                add_index_terms(index_terms, [cls_method.identifier], cls_method_idx)
                 add_index_terms(index_terms, utils.index_symbol(cls_method.name, stemmer), cls_method_idx)
                 add_index_terms(index_terms, utils.index_description(cls_method_desc, stemmer), cls_method_idx)
 
@@ -271,6 +281,7 @@ def _gen_constants(config, stemmer, index, repository, symbols):
             "ident": const.ctype,
             "summary": utils.preprocess_docs(const_desc, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [const.ctype.lower()], idx)
         add_index_terms(index_terms, utils.index_symbol(const.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(const_desc, stemmer), idx)
 
@@ -294,10 +305,12 @@ def _gen_domains(config, stemmer, index, repository, symbols):
             "ctype": domain.base_ctype,
             "summary": utils.preprocess_docs(domain_desc, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [domain.base_ctype.lower()], idx)
         add_index_terms(index_terms, utils.index_identifier(domain.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(domain_desc, stemmer), idx)
 
         for member in domain.members:
+            add_index_terms(index_terms, [member.name], idx)
             if member.doc is not None:
                 add_index_terms(index_terms, utils.index_description(member.doc.content, stemmer), idx)
 
@@ -314,6 +327,7 @@ def _gen_domains(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [func.identifier], func_idx)
             add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
@@ -337,10 +351,12 @@ def _gen_enums(config, stemmer, index, repository, symbols):
             "ctype": enum.base_ctype,
             "summary": utils.preprocess_docs(enum_desc, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [enum.base_ctype.lower()], idx)
         add_index_terms(index_terms, utils.index_identifier(enum.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(enum_desc, stemmer), idx)
 
         for member in enum.members:
+            add_index_terms(index_terms, [member.name], idx)
             if member.doc is not None:
                 add_index_terms(index_terms, utils.index_description(member.doc.content, stemmer), idx)
 
@@ -357,6 +373,7 @@ def _gen_enums(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [func.identifier], func_idx)
             add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
@@ -380,6 +397,7 @@ def _gen_functions(config, stemmer, index, repository, symbols):
             "ident": func.identifier,
             "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [func.identifier], idx)
         add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(func_desc, stemmer), idx)
 
@@ -403,6 +421,7 @@ def _gen_function_macros(config, stemmer, index, repository, symbols):
             "ident": func.identifier,
             "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [func.identifier], idx)
         add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(func_desc, stemmer), idx)
 
@@ -426,6 +445,7 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
             "ctype": iface.base_ctype,
             "summary": utils.preprocess_docs(iface_desc, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [iface.base_ctype.lower()], idx)
         add_index_terms(index_terms, utils.index_identifier(iface.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(iface_desc, stemmer), idx)
 
@@ -442,6 +462,7 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [method.identifier], method_idx)
             add_index_terms(index_terms, utils.index_symbol(method.name, stemmer), method_idx)
             add_index_terms(index_terms, utils.index_description(method_desc, stemmer), method_idx)
 
@@ -458,6 +479,7 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [func.identifier], func_idx)
             add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
@@ -532,6 +554,7 @@ def _gen_records(config, stemmer, index, repository, symbols):
             "ctype": record.base_ctype,
             "summary": utils.preprocess_docs(desc, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [record.base_ctype.lower()], idx)
         add_index_terms(index_terms, utils.index_identifier(record.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(desc, stemmer), idx)
 
@@ -548,6 +571,7 @@ def _gen_records(config, stemmer, index, repository, symbols):
                 "ident": ctor.identifier,
                 "summary": utils.preprocess_docs(ctor_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [ctor.identifier], ctor_idx)
             add_index_terms(index_terms, utils.index_symbol(ctor.name, stemmer), ctor_idx)
             add_index_terms(index_terms, utils.index_description(ctor_desc, stemmer), ctor_idx)
 
@@ -564,6 +588,7 @@ def _gen_records(config, stemmer, index, repository, symbols):
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [method.identifier], method_idx)
             add_index_terms(index_terms, utils.index_symbol(method.name, stemmer), method_idx)
             add_index_terms(index_terms, utils.index_description(method_desc, stemmer), method_idx)
 
@@ -580,6 +605,7 @@ def _gen_records(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [func.identifier], func_idx)
             add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
@@ -603,6 +629,7 @@ def _gen_unions(config, stemmer, index, repository, symbols):
             "ctype": union.base_ctype,
             "summary": utils.preprocess_docs(desc, repository.namespace, summary=True, plain=True),
         })
+        add_index_terms(index_terms, [union.base_ctype.lower()], idx)
         add_index_terms(index_terms, utils.index_identifier(union.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(desc, stemmer), idx)
 
@@ -619,6 +646,7 @@ def _gen_unions(config, stemmer, index, repository, symbols):
                 "ident": ctor.identifier,
                 "summary": utils.preprocess_docs(ctor_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [ctor.identifier], ctor_idx)
             add_index_terms(index_terms, utils.index_symbol(ctor.name, stemmer), ctor_idx)
             add_index_terms(index_terms, utils.index_description(ctor_desc, stemmer), ctor_idx)
 
@@ -635,6 +663,7 @@ def _gen_unions(config, stemmer, index, repository, symbols):
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [method.identifier], method_idx)
             add_index_terms(index_terms, utils.index_symbol(method.name, stemmer), method_idx)
             add_index_terms(index_terms, utils.index_description(method_desc, stemmer), method_idx)
 
@@ -651,6 +680,7 @@ def _gen_unions(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
+            add_index_terms(index_terms, [func.identifier], func_idx)
             add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
