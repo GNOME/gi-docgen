@@ -359,7 +359,7 @@ footer {
   scrollbar-width: thin;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-bg);
-  min-width: 40ch;
+  min-width: 35ch;
   padding: var(--sidebar-padding);
   color: var(--sidebar-text-color);
   position: sticky;
@@ -376,8 +376,8 @@ footer {
 
 .sidebar .logo {
   display: block;
-  margin: 2rem auto 0 auto;
-  width: 70%;
+  margin: 1rem auto 0 auto;
+  width: 50%;
 }
 
 .sidebar .section > ul > li {
@@ -413,6 +413,7 @@ footer {
 .sidebar .section {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+  font-size: 80%;
 }
 
 .sidebar .links {
