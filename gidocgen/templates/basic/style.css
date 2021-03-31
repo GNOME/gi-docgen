@@ -344,6 +344,10 @@ footer {
   text-transform: none;
 }
 
+#btn-to-top > .up-arrow {
+  margin-left: -2px;
+}
+
 #btn-to-top > .up-arrow:after {
   content: url(go-up-symbolic.png);
 }
