@@ -2210,7 +2210,7 @@ def gen_content_files(config, theme_config, content_dir, output_dir, jinja_env, 
         src_file = os.path.join(content_dir, file_name)
 
         src_data = ""
-        with open(src_file, "r") as infile:
+        with open(src_file, encoding='utf-8') as infile:
             source = []
             for line in infile:
                 source.append(line)
@@ -2233,7 +2233,7 @@ def gen_content_files(config, theme_config, content_dir, output_dir, jinja_env, 
         }
 
         log.info(f"Generating content file {file_name}: {dst_file}")
-        with open(dst_file, "w") as outfile:
+        with open(dst_file, "w", encoding='utf-8') as outfile:
             outfile.write(content_tmpl.render({
                 "CONFIG": config,
                 "namespace": namespace,
