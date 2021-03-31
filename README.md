@@ -49,9 +49,9 @@ pip3 install --user --upgrade gi-docgen
 
 ## Usage
 
-First, read [the GI-DocGen tutorial](https://ebassi.pages.gitlab.gnome.org/gi-docgen/tutorial.html).
+First, read [the GI-DocGen tutorial](https://gnome.pages.gitlab.gnome.org/gi-docgen/tutorial.html).
 
-The documentation for GI-DocGen is [available online](https://ebassi.pages.gitlab.gnome.org/gi-docgen/).
+The documentation for GI-DocGen is [available online](https://gnome.pages.gitlab.gnome.org/gi-docgen/).
 
 The `examples` directory in the repository contains simple project files for
 various GNOME libraries.

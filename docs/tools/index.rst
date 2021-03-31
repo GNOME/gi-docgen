@@ -57,12 +57,12 @@ All commands support the following environment variables:
 BUGS
 ====
 
-Report bugs at https://gitlab.gnome.org/ebassi/gi-docgen/issues
+Report bugs at https://gitlab.gnome.org/GNOME/gi-docgen/issues
 
 HOMEPAGE and CONTACT
 ====================
 
-https://ebassi.pages.gitlab.gnome.org/gi-docgen/
+https://gnome.pages.gitlab.gnome.org/gi-docgen/
 
 AUTHOR
 ======

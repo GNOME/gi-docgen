@@ -12,8 +12,8 @@ description = "Documentation tool for GObject-based libraries"
 authors = ["Emmanuele Bassi <ebassi@gnome.org>"]
 license = "GPL-3.0-or-later AND Apache-2.0 AND CC0-1.0"
 readme = "README.md"
-homepage = "https://gitlab.gnome.org/ebassi/gi-docgen"
-documentation = "https://ebassi.gitlab.gnome.org/gi-docgen/"
+homepage = "https://gitlab.gnome.org/GNOME/gi-docgen"
+documentation = "https://gnome.pages.gitlab.gnome.org/gi-docgen/"
 keywords = ["documentation","introspection","gobject","gtk"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -31,7 +31,7 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://gitlab.gnome.org/ebassi/gi-docgen/issues"
+"Bug Tracker" = "https://gitlab.gnome.org/GNOME/gi-docgen/issues"
 
 [tool.poetry.dependencies]
 python = "^3.6"
