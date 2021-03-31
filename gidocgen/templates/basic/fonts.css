@@ -106,8 +106,8 @@
 @font-face {
   font-family: "RedHatTextWeb";
   src: local('RedHatTextWeb'),
-       url("RedHatText-RegularItalic.woff2") format("woff2"),
-       url("RedHatText-RegularItalic.woff") format("woff");
+       url("RedHatText-Italic.woff2") format("woff2"),
+       url("RedHatText-Italic.woff") format("woff");
   font-style: italic;
   font-weight: 400;
   font-display: fallback;
