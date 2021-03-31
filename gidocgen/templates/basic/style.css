@@ -345,7 +345,7 @@ footer {
 }
 
 #btn-to-top > .up-arrow:after {
-  content: "🡅"
+  content: url(go-up-symbolic.png);
 }
 
 /*********************************

@@ -7,6 +7,10 @@ Files: gi-docgen.pc.in
 Copyright: 2021  GNOME Foundation
 License: CC0-1.0
 
+Files: gidocgen/templates/basic/*.png
+Copyright: 2021  GNOME Foundation
+License: CC0-1.0
+
 Files: gidocgen/templates/basic/*.woff
 Copyright: 2019  Red Hat Inc.
 License: OFL-1.1
