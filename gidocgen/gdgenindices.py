@@ -169,7 +169,7 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [method.identifier], ctor_idx)
+            add_index_terms(index_terms, [method.identifier], method_idx)
             add_index_terms(index_terms, utils.index_symbol(method.name, stemmer), method_idx)
             add_index_terms(index_terms, utils.index_description(method_desc, stemmer), method_idx)
 
