@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2014 John Hawthorn
+//
+// SPDX-License-Identifier: MIT
 /* The MIT License (MIT)
  *
  * Copyright (c) 2014 John Hawthorn
