@@ -36,6 +36,7 @@ style = "style.css"
 [extra_files]
 files = [
   "main.js",
+  "fzy.js",
   "search.js",
   "stemmer.js",
   "pygment.css",
