@@ -66,7 +66,7 @@ function onDidLoadSearchIndex(data) {
 function onDidSearch() {
     const query = refs.input.value
     if (query)
-        search(refs.input.value)
+        search(query)
     else
         hideSearchResults()
 }
@@ -123,40 +123,38 @@ function hideSearchResults() {
     removeClass(refs.main, "hidden");
 }
 
-function renderResults(results) {
-    if (results.length === 0)
-        return "No results found.";
+function renderResults(query, results) {
+    let html = "";
 
-    let output = "";
+    html += "<h1>Results for &quot;" + query + "&quot; (" + results.length + ")</h1>" +
+                "<div id=\"search-results\">"
 
-    output += "<table class=\"results\">" +
-                "<tr><th>Name</th><th>Description</th></tr>";
+    if (results.length === 0) {
+        html += "No results found.";
+    }
+    else {
+        html += "<table class=\"results\">" +
+                  "<tr><th>Name</th><th>Description</th></tr>";
+        results.forEach(function(item) {
+            html += "<tr>" +
+                        "<td class=\"result " + item.type + "\">" +
+                        "<a href=\"" + item.href + "\"><code>" + item.text + "</code></a>" +
+                        "</td>" +
+                        "<td>" + item.summary + "</td>" +
+                    "</tr>";
+        });
+        html += "</table>";
+    }
 
-    results.forEach(function(item) {
-        output += "<tr>" +
-                    "<td class=\"result " + item.type + "\">" +
-                      "<a href=\"" + item.href + "\"><code>" + item.text + "</code></a>" +
-                    "</td>" +
-                    "<td>" + item.summary + "</td>" +
-                  "</tr>";
-    });
+    html += "</div>";
 
-    output += "</table>";
-
-    return output;
+    return html;
 }
 
 function showResults(query, results) {
     window.title = "Results for: " + query;
     window.scroll({ top: 0 })
-
-    const output =
-        "<h1>Results for &quot;" + query + "&quot; (" + results.length + ")</h1>" +
-        "<div id=\"search-results\">" +
-            renderResults(results) +
-        "</div>";
-
-    refs.search.innerHTML = output;
+    refs.search.innerHTML = renderResults(query, results);
     showSearchResults(search);
 }
 
@@ -168,15 +166,11 @@ function SearchIndex(searchIndex) {
     this.meta = searchIndex.meta;
 }
 SearchIndex.prototype.searchDocs = function searchDocs(term, type) {
-    const filteredSymbols = type ? this.symbols.filter(s => s.type === type) : this.symbols;
+    const filteredSymbols = !type ?
+        this.symbols :
+        this.symbols.filter(s => s.type === type);
     const results = fzy.filter(term, filteredSymbols, doc => getTextForDocument(doc, this.meta))
     return results.map(i => i.item)
-}
-SearchIndex.prototype.getDocumentFromId = function getDocumentFromId(id) {
-    if (typeof id === "number") {
-        return this.searchIndex.symbols[id];
-    }
-    return null;
 }
 
 
