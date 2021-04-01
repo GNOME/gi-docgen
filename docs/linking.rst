@@ -11,13 +11,13 @@ by using a qualifier fragment and the symbol name.
 
 For instance:
 
-::
+.. code-block:: c
 
-    /**
-     * ExampleFoo:
-     *
-     * This structure is related to [struct@Bar].
-     */
+   /**
+    * ExampleFoo:
+    *
+    * This structure is related to [struct@Bar].
+    */
 
     /**
      * example_foo_set_bar:
@@ -30,6 +30,7 @@ For instance:
      *
      * Sets an instance of [`Bar`](struct.Bar.html) on `Foo`.
      */
+
 
 will all link to ``Bar``.
 
@@ -153,7 +154,7 @@ with gi-docgen-generated documentation, as long as you provide it with
 a mapping from the namespace names to a base url for the docs. This is
 done by defining a JavaScript map called ``baseURLs`` like this:
 
-::
+.. code-block:: js
 
     baseURLs = [
       [ 'Pango', 'https://gnome.pages.gitlab.gnome.org/pango/Pango/' ],
