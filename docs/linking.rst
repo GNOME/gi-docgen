@@ -11,13 +11,13 @@ by using a qualifier fragment and the symbol name.
 
 For instance:
 
-::
+.. code-block:: c
 
-    /**
-     * ExampleFoo:
-     *
-     * This structure is related to [struct@Bar].
-     */
+   /**
+    * ExampleFoo:
+    *
+    * This structure is related to [struct@Bar].
+    */
 
     /**
      * example_foo_set_bar:
@@ -30,6 +30,7 @@ For instance:
      *
      * Sets an instance of [`Bar`](struct.Bar.html) on `Foo`.
      */
+
 
 will all link to ``Bar``.
 
@@ -45,39 +46,55 @@ namespace:
 
 The available qualifier fragments are:
 
-+------------+-----------------------------+---------------------------------------------+
-| Fragment   | Description                 | Example                                     |
-+============+=============================+=============================================+
-| `alias`    | An alias to another type    | ``[alias@Allocation]``                      |
-+------------+-----------------------------+---------------------------------------------+
-| `class`    | A ``GObject`` class         | ``[class@Widget]``, ``[class@Gdk.Surface]`` |
-+------------+-----------------------------+---------------------------------------------+
-| `const`    | A constant symbol           | ``[const@Gdk.KEY_q]``                       |
-+------------+-----------------------------+---------------------------------------------+
-| `ctor`     | A constructor function      | ``[ctor@Gtk.Box.new]``                      |
-+------------+-----------------------------+---------------------------------------------+
-| `enum`     | An enumeration              | ``[enum@Orientation]``                      |
-+------------+-----------------------------+---------------------------------------------+
-| `error`    | A ``GError`` domain         | ``[error@Gtk.BuilderParseError]``           |
-+------------+-----------------------------+---------------------------------------------+
-| `flags`    | A bitfield                  | ``[flags@Gdk.ModifierType]``                |
-+------------+-----------------------------+---------------------------------------------+
-| `func`     | A global or type function   | ``[func@Gtk.init]``, ``[func@show_uri]``,   |
-|            |                             | ``[func@Gtk.Window.list_toplevels]``        |
-+------------+-----------------------------+---------------------------------------------+
-| `iface`    | A ``GTypeInterface``        | ``[iface@Gtk.Buildable]``                   |
-+------------+-----------------------------+---------------------------------------------+
-| `method`   | An instance or class method | ``[method@Gtk.Widget.show]``,               |
-|            |                             | ``[method@WidgetClass.add_binding]``        |
-+------------+-----------------------------+---------------------------------------------+
-| `property` | A ``GObject`` property      | ``[property@Gtk.Orientable:orientation]``   |
-+------------+-----------------------------+---------------------------------------------+
-| `signal`   | A ``GObject`` signal        | ``[signal@Gtk.RecentManager::changed]``     |
-+------------+-----------------------------+---------------------------------------------+
-| `struct`   | A C structure or union      | ``[struct@Gtk.TextIter]``                   |
-+------------+-----------------------------+---------------------------------------------+
-| `vfunc`    | A virtual function          | ``[vfunc@Gtk.Widget.measure]``              |
-+------------+-----------------------------+---------------------------------------------+
+.. list-table::
+   :widths: 15 35 50
+   :header-rows: 1
+
+   * - Fragment
+     - Description
+     - Example
+   * - ``alias``
+     - An alias to another type
+     - ``[alias@Allocation]``
+   * - ``class``
+     - An object class
+     - ``[class@Widget]``, ``[class@Gdk.Surface]``, ``[class@Gsk.RenderNode]``
+   * - ``const``
+     - A constant or pre-processor symbol
+     - ``[const@Gdk.KEY_q]``
+   * - ``ctor``
+     - A constructor function
+     - ``[ctor@Gtk.Box.new]``, ``[ctor@Button.new_with_label]``
+   * - ``enum``
+     - A plain enumeration
+     - ``[enum@Orientation]``
+   * - ``error``
+     - A ``GError`` domain enumeration
+     - ``[error@Gtk.BuilderParseError]``
+   * - ``flags``
+     - A bitfield
+     - ``[flags@Gdk.ModifierType]``
+   * - ``func``
+     - A global or a type function
+     - ``[func@Gtk.init]``, ``[func@show_uri]``, ``[func@Gtk.Window.list_toplevels]``
+   * - ``iface``
+     - A ``GTypeInterface``
+     - ``[iface@Gtk.Buildable]``
+   * - ``method``
+     - An instance or class method
+     - ``[method@Gtk.Widget.show]``, ``[method@WidgetClass.add_binding]``
+   * - ``property``
+     - A ``GObject`` property
+     - ``[property@Gtk.Orientable:orientation]``
+   * - ``signal``
+     - A ``GObject`` signal
+     - ``[signal@Gtk.RecentManager::changed]``
+   * - ``struct``
+     - A plain C structure or union
+     - ``[struct@Gtk.TextIter]``
+   * - ``vfunc``
+     - A virtual function in a class or interface
+     - ``[vfunc@Gtk.Widget.measure]``
 
 Additionally, the ``id`` fragment, followed by a C symbol identifier, will try to link to the function; for instance:
 
@@ -137,7 +154,7 @@ with gi-docgen-generated documentation, as long as you provide it with
 a mapping from the namespace names to a base url for the docs. This is
 done by defining a JavaScript map called ``baseURLs`` like this:
 
-::
+.. code-block:: js
 
     baseURLs = [
       [ 'Pango', 'https://gnome.pages.gitlab.gnome.org/pango/Pango/' ],
