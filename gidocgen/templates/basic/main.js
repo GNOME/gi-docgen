@@ -10,109 +10,9 @@ window.addEventListener("hashchange", onDidHashChange);
 window.addEventListener("load", onDidLoad, false);
 
 function onDidLoad() {
-    const btnToTop = document.getElementById("btn-to-top");
-
-    function labelForToggleButton(isCollapsed) {
-        return isCollapsed ? "+" : "\u2212";
-    }
-
-    function createToggle(isCollapsed) {
-        var toggle = document.createElement("a");
-        toggle.href = "javascript:void(0)";
-        toggle.className = "collapse-toggle";
-        toggle.innerHTML = "[<span class=\"inner\">"
-                         + labelForToggleButton(isCollapsed)
-                         + "</span>]";
-
-        return toggle;
-    }
-
-    function toggleClicked() {
-        if (hasClass(this, "collapsed")) {
-            removeClass(this, "collapsed");
-            this.innerHTML = "[<span class=\"inner\">"
-                           + labelForToggleButton(false)
-                           + "</span>]";
-            onEachLazy(this.parentNode.getElementsByClassName("docblock"), function(e) {
-                removeClass(e, "hidden");
-            });
-        } else {
-            addClass(this, "collapsed");
-            this.innerHTML = "[<span class=\"inner\">"
-                           + labelForToggleButton(true)
-                           + "</span>]";
-            onEachLazy(this.parentNode.getElementsByClassName("docblock"), function(e) {
-                addClass(e, "hidden");
-            });
-        }
-    }
-
-    onEachLazy(document.getElementsByClassName("toggle-wrapper"), function(e) {
-        const sectionHeader = e.querySelector(".section-header");
-        const fragmentMatches = sectionHeader !== null && location.hash === "#" + sectionHeader.getAttribute('id');
-        const collapsedByDefault = hasClass(e, "default-hide") && !fragmentMatches;
-        const toggle = createToggle(collapsedByDefault);
-        toggle.onclick = toggleClicked;
-        e.insertBefore(toggle, e.firstChild);
-        if (collapsedByDefault) {
-            addClass(toggle, "collapsed");
-            onEachLazy(e.getElementsByClassName("docblock"), function(d) {
-                addClass(d, "hidden");
-            });
-        }
-    });
-
-    function scrollBackTop(e) {
-        e.preventDefault();
-        window.scroll({
-            top: 0,
-            behavior: 'smooth',
-        });
-    }
-
-    function toggleScrollButton() {
-        if (window.scrollY < 400) {
-            addClass(btnToTop, "hidden");
-        } else {
-            removeClass(btnToTop, "hidden");
-        }
-    }
-
-    function resolveNamespaceLink(namespace) {
-        return urlMap.get(namespace);
-    }
-
-    window.addEventListener('scroll', toggleScrollButton);
-    btnToTop.addEventListener('click', scrollBackTop);
-
-    onEachLazy(document.getElementsByClassName("external"), function(e) {
-        if (e.tagName == "A" && e.dataset.hasOwnProperty('namespace')) {
-            var data_namespace = e.dataset.namespace
-            var data_link = e.dataset.link
-            var base_url = resolveNamespaceLink(data_namespace)
-            if (base_url !== undefined) {
-                e.href = base_url + data_link;
-            } else {
-                e.title = "No reference to the " + data_namespace + " namespace";
-            }
-        }
-    });
-
-    if (navigator.clipboard) {
-        onEachLazy(document.getElementsByClassName("codehilite"), function(e) {
-            var button = document.createElement("button");
-            button.className = "copy-button";
-            button.innerText = "Copy";
-            button.title = "Copy code to clipboard";
-
-            var text = e.innerText;
-            button.addEventListener("click", () => {
-                navigator.clipboard.writeText(text);
-            });
-
-            e.appendChild(button);
-        });
-    }
+    attachScrollHandlers()
+    attachToggleHandlers()
+    attachCopyHandlers()
 
     if (window.onInitSearch) {
         window.onInitSearch()
@@ -135,62 +35,129 @@ function onDidHashChange() {
     }
 }
 
+
+function attachScrollHandlers() {
+    const btnToTop = document.getElementById("btn-to-top");
+
+    btnToTop.addEventListener('click', onClick);
+    window.addEventListener('scroll', onScroll);
+
+    function onClick(e) {
+        e.preventDefault();
+        window.scroll({ top: 0, behavior: 'smooth' });
+    }
+
+    function onScroll() {
+        if (window.scrollY < 400) {
+            addClass(btnToTop, "hidden");
+        } else {
+            removeClass(btnToTop, "hidden");
+        }
+    }
+}
+
+function attachToggleHandlers() {
+    function label(isCollapsed) {
+        return (
+            "[<span class=\"inner\">" +
+                (isCollapsed ? "+" : "\u2212") +
+            "</span>]"
+        )
+    }
+
+    function createToggle(isCollapsed) {
+        const toggle = document.createElement("a");
+        toggle.href = "javascript:void(0)";
+        toggle.className = "collapse-toggle";
+        toggle.innerHTML = label(isCollapsed);
+        toggle.addEventListener('click', onClickToggle);
+        return toggle;
+    }
+
+    function onClickToggle() {
+        if (hasClass(this, "collapsed")) {
+            removeClass(this, "collapsed");
+            this.innerHTML = label(false);
+            forEach(this.parentNode.querySelectorAll(".docblock"), function(e) {
+                removeClass(e, "hidden");
+            });
+        } else {
+            addClass(this, "collapsed");
+            this.innerHTML = label(true);
+            forEach(this.parentNode.querySelectorAll(".docblock"), function(e) {
+                addClass(e, "hidden");
+            });
+        }
+    }
+
+    forEach(document.querySelectorAll(".toggle-wrapper"), function(e) {
+        const sectionHeader = e.querySelector(".section-header");
+        const fragmentMatches = sectionHeader !== null && location.hash === "#" + sectionHeader.getAttribute('id');
+        const collapsedByDefault = hasClass(e, "default-hide") && !fragmentMatches;
+        const toggle = createToggle(collapsedByDefault);
+        e.insertBefore(toggle, e.firstChild);
+        if (collapsedByDefault) {
+            addClass(toggle, "collapsed");
+            forEach(e.querySelectorAll(".docblock"), function(d) {
+                addClass(d, "hidden");
+            });
+        }
+    });
+
+    function resolveNamespaceLink(namespace) {
+        return urlMap.get(namespace);
+    }
+
+    forEach(document.querySelectorAll(".external"), function(e) {
+        if (e.tagName == "A" && e.dataset.hasOwnProperty('namespace')) {
+            var data_namespace = e.dataset.namespace
+            var data_link = e.dataset.link
+            var base_url = resolveNamespaceLink(data_namespace)
+            if (base_url !== undefined) {
+                e.href = base_url + data_link;
+            } else {
+                e.title = "No reference to the " + data_namespace + " namespace";
+            }
+        }
+    })
+}
+
+function attachCopyHandlers() {
+    if (!navigator.clipboard)
+        return;
+
+    forEach(document.querySelectorAll(".codehilite"), function(e) {
+        const button = document.createElement("button");
+        button.className = "copy-button";
+        button.innerText = "Copy";
+        button.title = "Copy code to clipboard";
+
+        const text = e.innerText;
+        button.addEventListener("click", () => {
+            navigator.clipboard.writeText(text);
+        });
+
+        e.appendChild(button);
+    })
+}
+
+
 // Helpers
 
-// eslint-disable-next-line no-unused-vars
 function hasClass(elem, className) {
     return elem && elem.classList && elem.classList.contains(className);
 }
 
-// eslint-disable-next-line no-unused-vars
 function addClass(elem, className) {
-    if (!elem || !elem.classList) {
-        return;
-    }
-    elem.classList.add(className);
+    return elem && elem.classList && elem.classList.add(className);
 }
 
-// eslint-disable-next-line no-unused-vars
 function removeClass(elem, className) {
-    if (!elem || !elem.classList) {
-        return;
+    return elem && elem.classList && elem.classList.remove(className);
+}
+
+function forEach(arr, func) {
+    for (let i = 0; i < arr.length; ++i) {
+        func(arr[i])
     }
-    elem.classList.remove(className);
-}
-
-function insertAfter(newNode, referenceNode) {
-    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-}
-
-function onEach(arr, func, reversed) {
-    if (arr && arr.length > 0 && func) {
-        var length = arr.length;
-        var i;
-        if (reversed !== true) {
-            for (i = 0; i < length; ++i) {
-                if (func(arr[i]) === true) {
-                    return true;
-                }
-            }
-        } else {
-            for (i = length - 1; i >= 0; --i) {
-                if (func(arr[i]) === true) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-function onEachLazy(lazyArray, func, reversed) {
-    return onEach(
-        Array.prototype.slice.call(lazyArray),
-        func,
-        reversed);
-}
-
-// eslint-disable-next-line no-unused-vars
-function hasOwnProperty(obj, property) {
-    return Object.prototype.hasOwnProperty.call(obj, property);
 }
