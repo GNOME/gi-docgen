@@ -29,8 +29,15 @@ const QUERY_PATTERN = new RegExp("^(" + QUERY_TYPES.join('|') + ")\\s*:\\s*", 'i
 
 const fzy = window.fzy;
 const searchParams = getSearchParams();
+const refs = {
+    input: null,
+    form: null,
+    search: null,
+    main: null,
+};
 
 let searchIndex = undefined;
+let searchResults = [];
 
 // Exports
 window.onInitSearch = onInitSearch;
@@ -42,107 +49,114 @@ function onInitSearch() {
 }
 
 function onDidLoadSearchIndex(data) {
-    const searchInput = getSearchInput();
-    const searchIndex = new SearchIndex(data)
+    searchIndex = new SearchIndex(data)
 
-    if (searchInput.value === "") {
-        searchInput.value === searchParams.q || "";
-    }
+    refs.input  = document.querySelector("#search-input")
+    refs.form   = document.querySelector("#search-form")
+    refs.search = document.querySelector("#search")
+    refs.main   = document.querySelector("#main")
 
-    function runQuery(query) {
-        const q = matchQuery(query);
-        const docs = searchIndex.searchDocs(q.term, q.type);
-
-        const results = docs.map(function(doc) {
-            return {
-                name: doc.name,
-                type: doc.type,
-                text: getTextForDocument(doc, searchIndex.meta),
-                href: getLinkForDocument(doc),
-                summary: doc.summary,
-            };
-        });
-
-        return results;
-    }
-
-    function search() {
-        const query = searchParams.q;
-        if (searchInput.value === "" && query) {
-            searchInput.value = query;
-        }
-        window.title = "Results for: " + query.user;
-        showResults(query, runQuery(query));
-    }
-
-    window.onpageshow = function() {
-        var query = getQuery(searchParams.q);
-        if (searchInput.value === "" && query) {
-            searchInput.value = query.user;
-        }
-        search();
-    };
+    attachInputHandlers()
 
     if (searchParams.q) {
-        search();
+        search(searchParams.q);
     }
-};
+}
 
+function onDidSearch() {
+    const query = refs.input.value
+    if (query)
+        search(refs.input.value)
+    else
+        hideSearchResults()
+}
+
+function onDidSubmit(ev) {
+    ev.preventDefault();
+    if (searchResults.length > 0) {
+        window.location.href = searchResults[0].href
+    }
+}
+
+function attachInputHandlers() {
+    if (refs.input.value === "") {
+        refs.input.value === searchParams.q || "";
+    }
+
+    refs.input.addEventListener('keydown', debounce(200, onDidSearch))
+    refs.form.addEventListener('submit', onDidSubmit)
+}
+
+/* Searching */
+
+function searchQuery(query) {
+    const q = matchQuery(query);
+    const docs = searchIndex.searchDocs(q.term, q.type);
+
+    const results = docs.map(function(doc) {
+        return {
+            name: doc.name,
+            type: doc.type,
+            text: getTextForDocument(doc, searchIndex.meta),
+            href: getLinkForDocument(doc),
+            summary: doc.summary,
+        };
+    });
+
+    return results;
+}
+
+function search(query) {
+    searchResults = searchQuery(query)
+    showResults(query, searchResults);
+}
 
 /* Rendering */
 
-function showSearchResults(search) {
-    if (search === null || typeof search === 'undefined') {
-        search = getSearchElement();
-    }
-
-    addClass(main, "hidden");
-    removeClass(search, "hidden");
-
+function showSearchResults() {
+    addClass(refs.main, "hidden");
+    removeClass(refs.search, "hidden");
 }
 
-function hideSearchResults(search) {
-    if (search === null || typeof search === 'undefined') {
-        search = getSearchElement();
-    }
-
-    addClass(search, "hidden");
-    removeClass(search, "hidden");
+function hideSearchResults() {
+    addClass(refs.search, "hidden");
+    removeClass(refs.main, "hidden");
 }
 
-function addResults(results) {
-    var output = "";
+function renderResults(results) {
+    if (results.length === 0)
+        return "No results found.";
 
-    if (results.length > 0) {
-        output += "<table class=\"results\">" +
-                    "<tr><th>Name</th><th>Description</th></tr>";
+    let output = "";
 
-        results.forEach(function(item) {
-            output += "<tr>" +
-                        "<td class=\"result " + item.type + "\">" +
-                        "<a href=\"" + item.href + "\"><code>" + item.text + "</code></a>" +
-                        "</td>" +
-                        "<td>" + item.summary + "</td>" +
-                        "</tr>";
-        });
+    output += "<table class=\"results\">" +
+                "<tr><th>Name</th><th>Description</th></tr>";
 
-        output += "</table>";
-    } else {
-        output = "No results found.";
-    }
+    results.forEach(function(item) {
+        output += "<tr>" +
+                    "<td class=\"result " + item.type + "\">" +
+                      "<a href=\"" + item.href + "\"><code>" + item.text + "</code></a>" +
+                    "</td>" +
+                    "<td>" + item.summary + "</td>" +
+                  "</tr>";
+    });
+
+    output += "</table>";
 
     return output;
 }
 
 function showResults(query, results) {
-    const search = getSearchElement();
+    window.title = "Results for: " + query;
+    window.scroll({ top: 0 })
+
     const output =
         "<h1>Results for &quot;" + query + "&quot; (" + results.length + ")</h1>" +
         "<div id=\"search-results\">" +
-            addResults(results) +
+            renderResults(results) +
         "</div>";
 
-    search.innerHTML = output;
+    refs.search.innerHTML = output;
     showSearchResults(search);
 }
 
@@ -250,14 +264,6 @@ function fetchJSON(url, callback) {
     request.send(null);
 }
 
-function getSearchElement() {
-    return document.getElementById("search");
-}
-
-function getSearchInput() {
-    return document.getElementsByClassName("search-input")[0];
-}
-
 function getSearchParams() {
     const params = {};
     window.location.search.substring(1).split('&')
@@ -283,6 +289,21 @@ function matchQuery(input) {
     term = term.replace(/\s+/g, '')
 
     return { type: type, term: term }
+}
+
+function debounce(delay, fn) {
+  let timeout
+  let savedArgs
+  return function() {
+    const self = this
+    savedArgs = Array.prototype.slice.call(arguments)
+    if (timeout)
+      clearTimeout(timeout)
+    timeout = setTimeout(function() {
+      fn.apply(self, savedArgs)
+      timeout = undefined
+    }, delay)
+  }
 }
 
 })()
