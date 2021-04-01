@@ -71,22 +71,22 @@ generating the API reference of a project.
 
 The following keys are used, if found:
 
-``templates_dir``
+``templates_dir`` = ``s``
   The directory that contains the templates to be used by gi-docgen. The
   default directory is inside the gi-docgen module directory. This key
   can be overridden by the ``--templates-dir`` command line argument.
 
-``name``
+``name`` = ``s``
   The name of the template to use. The name is a sub-directory of the
   ``template_dir`` directory, and will be used to load the template's
   configuration file. This key can be overridden by the ``--theme-name``
   command line argument.
 
-``show_index_summary``
+``show_index_summary`` = ``b``
   A boolean value that controls whether to show the summary of each
   symbol in the namespace index.
 
-``show_class_hierarchy``
+``show_class_hierarchy`` = ``b``
   A boolean value that controls whether to generate a class graph
   with the ancestors of a type, as well as the implemented interfaces.
   Requires the ``dot`` utility from `GraphViz <https://graphviz.org/>`__
@@ -102,10 +102,10 @@ stanzas.
 
 The following keys are used, if found:
 
-``base_url``
+``base_url`` = ``s``
   The base URL for accessing a file in the source code repository.
 
-``file_format``
+``file_format`` = ``s``
   The format string used to point to a file, and a line in that file;
   the string can contain the token ``{filename}``, which will be replaced
   with the basename of the file; and the token ``{line}``, which will be
@@ -120,7 +120,7 @@ generating the API reference of a project.
 
 The following keys are used, if found:
 
-``content_files``
+``content_files`` = ``list(s)``
   A list of tuples. The first element of the tuple is a Markdown
   file name, relative to the directory specified by the ``--content-dir``
   command line argument; the second element of the tuple is the
@@ -131,12 +131,12 @@ The following keys are used, if found:
   generated HTML files will be placed in the root directory of
   the namespace.
 
-``content_images``
+``content_images`` = ``list(s)``
   A list of files, relative to the directory specified by the
   ``--content-dir`` command line argument. The files will be copied
   in the root directory of the namespace.
 
-``urlmap_file``
+``urlmap_file`` = ``s``
   Path of a JavaScript file that defines the mapping from namespaces
   to url prefixes for resolving links to external symbols, as a
   JavaScript map with the name `baseURLs`:
