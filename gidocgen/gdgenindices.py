@@ -248,7 +248,7 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 if cls_method.doc is not None:
                     cls_method_desc = cls_method.doc.content
                 else:
-                    MISSING_DESCRIPTION
+                    cls_method_desc = MISSING_DESCRIPTION
                 index_symbols.append({
                     "type": "class_method",
                     "name": cls_method.name,
