@@ -746,6 +746,11 @@ def gen_indices(config, repository, content_dir, output_dir):
         log.debug(f"Generating symbols for section {section}")
         generator(config, stemmer, index, repository, s)
 
+    # Ensure iteration order is reproducible by sorting symbols by type/name,
+    # and terms by key. This has no overhead since values are not copied.
+    index["symbols"].sort(key=lambda s: (s["type"], s["name"]))
+    index["terms"] = dict(sorted(index["terms"].items()))
+
     data = json.dumps(index, separators=(',', ':'))
     index_file = os.path.join(output_dir, "index.json")
     log.info(f"Creating index file for {namespace.name}-{namespace.version}: {index_file}")
