@@ -27,16 +27,16 @@ STRING_TYPES = {
 }
 
 ARG_TRANSFER_MODES = {
-    'none': 'Ownership is not transferred to the callee',
-    'container': 'Ownership of the container type is transferred to the callee',
-    'full': 'Ownership of the data is transferred to the callee',
+    'none': 'The data is owned by the caller of the function',
+    'container': 'The called function takes ownership of the data container, but not the data inside it',
+    'full': 'The called function takes ownership of the data, and is responsible for freeing it',
 }
 
 RETVAL_TRANSFER_MODES = {
-    'none': 'Ownership is not transferred to the caller',
-    'container': 'Ownership of the container type is transferred to the caller',
-    'full': 'Ownership of the data is transferred to the caller',
-    'floating': 'The returned object has a floating reference',
+    'none': 'The data is owned by the called function',
+    'container': 'The caller of the function takes ownership of the data container, but not the data inside it',
+    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it',
+    'floating': 'The returned data has a floating reference',
 }
 
 DIRECTION_MODES = {
