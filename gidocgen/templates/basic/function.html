@@ -132,7 +132,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
           {% if arg.is_array and arg.zero_terminated %}<tr><td>&nbsp;</td><td>The array must be <code>NULL</code> terminated</td></tr>{% endif %}
           {% if arg.is_array and arg.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array must have {{ arg.fixed_size }} elements</td></tr>{% endif %}
           {% if arg.is_array and arg.len_arg %}<tr><td>&nbsp;</td><td>The length of the array is in the <code>{{ arg.len_arg }}</code> argument</td></tr>{% endif %}
-          {% if arg.is_pointer %}<tr><td>&nbsp;</td><td>{{ arg.transfer }}</td></tr>{% endif %}
+          {% if arg.is_pointer %}<tr><td>&nbsp;</td><td title="transfer: {{ arg.transfer }}">{{ arg.transfer_note }}</td></tr>{% endif %}
           {% if arg.string_note %}<tr><td>&nbsp;</td><td>{{ arg.string_note }}</td></tr>{% endif %}
           {% endfor %}
         </table>
@@ -166,7 +166,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
           {% if func.return_value.is_array and func.return_value.zero_terminated %}<tr><td>&nbsp;</td><td>The array must be <code>NULL</code> terminated</td></tr>{% endif %}
           {% if func.return_value.is_array and func.return_value.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array must have {{ func.return_value.fixed_size }} elements</td></tr>{% endif %}
           {% if func.return_value.is_array and func.return_value.len_arg %}<tr><td>&nbsp;</td><td>The length of the array is in the <code>{{ func.return_value.len_arg }}</code> argument</td></tr>{% endif %}
-          {% if func.return_value.is_pointer %}<tr><td>{{ func.return_value.transfer }}</td></tr>{% endif %}
+          {% if func.return_value.is_pointer %}<tr><td title="transfer: {{ func.return_value.transfer }}">{{ func.return_value.transfer_note }}</td></tr>{% endif %}
           {% if func.return_value.is_pointer and func.return_value.nullable %}<tr><td>Can be <code>NULL</code></td></tr>{% endif %}
           {% if func.return_value.string_note %}<tr><td>{{ func.return_value.string_note }}</td></tr>{% endif %}
         </table>
