@@ -444,7 +444,7 @@ def gen_tree(repository):
                 _print_class_methods(iface, sections, is_last_iface)
             if 'functions' in sections:
                 sections.remove('functions')
-                _print_class_functions(cls, sections, is_last_iface)
+                _print_class_functions(iface, sections, is_last_iface)
 
     title = str(log.color('Records', 36))
     log.log(f'    ├── {title}')

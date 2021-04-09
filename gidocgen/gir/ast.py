@@ -1094,11 +1094,11 @@ class Repository:
                 symbols[m.identifier] = record
         for union in self.namespace.get_unions():
             for m in union.constructors:
-                symbols[m.identifier] = record
+                symbols[m.identifier] = union
             for m in union.methods:
-                symbols[m.identifier] = record
+                symbols[m.identifier] = union
             for m in union.functions:
-                symbols[m.identifier] = record
+                symbols[m.identifier] = union
         self.namespace._symbols = symbols
 
     @property
