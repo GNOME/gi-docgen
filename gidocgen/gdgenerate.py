@@ -2618,6 +2618,10 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
             else:
                 template_symbols[section] = res
 
+    # The concurrent processing introduces non-determinism. Ensure iteration order is reproducible
+    # by sorting by key. This has virtually no overhead since the values are not copied.
+    template_symbols = dict(sorted(template_symbols.items()))
+
     ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
     ns_file = os.path.join(ns_dir, "index.html")
     log.info(f"Creating namespace index file for {namespace.name}-{namespace.version}: {ns_file}")
