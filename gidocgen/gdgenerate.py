@@ -2359,7 +2359,7 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
 def gen_devhelp(config, repository, namespace, symbols, content_files):
     book = etree.Element('book')
     book.set("xmlns", "http://www.devhelp.net/book")
-    book.set("title", f"{namespace.name} Reference Manual")
+    book.set("title", f"{namespace.name}-{namespace.version} Reference Manual")
     book.set("link", "index.html")
     book.set("author", f"{config.authors}")
     book.set("name", f"{namespace.name}")
