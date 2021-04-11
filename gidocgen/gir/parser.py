@@ -403,6 +403,7 @@ class GirParser:
 
         res = ast.Alias(name=name, namespace=ns.name, ctype=ctype, target=alias_type)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
 
         ns.add_alias(res)
@@ -422,6 +423,7 @@ class GirParser:
 
         res = ast.Callback(name=name, namespace=None, ctype=ctype, throws=throws)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         res.set_parameters(params)
         res.set_return_value(return_value)
         self._maybe_parse_docs(node, res)
@@ -442,6 +444,7 @@ class GirParser:
 
         res = ast.Callback(name=name, namespace=ns.name, ctype=ctype, throws=throws)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         res.set_parameters(params)
         res.set_return_value(return_value)
         self._maybe_parse_docs(node, res)
@@ -523,6 +526,7 @@ class GirParser:
 
         res = ast.Function(name=name, namespace=namespace, identifier=identifier, throws=throws)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         res.set_return_value(return_value)
         res.set_parameters(params)
         res.set_shadows(shadows)
@@ -553,6 +557,7 @@ class GirParser:
                                              closure=-1, destroy=-1,
                                              scope=None))
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
         ns.add_function_macro(res)
 
@@ -580,6 +585,7 @@ class GirParser:
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_shadows(shadows)
         res.set_shadowed_by(shadowed_by)
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
         return res
 
@@ -604,6 +610,7 @@ class GirParser:
         res.set_return_value(return_value)
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
         return res
 
@@ -655,6 +662,7 @@ class GirParser:
 
         res.set_members(members)
         res.set_functions(functions)
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
 
     def _parse_bitfield(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
@@ -683,6 +691,7 @@ class GirParser:
         res = ast.BitField(name=name, namespace=ns.name, ctype=ctype, gtype=gtype)
         res.set_members(members)
         res.set_functions(functions)
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
         ns.add_bitfield(res)
 
@@ -700,6 +709,7 @@ class GirParser:
                            writable=writable, readable=readable,
                            construct=construct, construct_only=construct_only)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
         return res
 
@@ -724,6 +734,7 @@ class GirParser:
         res = ast.Signal(name=name, when=when, detailed=detailed, action=action, no_hooks=no_hooks, no_recurse=no_recurse)
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
         if return_value is not None:
             res.set_return_value(return_value)
@@ -747,6 +758,7 @@ class GirParser:
 
         res = ast.Field(name=name, writable=writable, readable=readable, private=private, bits=bits, target=ctype)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
         return res
 
@@ -819,6 +831,7 @@ class GirParser:
                         abstract=abstract, fundamental=fundamental,
                         ref_func=ref_func, unref_func=unref_func)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         res.set_fields(fields)
         res.set_implements(ifaces)
         res.set_constructors(ctors)
@@ -886,6 +899,7 @@ class GirParser:
         res.set_methods(methods)
         res.set_functions(functions)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
         ns.add_interface(res)
 
@@ -906,6 +920,7 @@ class GirParser:
 
         res = ast.Boxed(name=name, namespace=ns.name, symbol_prefix=symbol_prefix, gtype=gtype)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         res.set_functions(functions)
         self._maybe_parse_docs(node, res)
         ns.add_boxed(res)
@@ -947,9 +962,10 @@ class GirParser:
         res = ast.Record(name=name, namespace=ns.name, symbol_prefix=symbol_prefix,
                          ctype=ctype, gtype=gtype,
                          struct_for=gtype_struct_for, disguised=disguised)
+        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         res.set_fields(fields)
         res.set_constructors(ctors)
-        res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_methods(methods)
         res.set_functions(functions)
         self._maybe_parse_docs(node, res)
@@ -989,6 +1005,7 @@ class GirParser:
 
         res = ast.Union(name=name, namespace=ns.name, symbol_prefix=symbol_prefix, ctype=ctype, gtype=gtype)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
+        res.set_version(node.attrib.get('version'))
         res.set_fields(fields)
         res.set_constructors(ctors)
         res.set_methods(methods)
