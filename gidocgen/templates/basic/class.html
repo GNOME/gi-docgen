@@ -102,8 +102,8 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
         Hierarchy
         <a href="#hierarchy" class="anchor"></a>
       </h4>
-      <div class="docblock">
-        <img src="hierarchy.{{ class.name }}.svg" alt="Hierarchy for {{ class.fqtn }}"/>
+      <div class="docblock" alt="Hierarchy for {{ class.fqtn }}">
+        {{ class.hierarchy_svg|safe }}
       </div>
     </div>
     {% endif %}

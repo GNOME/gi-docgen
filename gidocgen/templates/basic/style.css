@@ -20,6 +20,7 @@
   --sidebar-primary: rgb(144, 194, 255);
   --sidebar-bg: #151515;
   --sidebar-selected-bg: var(--primary);
+  --sidebar-hover-bg: rgba(127, 127, 127, 0.2);
   --sidebar-text-color: #fafafa;
   --sidebar-padding: 1.5em;
 
@@ -264,10 +265,39 @@ strong, b {
 }
 
 /* fix alignment of images on small screen */
-img {
+img, svg {
     display: block;
     max-width: 100%;
     height: auto;
+}
+
+svg .node polygon, svg .node path {
+  transition: fill 150ms ease;
+  fill: var(--box-bg);
+  stroke: none;
+}
+
+svg .node a {
+  text-decoration: none !important;
+}
+
+svg .node a text {
+  fill: var(--text-color);
+  font-family: var(--body-font-family);
+}
+
+svg .node.link text {
+  fill: var(--primary);
+}
+
+svg .node.link:hover polygon, svg .node.link:hover path {
+  fill: var(--sidebar-hover-bg);
+}
+svg .node.link:hover text {
+  fill: var(--box-text-color);
+}
+svg .edge path {
+  stroke: var(--text-color);
 }
 
 /* fix unwanted margins in tables, code, lists and blockquotes */
@@ -432,7 +462,7 @@ footer {
 }
 
 .sidebar .section a:hover {
-  background-color: rgba(127, 127, 127, 0.2);
+  background-color: var(--sidebar-hover-bg);
   color: var(--sidebar-text-color);
 }
 
@@ -758,7 +788,7 @@ table.results tr td code {
 }
 
 .docblock .codehilite > .copy-button:hover {
-  background-color: rgba(127, 127, 127, 0.2);
+  background-color: var(--sidebar-hover-bg);
   color: var(--text-color);
 }
 
