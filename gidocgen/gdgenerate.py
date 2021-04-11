@@ -217,6 +217,7 @@ class TemplateConstant:
             self.deprecated_since = None
 
         self.introspectable = const.introspectable
+        self.hierarchy_svg = None
 
     @property
     def c_decl(self):
@@ -1227,22 +1228,54 @@ class TemplateClass:
 
     @property
     def dot(self):
+
+        def fmt_attrs(attrs):
+            return ','.join(f'{k}="{v}"' for k, v in attrs.items())
+
+        def add_link(attrs, other):
+            if other['namespace'] == self.namespace:
+                attrs['href'] = f"class.{other['name']}.html"
+                attrs['class'] = 'link'
+            else:
+                attrs['tooltip'] = other['fqtn']
+
         ancestors = []
         implements = []
         res = ["graph hierarchy {"]
-        res.append("  size=\"6,6\";")
-        res.append(f"  this [label=\"{self.type_cname}\"];")
+        res.append("  bgcolor=\"transparent\";")
+        node_attrs = {
+            'shape': 'box',
+            'style': 'rounded',
+            'border': 0
+        }
+        this_attrs = {
+            'label': self.type_cname,
+            'tooltip': self.type_cname
+        }
+        this_attrs.update(node_attrs)
+        res.append(f"  this [{fmt_attrs(this_attrs)}];")
         for idx, ancestor in enumerate(self.ancestors):
             node_id = f"ancestor_{idx}"
-            res.append(f"  {node_id} [label=\"{ancestor['type_cname']}\"];")
+            ancestor_attrs = {
+                'label': ancestor['type_cname']
+            }
+            ancestor_attrs.update(node_attrs)
+            add_link(ancestor_attrs, ancestor)
+            res.append(f"  {node_id} [{fmt_attrs(ancestor_attrs)}];")
             ancestors.append(node_id)
         ancestors.reverse()
         for idx, iface in enumerate(getattr(self, "interfaces", [])):
             node_id = f"implements_{idx}"
-            res.append(f"  {node_id} [label=\"{iface['type_cname']}\" shape=box];")
+            iface_attrs = {
+                'label': iface['type_cname'],
+                'fontname': 'sans-serif',
+                'shape': 'box',
+            }
+            add_link(iface_attrs, iface)
+            res.append(f"  {node_id} [{fmt_attrs(iface_attrs)}];")
             implements.append(node_id)
         if len(ancestors) > 0:
-            res.append("  " + " -- ".join(ancestors) + " -- this [color=blue];")
+            res.append("  " + " -- ".join(ancestors) + " -- this;")
         for node in implements:
             res.append(f"  this -- {node} [style=dotted];")
         res.append("}")
@@ -1559,6 +1592,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
         tmpl = TemplateClass(namespace, cls)
         template_classes.append(tmpl)
 
+        if config.show_class_hierarchy and utils.find_program('dot') is not None:
+            tmpl.hierarchy_svg = utils.render_dot(tmpl.dot, output_format="svg")
+
         with open(class_file, "w") as out:
             content = class_tmpl.render({
                 'CONFIG': config,
@@ -1567,13 +1603,6 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             })
 
             out.write(content)
-
-        if config.show_class_hierarchy and utils.find_program('dot') is not None:
-            hierarchy_img = utils.render_dot(tmpl.dot, output_format="svg")
-            if hierarchy_img is not None:
-                hierarchy_file = os.path.join(output_dir, f"hierarchy.{cls.name}.svg")
-                with open(hierarchy_file, "w") as img_out:
-                    img_out.write(hierarchy_img)
 
         for ctor in cls.constructors:
             c = TemplateFunction(namespace, ctor)
