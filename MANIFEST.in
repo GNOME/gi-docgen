@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2021  GNOME Foundation
 # SPDX-License-Identifier: CC0-1.0
 
+include pyproject.toml
 include README.md meson.build gi-docgen.pc.in
 include gi-docgen.py
 include .flake8
