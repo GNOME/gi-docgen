@@ -40,10 +40,12 @@ configure_file(
   install_dir: get_option('datadir') / 'pkgconfig',
 )
 
-# Development tests should not be run when in a subproject
 if not meson.is_subproject()
   install_subdir('gidocgen', install_dir: py.get_install_dir())
+endif
 
+# Development tests should not be run when in a subproject
+if get_option('development_tests') and not meson.is_subproject()
   flake8 = find_program('flake8', required: false)
   if flake8.found()
     test('flake8',
