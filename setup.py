@@ -46,8 +46,9 @@ package_data = {
     'gidocgen': [
         "templates/basic/basic.toml",
         "templates/basic/*.css",
-        "templates/basic/*.js",
         "templates/basic/*.html",
+        "templates/basic/*.js",
+        "templates/basic/*.png",
         "templates/basic/*.woff2",
         "templates/basic/*.woff",
     ],
