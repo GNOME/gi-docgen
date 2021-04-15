@@ -1,0 +1,4 @@
+include README.md meson.build gi-docgen.pc.in
+include gi-docgen.py
+include .flake8
+recursive-include gidocgen/templates *
