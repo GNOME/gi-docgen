@@ -5,4 +5,16 @@ include pyproject.toml
 include README.md meson.build gi-docgen.pc.in
 include gi-docgen.py
 include .flake8
+include .green
+include .reuse/dep5
+include CONTRIBUTING.md
+include LICENSES/*.txt
+include code-of-conduct.md
+include docs/*.1
+include docs/*.css
+include docs/*.py
+include docs/Makefile
+include examples/*.js
+include examples/*.toml
+recursive-include docs *.rst
 recursive-include gidocgen/templates *
