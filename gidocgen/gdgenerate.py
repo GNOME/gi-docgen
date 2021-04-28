@@ -2317,10 +2317,10 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
         }
 
     # All GObject sub-types
-    objects_tree = subtree('Object', flat_tree)
+    objects_tree = subtree('GObject.Object', flat_tree)
 
     # All GInitiallyUnowned sub-types
-    unowned_tree = subtree('InitiallyUnowned', flat_tree)
+    unowned_tree = subtree('GObject.InitiallyUnowned', flat_tree)
 
     # All GTypeInstance sub-types
     typed_tree = subtree(None, flat_tree)
