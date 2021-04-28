@@ -1019,13 +1019,14 @@ class Repository:
 
     def resolve_class_ancestors(self) -> None:
         def find_parent_class(includes, ns, name):
-            for repo in includes.values():
-                if repo.namespace.name != ns:
-                    continue
-                parent = repo.namespace.find_class(name)
-                if parent is not None:
-                    return parent
-            return None
+            repository = includes.get(ns)
+            if repository is None:
+                return None
+            parent_class = repository.namespace.find_class(name)
+            # If the parent type is unqualified, then we qualify it here
+            if '.' not in parent_class.name:
+                parent_class.name = f"{repository.namespace.name}.{parent_class.name}"
+            return parent_class
 
         classes = self.namespace.get_classes()
         for cls in classes:
@@ -1037,17 +1038,23 @@ class Repository:
                 if '.' in parent.name:
                     ns, name = parent.name.split('.')
                     if ns == self.namespace.name:
-                        parent = self.namespace.find_class(name)
+                        real_parent = self.namespace.find_class(name)
                     else:
-                        parent = find_parent_class(self.includes, ns, name)
+                        real_parent = find_parent_class(self.includes, ns, name)
                 else:
-                    parent = self.namespace.find_class(parent.name)
-                if parent is not None:
-                    if parent.ctype is None:
-                        t = self.find_type(parent.name)
-                        parent.ctype = t.ctype
-                    ancestors.append(parent)
-                    parent = parent.parent
+                    real_parent = self.namespace.find_class(parent.name)
+                if real_parent is None:
+                    break
+                if real_parent.parent is not None and real_parent.parent.name == parent.name:
+                    log.warning(f"Found a loop in the ancestors for {cls}: {real_parent} matches {parent}")
+                    break
+                if real_parent.ctype is None:
+                    log.debug(f"Looking up C type for {parent.fqtn}")
+                    t = self.find_type(parent.name)
+                    real_parent.ctype = t.ctype
+                log.debug(f"Adding ancestor {real_parent} for {cls}")
+                ancestors.append(real_parent)
+                parent = real_parent.parent
             cls.ancestors = ancestors
             cls.parent = ancestors[0]
             log.debug(f"Ancestors for {cls}: parent: {cls.parent}, ancestors: {cls.ancestors}")
