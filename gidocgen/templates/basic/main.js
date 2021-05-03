@@ -8,6 +8,7 @@ const urlMap = new Map(typeof baseURLs !== 'undefined' ? baseURLs : []);
 
 window.addEventListener("hashchange", onDidHashChange);
 window.addEventListener("load", onDidLoad, false);
+window.addEventListener("keydown", onKeyDown);
 
 function onDidLoad() {
     attachScrollHandlers()
@@ -141,6 +142,14 @@ function attachCopyHandlers() {
     })
 }
 
+function onKeyDown(event) {
+    let search_input = document.querySelector("#search-input");
+
+    if (event.code === "KeyS" && document.activeElement !== search_input) {
+        event.preventDefault();
+        search_input.focus();
+    }
+}
 
 // Helpers
 
