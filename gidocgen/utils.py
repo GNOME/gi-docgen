@@ -794,7 +794,10 @@ def find_program(bin_name, path=None):
         search_paths.insert(0, '')
 
     for ext in bin_extensions:
-        executable = bin_name + ext
+        if bin_name == 'g-ir-scanner':
+            executable = bin_name
+        else:
+            executable = bin_name + ext
 
         for p in search_paths:
             full_path = os.path.join(p, executable)
@@ -818,9 +821,15 @@ def default_search_paths():
 
     paths = []
     paths.append(os.getcwd())
-    # Add sys.base_prefix when using MSYS2
-    if sys.platform == 'win32' and 'GCC' in sys.version:
-        paths.append(os.path.join(sys.base_prefix, 'share', 'gir-1.0'))
+    if sys.platform == 'win32':
+        # Use the prefix directory of g-ir-scanner on Windows
+        g_ir_scanner = find_program('g-ir-scanner')
+        if g_ir_scanner is not None:
+            g_ir_scanner_prefix = os.path.dirname(os.path.dirname(g_ir_scanner))
+            paths.append(os.path.join(g_ir_scanner_prefix, 'share', 'gir-1.0'))
+        # Add sys.base_prefix when using MSYS2
+        if 'GCC' in sys.version:
+            paths.append(os.path.join(sys.base_prefix, 'share', 'gir-1.0'))
     if xdg_data_home is not None:
         paths.append(os.path.join(xdg_data_home, "gir-1.0"))
     if xdg_data_dirs is not None:
