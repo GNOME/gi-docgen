@@ -480,7 +480,7 @@ def gen_tree(repository):
     title = str(log.color('Unions', 36))
     log.log(f'    ├── {title}')
 
-    if len(records) == 0:
+    if len(unions) == 0:
         log.log('    │   └── None')
     else:
         for i, union in enumerate(unions):
