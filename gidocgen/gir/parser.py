@@ -652,13 +652,11 @@ class GirParser:
             res: ast.ErrorDomain = ast.ErrorDomain(name=name, namespace=ns.name,
                                                    ctype=ctype, gtype=gtype,
                                                    domain=error_domain)
-            if ns is not None:
-                ns.add_error_domain(res)
+            ns.add_error_domain(res)
         else:
             res: ast.Enumeration = ast.Enumeration(name=name, namespace=ns.name,
                                                    ctype=ctype, gtype=gtype)
-            if ns is not None:
-                ns.add_enumeration(res)
+            ns.add_enumeration(res)
 
         res.set_members(members)
         res.set_functions(functions)
