@@ -37,7 +37,7 @@ style = "style.css"
 files = [
   "fonts.css",
   "fzy.js",
-  "go-up-symbolic.png"
+  "go-up-symbolic.png",
   "main.js",
   "pygment.css",
   "search.js",
