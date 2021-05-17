@@ -115,18 +115,18 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
             {%- endif -%}
             </td>
           </tr>
+          {% if arg.direction != "in" %}<tr><td>&nbsp;</td><td>Direction: {{ arg.direction }}</td>.</tr>{% endif %}
+          {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td>.</tr>{% endif %}
+          {% if arg.direction == "out" and arg.optional %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td>.</tr>{% endif %}
+          {% if arg.is_array and arg.zero_terminated %}<tr><td>&nbsp;</td><td>The array must be <code>NULL</code> terminated</td>.</tr>{% endif %}
+          {% if arg.is_array and arg.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array must have {{ arg.fixed_size }} elements</td>.</tr>{% endif %}
+          {% if arg.is_array and arg.len_arg %}<tr><td>&nbsp;</td><td>The length of the array is in the <code>{{ arg.len_arg }}</code> argument</td>.</tr>{% endif %}
+          {% if arg.is_pointer %}<tr><td>&nbsp;</td><td title="transfer: {{ arg.transfer }}">{{ arg.transfer_note }}</td></tr>{% endif %}
+          {% if arg.string_note %}<tr><td>&nbsp;</td><td>{{ arg.string_note }}</td></tr>{% endif %}
           <tr class="arg-description">
             <td>&nbsp;</td>
             <td>{{ arg.description|safe }}</td>
           </tr>
-          {% if arg.direction != "in" %}<tr><td>&nbsp;</td><td>Direction: {{ arg.direction }}</td></tr>{% endif %}
-          {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
-          {% if arg.direction == "out" and arg.optional %}<tr><td>&nbsp;</td><td>Can be <code>NULL</code></td></tr>{% endif %}
-          {% if arg.is_array and arg.zero_terminated %}<tr><td>&nbsp;</td><td>The array must be <code>NULL</code> terminated</td></tr>{% endif %}
-          {% if arg.is_array and arg.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array must have {{ arg.fixed_size }} elements</td></tr>{% endif %}
-          {% if arg.is_array and arg.len_arg %}<tr><td>&nbsp;</td><td>The length of the array is in the <code>{{ arg.len_arg }}</code> argument</td></tr>{% endif %}
-          {% if arg.is_pointer %}<tr><td>&nbsp;</td><td title="transfer: {{ arg.transfer }}">{{ arg.transfer_note }}</td></tr>{% endif %}
-          {% if arg.string_note %}<tr><td>&nbsp;</td><td>{{ arg.string_note }}</td></tr>{% endif %}
           {% endfor %}
         </table>
       </div>
