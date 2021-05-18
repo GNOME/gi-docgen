@@ -219,6 +219,17 @@ blockquote {
   margin: var(--box--margin);
 }
 
+span.sep::after {
+  content: "▸";
+}
+
+span.sep {
+  font-size: calc(0.5em * var(--monospace-font-size));
+  opacity: 0.55;
+  padding-left: .25em;
+  padding-right: .25em;
+}
+
 code,
 pre {
   font-family: var(--monospace-font-family);
