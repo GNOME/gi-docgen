@@ -17,8 +17,6 @@ ARG_SIGIL_RE = re.compile(r"(^|\W)@([A-Za-z0-9_]+)\b")
 
 CONST_SIGIL_RE = re.compile(r"(^|\W)%([A-Z0-9_]+)\b")
 
-FUNC_POSTFIX_RE = re.compile(r"([A-Za-z0-9_]+)\(\)")
-
 
 class GtkDocPreprocessor(Preprocessor):
     """Remove all gtk-doc sigils from the Markdown text"""
@@ -43,9 +41,6 @@ class GtkDocPreprocessor(Preprocessor):
 
             # Argument sygil
             new_line = re.sub(ARG_SIGIL_RE, r"\g<1>`\g<2>`", new_line)
-
-            # Function postfix
-            new_line = re.sub(FUNC_POSTFIX_RE, r"`\g<1>()`", new_line)
 
             new_lines.append(new_line)
         return new_lines
