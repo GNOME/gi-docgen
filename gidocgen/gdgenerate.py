@@ -22,21 +22,21 @@ HELP_MSG = "Generates the reference"
 MISSING_DESCRIPTION = "No description available."
 
 STRING_TYPES = {
-    'utf8': 'The string is a NUL terminated UTF-8 string',
-    'filename': 'The string is a file system path, using the OS encoding',
+    'utf8': 'The string is a NUL terminated UTF-8 string.',
+    'filename': 'The string is a file system path, using the OS encoding.',
 }
 
 ARG_TRANSFER_MODES = {
-    'none': 'The data is owned by the caller of the function',
-    'container': 'The called function takes ownership of the data container, but not the data inside it',
-    'full': 'The called function takes ownership of the data, and is responsible for freeing it',
+    'none': 'The data is owned by the caller of the function.',
+    'container': 'The called function takes ownership of the data container, but not the data inside it.',
+    'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
 }
 
 RETVAL_TRANSFER_MODES = {
     'none': 'The data is owned by the called function',
-    'container': 'The caller of the function takes ownership of the data container, but not the data inside it',
-    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it',
-    'floating': 'The returned data has a floating reference',
+    'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+    'floating': 'The returned data has a floating reference.',
 }
 
 DIRECTION_MODES = {
@@ -47,15 +47,15 @@ DIRECTION_MODES = {
 
 SCOPE_MODES = {
     'none': '-',
-    'call': 'Arguments are valid during the call',
-    'notified': 'Arguments are valid until the notify function is called',
-    'async': 'Arguments are valid until the call is completed',
+    'call': 'Arguments are valid during the call.',
+    'notified': 'Arguments are valid until the notify function is called.',
+    'async': 'Arguments are valid until the call is completed.',
 }
 
 SIGNAL_WHEN = {
-    'first': "The default handler is called before the handlers added via `g_signal_connect()`",
-    'last': "The default handler is called after the handlers added via `g_signal_connect()`",
-    'cleanup': "The default handler is called after the handlers added via `g_signal_connect_after()`",
+    'first': "The default handler is called before the handlers added via `g_signal_connect()`.",
+    'last': "The default handler is called after the handlers added via `g_signal_connect()`.",
+    'cleanup': "The default handler is called after the handlers added via `g_signal_connect_after()`.",
 }
 
 FRAGMENT = {
