@@ -348,6 +348,7 @@ class TemplateArgument:
         self.is_macro = isinstance(call, gir.FunctionMacro)
         self.transfer = ARG_TRANSFER_MODES[argument.transfer]
         self.direction = DIRECTION_MODES[argument.direction]
+        self.optional = argument.optional
         self.nullable = argument.nullable
         self.scope = SCOPE_MODES[argument.scope or 'none']
         self.introspectable = argument.introspectable
