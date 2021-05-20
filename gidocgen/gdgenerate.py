@@ -350,6 +350,7 @@ class TemplateArgument:
         self.transfer = argument.transfer or 'none'
         self.transfer_note = ARG_TRANSFER_MODES[argument.transfer or 'none']
         self.direction = DIRECTION_MODES[argument.direction]
+        self.optional = argument.optional
         self.nullable = argument.nullable
         self.scope = SCOPE_MODES[argument.scope or 'none']
         self.introspectable = argument.introspectable
