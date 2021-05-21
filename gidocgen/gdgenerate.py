@@ -40,9 +40,9 @@ RETVAL_TRANSFER_MODES = {
 }
 
 DIRECTION_MODES = {
-    'in': 'in',
-    'inout': 'in-out',
-    'out': 'out',
+    'in': '-',
+    'inout': 'The argument will be modified by the function.',
+    'out': 'The argument will be set by the function.',
 }
 
 SCOPE_MODES = {
@@ -349,7 +349,8 @@ class TemplateArgument:
         self.is_macro = isinstance(call, gir.FunctionMacro)
         self.transfer = argument.transfer or 'none'
         self.transfer_note = ARG_TRANSFER_MODES[argument.transfer or 'none']
-        self.direction = DIRECTION_MODES[argument.direction]
+        self.direction = argument.direction or 'in'
+        self.direction_note = DIRECTION_MODES[argument.direction]
         self.optional = argument.optional
         self.nullable = argument.nullable
         self.scope = SCOPE_MODES[argument.scope or 'none']
