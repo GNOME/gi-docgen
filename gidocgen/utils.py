@@ -579,11 +579,23 @@ class LinkGenerator:
 
 
 def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plain=False, max_length=10):
+    if plain:
+        text = text.replace('\n', ' ')
+        text = re.sub(r'<[^<]+?>', '', text)
+        if max_length > 0:
+            words = text.split(' ')
+            if len(words) > max_length:
+                words = words[:max_length - 1]
+                words.append('...')
+                text = ' '.join(words)
+        return text
+
     processed_text = []
 
     code_block_text = []
     code_block_language = None
     inside_code_block = False
+
     for line in text.split("\n"):
         # If we're in "summary" mode, we bail out at the first empty line
         # after a paragraph
@@ -641,16 +653,20 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plai
             else:
                 processed_text.append("".join(new_line))
 
-    if plain:
-        text = text.replace('\n', ' ')
-        text = re.sub(r'<[^<]+?>', '', text)
-        if max_length > 0:
-            words = text.split(' ')
-            if len(words) > max_length:
-                words = words[:max_length - 1]
-                words.append('...')
-                text = ' '.join(words)
-        return text
+    if len(processed_text) == 0:
+        return ''
+
+    # Capitalize the first character of the first line, but only if it does not
+    # start with a link or a gtk-doc marker, to avoid messing up the rest of
+    # the string
+    first_line = processed_text[0]
+    if first_line and first_line[0].isalpha():
+        processed_text[0] = ''.join([first_line[0:1].upper(), first_line[1:]])
+
+    # Append a period, if one isn't there already
+    last_line = processed_text[-1]
+    if last_line and last_line[-1] != '.':
+        processed_text[-1] = ''.join([last_line, '.'])
 
     if md is None:
         md_ext = extensions.copy()
