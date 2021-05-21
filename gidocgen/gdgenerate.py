@@ -32,8 +32,21 @@ ARG_TRANSFER_MODES = {
     'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
 }
 
+METHOD_ARG_TRANSFER_MODES = {
+    'none': 'The data is owned by the caller of the function.',
+    'container': 'The instance takes ownership of the data container, but not the data inside it.',
+    'full': 'The instance takes ownership of the data, and is responsible for freeing it.',
+}
+
 RETVAL_TRANSFER_MODES = {
-    'none': 'The data is owned by the called function',
+    'none': 'The data is owned by the called function.',
+    'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+    'floating': 'The returned data has a floating reference.',
+}
+
+METHOD_RETVAL_TRANSFER_MODES = {
+    'none': 'The data is owned by the instance.',
     'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
     'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
     'floating': 'The returned data has a floating reference.',
@@ -348,7 +361,10 @@ class TemplateArgument:
         self.is_varargs = isinstance(argument.target, gir.VarArgs)
         self.is_macro = isinstance(call, gir.FunctionMacro)
         self.transfer = argument.transfer or 'none'
-        self.transfer_note = ARG_TRANSFER_MODES[argument.transfer or 'none']
+        if isinstance(call, gir.Method):
+            self.transfer_note = METHOD_ARG_TRANSFER_MODES[argument.transfer or 'none']
+        else:
+            self.transfer_note = ARG_TRANSFER_MODES[argument.transfer or 'none']
         self.direction = argument.direction or 'in'
         self.direction_note = DIRECTION_MODES[argument.direction]
         self.optional = argument.optional
@@ -416,7 +432,10 @@ class TemplateReturnValue:
         self.is_array = isinstance(retval.target, gir.ArrayType)
         self.is_list = isinstance(retval.target, gir.ListType)
         self.transfer = retval.transfer or 'none'
-        self.transfer_note = RETVAL_TRANSFER_MODES[retval.transfer or 'none']
+        if isinstance(call, gir.Method):
+            self.transfer_note = METHOD_RETVAL_TRANSFER_MODES[retval.transfer or 'none']
+        else:
+            self.transfer_note = RETVAL_TRANSFER_MODES[retval.transfer or 'none']
         self.nullable = retval.nullable
         if self.is_array:
             self.value_type = retval.target.value_type.name
