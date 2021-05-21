@@ -22,40 +22,53 @@ HELP_MSG = "Generates the reference"
 MISSING_DESCRIPTION = "No description available."
 
 STRING_TYPES = {
-    'utf8': 'The string is a NUL terminated UTF-8 string',
-    'filename': 'The string is a file system path, using the OS encoding',
+    'utf8': 'The string is a NUL terminated UTF-8 string.',
+    'filename': 'The string is a file system path, using the OS encoding.',
 }
 
 ARG_TRANSFER_MODES = {
-    'none': 'The data is owned by the caller of the function',
-    'container': 'The called function takes ownership of the data container, but not the data inside it',
-    'full': 'The called function takes ownership of the data, and is responsible for freeing it',
+    'none': 'The data is owned by the caller of the function.',
+    'container': 'The called function takes ownership of the data container, but not the data inside it.',
+    'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
+}
+
+METHOD_ARG_TRANSFER_MODES = {
+    'none': 'The data is owned by the caller of the function.',
+    'container': 'The instance takes ownership of the data container, but not the data inside it.',
+    'full': 'The instance takes ownership of the data, and is responsible for freeing it.',
 }
 
 RETVAL_TRANSFER_MODES = {
-    'none': 'The data is owned by the called function',
-    'container': 'The caller of the function takes ownership of the data container, but not the data inside it',
-    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it',
-    'floating': 'The returned data has a floating reference',
+    'none': 'The data is owned by the called function.',
+    'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+    'floating': 'The returned data has a floating reference.',
+}
+
+METHOD_RETVAL_TRANSFER_MODES = {
+    'none': 'The data is owned by the instance.',
+    'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+    'floating': 'The returned data has a floating reference.',
 }
 
 DIRECTION_MODES = {
-    'in': 'in',
-    'inout': 'in-out',
-    'out': 'out',
+    'in': '-',
+    'inout': 'The argument will be modified by the function.',
+    'out': 'The argument will be set by the function.',
 }
 
 SCOPE_MODES = {
     'none': '-',
-    'call': 'Arguments are valid during the call',
-    'notified': 'Arguments are valid until the notify function is called',
-    'async': 'Arguments are valid until the call is completed',
+    'call': 'Arguments are valid during the call.',
+    'notified': 'Arguments are valid until the notify function is called.',
+    'async': 'Arguments are valid until the call is completed.',
 }
 
 SIGNAL_WHEN = {
-    'first': "The default handler is called before the handlers added via `g_signal_connect()`",
-    'last': "The default handler is called after the handlers added via `g_signal_connect()`",
-    'cleanup': "The default handler is called after the handlers added via `g_signal_connect_after()`",
+    'first': "The default handler is called before the handlers added via `g_signal_connect()`.",
+    'last': "The default handler is called after the handlers added via `g_signal_connect()`.",
+    'cleanup': "The default handler is called after the handlers added via `g_signal_connect_after()`.",
 }
 
 FRAGMENT = {
@@ -348,8 +361,12 @@ class TemplateArgument:
         self.is_varargs = isinstance(argument.target, gir.VarArgs)
         self.is_macro = isinstance(call, gir.FunctionMacro)
         self.transfer = argument.transfer or 'none'
-        self.transfer_note = ARG_TRANSFER_MODES[argument.transfer or 'none']
-        self.direction = DIRECTION_MODES[argument.direction]
+        if isinstance(call, gir.Method):
+            self.transfer_note = METHOD_ARG_TRANSFER_MODES[argument.transfer or 'none']
+        else:
+            self.transfer_note = ARG_TRANSFER_MODES[argument.transfer or 'none']
+        self.direction = argument.direction or 'in'
+        self.direction_note = DIRECTION_MODES[argument.direction]
         self.optional = argument.optional
         self.nullable = argument.nullable
         self.scope = SCOPE_MODES[argument.scope or 'none']
@@ -415,7 +432,10 @@ class TemplateReturnValue:
         self.is_array = isinstance(retval.target, gir.ArrayType)
         self.is_list = isinstance(retval.target, gir.ListType)
         self.transfer = retval.transfer or 'none'
-        self.transfer_note = RETVAL_TRANSFER_MODES[retval.transfer or 'none']
+        if isinstance(call, gir.Method):
+            self.transfer_note = METHOD_RETVAL_TRANSFER_MODES[retval.transfer or 'none']
+        else:
+            self.transfer_note = RETVAL_TRANSFER_MODES[retval.transfer or 'none']
         self.nullable = retval.nullable
         if self.is_array:
             self.value_type = retval.target.value_type.name

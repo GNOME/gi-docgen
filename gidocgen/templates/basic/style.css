@@ -757,6 +757,18 @@ table.results tr td code {
   font-size: 100%;
 }
 
+table.arguments tr td,
+table.returns tr td {
+  color: var(--text-color-muted);
+}
+
+table.arguments tr.arg-name td,
+table.arguments tr.arg-description td,
+table.returns tr.arg-name td,
+table.returns tr.arg-description td {
+  color: var(--text-color);
+}
+
 .docblock ul li,
 .docblock ol li {
   padding-top: 0.15rem;
