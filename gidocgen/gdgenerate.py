@@ -1613,7 +1613,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
         tmpl = TemplateClass(namespace, cls)
         template_classes.append(tmpl)
 
-        if config.show_class_hierarchy and utils.find_program('dot') is not None:
+        if config.show_class_hierarchy:
             tmpl.hierarchy_svg = utils.render_dot(tmpl.dot, output_format="svg")
 
         with open(class_file, "w") as out:

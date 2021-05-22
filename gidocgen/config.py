@@ -6,7 +6,7 @@ import toml
 
 from urllib.parse import urljoin
 
-from . import log
+from . import log, utils
 
 
 class GIDocConfig:
@@ -138,6 +138,8 @@ class GIDocConfig:
 
     @property
     def show_class_hierarchy(self):
+        if utils.find_program('dot') is None:
+            return False
         return self.theme.get('show_class_hierarchy', False)
 
     def source_link(self, *args):
