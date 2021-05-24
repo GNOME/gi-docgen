@@ -2315,36 +2315,14 @@ def gen_content_images(config, content_dir, output_dir):
 
 
 def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository):
-    namespace = repository.namespace
-
-    # Gather all class types and their parent to build a flat list
-    flat_tree = []
-    for cls in namespace.get_classes():
-        name = cls.name
-        if cls.parent is not None:
-            parent = cls.parent.name
-        else:
-            parent = None
-        flat_tree.append((name, parent))
-
-    # A subtly elegant way to rebuild the tree from a flat
-    # list of (name, parent) tuples. See:
-    #
-    #   https://stackoverflow.com/a/43728268/771066
-    def subtree(cls, rel):
-        return {
-            v: subtree(v, rel)
-            for v in [x[0] for x in rel if x[1] == cls]
-        }
-
     # All GObject sub-types
-    objects_tree = subtree('GObject.Object', flat_tree)
+    objects_tree = repository.get_class_hierarchy(root="GObject.Object")
 
     # All GInitiallyUnowned sub-types
-    unowned_tree = subtree('GObject.InitiallyUnowned', flat_tree)
+    unowned_tree = repository.get_class_hierarchy(root="GObject.InitiallyUnowned")
 
     # All GTypeInstance sub-types
-    typed_tree = subtree(None, flat_tree)
+    typed_tree = repository.get_class_hierarchy()
 
     res = ["<h1>Classes Hierarchy</h1>"]
 
@@ -2392,6 +2370,8 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
     }
 
     content_tmpl = jinja_env.get_template(theme_config.content_template)
+
+    namespace = repository.namespace
 
     dst_file = os.path.join(output_dir, content["output_file"])
     log.info(f"Generating type hierarchy file: {dst_file}")

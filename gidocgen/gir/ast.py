@@ -1108,6 +1108,24 @@ class Repository:
                 symbols[m.identifier] = union
         self.namespace._symbols = symbols
 
+    def get_class_hierarchy(self, root=None):
+        flat_tree = []
+        for cls in self.namespace.get_classes():
+            name = cls.name
+            if cls.parent is not None:
+                parent = cls.parent.name
+            else:
+                parent = None
+            flat_tree.append((name, parent))
+
+        def subtree(cls, rel):
+            return {
+                v: subtree(v, rel)
+                for v in [x[0] for x in rel if x[1] == cls]
+            }
+
+        return subtree(root, flat_tree)
+
     @property
     def namespace(self) -> T.Optional[Namespace]:
         return self._namespaces[0]
