@@ -37,7 +37,7 @@ will all link to ``Bar``.
 Backticks will be stripped, so ``[`class@Foo`]`` will correctly link to ``Foo``.
 
 The link can either be a fully qualified name, which includes the namespace; or
-a name relative to the current names; for instance, both of the following links
+a name relative to the current namespace; for instance, both of the following links
 will point to ``ExampleFoo`` when generating the documentation for the "Example"
 namespace:
 
