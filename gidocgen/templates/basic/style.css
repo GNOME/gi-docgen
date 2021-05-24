@@ -762,6 +762,11 @@ table.returns tr td {
   color: var(--text-color-muted);
 }
 
+table.arguments tr td:first-child,
+table.returns tr td:first-child {
+  min-width: 12em;
+}
+
 table.arguments tr.arg-name td,
 table.arguments tr.arg-description td,
 table.returns tr.arg-name td,
