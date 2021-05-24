@@ -1110,13 +1110,35 @@ class Repository:
 
     def get_class_hierarchy(self, root=None):
         flat_tree = []
+        seen_types = {}
+
+        def window(iterable, size=2):
+            i = iter(iterable)
+            win = []
+            for e in range(0, size):
+                win.append(next(i))
+            yield win
+            for e in i:
+                win = win[1:] + [e]
+                yield win
+
         for cls in self.namespace.get_classes():
-            name = cls.name
-            if cls.parent is not None:
-                parent = cls.parent.name
+            if cls.parent is None:
+                flat_tree.append((cls.name, None))
+                continue
+
+            if len(cls.ancestors) < 2:
+                flat_tree.append((cls.name, cls.ancestors[0].name))
             else:
-                parent = None
-            flat_tree.append((name, parent))
+                flat_tree.append((cls.name, cls.ancestors[0].name))
+                for chunk in window(cls.ancestors, size=2):
+                    if chunk[0].name in seen_types:
+                        continue
+                    if len(chunk) == 2:
+                        flat_tree.append((chunk[0].name, chunk[1].name))
+                    else:
+                        flat_tree.append((chunk[0].name, None))
+                    seen_types[chunk[0].name] = 1
 
         def subtree(cls, rel):
             return {
