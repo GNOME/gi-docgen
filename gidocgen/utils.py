@@ -68,7 +68,7 @@ LINK_RE = re.compile(
     r'''
     \[
     (`)?
-    (?P<fragment>alias|class|const|ctor|enum|error|flags|func|id|iface|method|property|signal|struct|vfunc)
+    (?P<fragment>alias|class|const|ctor|enum|error|flags|func|id|iface|method|property|signal|struct|type|vfunc)
     @
     (?P<endpoint>[\w\-_:\.]+)
     (`)?
@@ -217,12 +217,13 @@ class LinkGenerator:
             "property": self._parse_property,
             "signal": self._parse_signal,
             "struct": self._parse_type,
+            "type": self._parse_type,
             "vfunc": self._parse_method,
         }
 
         parser_method = fragment_parsers.get(self._fragment)
         if parser_method is not None:
-            res = parser_method()
+            res = parser_method(self._fragment)
             if res is not None:
                 self._fragment = None
                 log.warning(str(res))
@@ -232,7 +233,7 @@ class LinkGenerator:
                                            self._fragment, self._endpoint,
                                            "Unable to parse link")))
 
-    def _parse_id(self):
+    def _parse_id(self, fragment):
         t = self._namespace.find_symbol(self._endpoint)
         if isinstance(t, gir.Class) or \
            isinstance(t, gir.Interface) or \
@@ -254,7 +255,7 @@ class LinkGenerator:
                                   self._fragment, self._endpoint,
                                   f"Unable to find symbol {self._endpoint}")
 
-    def _parse_type(self):
+    def _parse_type(self, fragment):
         res = TYPE_RE.match(self._endpoint)
         if res:
             ns = res.group('ns')
@@ -286,6 +287,27 @@ class LinkGenerator:
                 return None
         t = namespace.find_real_type(name)
         if t is not None and t.base_ctype is not None:
+            if fragment == 'type':
+                if isinstance(t, gir.Alias):
+                    self._fragment = 'alias'
+                elif isinstance(t, gir.BitField):
+                    self._fragment = 'flags'
+                elif isinstance(t, gir.Class):
+                    self._fragment = 'class'
+                elif isinstance(t, gir.Constant):
+                    self._fragment = 'const'
+                elif isinstance(t, gir.Enumeration):
+                    self._fragment = 'enum'
+                elif isinstance(t, gir.ErrorDomain):
+                    self._fragment = 'error'
+                elif isinstance(t, gir.Interface):
+                    self._fragment = 'iface'
+                elif isinstance(t, gir.Record) or isinstance(t, gir.Union):
+                    self._fragment = 'struct'
+                else:
+                    return LinkParseError(self._line, self._start, self._end,
+                                          self._fragment, self._endpoint,
+                                          f"Invalid type {t} for '{ns}.{name}'")
             self._name = name
             self._type = t.base_ctype
             return None
@@ -294,7 +316,7 @@ class LinkGenerator:
                                   self._fragment, self._endpoint,
                                   f"Unable to find type '{ns}.{name}'")
 
-    def _parse_property(self):
+    def _parse_property(self, fragment):
         res = PROPERTY_RE.match(self._endpoint)
         if res:
             ns = res.group('ns')
@@ -342,7 +364,7 @@ class LinkGenerator:
                                   self._fragment, self._endpoint,
                                   f"Invalid property '{pname}' for type '{ns}.{name}'")
 
-    def _parse_signal(self):
+    def _parse_signal(self, fragment):
         res = SIGNAL_RE.match(self._endpoint)
         if res:
             ns = res.group('ns')
@@ -390,7 +412,7 @@ class LinkGenerator:
                                   self._fragment, self._endpoint,
                                   f"Invalid signal name '{sname}' for type '{ns}.{name}'")
 
-    def _parse_method(self):
+    def _parse_method(self, fragment):
         res = METHOD_RE.match(self._endpoint)
         if res:
             ns = res.group('ns')
@@ -429,7 +451,7 @@ class LinkGenerator:
             if isinstance(t, gir.Record) and t.struct_for is not None:
                 self._name = t.struct_for
                 self._fragment = "class_method"
-            elif self._fragment == "vfunc" and t.type_struct is not None:
+            elif fragment == "vfunc" and t.type_struct is not None:
                 self._name = name
                 self._type = t.type_struct
             else:
@@ -438,17 +460,17 @@ class LinkGenerator:
             return LinkParseError(self._line, self._start, self._end,
                                   self._fragment, self._endpoint,
                                   f"Unable to find type '{ns}.{name}'")
-        if self._fragment == "ctor":
+        if fragment == "ctor":
             methods = getattr(t, "constructors", [])
-        elif self._fragment in ["method", "class_method"]:
+        elif fragment in ["method", "class_method"]:
             methods = getattr(t, "methods", [])
-        elif self._fragment == "vfunc":
+        elif fragment == "vfunc":
             methods = getattr(t, "virtual_methods", [])
         else:
             methods = []
         for m in methods:
             if m.name == method:
-                if self._fragment == "vfunc":
+                if fragment == "vfunc":
                     self._vfunc_name = m.name
                 else:
                     self._symbol_name = f"{m.identifier}()"
@@ -457,7 +479,7 @@ class LinkGenerator:
                               self._fragment, self._endpoint,
                               f"Unable to find method '{ns}.{name}.{method}'")
 
-    def _parse_func(self):
+    def _parse_func(self, fragment):
         tokens = self._endpoint.split('.')
         # Case 1: [func@init] => gtk_init()
         if len(tokens) == 1:

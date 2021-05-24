@@ -37,7 +37,7 @@ will all link to ``Bar``.
 Backticks will be stripped, so ``[`class@Foo`]`` will correctly link to ``Foo``.
 
 The link can either be a fully qualified name, which includes the namespace; or
-a name relative to the current names; for instance, both of the following links
+a name relative to the current namespace; for instance, both of the following links
 will point to ``ExampleFoo`` when generating the documentation for the "Example"
 namespace:
 
@@ -96,7 +96,20 @@ The available qualifier fragments are:
      - A virtual function in a class or interface
      - ``[vfunc@Gtk.Widget.measure]``
 
-Additionally, the ``id`` fragment, followed by a C symbol identifier, will try to link to the function; for instance:
+The generic ``type`` fragment, followed by a type, will look up the given type
+and generate the appropriate link for it. The type can be fully qualified or
+relative to the current namespace:
+
+::
+
+    // Equivalent to [class@Gtk.Window]
+    [type@Gtk.Window]
+
+    // Equivalent to [enum@Gtk.Orientation]
+    [type@Gtk.Orientation]
+
+Additionally, the ``id`` fragment, followed by a C symbol identifier, will try
+to link to the function; for instance:
 
 ::
 
