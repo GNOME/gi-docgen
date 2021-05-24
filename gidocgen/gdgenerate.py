@@ -2315,44 +2315,22 @@ def gen_content_images(config, content_dir, output_dir):
 
 
 def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository):
-    namespace = repository.namespace
-
-    # Gather all class types and their parent to build a flat list
-    flat_tree = []
-    for cls in namespace.get_classes():
-        name = cls.name
-        if cls.parent is not None:
-            parent = cls.parent.name
-        else:
-            parent = None
-        flat_tree.append((name, parent))
-
-    # A subtly elegant way to rebuild the tree from a flat
-    # list of (name, parent) tuples. See:
-    #
-    #   https://stackoverflow.com/a/43728268/771066
-    def subtree(cls, rel):
-        return {
-            v: subtree(v, rel)
-            for v in [x[0] for x in rel if x[1] == cls]
-        }
-
     # All GObject sub-types
-    objects_tree = subtree('GObject.Object', flat_tree)
-
-    # All GInitiallyUnowned sub-types
-    unowned_tree = subtree('GObject.InitiallyUnowned', flat_tree)
+    objects_tree = repository.get_class_hierarchy(root="GObject.Object")
 
     # All GTypeInstance sub-types
-    typed_tree = subtree(None, flat_tree)
+    typed_tree = repository.get_class_hierarchy()
 
     res = ["<h1>Classes Hierarchy</h1>"]
 
     def dump_tree(node, out):
         for k in node:
-            out.append(f"<li class=\"type\"><a href=\"class.{k}.html\"><code>{k}</code></a>")
+            if '.' in k:
+                out.append(f'<li class="type"><code>{k}</code>')
+            else:
+                out.append(f'<li class="type"><a href="class.{k}.html"><code>{k}</code></a>')
             if len(node[k]) != 0:
-                out.append("<ul class=\"type\">")
+                out.append('<ul class="type">')
                 dump_tree(node[k], out)
                 out.append("</ul>")
             out.append("</li>")
@@ -2366,19 +2344,12 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
         res += ["</ul>"]
         res += ["</div>"]
 
-    if len(unowned_tree) != 0:
-        res += ["<div class=\"docblock\">"]
-        res += ["<ul class=\"type root\">"]
-        res += [" <li class=\"type\"><code>GInitiallyUnowned</code></li><ul class=\"type\">"]
-        dump_tree(unowned_tree, res)
-        res += [" </ul></li>"]
-        res += ["</ul>"]
-        res += ["</div>"]
-
     if len(typed_tree) != 0:
         res += ["<div class=\"docblock\">"]
         res += ["<ul class=\"type root\">"]
+        res += [" <li class=\"type\"><code>GTypeInstance</code></li><ul class=\"type\">"]
         dump_tree(typed_tree, res)
+        res += [" </ul></li>"]
         res += ["</ul>"]
         res += ["</div>"]
 
@@ -2392,6 +2363,8 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
     }
 
     content_tmpl = jinja_env.get_template(theme_config.content_template)
+
+    namespace = repository.namespace
 
     dst_file = os.path.join(output_dir, content["output_file"])
     log.info(f"Generating type hierarchy file: {dst_file}")
