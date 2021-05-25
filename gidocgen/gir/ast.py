@@ -879,6 +879,8 @@ class Namespace:
             return self._aliases[name]
         if name in self._bitfields:
             return self._bitfields[name]
+        if name in self._callbacks:
+            return self._callbacks[name]
         if name in self._constants:
             return self._constants[name]
         if name in self._enumerations:
