@@ -695,7 +695,7 @@ class Namespace:
         self._aliases: T.Mapping[str, Alias] = {}
         self._bitfields: T.Mapping[str, BitField] = {}
         self._boxeds: T.Mapping[str, Boxed] = {}
-        self._callbacks: T.List[Callback] = []
+        self._callbacks: T.Mapping[str, Callback] = {}
         self._classes: T.Mapping[str, Class] = {}
         self._constants: T.Mapping[str, Constant] = {}
         self._enumerations: T.Mapping[str, Enumeration] = {}
@@ -764,7 +764,7 @@ class Namespace:
         self._function_macros[function.name] = function
 
     def add_callback(self, callback: Callback) -> None:
-        self._callbacks.append(callback)
+        self._callbacks[callback.name] = callback
 
     def get_classes(self) -> T.List[Class]:
         return self._classes.values()
@@ -841,7 +841,7 @@ class Namespace:
         return [x for x in self._function_macros.values() if is_effective(x, self)]
 
     def get_callbacks(self) -> T.List[Callback]:
-        return self._callbacks
+        return self._callbacks.values()
 
     def find_class(self, cls: str) -> T.Optional[Class]:
         return self._classes.get(cls)
