@@ -390,6 +390,12 @@ class Callback(Callable):
         super().__init__(name=name, namespace=namespace, identifier=None, throws=throws)
         self.ctype = ctype
 
+    @property
+    def base_ctype(self):
+        if self.ctype is None:
+            return None
+        return self.ctype.replace('*', '')
+
 
 class Member(GIRElement):
     """A member in an enumeration, error domain, or bitfield"""
