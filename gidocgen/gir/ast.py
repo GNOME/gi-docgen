@@ -873,6 +873,8 @@ class Namespace:
             return self._aliases[name]
         if name in self._bitfields:
             return self._bitfields[name]
+        if name in self._constants:
+            return self._constants[name]
         if name in self._enumerations:
             return self._enumerations[name]
         if name in self._error_domains:
