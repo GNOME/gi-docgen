@@ -56,6 +56,9 @@ The available qualifier fragments are:
    * - ``alias``
      - An alias to another type
      - ``[alias@Allocation]``
+   * - ``callback``
+     - A callback type
+     - ``[callback@Gtk.ListBoxForeachFunc]``
    * - ``class``
      - An object class
      - ``[class@Widget]``, ``[class@Gdk.Surface]``, ``[class@Gsk.RenderNode]``
