@@ -68,7 +68,7 @@ LINK_RE = re.compile(
     r'''
     \[
     (`)?
-    (?P<fragment>alias|class|const|ctor|enum|error|flags|func|id|iface|method|property|signal|struct|type|vfunc)
+    (?P<fragment>[\w]+)
     @
     (?P<endpoint>[\w\-_:\.]+)
     (`)?
