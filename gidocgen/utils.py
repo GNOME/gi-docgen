@@ -68,7 +68,7 @@ LINK_RE = re.compile(
     r'''
     \[
     (`)?
-    (?P<fragment>alias|class|const|ctor|enum|error|flags|func|id|iface|method|property|signal|struct|type|vfunc)
+    (?P<fragment>[\w]+)
     @
     (?P<endpoint>[\w\-_:\.]+)
     (`)?
@@ -204,6 +204,7 @@ class LinkGenerator:
 
         fragment_parsers = {
             "alias": self._parse_type,
+            "callback": self._parse_type,
             "class": self._parse_type,
             "const": self._parse_type,
             "ctor": self._parse_method,
@@ -292,6 +293,8 @@ class LinkGenerator:
                     self._fragment = 'alias'
                 elif isinstance(t, gir.BitField):
                     self._fragment = 'flags'
+                elif isinstance(t, gir.Callback):
+                    self._fragment = 'callback'
                 elif isinstance(t, gir.Class):
                     self._fragment = 'class'
                 elif isinstance(t, gir.Constant):

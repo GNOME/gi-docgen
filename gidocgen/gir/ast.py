@@ -390,6 +390,12 @@ class Callback(Callable):
         super().__init__(name=name, namespace=namespace, identifier=None, throws=throws)
         self.ctype = ctype
 
+    @property
+    def base_ctype(self):
+        if self.ctype is None:
+            return None
+        return self.ctype.replace('*', '')
+
 
 class Member(GIRElement):
     """A member in an enumeration, error domain, or bitfield"""
@@ -689,7 +695,7 @@ class Namespace:
         self._aliases: T.Mapping[str, Alias] = {}
         self._bitfields: T.Mapping[str, BitField] = {}
         self._boxeds: T.Mapping[str, Boxed] = {}
-        self._callbacks: T.List[Callback] = []
+        self._callbacks: T.Mapping[str, Callback] = {}
         self._classes: T.Mapping[str, Class] = {}
         self._constants: T.Mapping[str, Constant] = {}
         self._enumerations: T.Mapping[str, Enumeration] = {}
@@ -758,7 +764,7 @@ class Namespace:
         self._function_macros[function.name] = function
 
     def add_callback(self, callback: Callback) -> None:
-        self._callbacks.append(callback)
+        self._callbacks[callback.name] = callback
 
     def get_classes(self) -> T.List[Class]:
         return self._classes.values()
@@ -835,7 +841,7 @@ class Namespace:
         return [x for x in self._function_macros.values() if is_effective(x, self)]
 
     def get_callbacks(self) -> T.List[Callback]:
-        return self._callbacks
+        return self._callbacks.values()
 
     def find_class(self, cls: str) -> T.Optional[Class]:
         return self._classes.get(cls)
@@ -873,6 +879,10 @@ class Namespace:
             return self._aliases[name]
         if name in self._bitfields:
             return self._bitfields[name]
+        if name in self._callbacks:
+            return self._callbacks[name]
+        if name in self._constants:
+            return self._constants[name]
         if name in self._enumerations:
             return self._enumerations[name]
         if name in self._error_domains:
