@@ -111,6 +111,9 @@ relative to the current namespace:
     // Equivalent to [enum@Gtk.Orientation]
     [type@Gtk.Orientation]
 
+Anything that is a known type—aliases, callbacks, classes, constants,
+enumerations, interfaces, structures—can be linked using the ``type`` fragment.
+
 Additionally, the ``id`` fragment, followed by a C symbol identifier, will try
 to link to the function; for instance:
 
