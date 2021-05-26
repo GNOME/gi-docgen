@@ -690,7 +690,7 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plai
 
     # Append a period, if one isn't there already
     last_line = processed_text[-1]
-    if last_line and last_line[-1] != '.':
+    if last_line and last_line[-1].isalpha():
         processed_text[-1] = ''.join([last_line, '.'])
 
     if md is None:
