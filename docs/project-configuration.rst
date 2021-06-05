@@ -122,8 +122,8 @@ The following keys are used, if found:
 
 ``content_files`` = ``list(s)``
   A list of tuples. The first element of the tuple is a Markdown
-  file name, relative to the directory specified by the ``--content-dir``
-  command line argument; the second element of the tuple is the
+  file name, relative to the directories specified by the ``--content-dir``
+  command line arguments; the second element of the tuple is the
   title used for the link to the content file. When generating the
   API reference, gi-docgen will transform the Markdown file into
   an HTML one, using the same pre-processing filters applied to the
@@ -132,8 +132,8 @@ The following keys are used, if found:
   the namespace.
 
 ``content_images`` = ``list(s)``
-  A list of files, relative to the directory specified by the
-  ``--content-dir`` command line argument. The files will be copied
+  A list of files, relative to the directories specified by the
+  ``--content-dir`` command line arguments. The files will be copied
   in the root directory of the namespace.
 
 ``urlmap_file`` = ``s``
