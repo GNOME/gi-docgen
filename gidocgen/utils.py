@@ -119,6 +119,7 @@ LANGUAGE_MAP = {
     'css': 'css',
     'plain': 'plain',
     'xml': 'xml',
+    'javascript': 'javascript',
 }
 
 MD_EXTENSIONS = [
