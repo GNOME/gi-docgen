@@ -1253,9 +1253,9 @@ class TemplateClass:
         def fmt_attrs(attrs):
             return ','.join(f'{k}="{v}"' for k, v in attrs.items())
 
-        def add_link(attrs, other):
+        def add_link(attrs, other, fragment):
             if other['namespace'] == self.namespace:
-                attrs['href'] = f"class.{other['name']}.html"
+                attrs['href'] = f"{fragment}.{other['name']}.html"
                 attrs['class'] = 'link'
             else:
                 attrs['tooltip'] = other['fqtn']
@@ -1281,7 +1281,7 @@ class TemplateClass:
                 'label': ancestor['type_cname']
             }
             ancestor_attrs.update(node_attrs)
-            add_link(ancestor_attrs, ancestor)
+            add_link(ancestor_attrs, ancestor, 'class')
             res.append(f"  {node_id} [{fmt_attrs(ancestor_attrs)}];")
             ancestors.append(node_id)
         ancestors.reverse()
@@ -1292,7 +1292,7 @@ class TemplateClass:
                 'fontname': 'sans-serif',
                 'shape': 'box',
             }
-            add_link(iface_attrs, iface)
+            add_link(iface_attrs, iface, 'iface')
             res.append(f"  {node_id} [{fmt_attrs(iface_attrs)}];")
             implements.append(node_id)
         if len(ancestors) > 0:
