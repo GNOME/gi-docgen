@@ -44,6 +44,29 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 {{ sidebar_block(interface.virtual_methods, interface.name, "Virtual methods", "method", "vfunc") }}
 {% endblock %}
 
+{% macro navbar_block(elements, section_title, section_link) -%}
+{% if elements|length > 0 %}
+<li class="toc-list-item"><a href="{{ section_link }}"><span class="link-text">{{ section_title }}</span></a></li>
+{% endif %}
+{% endmacro %}
+
+{% block navbar %}
+<div class="toc">
+  <nav aria-labelledby="toc-title">
+    <p id="toc-title">Content</p>
+    <ul class="toc-list">
+      <li class="toc-list-item"><a href="#description"><span class="link-text">Description</span></a></li>
+      {{ navbar_block(interface.methods, "Methods", "#methods") }}
+      {{ navbar_block(interface.properties, "Properties", "#properties") }}
+      {{ navbar_block(interface.signals, "Signals", "#signals") }}
+      {{ navbar_block(interface.class_methods, "Class methods", "#class-methods") }}
+      {{ navbar_block(interface.type_funcs, "Functions", "#type-functions") }}
+      {{ navbar_block(interface.virtual_methods, "Virtual methods", "#virtual-methods") }}
+    </ul>
+  </nav>
+</div>
+{% endblock %}
+
 {% block content %}
 <section id="main" class="content">
   <header>

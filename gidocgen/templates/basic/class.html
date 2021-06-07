@@ -45,6 +45,33 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 {{ sidebar_block(class.virtual_methods, class.name, "Virtual methods", "method", "vfunc") }}
 {% endblock %}
 
+{% macro navbar_block(elements, section_title, section_link) -%}
+{% if elements|length > 0 %}
+<li class="toc-list-item"><a href="{{ section_link }}"><span class="link-text">{{ section_title }}</span></a></li>
+{% endif %}
+{% endmacro %}
+
+{% block navbar %}
+<div class="toc">
+  <nav aria-labelledby="toc-title">
+    <p id="toc-title">Content</p>
+    <ul class="toc-list">
+      <li class="toc-list-item"><a href="#description"><span class="link-text">Description</span></a></li>
+      {% if CONFIG.show_class_hierarchy and (class.ancestors or class.interfaces) %}
+      <li class="toc-list-item"><a href="#hierarchy"><span class="link-text">Hierarchy</span></a></li>
+      {% endif %}
+      {{ navbar_block(class.ctors, "Constructors", "#constructors") }}
+      {{ navbar_block(class.methods, "Methods", "#methods") }}
+      {{ navbar_block(class.properties, "Properties", "#properties") }}
+      {{ navbar_block(class.signals, "Signals", "#signals") }}
+      {{ navbar_block(class.class_methods, "Class methods", "#class-methods") }}
+      {{ navbar_block(class.type_funcs, "Functions", "#type-functions") }}
+      {{ navbar_block(class.virtual_methods, "Virtual methods", "#virtual-methods") }}
+    </ul>
+  </nav>
+</div>
+{% endblock %}
+
 {% block content %}
 <section id="main" class="content">
   <header>
