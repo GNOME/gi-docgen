@@ -60,6 +60,12 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       {% if CONFIG.show_class_hierarchy and (class.ancestors or class.interfaces) %}
       <li class="toc-list-item"><a href="#hierarchy"><span class="link-text">Hierarchy</span></a></li>
       {% endif %}
+      {% if class.ancestors %}
+      <li class="toc-list-item"><a href="#ancestors"><span class="link-text">Ancestors</span></a></li>
+      {% endif %}
+      {% if class.interfaces %}
+      <li class="toc-list-item"><a href="#implements"><span class="link-text">Implements</span></a></li>
+      {% endif %}
       {{ navbar_block(class.ctors, "Constructors", "#constructors") }}
       {{ navbar_block(class.methods, "Methods", "#methods") }}
       {{ navbar_block(class.properties, "Properties", "#properties") }}
