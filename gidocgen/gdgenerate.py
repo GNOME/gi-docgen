@@ -931,11 +931,14 @@ class TemplateInterface:
         if requires is None:
             self.requires_namespace = "GObject"
             self.requires_name = "Object"
+            self.requires_ctype = "GObject"
         elif '.' in requires.name:
             self.requires_namespace, self.requires_name = requires.name.split('.')
+            self.requires_ctype = requires.ctype
         else:
             self.requires_namespace = requires.namespace or namespace.name
             self.requires_name = requires.name
+            self.requires_ctype = requires.ctype
 
         self.requires_fqtn = f"{self.requires_namespace}.{self.requires_name}"
 
