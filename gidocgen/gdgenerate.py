@@ -224,6 +224,53 @@ def gen_index_ancestor(ancestor_type, namespace, md=None):
         }
 
 
+def gen_index_implements(iface_type, namespace, md=None):
+    if '.' in iface_type.name:
+        iface_ns, iface_name = iface_type.name.split('.')
+    else:
+        iface_ns = iface_type.namespace or namespace.name
+        iface_name = iface_type.name
+    iface_ctype = iface_type.base_ctype
+    iface = namespace.find_interface(iface_name)
+    if iface is not None:
+        # Set a hard-limit on the number of methods; base types can
+        # add *a lot* of them; two dozens feel like a good compromise
+        n_methods = len(iface.methods)
+        if n_methods < 24:
+            methods = [gen_index_func(m, namespace, md) for m in iface.methods]
+        else:
+            methods = []
+        n_properties = len(iface.properties)
+        properties = [gen_index_property(p, namespace, md) for p in iface.properties.values()]
+        n_signals = len(iface.signals)
+        signals = [gen_index_signal(s, namespace, md) for s in iface.signals.values()]
+        return {
+            "namespace": iface_ns,
+            "name": iface_name,
+            "fqtn": f"{iface_ns}.{iface_name}",
+            "type_cname": iface_ctype,
+            "properties": properties,
+            "n_properties": n_properties,
+            "signals": signals,
+            "n_signals": n_signals,
+            "methods": methods,
+            "n_methods": n_methods,
+        }
+    else:
+        return {
+            "namespace": iface_ns,
+            "name": iface_name,
+            "fqtn": f"{iface_ns}.{iface_name}",
+            "type_cname": iface_ctype,
+            "properties": [],
+            "n_properties": 0,
+            "signals": [],
+            "n_signals": 0,
+            "methods": [],
+            "n_methods": 0,
+        }
+
+
 def gen_type_link(namespace, name):
     t = namespace.find_real_type(name)
     if t is not None:
@@ -1191,44 +1238,7 @@ class TemplateClass:
         if len(cls.implements) != 0:
             self.interfaces = []
             for iface_type in cls.implements:
-                if '.' in iface_type.name:
-                    iface_ns, iface_name = iface_type.name.split('.')
-                else:
-                    iface_ns = iface_type.namespace or namespace.name
-                    iface_name = iface_type.name
-                iface = namespace.find_interface(iface_name)
-                if iface is not None:
-                    # Set a hard-limit on the number of methods; base types can
-                    # add *a lot* of them; two dozens feel like a good compromise
-                    if len(iface.methods) < 24:
-                        methods = [gen_index_func(m, namespace, md) for m in iface.methods]
-                    else:
-                        methods = []
-                    self.interfaces.append({
-                        "namespace": iface_ns,
-                        "name": iface_name,
-                        "fqtn": f"{iface_ns}.{iface_name}",
-                        "type_cname": iface_type.base_ctype,
-                        "properties": [gen_index_property(p, namespace, md) for p in iface.properties.values()],
-                        "n_properties": len(iface.properties),
-                        "signals": [gen_index_signal(s, namespace, md) for s in iface.signals.values()],
-                        "n_signals": len(iface.signals),
-                        "methods": methods,
-                        "n_methods": len(iface.methods),
-                    })
-                else:
-                    self.interfaces.append({
-                        "namespace": iface_ns,
-                        "name": iface_name,
-                        "fqtn": f"{iface_ns}.{iface_name}",
-                        "type_cname": iface_type.base_ctype,
-                        "properties": [],
-                        "n_properties": 0,
-                        "signals": [],
-                        "n_signals": 0,
-                        "methods": [],
-                        "n_methods": 0,
-                    })
+                self.interfaces.append(gen_index_implements(iface_type, namespace, md))
 
         if len(cls.virtual_methods) != 0:
             self.virtual_methods = []
