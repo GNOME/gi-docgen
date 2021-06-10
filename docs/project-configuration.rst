@@ -182,8 +182,10 @@ This annotation applies to all possible top-level types:
  - unions
 
 The ``object`` key is always an array of dictionaries; each element in the array
-has a ``name`` key, used to match it. Each element can also have the following
-keys:
+can have a ``name`` key, used to match the object name exactly; or a ``pattern``
+key, which uses a regular expression to match the object name.
+
+Each element can also have the following keys:
 
  - ``property``
  - ``signal``
@@ -191,8 +193,8 @@ keys:
  - ``method``
  - ``function``
 
-Each one of these keys can contain array of dictionaries with a ``name`` key and
-the ``hidden`` key.
+Each one of these keys can contain array of dictionaries with a ``name`` or
+``pattern`` keys, and a ``hidden`` key.
 
 The following example will hide the ``backend`` property on the ``Printer`` type:
 

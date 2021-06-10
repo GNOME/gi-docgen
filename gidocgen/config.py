@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
 import os
+import re
 import toml
 
 from urllib.parse import urljoin
@@ -155,17 +156,26 @@ class GIDocConfig:
         return self._config.get('object', {})
 
     def is_hidden(self, name, category=None, key=None):
+        def obj_matches(obj, name):
+            n = obj.get('name')
+            p = obj.get('pattern')
+            if n is not None and n == name:
+                return True
+            elif p is not None and re.match(p, name):
+                return True
+            return False
         for obj in self.objects:
-            if obj['name'] == name:
+            if obj_matches(obj, name):
                 if category is None:
                     return obj.get('hidden', False)
                 else:
-                    obj_category = obj.get(category)
-                    if obj_category is None:
-                        return False
-                    for c in obj_category:
-                        if c['name'] == key:
-                            return c.get('hidden', False)
+                    assert key is not None
+                obj_category = obj.get(category)
+                if obj_category is None:
+                    return False
+                for c in obj_category:
+                    if obj_matches(c, key):
+                        return c.get('hidden', False)
         return False
 
 
