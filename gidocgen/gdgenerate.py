@@ -175,7 +175,7 @@ def gen_index_signal(signal, namespace, md=None):
     }
 
 
-def gen_index_ancestor(ancestor_type, namespace, md=None):
+def gen_index_ancestor(ancestor_type, namespace, config, md=None):
     if '.' in ancestor_type.name:
         ancestor_ns, ancestor_name = ancestor_type.name.split('.')
     else:
@@ -183,48 +183,46 @@ def gen_index_ancestor(ancestor_type, namespace, md=None):
         ancestor_name = ancestor_type.name
     ancestor_ctype = ancestor_type.base_ctype
     ancestor = namespace.find_class(ancestor_name)
+    n_methods = 0
+    methods = []
+    n_properties = 0
+    properties = []
+    n_signals = 0
+    signals = []
     # We don't use real Template objects, here, because it can be
     # extremely expensive, unless we add a cache somewhere
     if ancestor is not None:
         # Set a hard-limit on the number of methods; base types can
         # add *a lot* of them; two dozens feel like a good compromise
-        n_methods = len(ancestor.methods)
-        if n_methods < 24:
-            methods = [gen_index_func(m, namespace, md) for m in ancestor.methods]
-        else:
-            methods = []
-        n_properties = len(ancestor.properties)
-        properties = [gen_index_property(p, namespace, md) for p in ancestor.properties.values()]
-        n_signals = len(ancestor.signals)
-        signals = [gen_index_signal(s, namespace, md) for s in ancestor.signals.values()]
-        return {
-            "namespace": ancestor_ns,
-            "name": ancestor_name,
-            "fqtn": f"{ancestor_ns}.{ancestor_name}",
-            "type_cname": ancestor_ctype,
-            "properties": properties,
-            "n_properties": n_properties,
-            "signals": signals,
-            "n_signals": n_signals,
-            "methods": methods,
-            "n_methods": n_methods,
-        }
-    else:
-        return {
-            "namespace": ancestor_ns,
-            "name": ancestor_name,
-            "fqtn": f"{ancestor_ns}.{ancestor_name}",
-            "type_cname": ancestor_type.base_ctype,
-            "properties": [],
-            "n_properties": 0,
-            "signals": [],
-            "n_signals": 0,
-            "methods": [],
-            "n_methods": 0,
-        }
+        for m in ancestor.methods:
+            is_hidden = config.is_hidden(ancestor_name, "method", m.name)
+            if not is_hidden:
+                n_methods += 1
+            if n_methods < 24 and not is_hidden:
+                methods.append(gen_index_func(m, namespace, md))
+        for p in ancestor.properties.values():
+            if not config.is_hidden(ancestor_name, "property", p.name):
+                n_properties += 1
+                properties.append(gen_index_property(p, namespace, md))
+        for s in ancestor.signals.values():
+            if not config.is_hidden(ancestor_name, "signal", s.name):
+                n_signals += 1
+                signals.append(gen_index_signal(s, namespace, md))
+    return {
+        "namespace": ancestor_ns,
+        "name": ancestor_name,
+        "fqtn": f"{ancestor_ns}.{ancestor_name}",
+        "type_cname": ancestor_ctype,
+        "properties": properties,
+        "n_properties": n_properties,
+        "signals": signals,
+        "n_signals": n_signals,
+        "methods": methods,
+        "n_methods": n_methods,
+    }
 
 
-def gen_index_implements(iface_type, namespace, md=None):
+def gen_index_implements(iface_type, namespace, config, md=None):
     if '.' in iface_type.name:
         iface_ns, iface_name = iface_type.name.split('.')
     else:
@@ -232,43 +230,41 @@ def gen_index_implements(iface_type, namespace, md=None):
         iface_name = iface_type.name
     iface_ctype = iface_type.base_ctype
     iface = namespace.find_interface(iface_name)
+    n_methods = 0
+    methods = []
+    n_properties = 0
+    properties = []
+    n_signals = 0
+    signals = []
     if iface is not None:
         # Set a hard-limit on the number of methods; base types can
         # add *a lot* of them; two dozens feel like a good compromise
-        n_methods = len(iface.methods)
-        if n_methods < 24:
-            methods = [gen_index_func(m, namespace, md) for m in iface.methods]
-        else:
-            methods = []
-        n_properties = len(iface.properties)
-        properties = [gen_index_property(p, namespace, md) for p in iface.properties.values()]
-        n_signals = len(iface.signals)
-        signals = [gen_index_signal(s, namespace, md) for s in iface.signals.values()]
-        return {
-            "namespace": iface_ns,
-            "name": iface_name,
-            "fqtn": f"{iface_ns}.{iface_name}",
-            "type_cname": iface_ctype,
-            "properties": properties,
-            "n_properties": n_properties,
-            "signals": signals,
-            "n_signals": n_signals,
-            "methods": methods,
-            "n_methods": n_methods,
-        }
-    else:
-        return {
-            "namespace": iface_ns,
-            "name": iface_name,
-            "fqtn": f"{iface_ns}.{iface_name}",
-            "type_cname": iface_ctype,
-            "properties": [],
-            "n_properties": 0,
-            "signals": [],
-            "n_signals": 0,
-            "methods": [],
-            "n_methods": 0,
-        }
+        for m in iface.methods:
+            is_hidden = config.is_hidden(iface_name, "method", m.name)
+            if not is_hidden:
+                n_methods += 1
+            if n_methods < 24 and not is_hidden:
+                methods.append(gen_index_func(m, namespace, md))
+        for p in iface.properties.values():
+            if not config.is_hidden(iface_name, "property", p.name):
+                n_properties += 1
+                properties.append(gen_index_property(p, namespace, md))
+        for s in iface.signals.values():
+            if not config.is_hidden(iface.name, "signal", s.name):
+                n_signals += 1
+                signals.append(gen_index_signal(s, namespace, md))
+    return {
+        "namespace": iface_ns,
+        "name": iface_name,
+        "fqtn": f"{iface_ns}.{iface_name}",
+        "type_cname": iface_ctype,
+        "properties": properties,
+        "n_properties": n_properties,
+        "signals": signals,
+        "n_signals": n_signals,
+        "methods": methods,
+        "n_methods": n_methods,
+    }
 
 
 def gen_type_link(namespace, name):
@@ -1155,7 +1151,7 @@ class TemplateClass:
         if recurse:
             self.ancestors = []
             for ancestor_type in cls.ancestors:
-                self.ancestors.append(gen_index_ancestor(ancestor_type, namespace, md))
+                self.ancestors.append(gen_index_ancestor(ancestor_type, namespace, config, md))
 
         self.class_name = cls.type_struct
 
@@ -1246,7 +1242,7 @@ class TemplateClass:
         if len(cls.implements) != 0:
             self.interfaces = []
             for iface_type in cls.implements:
-                self.interfaces.append(gen_index_implements(iface_type, namespace, md))
+                self.interfaces.append(gen_index_implements(iface_type, namespace, config, md))
 
         if len(cls.virtual_methods) != 0:
             self.virtual_methods = []
