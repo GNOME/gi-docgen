@@ -175,6 +175,55 @@ def gen_index_signal(signal, namespace, md=None):
     }
 
 
+def gen_index_ancestor(ancestor_type, namespace, md=None):
+    if '.' in ancestor_type.name:
+        ancestor_ns, ancestor_name = ancestor_type.name.split('.')
+    else:
+        ancestor_ns = ancestor_type.namespace or namespace.name
+        ancestor_name = ancestor_type.name
+    ancestor_ctype = ancestor_type.base_ctype
+    ancestor = namespace.find_class(ancestor_name)
+    # We don't use real Template objects, here, because it can be
+    # extremely expensive, unless we add a cache somewhere
+    if ancestor is not None:
+        # Set a hard-limit on the number of methods; base types can
+        # add *a lot* of them; two dozens feel like a good compromise
+        n_methods = len(ancestor.methods)
+        if n_methods < 24:
+            methods = [gen_index_func(m, namespace, md) for m in ancestor.methods]
+        else:
+            methods = []
+        n_properties = len(ancestor.properties)
+        properties = [gen_index_property(p, namespace, md) for p in ancestor.properties.values()]
+        n_signals = len(ancestor.signals)
+        signals = [gen_index_signal(s, namespace, md) for s in ancestor.signals.values()]
+        return {
+            "namespace": ancestor_ns,
+            "name": ancestor_name,
+            "fqtn": f"{ancestor_ns}.{ancestor_name}",
+            "type_cname": ancestor_ctype,
+            "properties": properties,
+            "n_properties": n_properties,
+            "signals": signals,
+            "n_signals": n_signals,
+            "methods": methods,
+            "n_methods": n_methods,
+        }
+    else:
+        return {
+            "namespace": ancestor_ns,
+            "name": ancestor_name,
+            "fqtn": f"{ancestor_ns}.{ancestor_name}",
+            "type_cname": ancestor_type.base_ctype,
+            "properties": [],
+            "n_properties": 0,
+            "signals": [],
+            "n_signals": 0,
+            "methods": [],
+            "n_methods": 0,
+        }
+
+
 def gen_type_link(namespace, name):
     t = namespace.find_real_type(name)
     if t is not None:
@@ -1055,46 +1104,7 @@ class TemplateClass:
         if recurse:
             self.ancestors = []
             for ancestor_type in cls.ancestors:
-                if '.' in ancestor_type.name:
-                    ancestor_ns, ancestor_name = ancestor_type.name.split('.')
-                else:
-                    ancestor_ns = ancestor_type.namespace or namespace.name
-                    ancestor_name = ancestor_type.name
-                ancestor = namespace.find_class(ancestor_name)
-                # We don't use real Template objects, here, because it can be
-                # extremely expensive, unless we add a cache somewhere
-                if ancestor is not None:
-                    # Set a hard-limit on the number of methods; base types can
-                    # add *a lot* of them; two dozens feel like a good compromise
-                    if len(ancestor.methods) < 24:
-                        methods = [gen_index_func(m, namespace, md) for m in ancestor.methods]
-                    else:
-                        methods = []
-                    self.ancestors.append({
-                        "namespace": ancestor_ns,
-                        "name": ancestor_name,
-                        "fqtn": f"{ancestor_ns}.{ancestor_name}",
-                        "type_cname": ancestor_type.base_ctype,
-                        "properties": [gen_index_property(p, namespace, md) for p in ancestor.properties.values()],
-                        "n_properties": len(ancestor.properties),
-                        "signals": [gen_index_signal(s, namespace, md) for s in ancestor.signals.values()],
-                        "n_signals": len(ancestor.signals),
-                        "methods": methods,
-                        "n_methods": len(ancestor.methods),
-                    })
-                else:
-                    self.ancestors.append({
-                        "namespace": ancestor_ns,
-                        "name": ancestor_name,
-                        "fqtn": f"{ancestor_ns}.{ancestor_name}",
-                        "type_cname": ancestor_type.base_ctype,
-                        "properties": [],
-                        "n_properties": 0,
-                        "signals": [],
-                        "n_signals": 0,
-                        "methods": [],
-                        "n_methods": 0,
-                    })
+                self.ancestors.append(gen_index_ancestor(ancestor_type, namespace, md))
 
         self.class_name = cls.type_struct
 
