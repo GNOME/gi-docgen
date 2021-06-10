@@ -118,6 +118,23 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       </div>
     </summary>
 
+    <div class="toggle-wrapper prerequisite">
+      <h4 id="prerequisite">
+        Prerequisite
+        <a href="#prerequisite" class="anchor"></a>
+      </h4>
+
+      <div class="docblock">
+        <p>In order to implement {{ interface.name }}, your type must inherit from
+        {% if interface.requires_namespace == namespace.name -%}
+        <a href="class.{{ interface.requires_name }}.html">
+        {%- else -%}
+        <a data-namespace="{{ interface.requires_namespace }}" data-link="class.{{ interface.requires_name }}.html" href="javascript:void(0)" class="external">
+        {%- endif -%}
+        <code>{{ interface.requires_ctype }}</code></a>.</p>
+      </div>
+    </div>
+
     {% if interface.methods %}
     <div class="methods toggle-wrapper">
       <h4 id="methods">

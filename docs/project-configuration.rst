@@ -181,6 +181,21 @@ This annotation applies to all possible top-level types:
  - records
  - unions
 
+The ``object`` key is always an array of dictionaries; each element in the array
+can have a ``name`` key, used to match the object name exactly; or a ``pattern``
+key, which uses a regular expression to match the object name.
+
+Each element can also have the following keys:
+
+ - ``property``
+ - ``signal``
+ - ``constructor``
+ - ``method``
+ - ``function``
+
+Each one of these keys can contain array of dictionaries with a ``name`` or
+``pattern`` keys, and a ``hidden`` key.
+
 The following example will hide the ``backend`` property on the ``Printer`` type:
 
 ::
@@ -203,10 +218,3 @@ The following example will hide the ``private-changed`` signal on the
       [[object.signal]]
       name = "private-changed"
       hidden = true
-
-The ``object`` key is always an array of dictionaries; each element in the array
-has a ``name`` key, used to match it; it can also have a ``property`` and a
-``signal`` keys, each containing an array of dictionaries with a ``name`` key.
-
-The ``hidden`` key can be used in both an ``object`` element, or in the
-``property`` and ``signal`` elements.

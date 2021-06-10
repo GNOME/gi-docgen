@@ -47,8 +47,8 @@ RETVAL_TRANSFER_MODES = {
 
 METHOD_RETVAL_TRANSFER_MODES = {
     'none': 'The data is owned by the instance.',
-    'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
-    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+    'container': 'The caller of the method takes ownership of the data container, but not the data inside it.',
+    'full': 'The caller of the method takes ownership of the data, and is responsible for freeing it.',
     'floating': 'The returned data has a floating reference.',
 }
 
@@ -60,9 +60,9 @@ DIRECTION_MODES = {
 
 SCOPE_MODES = {
     'none': '-',
-    'call': 'Arguments are valid during the call.',
-    'notified': 'Arguments are valid until the notify function is called.',
-    'async': 'Arguments are valid until the call is completed.',
+    'call': 'The callback arguments are valid during the call.',
+    'notified': 'The callback arguments are valid until the notify function is called.',
+    'async': 'The callback arguments are valid until the asynchronous call is completed.',
 }
 
 SIGNAL_WHEN = {
@@ -172,6 +172,98 @@ def gen_index_signal(signal, namespace, md=None):
         "summary": summary,
         "available_since": available_since,
         "deprecated_since": deprecated_since,
+    }
+
+
+def gen_index_ancestor(ancestor_type, namespace, config, md=None):
+    if '.' in ancestor_type.name:
+        ancestor_ns, ancestor_name = ancestor_type.name.split('.')
+    else:
+        ancestor_ns = ancestor_type.namespace or namespace.name
+        ancestor_name = ancestor_type.name
+    ancestor_ctype = ancestor_type.base_ctype
+    ancestor = namespace.find_class(ancestor_name)
+    n_methods = 0
+    methods = []
+    n_properties = 0
+    properties = []
+    n_signals = 0
+    signals = []
+    # We don't use real Template objects, here, because it can be
+    # extremely expensive, unless we add a cache somewhere
+    if ancestor is not None:
+        # Set a hard-limit on the number of methods; base types can
+        # add *a lot* of them; two dozens feel like a good compromise
+        for m in ancestor.methods:
+            is_hidden = config.is_hidden(ancestor_name, "method", m.name)
+            if not is_hidden:
+                n_methods += 1
+            if n_methods < 24 and not is_hidden:
+                methods.append(gen_index_func(m, namespace, md))
+        for p in ancestor.properties.values():
+            if not config.is_hidden(ancestor_name, "property", p.name):
+                n_properties += 1
+                properties.append(gen_index_property(p, namespace, md))
+        for s in ancestor.signals.values():
+            if not config.is_hidden(ancestor_name, "signal", s.name):
+                n_signals += 1
+                signals.append(gen_index_signal(s, namespace, md))
+    return {
+        "namespace": ancestor_ns,
+        "name": ancestor_name,
+        "fqtn": f"{ancestor_ns}.{ancestor_name}",
+        "type_cname": ancestor_ctype,
+        "properties": properties,
+        "n_properties": n_properties,
+        "signals": signals,
+        "n_signals": n_signals,
+        "methods": methods,
+        "n_methods": n_methods,
+    }
+
+
+def gen_index_implements(iface_type, namespace, config, md=None):
+    if '.' in iface_type.name:
+        iface_ns, iface_name = iface_type.name.split('.')
+    else:
+        iface_ns = iface_type.namespace or namespace.name
+        iface_name = iface_type.name
+    iface_ctype = iface_type.base_ctype
+    iface = namespace.find_interface(iface_name)
+    n_methods = 0
+    methods = []
+    n_properties = 0
+    properties = []
+    n_signals = 0
+    signals = []
+    if iface is not None:
+        # Set a hard-limit on the number of methods; base types can
+        # add *a lot* of them; two dozens feel like a good compromise
+        for m in iface.methods:
+            is_hidden = config.is_hidden(iface_name, "method", m.name)
+            if not is_hidden:
+                n_methods += 1
+            if n_methods < 24 and not is_hidden:
+                methods.append(gen_index_func(m, namespace, md))
+        for p in iface.properties.values():
+            if not config.is_hidden(iface_name, "property", p.name):
+                n_properties += 1
+                properties.append(gen_index_property(p, namespace, md))
+        for s in iface.signals.values():
+            if not config.is_hidden(iface.name, "signal", s.name):
+                n_signals += 1
+                signals.append(gen_index_signal(s, namespace, md))
+    return {
+        "namespace": iface_ns,
+        "name": iface_name,
+        "fqtn": f"{iface_ns}.{iface_name}",
+        "type_cname": iface_ctype,
+        "properties": properties,
+        "n_properties": n_properties,
+        "signals": signals,
+        "n_signals": n_signals,
+        "methods": methods,
+        "n_methods": n_methods,
     }
 
 
@@ -903,7 +995,7 @@ class TemplateField:
 
 
 class TemplateInterface:
-    def __init__(self, namespace, interface):
+    def __init__(self, namespace, interface, config):
         if isinstance(interface, gir.Interface):
             if '.' in interface.name:
                 self.namespace, self.name = interface.name.split('.')
@@ -931,11 +1023,14 @@ class TemplateInterface:
         if requires is None:
             self.requires_namespace = "GObject"
             self.requires_name = "Object"
+            self.requires_ctype = "GObject"
         elif '.' in requires.name:
             self.requires_namespace, self.requires_name = requires.name.split('.')
+            self.requires_ctype = requires.ctype
         else:
             self.requires_namespace = requires.namespace or namespace.name
             self.requires_name = requires.name
+            self.requires_ctype = requires.ctype
 
         self.requires_fqtn = f"{self.requires_namespace}.{self.requires_name}"
 
@@ -986,17 +1081,20 @@ class TemplateInterface:
         if len(interface.properties) != 0:
             self.properties = []
             for pname, prop in interface.properties.items():
-                self.properties.append(gen_index_property(prop, namespace, md))
+                if not config.is_hidden(interface.name, "property", pname):
+                    self.properties.append(gen_index_property(prop, namespace, md))
 
         if len(interface.signals) != 0:
             self.signals = []
             for sname, signal in interface.signals.items():
-                self.signals.append(gen_index_signal(signal, namespace, md))
+                if not config.is_hidden(interface.name, "signal", sname):
+                    self.signals.append(gen_index_signal(signal, namespace, md))
 
         if len(interface.methods) != 0:
             self.methods = []
             for method in interface.methods:
-                self.methods.append(gen_index_func(method, namespace, md))
+                if not config.is_hidden(interface.name, "method", method.name):
+                    self.methods.append(gen_index_func(method, namespace, md))
 
         if len(interface.virtual_methods) != 0:
             self.virtual_methods = []
@@ -1006,7 +1104,8 @@ class TemplateInterface:
         if len(interface.functions) != 0:
             self.type_funcs = []
             for func in interface.functions:
-                self.type_funcs.append(gen_index_func(func, namespace, md))
+                if not config.is_hidden(interface.name, "function", func.name):
+                    self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1014,7 +1113,7 @@ class TemplateInterface:
 
 
 class TemplateClass:
-    def __init__(self, namespace, cls, recurse=True):
+    def __init__(self, namespace, cls, config, recurse=True):
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{cls.symbol_prefix}"
         self.type_cname = cls.base_ctype
         self.link_prefix = "class"
@@ -1052,46 +1151,7 @@ class TemplateClass:
         if recurse:
             self.ancestors = []
             for ancestor_type in cls.ancestors:
-                if '.' in ancestor_type.name:
-                    ancestor_ns, ancestor_name = ancestor_type.name.split('.')
-                else:
-                    ancestor_ns = ancestor_type.namespace or namespace.name
-                    ancestor_name = ancestor_type.name
-                ancestor = namespace.find_class(ancestor_name)
-                # We don't use real Template objects, here, because it can be
-                # extremely expensive, unless we add a cache somewhere
-                if ancestor is not None:
-                    # Set a hard-limit on the number of methods; base types can
-                    # add *a lot* of them; two dozens feel like a good compromise
-                    if len(ancestor.methods) < 24:
-                        methods = [gen_index_func(m, namespace, md) for m in ancestor.methods]
-                    else:
-                        methods = []
-                    self.ancestors.append({
-                        "namespace": ancestor_ns,
-                        "name": ancestor_name,
-                        "fqtn": f"{ancestor_ns}.{ancestor_name}",
-                        "type_cname": ancestor_type.base_ctype,
-                        "properties": [gen_index_property(p, namespace, md) for p in ancestor.properties.values()],
-                        "n_properties": len(ancestor.properties),
-                        "signals": [gen_index_signal(s, namespace, md) for s in ancestor.signals.values()],
-                        "n_signals": len(ancestor.signals),
-                        "methods": methods,
-                        "n_methods": len(ancestor.methods),
-                    })
-                else:
-                    self.ancestors.append({
-                        "namespace": ancestor_ns,
-                        "name": ancestor_name,
-                        "fqtn": f"{ancestor_ns}.{ancestor_name}",
-                        "type_cname": ancestor_type.base_ctype,
-                        "properties": [],
-                        "n_properties": 0,
-                        "signals": [],
-                        "n_signals": 0,
-                        "methods": [],
-                        "n_methods": 0,
-                    })
+                self.ancestors.append(gen_index_ancestor(ancestor_type, namespace, config, md))
 
         self.class_name = cls.type_struct
 
@@ -1146,22 +1206,26 @@ class TemplateClass:
         if len(cls.properties) != 0:
             self.properties = []
             for pname, prop in cls.properties.items():
-                self.properties.append(gen_index_property(prop, namespace, md))
+                if not config.is_hidden(cls.name, "property", pname):
+                    self.properties.append(gen_index_property(prop, namespace, md))
 
         if len(cls.signals) != 0:
             self.signals = []
             for sname, signal in cls.signals.items():
-                self.signals.append(gen_index_signal(signal, namespace, md))
+                if not config.is_hidden(cls.name, "signal", sname):
+                    self.signals.append(gen_index_signal(signal, namespace, md))
 
         if len(cls.constructors) != 0:
             self.ctors = []
             for ctor in cls.constructors:
-                self.ctors.append(gen_index_func(ctor, namespace, md))
+                if not config.is_hidden(cls.name, "constructor", ctor.name):
+                    self.ctors.append(gen_index_func(ctor, namespace, md))
 
         if len(cls.methods) != 0:
             self.methods = []
             for method in cls.methods:
-                self.methods.append(gen_index_func(method, namespace, md))
+                if not config.is_hidden(cls.name, "method", method.name):
+                    self.methods.append(gen_index_func(method, namespace, md))
 
         if self.class_struct is not None:
             self.class_ctype = self.class_struct.ctype
@@ -1178,44 +1242,7 @@ class TemplateClass:
         if len(cls.implements) != 0:
             self.interfaces = []
             for iface_type in cls.implements:
-                if '.' in iface_type.name:
-                    iface_ns, iface_name = iface_type.name.split('.')
-                else:
-                    iface_ns = iface_type.namespace or namespace.name
-                    iface_name = iface_type.name
-                iface = namespace.find_interface(iface_name)
-                if iface is not None:
-                    # Set a hard-limit on the number of methods; base types can
-                    # add *a lot* of them; two dozens feel like a good compromise
-                    if len(iface.methods) < 24:
-                        methods = [gen_index_func(m, namespace, md) for m in iface.methods]
-                    else:
-                        methods = []
-                    self.interfaces.append({
-                        "namespace": iface_ns,
-                        "name": iface_name,
-                        "fqtn": f"{iface_ns}.{iface_name}",
-                        "type_cname": iface_type.base_ctype,
-                        "properties": [gen_index_property(p, namespace, md) for p in iface.properties.values()],
-                        "n_properties": len(iface.properties),
-                        "signals": [gen_index_signal(s, namespace, md) for s in iface.signals.values()],
-                        "n_signals": len(iface.signals),
-                        "methods": methods,
-                        "n_methods": len(iface.methods),
-                    })
-                else:
-                    self.interfaces.append({
-                        "namespace": iface_ns,
-                        "name": iface_name,
-                        "fqtn": f"{iface_ns}.{iface_name}",
-                        "type_cname": iface_type.base_ctype,
-                        "properties": [],
-                        "n_properties": 0,
-                        "signals": [],
-                        "n_signals": 0,
-                        "methods": [],
-                        "n_methods": 0,
-                    })
+                self.interfaces.append(gen_index_implements(iface_type, namespace, config, md))
 
         if len(cls.virtual_methods) != 0:
             self.virtual_methods = []
@@ -1225,7 +1252,8 @@ class TemplateClass:
         if len(cls.functions) != 0:
             self.type_funcs = []
             for func in cls.functions:
-                self.type_funcs.append(gen_index_func(func, namespace, md))
+                if not config.is_hidden(cls.name, "function", func.name):
+                    self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1304,7 +1332,7 @@ class TemplateClass:
 
 
 class TemplateRecord:
-    def __init__(self, namespace, record):
+    def __init__(self, namespace, record, config):
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{record.symbol_prefix}"
         self.type_cname = record.ctype
         self.link_prefix = "struct"
@@ -1349,17 +1377,20 @@ class TemplateRecord:
         if len(record.constructors) != 0:
             self.ctors = []
             for ctor in record.constructors:
-                self.ctors.append(gen_index_func(ctor, namespace, md))
+                if not config.is_hidden(record.name, "constructor", ctor.name):
+                    self.ctors.append(gen_index_func(ctor, namespace, md))
 
         if len(record.methods) != 0:
             self.methods = []
             for method in record.methods:
-                self.methods.append(gen_index_func(method, namespace, md))
+                if not config.is_hidden(record.name, "method", method.name):
+                    self.methods.append(gen_index_func(method, namespace, md))
 
         if len(record.functions) != 0:
             self.type_funcs = []
             for func in record.functions:
-                self.type_funcs.append(gen_index_func(func, namespace, md))
+                if not config.is_hidden(record.name, "function", func.name):
+                    self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1378,7 +1409,7 @@ class TemplateRecord:
 
 
 class TemplateUnion:
-    def __init__(self, namespace, union):
+    def __init__(self, namespace, union, config):
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{union.symbol_prefix}"
         self.type_cname = union.ctype
         self.link_prefix = "union"
@@ -1422,17 +1453,20 @@ class TemplateUnion:
         if len(union.constructors) != 0:
             self.ctors = []
             for ctor in union.constructors:
-                self.ctors.append(gen_index_func(ctor, namespace, md))
+                if not config.is_hidden(union.name, "constructor", ctor.name):
+                    self.ctors.append(gen_index_func(ctor, namespace, md))
 
         if len(union.methods) != 0:
             self.methods = []
             for method in union.methods:
-                self.methods.append(gen_index_func(method, namespace, md))
+                if not config.is_hidden(union.name, "method", method.name):
+                    self.methods.append(gen_index_func(method, namespace, md))
 
         if len(union.functions) != 0:
             self.type_funcs = []
             for func in union.functions:
-                self.type_funcs.append(gen_index_func(func, namespace, md))
+                if not config.is_hidden(union.name, "function", func.name):
+                    self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1511,7 +1545,7 @@ class TemplateMember:
 
 
 class TemplateEnum:
-    def __init__(self, namespace, enum):
+    def __init__(self, namespace, enum, config):
         self.symbol_prefix = None
         self.type_cname = enum.ctype
         self.bitfield = False
@@ -1569,7 +1603,8 @@ class TemplateEnum:
         if len(enum.functions) != 0:
             self.type_funcs = []
             for func in enum.functions:
-                self.type_funcs.append(gen_index_func(func, namespace, md))
+                if not config.is_hidden(enum.name, "function", func.name):
+                    self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1610,7 +1645,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
         class_file = os.path.join(output_dir, f"class.{cls.name}.html")
         log.info(f"Creating class file for {namespace.name}.{cls.name}: {class_file}")
 
-        tmpl = TemplateClass(namespace, cls)
+        tmpl = TemplateClass(namespace, cls, config)
         template_classes.append(tmpl)
 
         if config.show_class_hierarchy:
@@ -1626,6 +1661,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             out.write(content)
 
         for ctor in cls.constructors:
+            if config.is_hidden(cls.name, "constructor", ctor.name):
+                log.debug(f"Skipping hidden constructor {cls.name}.{ctor.name}")
+                continue
             c = TemplateFunction(namespace, ctor)
             ctor_file = os.path.join(output_dir, f"ctor.{cls.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{cls.name}.{ctor.name}: {ctor_file}")
@@ -1639,6 +1677,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                 }))
 
         for method in cls.methods:
+            if config.is_hidden(cls.name, "method", method.name):
+                log.debug(f"Skipping hidden method {cls.name}.{method.name}")
+                continue
             m = TemplateMethod(namespace, cls, method)
             method_file = os.path.join(output_dir, f"method.{cls.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{cls.name}.{method.name}: {method_file}")
@@ -1712,6 +1753,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                 }))
 
         for type_func in cls.functions:
+            if config.is_hidden(cls.name, "function", type_func.name):
+                log.debug(f"Skipping hidden type function {cls.name}.{type_func.name}")
+                continue
             f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{cls.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{cls.name}.{type_func.name}: {type_func_file}")
@@ -1747,7 +1791,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
         iface_file = os.path.join(output_dir, f"iface.{iface.name}.html")
         log.info(f"Creating interface file for {namespace.name}.{iface.name}: {iface_file}")
 
-        tmpl = TemplateInterface(namespace, iface)
+        tmpl = TemplateInterface(namespace, iface, config)
         template_interfaces.append(tmpl)
 
         with open(iface_file, "w") as out:
@@ -1758,6 +1802,9 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
             }))
 
         for method in iface.methods:
+            if config.is_hidden(iface.name, "method", method.name):
+                log.debug(f"Skipping hidden method {iface.name}.{method.name}")
+                continue
             m = TemplateMethod(namespace, iface, method)
             method_file = os.path.join(output_dir, f"method.{iface.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{iface.name}.{method.name}: {method_file}")
@@ -1831,6 +1878,9 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     }))
 
         for type_func in iface.functions:
+            if config.is_hidden(iface.name, "function", type_func.name):
+                log.debug(f"Skipping hidden type function {iface.name}.{type_func.name}")
+                continue
             f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{iface.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{iface.name}.{type_func.name}: {type_func_file}")
@@ -1861,7 +1911,7 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
         enum_file = os.path.join(output_dir, f"enum.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
-        tmpl = TemplateEnum(namespace, enum)
+        tmpl = TemplateEnum(namespace, enum, config)
         template_enums.append(tmpl)
 
         with open(enum_file, "w") as out:
@@ -1902,7 +1952,7 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
         enum_file = os.path.join(output_dir, f"flags.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
-        tmpl = TemplateEnum(namespace, enum)
+        tmpl = TemplateEnum(namespace, enum, config)
         template_bitfields.append(tmpl)
 
         with open(enum_file, "w") as out:
@@ -1943,7 +1993,7 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
         enum_file = os.path.join(output_dir, f"error.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
-        tmpl = TemplateEnum(namespace, enum)
+        tmpl = TemplateEnum(namespace, enum, config)
         template_domains.append(tmpl)
 
         with open(enum_file, "w") as out:
@@ -2041,7 +2091,7 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
         record_file = os.path.join(output_dir, f"struct.{record.name}.html")
         log.info(f"Creating record file for {namespace.name}.{record.name}: {record_file}")
 
-        tmpl = TemplateRecord(namespace, record)
+        tmpl = TemplateRecord(namespace, record, config)
         template_records.append(tmpl)
 
         with open(record_file, "w") as out:
@@ -2054,6 +2104,9 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
             out.write(content)
 
         for ctor in record.constructors:
+            if config.is_hidden(record.name, "constructor", ctor.name):
+                log.debug(f"Skipping hidden constructor {record.name}.{ctor.name}")
+                continue
             c = TemplateFunction(namespace, ctor)
             ctor_file = os.path.join(output_dir, f"ctor.{record.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{record.name}.{ctor.name}: {ctor_file}")
@@ -2067,6 +2120,9 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
                 }))
 
         for method in record.methods:
+            if config.is_hidden(record.name, "method", method.name):
+                log.debug(f"Skipping hidden method {record.name}.{method.name}")
+                continue
             m = TemplateMethod(namespace, record, method)
             method_file = os.path.join(output_dir, f"method.{record.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{record.name}.{method.name}: {method_file}")
@@ -2080,6 +2136,9 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
                 }))
 
         for type_func in record.functions:
+            if config.is_hidden(record.name, "method", type_func.name):
+                log.debug(f"Skipping hidden type function {record.name}.{type_func.name}")
+                continue
             f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{record.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{record.name}.{type_func.name}: {type_func_file}")
@@ -2111,7 +2170,7 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
         union_file = os.path.join(output_dir, f"union.{union.name}.html")
         log.info(f"Creating union file for {namespace.name}.{union.name}: {union_file}")
 
-        tmpl = TemplateUnion(namespace, union)
+        tmpl = TemplateUnion(namespace, union, config)
         template_unions.append(tmpl)
 
         with open(union_file, "w") as out:
@@ -2124,6 +2183,9 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
             out.write(content)
 
         for ctor in union.constructors:
+            if config.is_hidden(union.name, "constructor", ctor.name):
+                log.debug(f"Skipping hidden constructor {union.name}.{ctor.name}")
+                continue
             c = TemplateFunction(namespace, ctor)
             ctor_file = os.path.join(output_dir, f"ctor.{union.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{union.name}.{ctor.name}: {ctor_file}")
@@ -2137,6 +2199,9 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
                 }))
 
         for method in union.methods:
+            if config.is_hidden(union.name, "method", method.name):
+                log.debug(f"Skipping hidden method {union.name}.{method.name}")
+                continue
             m = TemplateMethod(namespace, union, method)
             method_file = os.path.join(output_dir, f"method.{union.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{union.name}.{method.name}: {method_file}")
@@ -2150,6 +2215,9 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
                 }))
 
         for type_func in union.functions:
+            if config.is_hidden(union.name, "function", type_func.name):
+                log.debug(f"Skipping hidden type function {union.name}.{type_func.name}")
+                continue
             f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{union.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{union.name}.{type_func.name}: {type_func_file}")
