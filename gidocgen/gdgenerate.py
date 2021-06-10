@@ -1097,7 +1097,8 @@ class TemplateInterface:
         if len(interface.methods) != 0:
             self.methods = []
             for method in interface.methods:
-                self.methods.append(gen_index_func(method, namespace, md))
+                if not config.is_hidden(interface.name, "method", method.name):
+                    self.methods.append(gen_index_func(method, namespace, md))
 
         if len(interface.virtual_methods) != 0:
             self.virtual_methods = []
@@ -1107,7 +1108,8 @@ class TemplateInterface:
         if len(interface.functions) != 0:
             self.type_funcs = []
             for func in interface.functions:
-                self.type_funcs.append(gen_index_func(func, namespace, md))
+                if not config.is_hidden(interface.name, "function", func.name):
+                    self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1208,24 +1210,26 @@ class TemplateClass:
         if len(cls.properties) != 0:
             self.properties = []
             for pname, prop in cls.properties.items():
-                if not config.is_hidden(cls.name, 'property', pname):
+                if not config.is_hidden(cls.name, "property", pname):
                     self.properties.append(gen_index_property(prop, namespace, md))
 
         if len(cls.signals) != 0:
             self.signals = []
             for sname, signal in cls.signals.items():
-                if not config.is_hidden(cls.name, 'signal', sname):
+                if not config.is_hidden(cls.name, "signal", sname):
                     self.signals.append(gen_index_signal(signal, namespace, md))
 
         if len(cls.constructors) != 0:
             self.ctors = []
             for ctor in cls.constructors:
-                self.ctors.append(gen_index_func(ctor, namespace, md))
+                if not config.is_hidden(cls.name, "constructor", ctor.name):
+                    self.ctors.append(gen_index_func(ctor, namespace, md))
 
         if len(cls.methods) != 0:
             self.methods = []
             for method in cls.methods:
-                self.methods.append(gen_index_func(method, namespace, md))
+                if not config.is_hidden(cls.name, "method", method.name):
+                    self.methods.append(gen_index_func(method, namespace, md))
 
         if self.class_struct is not None:
             self.class_ctype = self.class_struct.ctype
@@ -1252,7 +1256,8 @@ class TemplateClass:
         if len(cls.functions) != 0:
             self.type_funcs = []
             for func in cls.functions:
-                self.type_funcs.append(gen_index_func(func, namespace, md))
+                if not config.is_hidden(cls.name, "function", func.name):
+                    self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1331,7 +1336,7 @@ class TemplateClass:
 
 
 class TemplateRecord:
-    def __init__(self, namespace, record):
+    def __init__(self, namespace, record, config):
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{record.symbol_prefix}"
         self.type_cname = record.ctype
         self.link_prefix = "struct"
@@ -1376,17 +1381,20 @@ class TemplateRecord:
         if len(record.constructors) != 0:
             self.ctors = []
             for ctor in record.constructors:
-                self.ctors.append(gen_index_func(ctor, namespace, md))
+                if not config.is_hidden(record.name, "constructor", ctor.name):
+                    self.ctors.append(gen_index_func(ctor, namespace, md))
 
         if len(record.methods) != 0:
             self.methods = []
             for method in record.methods:
-                self.methods.append(gen_index_func(method, namespace, md))
+                if not config.is_hidden(record.name, "method", method.name):
+                    self.methods.append(gen_index_func(method, namespace, md))
 
         if len(record.functions) != 0:
             self.type_funcs = []
             for func in record.functions:
-                self.type_funcs.append(gen_index_func(func, namespace, md))
+                if not config.is_hidden(record.name, "function", func.name):
+                    self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1405,7 +1413,7 @@ class TemplateRecord:
 
 
 class TemplateUnion:
-    def __init__(self, namespace, union):
+    def __init__(self, namespace, union, config):
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{union.symbol_prefix}"
         self.type_cname = union.ctype
         self.link_prefix = "union"
@@ -1449,17 +1457,20 @@ class TemplateUnion:
         if len(union.constructors) != 0:
             self.ctors = []
             for ctor in union.constructors:
-                self.ctors.append(gen_index_func(ctor, namespace, md))
+                if not config.is_hidden(union.name, "constructor", ctor.name):
+                    self.ctors.append(gen_index_func(ctor, namespace, md))
 
         if len(union.methods) != 0:
             self.methods = []
             for method in union.methods:
-                self.methods.append(gen_index_func(method, namespace, md))
+                if not config.is_hidden(union.name, "method", method.name):
+                    self.methods.append(gen_index_func(method, namespace, md))
 
         if len(union.functions) != 0:
             self.type_funcs = []
             for func in union.functions:
-                self.type_funcs.append(gen_index_func(func, namespace, md))
+                if not config.is_hidden(union.name, "function", func.name):
+                    self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1538,7 +1549,7 @@ class TemplateMember:
 
 
 class TemplateEnum:
-    def __init__(self, namespace, enum):
+    def __init__(self, namespace, enum, config):
         self.symbol_prefix = None
         self.type_cname = enum.ctype
         self.bitfield = False
@@ -1596,7 +1607,8 @@ class TemplateEnum:
         if len(enum.functions) != 0:
             self.type_funcs = []
             for func in enum.functions:
-                self.type_funcs.append(gen_index_func(func, namespace, md))
+                if not config.is_hidden(enum.name, "function", func.name):
+                    self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
     def c_decl(self):
@@ -1653,6 +1665,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             out.write(content)
 
         for ctor in cls.constructors:
+            if config.is_hidden(cls.name, "constructor", ctor.name):
+                log.debug(f"Skipping hidden constructor {cls.name}.{ctor.name}")
+                continue
             c = TemplateFunction(namespace, ctor)
             ctor_file = os.path.join(output_dir, f"ctor.{cls.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{cls.name}.{ctor.name}: {ctor_file}")
@@ -1666,6 +1681,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                 }))
 
         for method in cls.methods:
+            if config.is_hidden(cls.name, "method", method.name):
+                log.debug(f"Skipping hidden method {cls.name}.{method.name}")
+                continue
             m = TemplateMethod(namespace, cls, method)
             method_file = os.path.join(output_dir, f"method.{cls.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{cls.name}.{method.name}: {method_file}")
@@ -1739,6 +1757,9 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                 }))
 
         for type_func in cls.functions:
+            if config.is_hidden(cls.name, "function", type_func.name):
+                log.debug(f"Skipping hidden type function {cls.name}.{type_func.name}")
+                continue
             f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{cls.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{cls.name}.{type_func.name}: {type_func_file}")
@@ -1785,6 +1806,9 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
             }))
 
         for method in iface.methods:
+            if config.is_hidden(iface.name, "method", method.name):
+                log.debug(f"Skipping hidden method {iface.name}.{method.name}")
+                continue
             m = TemplateMethod(namespace, iface, method)
             method_file = os.path.join(output_dir, f"method.{iface.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{iface.name}.{method.name}: {method_file}")
@@ -1858,6 +1882,9 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     }))
 
         for type_func in iface.functions:
+            if config.is_hidden(iface.name, "function", type_func.name):
+                log.debug(f"Skipping hidden type function {iface.name}.{type_func.name}")
+                continue
             f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{iface.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{iface.name}.{type_func.name}: {type_func_file}")
@@ -1888,7 +1915,7 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
         enum_file = os.path.join(output_dir, f"enum.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
-        tmpl = TemplateEnum(namespace, enum)
+        tmpl = TemplateEnum(namespace, enum, config)
         template_enums.append(tmpl)
 
         with open(enum_file, "w") as out:
@@ -1929,7 +1956,7 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
         enum_file = os.path.join(output_dir, f"flags.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
-        tmpl = TemplateEnum(namespace, enum)
+        tmpl = TemplateEnum(namespace, enum, config)
         template_bitfields.append(tmpl)
 
         with open(enum_file, "w") as out:
@@ -1970,7 +1997,7 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
         enum_file = os.path.join(output_dir, f"error.{enum.name}.html")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
-        tmpl = TemplateEnum(namespace, enum)
+        tmpl = TemplateEnum(namespace, enum, config)
         template_domains.append(tmpl)
 
         with open(enum_file, "w") as out:
@@ -2068,7 +2095,7 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
         record_file = os.path.join(output_dir, f"struct.{record.name}.html")
         log.info(f"Creating record file for {namespace.name}.{record.name}: {record_file}")
 
-        tmpl = TemplateRecord(namespace, record)
+        tmpl = TemplateRecord(namespace, record, config)
         template_records.append(tmpl)
 
         with open(record_file, "w") as out:
@@ -2081,6 +2108,9 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
             out.write(content)
 
         for ctor in record.constructors:
+            if config.is_hidden(record.name, "constructor", ctor.name):
+                log.debug(f"Skipping hidden constructor {record.name}.{ctor.name}")
+                continue
             c = TemplateFunction(namespace, ctor)
             ctor_file = os.path.join(output_dir, f"ctor.{record.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{record.name}.{ctor.name}: {ctor_file}")
@@ -2094,6 +2124,9 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
                 }))
 
         for method in record.methods:
+            if config.is_hidden(record.name, "method", method.name):
+                log.debug(f"Skipping hidden method {record.name}.{method.name}")
+                continue
             m = TemplateMethod(namespace, record, method)
             method_file = os.path.join(output_dir, f"method.{record.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{record.name}.{method.name}: {method_file}")
@@ -2107,6 +2140,9 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
                 }))
 
         for type_func in record.functions:
+            if config.is_hidden(record.name, "method", type_func.name):
+                log.debug(f"Skipping hidden type function {record.name}.{type_func.name}")
+                continue
             f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{record.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{record.name}.{type_func.name}: {type_func_file}")
@@ -2138,7 +2174,7 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
         union_file = os.path.join(output_dir, f"union.{union.name}.html")
         log.info(f"Creating union file for {namespace.name}.{union.name}: {union_file}")
 
-        tmpl = TemplateUnion(namespace, union)
+        tmpl = TemplateUnion(namespace, union, config)
         template_unions.append(tmpl)
 
         with open(union_file, "w") as out:
@@ -2151,6 +2187,9 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
             out.write(content)
 
         for ctor in union.constructors:
+            if config.is_hidden(union.name, "constructor", ctor.name):
+                log.debug(f"Skipping hidden constructor {union.name}.{ctor.name}")
+                continue
             c = TemplateFunction(namespace, ctor)
             ctor_file = os.path.join(output_dir, f"ctor.{union.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{union.name}.{ctor.name}: {ctor_file}")
@@ -2164,6 +2203,9 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
                 }))
 
         for method in union.methods:
+            if config.is_hidden(union.name, "method", method.name):
+                log.debug(f"Skipping hidden method {union.name}.{method.name}")
+                continue
             m = TemplateMethod(namespace, union, method)
             method_file = os.path.join(output_dir, f"method.{union.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{union.name}.{method.name}: {method_file}")
@@ -2177,6 +2219,9 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
                 }))
 
         for type_func in union.functions:
+            if config.is_hidden(union.name, "function", type_func.name):
+                log.debug(f"Skipping hidden type function {union.name}.{type_func.name}")
+                continue
             f = TemplateFunction(namespace, type_func)
             type_func_file = os.path.join(output_dir, f"type_func.{union.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{union.name}.{type_func.name}: {type_func_file}")
