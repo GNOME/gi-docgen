@@ -47,8 +47,8 @@ RETVAL_TRANSFER_MODES = {
 
 METHOD_RETVAL_TRANSFER_MODES = {
     'none': 'The data is owned by the instance.',
-    'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
-    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+    'container': 'The caller of the method takes ownership of the data container, but not the data inside it.',
+    'full': 'The caller of the method takes ownership of the data, and is responsible for freeing it.',
     'floating': 'The returned data has a floating reference.',
 }
 
