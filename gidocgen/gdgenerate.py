@@ -999,7 +999,7 @@ class TemplateField:
 
 
 class TemplateInterface:
-    def __init__(self, namespace, interface):
+    def __init__(self, namespace, interface, config):
         if isinstance(interface, gir.Interface):
             if '.' in interface.name:
                 self.namespace, self.name = interface.name.split('.')
@@ -1085,12 +1085,14 @@ class TemplateInterface:
         if len(interface.properties) != 0:
             self.properties = []
             for pname, prop in interface.properties.items():
-                self.properties.append(gen_index_property(prop, namespace, md))
+                if not config.is_hidden(interface.name, "property", pname):
+                    self.properties.append(gen_index_property(prop, namespace, md))
 
         if len(interface.signals) != 0:
             self.signals = []
             for sname, signal in interface.signals.items():
-                self.signals.append(gen_index_signal(signal, namespace, md))
+                if not config.is_hidden(interface.name, "signal", sname):
+                    self.signals.append(gen_index_signal(signal, namespace, md))
 
         if len(interface.methods) != 0:
             self.methods = []
@@ -1772,7 +1774,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
         iface_file = os.path.join(output_dir, f"iface.{iface.name}.html")
         log.info(f"Creating interface file for {namespace.name}.{iface.name}: {iface_file}")
 
-        tmpl = TemplateInterface(namespace, iface)
+        tmpl = TemplateInterface(namespace, iface, config)
         template_interfaces.append(tmpl)
 
         with open(iface_file, "w") as out:
