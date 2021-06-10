@@ -60,9 +60,9 @@ DIRECTION_MODES = {
 
 SCOPE_MODES = {
     'none': '-',
-    'call': 'Arguments are valid during the call.',
-    'notified': 'Arguments are valid until the notify function is called.',
-    'async': 'Arguments are valid until the call is completed.',
+    'call': 'The callback arguments are valid during the call.',
+    'notified': 'The callback arguments are valid until the notify function is called.',
+    'async': 'The callback arguments are valid until the asynchronous call is completed.',
 }
 
 SIGNAL_WHEN = {
