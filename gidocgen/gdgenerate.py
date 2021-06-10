@@ -1113,7 +1113,7 @@ class TemplateInterface:
 
 
 class TemplateClass:
-    def __init__(self, namespace, cls, recurse=True):
+    def __init__(self, namespace, cls, config, recurse=True):
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{cls.symbol_prefix}"
         self.type_cname = cls.base_ctype
         self.link_prefix = "class"
@@ -1206,12 +1206,14 @@ class TemplateClass:
         if len(cls.properties) != 0:
             self.properties = []
             for pname, prop in cls.properties.items():
-                self.properties.append(gen_index_property(prop, namespace, md))
+                if not config.is_hidden(cls.name, 'property', pname):
+                    self.properties.append(gen_index_property(prop, namespace, md))
 
         if len(cls.signals) != 0:
             self.signals = []
             for sname, signal in cls.signals.items():
-                self.signals.append(gen_index_signal(signal, namespace, md))
+                if not config.is_hidden(cls.name, 'signal', sname):
+                    self.signals.append(gen_index_signal(signal, namespace, md))
 
         if len(cls.constructors) != 0:
             self.ctors = []
@@ -1633,7 +1635,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
         class_file = os.path.join(output_dir, f"class.{cls.name}.html")
         log.info(f"Creating class file for {namespace.name}.{cls.name}: {class_file}")
 
-        tmpl = TemplateClass(namespace, cls)
+        tmpl = TemplateClass(namespace, cls, config)
         template_classes.append(tmpl)
 
         if config.show_class_hierarchy:
