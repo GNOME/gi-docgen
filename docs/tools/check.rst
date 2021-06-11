@@ -30,3 +30,6 @@ OPTIONS
   for GIR files is ``$XDG_DATA_DIRS/gir-1.0`` and ``$XDG_DATA_HOME/gir-1.0``;
   this option is typically used to include uninstalled GIR files, or
   non-standard locations.
+
+``-C, --config FILE``
+  Loads a project configuration file.
