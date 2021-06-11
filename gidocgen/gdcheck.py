@@ -340,7 +340,10 @@ def check(repository, config):
     for res in results:
         log.warning(res)
 
-    return len(results) == 0
+    if len(results) == 0:
+        return 0
+    else:
+        return 1
 
 
 def add_args(parser):
