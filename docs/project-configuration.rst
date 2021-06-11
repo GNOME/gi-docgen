@@ -185,7 +185,15 @@ The ``object`` key is always an array of dictionaries; each element in the array
 can have a ``name`` key, used to match the object name exactly; or a ``pattern``
 key, which uses a regular expression to match the object name.
 
-Each element can also have the following keys:
+Each object can contain the following keys:
+
+ - ``name``: the name of the symbol to match exactly
+ - ``pattern``: a regular expression to match the symbol name
+ - ``hidden``: whether the symbol should be hidden from the documentation
+ - ``check_ignore``: whether the symbol should be skipped when checking the
+   documentation
+
+Each element can also have the following sections:
 
  - ``property``
  - ``signal``
@@ -193,8 +201,7 @@ Each element can also have the following keys:
  - ``method``
  - ``function``
 
-Each one of these keys can contain array of dictionaries with a ``name`` or
-``pattern`` keys, and a ``hidden`` key.
+Each one of these sections can contain array of objects.
 
 The following example will hide the ``backend`` property on the ``Printer`` type:
 
@@ -218,3 +225,15 @@ The following example will hide the ``private-changed`` signal on the
       [[object.signal]]
       name = "private-changed"
       hidden = true
+
+The following example will skip the ``quark`` function on the ``ParserError``
+type when checking the documentation:
+
+::
+
+    [[object]]
+    name = "ParserError"
+
+      [[object.function]]
+      name = "quark"
+      check_ignore = true

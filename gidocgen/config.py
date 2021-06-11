@@ -155,7 +155,7 @@ class GIDocConfig:
     def objects(self):
         return self._config.get('object', {})
 
-    def is_hidden(self, name, category=None, key=None):
+    def match_object(self, name, match_key, category=None, key=None):
         def obj_matches(obj, name):
             n = obj.get('name')
             p = obj.get('pattern')
@@ -167,7 +167,7 @@ class GIDocConfig:
         for obj in self.objects:
             if obj_matches(obj, name):
                 if category is None:
-                    return obj.get('hidden', False)
+                    return obj.get(match_key, False)
                 else:
                     assert key is not None
                 obj_category = obj.get(category)
@@ -175,8 +175,16 @@ class GIDocConfig:
                     return False
                 for c in obj_category:
                     if obj_matches(c, key):
-                        return c.get('hidden', False)
+                        return c.get(match_key, False)
         return False
+
+    def is_hidden(self, name, category=None, key=None):
+        return self.match_object(name, 'hidden', category, key)
+
+    def is_skipped(self, name, category=None, key=None):
+        if self.is_hidden(name, category, key):
+            return True
+        return self.match_object(name, 'check_ignore', category, key)
 
 
 class GITemplateConfig:
