@@ -444,9 +444,12 @@ class TemplateArgument:
     def __init__(self, namespace, call, argument):
         self.name = argument.name
         self.type_name = argument.target.name
-        self.type_cname = argument.target.ctype
-        if self.type_cname is None:
-            self.type_cname = type_name_to_cname(argument.target.name, True)
+        if isinstance(call, gir.FunctionMacro):
+            self.type_cname = '-'
+        else:
+            self.type_cname = argument.target.ctype
+            if self.type_cname is None:
+                self.type_cname = type_name_to_cname(argument.target.name, True)
         self.is_array = isinstance(argument.target, gir.ArrayType)
         self.is_list = isinstance(argument.target, gir.ListType)
         self.is_map = isinstance(argument.target, gir.MapType)
