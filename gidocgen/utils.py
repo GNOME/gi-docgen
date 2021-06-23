@@ -876,4 +876,4 @@ def find_extra_content_file(content_dirs, file):
         if os.path.isfile(full_path):
             return full_path
 
-    return None
+    raise FileNotFoundError(f"Content file {file} not found in any content directory")
