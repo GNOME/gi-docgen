@@ -526,6 +526,7 @@ class TemplateReturnValue:
             self.type_cname = type_name_to_cname(retval.target.name, True)
         self.is_array = isinstance(retval.target, gir.ArrayType)
         self.is_list = isinstance(retval.target, gir.ListType)
+        self.is_list_model = self.type_name in ['Gio.ListModel', 'GListModel']
         self.transfer = retval.transfer or 'none'
         if isinstance(call, gir.Method):
             self.transfer_note = METHOD_RETVAL_TRANSFER_MODES[retval.transfer or 'none']
@@ -541,6 +542,8 @@ class TemplateReturnValue:
         if self.is_list:
             self.value_type = retval.target.value_type.name
             self.value_type_cname = retval.target.value_type.ctype
+        if self.is_list_model:
+            self.value_type = retval.attributes.get('element-type', 'GObject')
         if self.type_name in ['utf8', 'filename']:
             self.string_note = STRING_TYPES[self.type_name]
         if retval.doc is not None:
@@ -553,18 +556,25 @@ class TemplateReturnValue:
             name = self.value_type
         elif self.is_list:
             name = self.value_type
+        elif self.is_list_model:
+            name = self.value_type
         elif self.type_name is not None:
             name = self.type_name
         else:
             name = None
         if name is not None:
             if name.startswith(namespace.name):
-                self.link = gen_type_link(namespace, name[len(namespace.name) + 1:])
+                if '.' in name:
+                    self.link = gen_type_link(namespace, name[len(namespace.name) + 1:])
+                else:
+                    self.link = gen_type_link(namespace, name[len(namespace.name):])
             else:
                 if self.is_array:
                     self.link = f"<code>{self.value_type_cname}</code>"
                 elif self.is_list:
                     self.link = f"<code>{self.value_type_cname}</code>"
+                elif self.is_list_model:
+                    self.link = f"<code>{self.value_type}</code>"
 
     @property
     def is_pointer(self):
