@@ -2333,14 +2333,14 @@ def _gen_function_macros(config, theme_config, output_dir, jinja_env, repository
     return template_functions
 
 
-def gen_content_files(config, theme_config, content_dir, output_dir, jinja_env, namespace):
+def gen_content_files(config, theme_config, content_dirs, output_dir, jinja_env, namespace):
     content_files = []
 
     content_tmpl = jinja_env.get_template(theme_config.content_template)
     md = markdown.Markdown(extensions=utils.MD_EXTENSIONS, extension_configs=utils.MD_EXTENSIONS_CONF)
 
     for file_name in config.content_files:
-        src_file = os.path.join(content_dir, file_name)
+        src_file = utils.find_extra_content_file(content_dirs, file_name)
 
         src_data = ""
         with open(src_file, encoding='utf-8') as infile:
@@ -2383,11 +2383,11 @@ def gen_content_files(config, theme_config, content_dir, output_dir, jinja_env, 
     return content_files
 
 
-def gen_content_images(config, content_dir, output_dir):
+def gen_content_images(config, content_dirs, output_dir):
     content_images = []
 
     for image_file in config.content_images:
-        infile = os.path.join(content_dir, image_file)
+        infile = utils.find_extra_content_file(content_dirs, image_file)
         outfile = os.path.join(output_dir, os.path.basename(image_file))
         log.debug(f"Adding extra content image: {infile} -> {outfile}")
         content_images += [(infile, outfile)]
@@ -2631,7 +2631,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
     return etree.ElementTree(book)
 
 
-def gen_reference(config, options, repository, templates_dir, theme_config, content_dir, output_dir):
+def gen_reference(config, options, repository, templates_dir, theme_config, content_dirs, output_dir):
     theme_dir = os.path.join(templates_dir, theme_config.name.lower())
     log.debug(f"Loading jinja templates from {theme_dir}")
 
@@ -2678,8 +2678,8 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     log.debug(f"Creating output path for the namespace: {ns_dir}")
     os.makedirs(ns_dir, exist_ok=True)
 
-    content_files = gen_content_files(config, theme_config, content_dir, ns_dir, jinja_env, namespace)
-    content_images = gen_content_images(config, content_dir, ns_dir)
+    content_files = gen_content_files(config, theme_config, content_dirs, ns_dir, jinja_env, namespace)
+    content_images = gen_content_images(config, content_dirs, ns_dir)
     content_files.append(gen_types_hierarchy(config, theme_config, ns_dir, jinja_env, repository))
 
     if options.sections == [] or options.sections == ["all"]:
@@ -2746,7 +2746,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         res.write(devhelp_file, encoding="UTF-8")
 
     if config.search_index:
-        gdgenindices.gen_indices(config, repository, content_dir, ns_dir)
+        gdgenindices.gen_indices(config, repository, content_dirs, ns_dir)
 
     copy_files = []
     if theme_config.css is not None:
@@ -2760,7 +2760,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         copy_files.append((src, dst))
 
     if config.urlmap_file is not None:
-        src = os.path.join(content_dir, config.urlmap_file)
+        src = utils.find_extra_content_file(content_dirs, config.urlmap_file)
         dst = os.path.join(ns_dir, os.path.basename(config.urlmap_file))
         copy_files.append((src, dst))
 
@@ -2783,7 +2783,7 @@ def add_args(parser):
     parser.add_argument("-C", "--config", metavar="FILE", help="the configuration file")
     parser.add_argument("--dry-run", action="store_true", help="parses the GIR file without generating files")
     parser.add_argument("--templates-dir", default=None, help="the base directory with the theme templates")
-    parser.add_argument("--content-dir", default=None, help="the base directory with the extra content")
+    parser.add_argument("--content-dir", action="append", dest="content_dirs", default=[], help="the base directories with the extra content")
     parser.add_argument("--theme-name", default="basic", help="the theme to use")
     parser.add_argument("--output-dir", default=None, help="the output directory for the index files")
     parser.add_argument("--no-namespace-dir", action="store_true", help="do not create a namespace directory under the output directory")
@@ -2798,7 +2798,10 @@ def run(options):
     conf = config.GIDocConfig(options.config)
 
     output_dir = options.output_dir or os.getcwd()
-    content_dir = options.content_dir or os.getcwd()
+
+    content_dirs = options.content_dirs
+    if content_dirs == []:
+        content_dirs = [os.getcwd()]
 
     if options.templates_dir is not None:
         templates_dir = options.templates_dir
@@ -2825,6 +2828,6 @@ def run(options):
 
     if not options.dry_run:
         log.checkpoint()
-        gen_reference(conf, options, parser.get_repository(), templates_dir, theme_conf, content_dir, output_dir)
+        gen_reference(conf, options, parser.get_repository(), templates_dir, theme_conf, content_dirs, output_dir)
 
     return 0

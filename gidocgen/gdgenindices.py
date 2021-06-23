@@ -685,7 +685,7 @@ def _gen_unions(config, stemmer, index, repository, symbols):
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
 
-def gen_indices(config, repository, content_dir, output_dir):
+def gen_indices(config, repository, content_dirs, output_dir):
     namespace = repository.namespace
 
     symbols = {
@@ -762,7 +762,7 @@ def add_args(parser):
     parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[],
                         help="include paths for other GIR files")
     parser.add_argument("-C", "--config", metavar="FILE", help="the configuration file")
-    parser.add_argument("--content-dir", default=None, help="the base directory with the extra content")
+    parser.add_argument("--content-dir", action="append", dest="content_dirs", default=[], help="the base directories with the extra content")
     parser.add_argument("--dry-run", action="store_true", help="parses the GIR file without generating files")
     parser.add_argument("--output-dir", default=None, help="the output directory for the index files")
     parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'),
@@ -775,8 +775,11 @@ def run(options):
     conf = config.GIDocConfig(options.config)
 
     output_dir = options.output_dir or os.getcwd()
-    content_dir = options.content_dir or os.getcwd()
     log.info(f"Output directory: {output_dir}")
+
+    content_dirs = options.content_dirs
+    if content_dirs == []:
+        content_dirs = [os.getcwd()]
 
     paths = []
     paths.extend(options.include_paths)
@@ -789,6 +792,6 @@ def run(options):
 
     if not options.dry_run:
         log.checkpoint()
-        gen_indices(conf, parser.get_repository(), content_dir, output_dir)
+        gen_indices(conf, parser.get_repository(), content_dirs, output_dir)
 
     return 0

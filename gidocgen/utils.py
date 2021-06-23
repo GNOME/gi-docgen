@@ -869,3 +869,12 @@ def default_search_paths():
         paths.extend([os.path.join(x, "gir-1.0") for x in xdg_data_dirs])
 
     return paths
+
+
+def find_extra_content_file(content_dirs, file):
+    for p in content_dirs:
+        full_path = os.path.join(p, file)
+        if os.path.isfile(full_path):
+            return full_path
+
+    raise FileNotFoundError(f"Content file {file} not found in any content directory")
