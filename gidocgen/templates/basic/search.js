@@ -182,7 +182,7 @@ function getLinkForDocument(doc) {
         case "bitfield": return "flags." + doc.name + ".html";
         case "callback": return "callback." + doc.name + ".html";
         case "class": return "class." + doc.name + ".html";
-        case "class_method": return "class_method." + doc.type_name + "." + doc.name + ".html";
+        case "class_method": return "class_method." + doc.struct_for + "." + doc.name + ".html";
         case "constant": return "const." + doc.name + ".html";
         case "ctor": return "ctor." + doc.type_name + "." + doc.name + ".html";
         case "domain": return "error." + doc.name + ".html";
