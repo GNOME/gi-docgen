@@ -169,7 +169,7 @@ class Type(GIRElement):
     def __eq__(self, other):
         if isinstance(other, Type):
             if self.namespace is not None:
-                return self.namespace == other.namespace and self.name == self.name
+                return self.namespace == other.namespace and self.name == other.name
             elif self.ctype is not None:
                 return self.name == other.name and self.ctype == other.ctype
             else:
