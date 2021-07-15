@@ -903,7 +903,7 @@ class Namespace:
     def find_prerequisite_type(self, name: str) -> T.Optional[Type]:
         if name in self._classes:
             return self._classes[name]
-        if name is self._interfaces:
+        if name in self._interfaces:
             return self._interfaces[name]
         return None
 
