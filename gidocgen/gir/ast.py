@@ -88,7 +88,7 @@ class GIRElement:
     def __init__(self, name: T.Optional[str] = None, namespace: T.Optional[str] = None):
         self.name = name
         self.namespace = namespace
-        if self.namespace is not None:
+        if self.namespace is None:
             if self.name is not None and '.' in self.name:
                 self.namespace = self.name.split('.')[0]
         self.info = Info()
