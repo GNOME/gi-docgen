@@ -274,6 +274,8 @@ def gen_type_link(namespace, name):
             return f"<a href=\"alias.{name}.html\"><code>{t.ctype}</code></a>"
         elif isinstance(t, gir.BitField):
             return f"<a href=\"flags.{name}.html\"><code>{t.ctype}</code></a>"
+        elif isinstance(t, gir.Callback):
+            return f"<a href=\"callback.{name}.html\"><code>{t.ctype}</code></a>"
         elif isinstance(t, gir.Class):
             return f"<a href=\"class.{name}.html\"><code>{t.ctype}</code></a>"
         elif isinstance(t, gir.ErrorDomain):
