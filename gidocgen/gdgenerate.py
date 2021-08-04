@@ -765,7 +765,7 @@ class TemplateClassMethod:
     def __init__(self, namespace, cls, method):
         self.name = method.name
         self.identifier = method.identifier
-        self.class_type_cname = cls.type_struct
+        self.class_type_cname = namespace.identifier_prefix[0] + cls.type_struct
 
         self.throws = method.throws
 
@@ -779,6 +779,8 @@ class TemplateClassMethod:
             self.docs_location = (filename, line)
         else:
             self.description = MISSING_DESCRIPTION
+
+        self.instance_parameter = TemplateArgument(namespace, method, method.instance_param)
 
         self.arguments = []
         for arg in method.parameters:
@@ -817,11 +819,11 @@ class TemplateClassMethod:
             res += [f"{self.return_value.type_cname}"]
         res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
-        if n_args == 1:
-            res += [f"  {self.class_type_cname}* self"]
+        if n_args == 0:
+            res += [f"  {self.instance_parameter.type_cname} {self.instance_parameter.name}"]
         else:
-            res += [f"  {self.class_type_cname}* self,"]
-            for (idx, arg) in enumerate(self.arguments, start=1):
+            res += [f"  {self.instance_parameter.type_cname} {self.instance_parameter.name},"]
+            for (idx, arg) in enumerate(self.arguments):
                 if idx == n_args - 1 and not self.throws:
                     res += [f"  {arg.c_decl}"]
                 else:
