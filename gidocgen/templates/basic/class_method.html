@@ -91,7 +91,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       {% endif %}
     </div>
 
-    {% if class_method.arguments|length > 1 %}
+    {% if class_method.arguments|length != 0 %}
     <div class="parameters toggle-wrapper">
       <h4 id="parameters">
         Parameters
