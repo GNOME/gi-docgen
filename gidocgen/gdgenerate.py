@@ -637,7 +637,7 @@ class TemplateSignal:
         else:
             res += [f"{self.return_value.type_cname}"]
         res += [f"{self.identifier} ("]
-        res += [f"  {self.type_cname} self,"]
+        res += [f"  {self.type_cname}* self,"]
         for arg in self.arguments:
             res += [f"  {arg.c_decl},"]
         res += ["  gpointer user_data"]
