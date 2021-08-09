@@ -2787,10 +2787,12 @@ def add_args(parser):
     parser.add_argument("-C", "--config", metavar="FILE", help="the configuration file")
     parser.add_argument("--dry-run", action="store_true", help="parses the GIR file without generating files")
     parser.add_argument("--templates-dir", default=None, help="the base directory with the theme templates")
-    parser.add_argument("--content-dir", action="append", dest="content_dirs", default=[], help="the base directories with the extra content")
+    parser.add_argument("--content-dir", action="append", dest="content_dirs", default=[],
+                        help="the base directories with the extra content")
     parser.add_argument("--theme-name", default="basic", help="the theme to use")
     parser.add_argument("--output-dir", default=None, help="the output directory for the index files")
-    parser.add_argument("--no-namespace-dir", action="store_true", help="do not create a namespace directory under the output directory")
+    parser.add_argument("--no-namespace-dir", action="store_true",
+                        help="do not create a namespace directory under the output directory")
     parser.add_argument("--section", action="append", dest="sections", default=[], help="the sections to generate, or 'all'")
     parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'),
                         default=sys.stdin, help="the GIR file to parse")
