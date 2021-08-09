@@ -59,7 +59,8 @@ def add_args(parser):
     parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[],
                         help="include paths for other GIR files")
     parser.add_argument("-C", "--config", metavar="FILE", help="the configuration file")
-    parser.add_argument("--content-dir", action="append", dest="content_dirs", default=[], help="the base directories with the extra content")
+    parser.add_argument("--content-dir", action="append", dest="content_dirs", default=[],
+                        help="the base directories with the extra content")
     parser.add_argument("--dry-run", action="store_true", help="parses the GIR file without generating files")
     parser.add_argument("infile", metavar="GIRFILE", type=argparse.FileType('r', encoding='UTF-8'),
                         default=sys.stdin, help="the GIR file to parse")
