@@ -685,6 +685,43 @@ def _gen_unions(config, stemmer, index, repository, symbols):
             add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
 
+def _gen_content_files(config, stemmer, index, repository, content_dirs):
+    index_symbols = index["symbols"]
+    index_terms = index["terms"]
+
+    for file_name in config.content_files:
+        src_file = utils.find_extra_content_file(content_dirs, file_name)
+
+        src_data = ""
+        with open(src_file, encoding='utf-8') as infile:
+            source = []
+            header = True
+            title = None
+            for line in infile:
+                if header:
+                    if line.startswith("Title: "):
+                        title = line.replace("Title: ", "").strip()
+                    if line == "\n":
+                        header = False
+
+                if not header:
+                    source.append(line)
+            src_data = "".join(source)
+
+        if title is None:
+            title = f"Untitled document '{file_name}'"
+
+        index_symbols.append({
+            "type": "content",
+            "name": title,
+            "href": file_name.replace(".md", ".html"),
+            "summary": utils.preprocess_docs(src_data, repository.namespace, summary=True, plain=True),
+        })
+
+        content_idx = len(index_symbols)
+        add_index_terms(index_terms, utils.index_description(src_data, stemmer), content_idx)
+
+
 def gen_indices(config, repository, content_dirs, output_dir):
     namespace = repository.namespace
 
@@ -745,6 +782,8 @@ def gen_indices(config, repository, content_dirs, output_dir):
 
         log.debug(f"Generating symbols for section {section}")
         generator(config, stemmer, index, repository, s)
+
+    _gen_content_files(config, stemmer, index, repository, content_dirs)
 
     # Ensure iteration order is reproducible by sorting symbols by type/name,
     # and terms by key. This has no overhead since values are not copied.
