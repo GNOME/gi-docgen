@@ -125,7 +125,8 @@ to link to the function; for instance:
     // Equivalent to [method@Gtk.Widget.show], will link to gtk_widget_show()
     [id@gtk_widget_show]
 
-The ``id`` fragment can only be used for symbols within the current namespace.
+    // Equivalent to [func@GObject.signal_emit], will link to g_signal_emit()
+    [id@g_signal_emit]
 
 It's important to note that the ``method`` and ``func`` fragments can have
 multiple meanings:

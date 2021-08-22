@@ -236,26 +236,35 @@ class LinkGenerator:
                                            "Unable to parse link")))
 
     def _parse_id(self, fragment):
-        t = self._namespace.find_symbol(self._endpoint)
+        symbol = self._repository.find_symbol(self._endpoint)
+        if symbol is None:
+            return LinkParseError(self._line, self._start, self._end,
+                                  self._fragment, self._endpoint,
+                                  f"Unable to find symbol {self._endpoint}")
+        (ns, t) = symbol
         if isinstance(t, gir.Class) or \
            isinstance(t, gir.Interface) or \
            isinstance(t, gir.Record):
+            self._external = ns is not self._namespace
+            self._ns = ns.name
             self._fragment = 'method'
             self._symbol_name = f"{self._endpoint}()"
             self._name = t.name
-            self._method_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
+            self._method_name = self._endpoint.replace(ns.symbol_prefix[0] + '_', '')
             self._method_name = self._method_name.replace(t.symbol_prefix + '_', '')
             return None
         elif isinstance(t, gir.Function):
+            self._external = ns is not self._namespace
+            self._ns = ns.name
             self._fragment = 'func'
             self._symbol_name = f"{self._endpoint}()"
             self._name = None
-            self._func_name = self._endpoint.replace(self._namespace.symbol_prefix[0] + '_', '')
+            self._func_name = self._endpoint.replace(ns.symbol_prefix[0] + '_', '')
             return None
         else:
             return LinkParseError(self._line, self._start, self._end,
                                   self._fragment, self._endpoint,
-                                  f"Unable to find symbol {self._endpoint}")
+                                  f"Unsupported symbol {self._endpoint}")
 
     def _parse_type(self, fragment):
         res = TYPE_RE.match(self._endpoint)
