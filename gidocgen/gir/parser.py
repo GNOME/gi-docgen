@@ -176,6 +176,8 @@ class GirParser:
                 repository = self._parse_tree(tree.getroot())
                 if repository is not None:
                     repository.girfile = girfile
+                    repository.resolve_moved_to()
+                    repository.resolve_symbols()
                     ns = repository.namespace
                     self._dependencies[ns.name] = repository
                     found = True
