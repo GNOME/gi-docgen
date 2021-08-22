@@ -1170,3 +1170,15 @@ class Repository:
             if t.resolved:
                 return t
         return types[0]
+
+    def find_symbol(self, name: str) -> T.Optional[T.Tuple[Namespace, Type]]:
+        log.debug(f"Looking for symbol {name} in current namespace {self.namespace.name}")
+        res = self.namespace.find_symbol(name)
+        if res is not None:
+            return (self.namespace, res)
+        for repo in self.includes.values():
+            log.debug(f"Looking for symbol {name} in namespace {repo.namespace.name}")
+            res = repo.namespace.find_symbol(name)
+            if res is not None:
+                return (repo.namespace, res)
+        return None
