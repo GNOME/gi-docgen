@@ -66,6 +66,7 @@ CODEBLOCK_END_RE = re.compile(
 
 LINK_RE = re.compile(
     r'''
+    (?P<text>\[ [\w\s,\-_:]+ \])?
     \[
     (`)?
     (?P<fragment>[\w]+)
@@ -196,6 +197,7 @@ class LinkGenerator:
         self._fragment = kwargs.get('fragment', '')
         self._endpoint = kwargs.get('endpoint', '')
         self._no_link = kwargs.get('no_link', False)
+        self._alt_text = kwargs.get('text')
 
         assert self._namespace is not None
 
@@ -565,7 +567,9 @@ class LinkGenerator:
 
     @property
     def text(self):
-        if self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
+        if self._alt_text is not None:
+            return self._alt_text[1:len(self._alt_text) - 1]
+        elif self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
             return f"<code>{self._type}</code>"
         elif self._fragment == 'property':
             return f"<code>{self._type}:{self._property_name}</code>"
@@ -670,12 +674,13 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plai
             for m in LINK_RE.finditer(line, idx):
                 fragment = m.group('fragment')
                 endpoint = m.group('endpoint')
+                text = m.group('text')
                 start = m.start()
                 end = m.end()
                 link = LinkGenerator(line=line, start=start, end=end,
                                      namespace=namespace,
                                      fragment=fragment, endpoint=endpoint,
-                                     no_link=summary)
+                                     no_link=summary, text=text)
                 left_pad = line[idx:start]
                 replacement = re.sub(LINK_RE, str(link), line[start:end])
                 new_line.append(left_pad)
