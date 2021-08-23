@@ -34,7 +34,7 @@
   /* typography */
   --body-font-family: "Red Hat Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   --body-font-scale: 0.95;
-  --body-font-size: calc(var(--body-font-scale) * clamp(16px, 1vw, 20px));
+  --body-font-size: calc(var(--body-font-scale) * clamp(16px, 1vw, 18px));
   --body-font-weight: normal;
 
   --monospace-font-family: "Source Code Pro", monospace;
