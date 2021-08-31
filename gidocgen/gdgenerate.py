@@ -1165,8 +1165,8 @@ class TemplateClass:
             self.parent_namespace = cls.parent.namespace or namespace.name
             self.parent_fqtn = f"{self.parent_namespace}.{self.parent_name}"
 
+        self.ancestors = []
         if recurse:
-            self.ancestors = []
             for ancestor_type in cls.ancestors:
                 self.ancestors.append(gen_index_ancestor(ancestor_type, namespace, config, md))
 
@@ -1220,26 +1220,26 @@ class TemplateClass:
             if not field.private:
                 self.fields.append(TemplateField(namespace, field))
 
+        self.properties = []
         if len(cls.properties) != 0:
-            self.properties = []
             for pname, prop in cls.properties.items():
                 if not config.is_hidden(cls.name, "property", pname):
                     self.properties.append(gen_index_property(prop, namespace, md))
 
+        self.signals = []
         if len(cls.signals) != 0:
-            self.signals = []
             for sname, signal in cls.signals.items():
                 if not config.is_hidden(cls.name, "signal", sname):
                     self.signals.append(gen_index_signal(signal, namespace, md))
 
+        self.ctors = []
         if len(cls.constructors) != 0:
-            self.ctors = []
             for ctor in cls.constructors:
                 if not config.is_hidden(cls.name, "constructor", ctor.name):
                     self.ctors.append(gen_index_func(ctor, namespace, md))
 
+        self.methods = []
         if len(cls.methods) != 0:
-            self.methods = []
             for method in cls.methods:
                 if not config.is_hidden(cls.name, "method", method.name):
                     self.methods.append(gen_index_func(method, namespace, md))
@@ -1256,21 +1256,45 @@ class TemplateClass:
             for method in self.class_struct.methods:
                 self.class_methods.append(gen_index_func(method, namespace, md))
 
+        self.interfaces = []
         if len(cls.implements) != 0:
-            self.interfaces = []
             for iface_type in cls.implements:
                 self.interfaces.append(gen_index_implements(iface_type, namespace, config, md))
 
+        self.virtual_methods = []
         if len(cls.virtual_methods) != 0:
-            self.virtual_methods = []
             for vfunc in cls.virtual_methods:
                 self.virtual_methods.append(gen_index_func(vfunc, namespace, md))
 
+        self.type_funcs = []
         if len(cls.functions) != 0:
-            self.type_funcs = []
             for func in cls.functions:
                 if not config.is_hidden(cls.name, "function", func.name):
                     self.type_funcs.append(gen_index_func(func, namespace, md))
+
+    @property
+    def show_properties(self):
+        if len(self.properties) > 0:
+            return True
+        for ancestor in self.ancestors:
+            if ancestor["namespace"] == self.namespace and ancestor["n_properties"] > 0:
+                return True
+        for iface in self.interfaces:
+            if iface["namespace"] == self.namespace and iface["n_properties"] > 0:
+                return True
+        return False
+
+    @property
+    def show_signals(self):
+        if len(self.signals) > 0:
+            return True
+        for ancestor in self.ancestors:
+            if ancestor["namespace"] == self.namespace and ancestor["n_signals"] > 0:
+                return True
+        for iface in self.interfaces:
+            if iface["namespace"] == self.namespace and iface["n_signals"] > 0:
+                return True
+        return False
 
     @property
     def c_decl(self):
