@@ -154,7 +154,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
           {% if ancestor.namespace == namespace.name %}
           <li class="class"><a href="class.{{ ancestor.name }}.html" title="{{ ancestor.name }}">{{ ancestor.type_cname }}</a></li>
           {% else %}
-          <li class="class">{{ ancestor.type_cname }}</a></li>
+          <li class="class">{{ ancestor.type_cname }}</li>
           {% endif %}
         {% endfor %}
         </ul>
@@ -303,13 +303,14 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
     </div>
     {% endif %}
 
-    {% if class.properties %}
+    {% if class.show_properties %}
     <div class="toggle-wrapper properties">
       <h4 id="properties">
         Properties
         <a href="#properties" class="anchor"></a>
       </h4>
 
+      {% if class.properties %}
       <div class="docblock">
       {% for property in class.properties %}
         <div class="{% if property.deprecated_since %}deprecated{% endif %}">
@@ -332,6 +333,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
         </div>
       {% endfor %}
       </div>
+      {% endif %}
 
       {% for ancestor in class.ancestors %}
         {% if ancestor.namespace == namespace.name and ancestor.n_properties > 0 %}
@@ -394,13 +396,14 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
     </div>
     {% endif %}
 
-    {% if class.signals %}
+    {% if class.show_signals %}
     <div class="signals toggle-wrapper">
       <h4 id="signals">
         Signals
         <a href="#signals" class="anchor"></a>
       </h4>
 
+      {% if class.signals %}
       <div class="docblock">
       {% for signal in class.signals %}
         <div class="{% if signal.deprecated_since %}deprecated{% endif %}">
@@ -421,6 +424,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
         </div>
       {% endfor %}
       </div>
+      {% endif %}
 
       {% for ancestor in class.ancestors %}
         {% if ancestor.namespace == namespace.name and ancestor.n_signals > 0 %}
