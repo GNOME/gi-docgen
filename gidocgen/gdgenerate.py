@@ -1277,10 +1277,10 @@ class TemplateClass:
         if len(self.properties) > 0:
             return True
         for ancestor in self.ancestors:
-            if ancestor["n_properties"] > 0:
+            if ancestor["namespace"] == self.namespace and ancestor["n_properties"] > 0:
                 return True
         for iface in self.interfaces:
-            if iface["n_properties"] > 0:
+            if iface["namespace"] == self.namespace and iface["n_properties"] > 0:
                 return True
         return False
 
@@ -1289,10 +1289,10 @@ class TemplateClass:
         if len(self.signals) > 0:
             return True
         for ancestor in self.ancestors:
-            if ancestor["n_signals"] > 0:
+            if ancestor["namespace"] == self.namespace and ancestor["n_signals"] > 0:
                 return True
         for iface in self.interfaces:
-            if iface["n_signals"] > 0:
+            if iface["namespace"] == self.namespace and iface["n_signals"] > 0:
                 return True
         return False
 
