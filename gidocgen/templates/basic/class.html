@@ -37,11 +37,11 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 </div>
 
 {{ sidebar_block(class.ctors, class.name, "Constructors", "ctor", "ctor") }}
+{{ sidebar_block(class.type_funcs, class.name, "Functions", "func", "type_func") }}
 {{ sidebar_block(class.methods, class.name, "Instance methods", "method", "method") }}
 {{ sidebar_block(class.properties, class.name, "Properties", "property", "property") }}
 {{ sidebar_block(class.signals, class.name, "Signals", "signal", "signal") }}
 {{ sidebar_block(class.class_methods, class.name, "Class methods", "method", "class_method") }}
-{{ sidebar_block(class.type_funcs, class.name, "Functions", "func", "type_func") }}
 {{ sidebar_block(class.virtual_methods, class.name, "Virtual methods", "method", "vfunc") }}
 {% endblock %}
 
@@ -67,11 +67,11 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       <li class="toc-list-item"><a href="#implements"><span class="link-text">Implements</span></a></li>
       {% endif %}
       {{ navbar_block(class.ctors, "Constructors", "#constructors") }}
+      {{ navbar_block(class.type_funcs, "Functions", "#type-functions") }}
       {{ navbar_block(class.methods, "Methods", "#methods") }}
       {{ navbar_block(class.properties, "Properties", "#properties") }}
       {{ navbar_block(class.signals, "Signals", "#signals") }}
       {{ navbar_block(class.class_methods, "Class methods", "#class-methods") }}
-      {{ navbar_block(class.type_funcs, "Functions", "#type-functions") }}
       {{ navbar_block(class.virtual_methods, "Virtual methods", "#virtual-methods") }}
     </ul>
   </nav>
@@ -210,6 +210,38 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
           </div>
           {%- endif %}
         </div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if class.type_funcs %}
+    <div class="toggle-wrapper methods">
+      <h4 id="type-functions">
+        Functions
+        <a href="#type-functions" class="anchor"></a>
+      </h4>
+
+      <div class="docblock">
+      {% for func in class.type_funcs %}
+      <div class="{% if func.deprecated_since %}deprecated{% endif %}">
+        <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a></h6>
+
+        <div class="docblock">
+          {{ func.summary }}
+        </div>
+
+        {% if func.available_since or func.deprecated_since -%}
+        <div class="docblock">
+        {%- if func.available_since -%}
+        <p>Available since: {{ func.available_since }}</p>
+        {%- endif -%}
+        {%- if func.deprecated_since -%}
+        <p>Deprecated since: {{ func.deprecated_since }}</p>
+        {%- endif -%}
+        </div>
+        {%- endif %}
+      </div>
       {% endfor %}
       </div>
     </div>
@@ -614,38 +646,6 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       </div>
     </div>
     {% endif %} 
-
-    {% if class.type_funcs %}
-    <div class="toggle-wrapper methods">
-      <h4 id="type-functions">
-        Functions
-        <a href="#type-functions" class="anchor"></a>
-      </h4>
-
-      <div class="docblock">
-      {% for func in class.type_funcs %}
-      <div class="{% if func.deprecated_since %}deprecated{% endif %}">
-        <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a></h6>
-
-        <div class="docblock">
-          {{ func.summary }}
-        </div>
-
-        {% if func.available_since or func.deprecated_since -%}
-        <div class="docblock">
-        {%- if func.available_since -%}
-        <p>Available since: {{ func.available_since }}</p>
-        {%- endif -%}
-        {%- if func.deprecated_since -%}
-        <p>Deprecated since: {{ func.deprecated_since }}</p>
-        {%- endif -%}
-        </div>
-        {%- endif %}
-      </div>
-      {% endfor %}
-      </div>
-    </div>
-    {% endif %}
 
   </section>
 </section>
