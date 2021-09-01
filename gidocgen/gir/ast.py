@@ -934,6 +934,15 @@ class Repository:
                 return repo.namespace
         return None
 
+    def _lookup_type(self, name: str) -> T.Optional[Type]:
+        types = self.types.get(name)
+        if types is None:
+            return None
+        for t in types:
+            if t.resolved:
+                return t
+        return types[0]
+
     def resolve_empty_ctypes(self, seen_types: T.Mapping[str, T.List[Type]]) -> None:
         for fqtn in seen_types:
             types = seen_types[fqtn]
@@ -970,7 +979,7 @@ class Repository:
                 prerequisite = self.namespace.find_prerequisite_type(iface.prerequisite.name)
             if prerequisite is not None:
                 if prerequisite.ctype is None:
-                    t = self.find_type(prerequisite.name)
+                    t = self._lookup_type(prerequisite.name)
                     prerequisite.ctype = t.ctype
                 iface.prerequisite = prerequisite
                 log.debug(f"Prerequisite type for interface {iface}: {iface.prerequisite}")
@@ -983,7 +992,7 @@ class Repository:
                     name = f"{self.namespace.name}.{cls.name}"
                 else:
                     name = cls.name
-                t = self.find_type(name)
+                t = self._lookup_type(name)
                 if t is not None:
                     cls.ctype = t.base_ctype
                 else:
@@ -1022,7 +1031,7 @@ class Repository:
                     iface_type = self.namespace.find_interface(iface.name)
                 if iface_type is not None:
                     if iface_type.ctype is None:
-                        t = self.find_type(iface_type.name)
+                        t = self._lookup_type(iface_type.name)
                         iface_type.ctype = t.ctype
                     cls.implements.append(iface_type)
             log.debug(f"Interfaces implemented by {cls}: {cls.implements}")
@@ -1060,7 +1069,7 @@ class Repository:
                     break
                 if real_parent.ctype is None:
                     log.debug(f"Looking up C type for {parent.fqtn}")
-                    t = self.find_type(parent.name)
+                    t = self._lookup_type(parent.name)
                     real_parent.ctype = t.ctype
                 log.debug(f"Adding ancestor {real_parent} for {cls}")
                 ancestors.append(real_parent)
@@ -1162,14 +1171,15 @@ class Repository:
     def namespace(self) -> T.Optional[Namespace]:
         return self._namespaces[0]
 
-    def find_type(self, name: str) -> T.Optional[Type]:
-        types = self.types.get(name)
-        if types is None:
-            return None
-        for t in types:
-            if t.resolved:
-                return t
-        return types[0]
+    def find_type(self, name: str) -> T.Optional[T.Tuple[Namespace, Type]]:
+        res = self.namespace.find_real_type(name)
+        if res is not None:
+            return (self.namespace, res)
+        for repo in self.includes.values():
+            res = repo.namespace.find_real_type(name)
+            if res is not None:
+                return (repo.namespace, res)
+        return None
 
     def find_symbol(self, name: str) -> T.Optional[T.Tuple[Namespace, Type]]:
         log.debug(f"Looking for symbol {name} in current namespace {self.namespace.name}")
@@ -1179,6 +1189,16 @@ class Repository:
         for repo in self.includes.values():
             log.debug(f"Looking for symbol {name} in namespace {repo.namespace.name}")
             res = repo.namespace.find_symbol(name)
+            if res is not None:
+                return (repo.namespace, res)
+        return None
+
+    def find_class(self, name: str) -> T.Optional[T.Tuple[Namespace, Type]]:
+        res = self.namespace.find_class(name)
+        if res is not None:
+            return (self.namespace, res)
+        for repo in self.includes.values():
+            res = repo.namespace.find_class(name)
             if res is not None:
                 return (repo.namespace, res)
         return None
