@@ -176,13 +176,18 @@ def gen_index_signal(signal, namespace, md=None):
 
 
 def gen_index_ancestor(ancestor_type, namespace, config, md=None):
-    if '.' in ancestor_type.name:
-        ancestor_ns, ancestor_name = ancestor_type.name.split('.')
+    ancestor_name = ancestor_type.name
+    if '.' in ancestor_name:
+        _, ancestor_name = ancestor_name.split('.')
+    res = namespace.repository.find_class(ancestor_name)
+    if res is not None:
+        ancestor_ns = res[0].name
+        ancestor_ctype = res[1].base_ctype
+        ancestor = res[1]
     else:
         ancestor_ns = ancestor_type.namespace or namespace.name
-        ancestor_name = ancestor_type.name
-    ancestor_ctype = ancestor_type.base_ctype
-    ancestor = namespace.find_class(ancestor_name)
+        ancestor_ctype = ancestor_type.base_ctype
+        ancestor = None
     n_methods = 0
     methods = []
     n_properties = 0
@@ -267,28 +272,47 @@ def gen_index_implements(iface_type, namespace, config, md=None):
     }
 
 
-def gen_type_link(namespace, name):
-    t = namespace.find_real_type(name)
-    if t is not None:
-        if isinstance(t, gir.Alias):
-            return f"<a href=\"alias.{name}.html\"><code>{t.ctype}</code></a>"
-        elif isinstance(t, gir.BitField):
-            return f"<a href=\"flags.{name}.html\"><code>{t.ctype}</code></a>"
-        elif isinstance(t, gir.Callback):
-            return f"<a href=\"callback.{name}.html\"><code>{t.ctype}</code></a>"
-        elif isinstance(t, gir.Class):
-            return f"<a href=\"class.{name}.html\"><code>{t.ctype}</code></a>"
-        elif isinstance(t, gir.ErrorDomain):
-            return f"<a href=\"error.{name}.html\"><code>{t.ctype}</code></a>"
-        elif isinstance(t, gir.Enumeration):
-            return f"<a href=\"enum.{name}.html\"><code>{t.ctype}</code></a>"
-        elif isinstance(t, gir.Interface):
-            return f"<a href=\"iface.{name}.html\"><code>{t.ctype}</code></a>"
-        elif isinstance(t, gir.Record):
-            return f"<a href=\"struct.{name}.html\"><code>{t.ctype}</code></a>"
-        elif isinstance(t, gir.Union):
-            return f"<a href=\"union.{name}.html\"><code>{t.ctype}</code></a>"
-    return f"<code>{namespace.identifier_prefix[0]}{name}</code>"
+def gen_type_link(repository, namespace, name):
+    res = repository.find_type(name)
+    if res is None:
+        return f"<code>{namespace.identifier_prefix[0]}{name}</code>"
+
+    ns, t = res
+    if isinstance(t, gir.Alias):
+        link = f"alias.{name}.html"
+    elif isinstance(t, gir.BitField):
+        link = f"flags.{name}.html"
+    elif isinstance(t, gir.Callback):
+        link = f"callback.{name}.html"
+    elif isinstance(t, gir.Class):
+        link = f"class.{name}.html"
+    elif isinstance(t, gir.ErrorDomain):
+        link = f"error.{name}.html"
+    elif isinstance(t, gir.Enumeration):
+        link = f"enum.{name}.html"
+    elif isinstance(t, gir.Interface):
+        link = f"iface.{name}.html"
+    elif isinstance(t, gir.Record):
+        link = f"struct.{name}.html"
+    elif isinstance(t, gir.Union):
+        link = f"union.{name}.html"
+    else:
+        return f"<code>{t.ctype}</code>"
+
+    if ns.name == namespace.name:
+        href = f'href="{link}"'
+        text = f"<code>{t.ctype}</code>"
+        css_class = ""
+        data_link = ""
+        data_ns = ""
+    else:
+        href = 'href="javascript:void(0)"'
+        text = f"<code>{t.ctype}</code>"
+        css_class = ' class="external"'
+        data_link = f' data-link="{link}"'
+        data_ns = f' data-namespace="{ns.name}"'
+
+    return f"<a {href}{data_link}{data_ns}{css_class}>{text}</a>"
 
 
 class TemplateConstant:
@@ -421,11 +445,9 @@ class TemplateProperty:
                 self.attributes[name] = value
         if self.type_name is not None:
             name = self.type_name
-        else:
-            name = None
-        if name is not None:
-            if name.startswith(namespace.name):
-                self.link = gen_type_link(namespace, name[len(namespace.name) + 1:])
+            if '.' in name:
+                _, name = name.split('.')
+            self.link = gen_type_link(namespace.repository, namespace, name)
 
     @property
     def c_decl(self):
@@ -497,8 +519,9 @@ class TemplateArgument:
         else:
             name = None
         if name is not None:
-            if name.startswith(namespace.name):
-                self.link = gen_type_link(namespace, name[len(namespace.name) + 1:])
+            if '.' in name:
+                _, name = name.split('.')
+                self.link = gen_type_link(namespace.repository, namespace, name)
             else:
                 if self.is_array:
                     self.link = f"<code>{self.value_type_cname}</code>"
@@ -565,11 +588,9 @@ class TemplateReturnValue:
         else:
             name = None
         if name is not None:
-            if name.startswith(namespace.name):
-                if '.' in name:
-                    self.link = gen_type_link(namespace, name[len(namespace.name) + 1:])
-                else:
-                    self.link = gen_type_link(namespace, name[len(namespace.name):])
+            if '.' in name:
+                _, name = name.split('.')
+                self.link = gen_type_link(namespace.repository, namespace, name)
             else:
                 if self.is_array:
                     self.link = f"<code>{self.value_type_cname}</code>"
@@ -1273,14 +1294,26 @@ class TemplateClass:
                     self.type_funcs.append(gen_index_func(func, namespace, md))
 
     @property
+    def show_methods(self):
+        if len(self.methods) > 0:
+            return True
+        for ancestor in self.ancestors:
+            if ancestor["n_methods"] > 0:
+                return True
+        for iface in self.interfaces:
+            if iface["n_methods"] > 0:
+                return True
+        return False
+
+    @property
     def show_properties(self):
         if len(self.properties) > 0:
             return True
         for ancestor in self.ancestors:
-            if ancestor["namespace"] == self.namespace and ancestor["n_properties"] > 0:
+            if ancestor["n_properties"] > 0:
                 return True
         for iface in self.interfaces:
-            if iface["namespace"] == self.namespace and iface["n_properties"] > 0:
+            if iface["n_properties"] > 0:
                 return True
         return False
 
@@ -1289,10 +1322,10 @@ class TemplateClass:
         if len(self.signals) > 0:
             return True
         for ancestor in self.ancestors:
-            if ancestor["namespace"] == self.namespace and ancestor["n_signals"] > 0:
+            if ancestor["n_signals"] > 0:
                 return True
         for iface in self.interfaces:
-            if iface["namespace"] == self.namespace and iface["n_signals"] > 0:
+            if iface["n_signals"] > 0:
                 return True
         return False
 
