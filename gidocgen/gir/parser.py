@@ -335,15 +335,17 @@ class GirParser:
                 ttype = child_type.attrib.get(_cns('type'))
                 tname = child_type.attrib.get('name')
                 if tname is None and ttype is not None:
-                    log.debug(f"Unnabled element type {ttype}")
+                    log.debug(f"Unlabled element type {ttype}")
                     target = ast.Type(name=ttype.replace('*', ''), ctype=ttype)
                 if tname == 'none' and ttype == 'void':
                     target = ast.VoidType()
                 elif tname != 'gpointer' and ttype == 'gpointer':
                     # API returning gpointer to avoid casting
                     target = self._lookup_type(name=tname)
-                else:
+                elif tname:
                     target = self._lookup_type(name=tname, ctype=ttype)
+                else:
+                    target = ast.VoidType()
             else:
                 target = ast.VoidType()
             ctype = ast.ArrayType(name=name, zero_terminated=zero_terminated, fixed_size=fixed_size, length=length,
