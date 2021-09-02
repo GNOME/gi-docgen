@@ -35,6 +35,7 @@ const refs = {
     form: null,
     search: null,
     main: null,
+    toc: null,
 };
 
 let searchIndex = undefined;
@@ -56,6 +57,7 @@ function onDidLoadSearchIndex(data) {
     refs.form   = document.querySelector("#search-form");
     refs.search = document.querySelector("#search");
     refs.main   = document.querySelector("#main");
+    refs.toc    = document.querySelector("#toc");
 
     attachInputHandlers();
 
@@ -122,12 +124,18 @@ function search(query) {
 
 function showSearchResults() {
     addClass(refs.main, "hidden");
+    if (refs.toc) {
+        addClass(refs.toc, "hidden");
+    }
     removeClass(refs.search, "hidden");
 }
 
 function hideSearchResults() {
     addClass(refs.search, "hidden");
     removeClass(refs.main, "hidden");
+    if (refs.toc) {
+        removeClass(refs.toc, "hidden");
+    }
 }
 
 function renderResults(query, results) {
