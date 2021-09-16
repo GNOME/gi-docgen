@@ -107,9 +107,10 @@ def _gen_callbacks(config, stemmer, index, repository, symbols):
         index_symbols.append({
             "type": "callback",
             "name": callback.name,
+            "ctype": callback.base_ctype,
             "summary": utils.preprocess_docs(cb_desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [callback.name.lower()], idx)
+        add_index_terms(index_terms, [callback.base_ctype.lower()], idx)
         add_index_terms(index_terms, utils.index_identifier(callback.name, stemmer), idx)
         add_index_terms(index_terms, utils.index_description(cb_desc, stemmer), idx)
 
