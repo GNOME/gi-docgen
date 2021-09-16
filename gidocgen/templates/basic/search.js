@@ -227,6 +227,7 @@ function getLabelForDocument(doc, meta) {
     switch (doc.type) {
         case "alias":
         case "bitfield":
+        case "callback":
         case "class":
         case "domain":
         case "enum":
@@ -234,6 +235,7 @@ function getLabelForDocument(doc, meta) {
         case "record":
         case "union":
             return "<code>" + doc.ctype + "</code>";
+
         case "class_method":
         case "constant":
         case "ctor":
@@ -255,9 +257,6 @@ function getLabelForDocument(doc, meta) {
         case "vfunc":
             return "<code>" + meta.ns + doc.type_name + "." + doc.name + "</code>";
 
-        case "callback":
-            return "<code>" + doc.name + "</code>";
-
         case "content":
             return doc.name;
     }
@@ -269,6 +268,7 @@ function getTextForDocument(doc, meta) {
     switch (doc.type) {
         case "alias":
         case "bitfield":
+        case "callback":
         case "class":
         case "domain":
         case "enum":
@@ -276,6 +276,7 @@ function getTextForDocument(doc, meta) {
         case "record":
         case "union":
             return doc.ctype;
+
         case "class_method":
         case "constant":
         case "ctor":
@@ -296,9 +297,6 @@ function getTextForDocument(doc, meta) {
             return meta.ns + doc.type_name + "::" + doc.name;
         case "vfunc":
             return meta.ns + doc.type_name + "." + doc.name;
-
-        case "callback":
-            return doc.name;
 
         case "content":
             return doc.name;

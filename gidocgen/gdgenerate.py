@@ -933,6 +933,7 @@ class TemplateFunction:
 class TemplateCallback:
     def __init__(self, namespace, cb, field=False):
         self.name = cb.name
+        self.type_cname = cb.ctype
         self.identifier = cb.name.replace("-", "_")
         self.field = field
 
@@ -986,7 +987,7 @@ class TemplateCallback:
             res += [f"{retval} (* {self.identifier}) ("]
         else:
             res += [retval]
-            res += [f"{self.identifier} ("]
+            res += [f"(* {self.type_cname}) ("]
         n_args = len(self.arguments)
         if n_args == 0:
             res += ["void"]
