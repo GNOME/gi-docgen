@@ -1178,11 +1178,14 @@ class Repository:
     def namespace(self) -> T.Optional[Namespace]:
         return self._namespaces[0]
 
-    def find_type(self, name: str) -> T.Optional[T.Tuple[Namespace, Type]]:
-        res = self.namespace.find_real_type(name)
-        if res is not None:
-            return (self.namespace, res)
+    def find_type(self, name: str, ns: T.Optional[str] = None) -> T.Optional[T.Tuple[Namespace, Type]]:
+        if ns is None or self.namespace.name == ns:
+            res = self.namespace.find_real_type(name)
+            if res is not None:
+                return (self.namespace, res)
         for repo in self.includes.values():
+            if ns is not None and ns != repo.namespace.name:
+                continue
             res = repo.namespace.find_real_type(name)
             if res is not None:
                 return (repo.namespace, res)
@@ -1200,12 +1203,28 @@ class Repository:
                 return (repo.namespace, res)
         return None
 
-    def find_class(self, name: str) -> T.Optional[T.Tuple[Namespace, Type]]:
-        res = self.namespace.find_class(name)
-        if res is not None:
-            return (self.namespace, res)
+    def find_class(self, name: str, ns: T.Optional[str] = None) -> T.Optional[T.Tuple[Namespace, Type]]:
+        if ns is None or self.namespace.name == ns:
+            res = self.namespace.find_class(name)
+            if res is not None:
+                return (self.namespace, res)
         for repo in self.includes.values():
+            if ns is not None and ns != repo.namespace.name:
+                continue
             res = repo.namespace.find_class(name)
+            if res is not None:
+                return (repo.namespace, res)
+        return None
+
+    def find_interface(self, name: str, ns: T.Optional[str] = None) -> T.Optional[T.Tuple[Namespace, Type]]:
+        if ns is None or self.namespace.name == ns:
+            res = self.namespace.find_interface(name)
+            if res is not None:
+                return (self.namespace, res)
+        for repo in self.includes.values():
+            if ns is not None and ns != repo.namespace.name:
+                continue
+            res = repo.namespace.find_interface(name)
             if res is not None:
                 return (repo.namespace, res)
         return None
