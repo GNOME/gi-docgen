@@ -458,7 +458,7 @@ class ErrorDomain(Enumeration):
 
 class Property(GIRElement):
     def __init__(self, name: str, transfer: str, target: Type, writable: bool = True, readable: bool = True, construct: bool = False,
-                 construct_only: bool = False):
+                 construct_only: bool = False, setter: T.Optional[str] = None, getter: T.Optional[str] = None):
         super().__init__(name)
         self.transfer = transfer
         self.writable = writable
@@ -466,6 +466,8 @@ class Property(GIRElement):
         self.construct = construct
         self.construct_only = construct_only
         self.target = target
+        self.setter = setter
+        self.getter = getter
 
 
 class Signal(GIRElement):

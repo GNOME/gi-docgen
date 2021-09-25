@@ -707,12 +707,15 @@ class GirParser:
         construct_only = node.attrib.get('construct-only', '0') == '1'
         construct = node.attrib.get('construct', '0') == '1'
         transfer = node.attrib.get('transfer-ownership')
+        setter = node.attrib.get('setter')
+        getter = node.attrib.get('getter')
 
         ctype = self._parse_ctype(node)
 
         res = ast.Property(name=name, transfer=transfer, target=ctype,
                            writable=writable, readable=readable,
-                           construct=construct, construct_only=construct_only)
+                           construct=construct, construct_only=construct_only,
+                           setter=setter, getter=getter)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
