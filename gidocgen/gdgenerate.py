@@ -458,6 +458,23 @@ class TemplateProperty:
                     self.attributes[label] = transform(namespace, prop, value)
             else:
                 self.attributes[name] = value
+
+        def gen_method_link(ns, t, method):
+            for m in t.methods:
+                if m.name == method:
+                    href = f"method.{t.name}.{m.name}.html"
+                    return Markup(f'<a href="{href}"><code>{m.identifier}()</code></a>')
+            return None
+
+        if prop.setter is not None:
+            link = gen_method_link(namespace, type_, prop.setter)
+            if link is not None:
+                self.attributes["Setter method"] = link
+        if prop.getter is not None:
+            link = gen_method_link(namespace, type_, prop.getter)
+            if link is not None:
+                self.attributes["Getter method"] = link
+
         if self.type_name is not None:
             name = self.type_name
             if '.' in name:
@@ -786,6 +803,24 @@ class TemplateMethod:
                     self.attributes[label] = transform(namespace, type_, method, value)
             else:
                 self.attributes[name] = value
+
+        def gen_property_link(namespace, t, prop_name):
+            if prop_name not in t.properties:
+                return None
+            prop = t.properties[prop_name]
+            text = f"{namespace.name}.{t.name}:{prop.name}"
+            href = f"property.{t.name}.{prop.name}.html"
+            return Markup(f'<a href="{href}"><code>{text}</code></a>')
+
+        if isinstance(method, gir.Method):
+            if method.set_property is not None:
+                link = gen_property_link(namespace, type_, method.set_property)
+                if link is not None:
+                    self.attributes["Sets property"] = link
+            if method.get_property is not None:
+                link = gen_property_link(namespace, type_, method.get_property)
+                if link is not None:
+                    self.attributes["Gets property"] = link
 
     @property
     def c_decl(self):
