@@ -178,8 +178,10 @@ def gen_index_signal(signal, namespace, md=None):
 def gen_index_ancestor(ancestor_type, namespace, config, md=None):
     ancestor_name = ancestor_type.name
     if '.' in ancestor_name:
-        _, ancestor_name = ancestor_name.split('.')
-    res = namespace.repository.find_class(ancestor_name)
+        ns, ancestor_name = ancestor_name.split('.')
+    else:
+        ns = ancestor_type.namespace or namespace.name
+    res = namespace.repository.find_class(ancestor_name, ns)
     if res is not None:
         ancestor_ns = res[0].name
         ancestor_ctype = res[1].base_ctype
@@ -228,13 +230,20 @@ def gen_index_ancestor(ancestor_type, namespace, config, md=None):
 
 
 def gen_index_implements(iface_type, namespace, config, md=None):
-    if '.' in iface_type.name:
-        iface_ns, iface_name = iface_type.name.split('.')
+    iface_name = iface_type.name
+    if '.' in iface_name:
+        ns, iface_name = iface_name.split('.')
+    else:
+        ns = iface_type.namespace or namespace.name
+    res = namespace.repository.find_interface(iface_name, ns)
+    if res is not None:
+        iface_ns = res[0].name
+        iface_ctype = res[1].base_ctype
+        iface = res[1]
     else:
         iface_ns = iface_type.namespace or namespace.name
-        iface_name = iface_type.name
-    iface_ctype = iface_type.base_ctype
-    iface = namespace.find_interface(iface_name)
+        iface_ctype = iface_type.base_ctype
+        iface = None
     n_methods = 0
     methods = []
     n_properties = 0
@@ -273,11 +282,14 @@ def gen_index_implements(iface_type, namespace, config, md=None):
 
 
 def gen_type_link(repository, namespace, name):
-    res = repository.find_type(name)
+    res = repository.find_type(name, ns=namespace)
     if res is None:
-        return f"<code>{namespace.identifier_prefix[0]}{name}</code>"
+        return f"<code>{name}</code>"
 
     ns, t = res
+    if t.is_fundamental:
+        return f"<code>{name}</code>"
+
     if isinstance(t, gir.Alias):
         link = f"alias.{name}.html"
     elif isinstance(t, gir.BitField):
@@ -299,7 +311,7 @@ def gen_type_link(repository, namespace, name):
     else:
         return f"<code>{t.ctype}</code>"
 
-    if ns.name == namespace.name:
+    if ns.name == repository.namespace.name:
         href = f'href="{link}"'
         text = f"<code>{t.ctype}</code>"
         css_class = ""
@@ -361,7 +373,10 @@ class TemplateProperty:
         self.type_name = prop.target.name
         self.type_cname = prop.target.ctype
         if self.type_cname is None:
-            self.type_cname = type_name_to_cname(prop.target.name, True)
+            if prop.target.is_fundamental:
+                self.type_cname = prop.target.name
+            else:
+                self.type_cname = type_name_to_cname(prop.target.name, True)
         self.readable = prop.readable
         self.writable = prop.writable
         self.construct = prop.construct
@@ -446,8 +461,10 @@ class TemplateProperty:
         if self.type_name is not None:
             name = self.type_name
             if '.' in name:
-                _, name = name.split('.')
-            self.link = gen_type_link(namespace.repository, namespace, name)
+                ns, name = name.split('.')
+            else:
+                ns = namespace.name
+            self.link = gen_type_link(namespace.repository, ns, name)
 
     @property
     def c_decl(self):
@@ -479,6 +496,8 @@ class TemplateArgument:
         self.is_map = isinstance(argument.target, gir.MapType)
         self.is_varargs = isinstance(argument.target, gir.VarArgs)
         self.is_macro = isinstance(call, gir.FunctionMacro)
+        self.is_list_model = self.type_name in ['Gio.ListModel', 'GListModel']
+        self.is_fundamental = argument.target.is_fundamental
         self.transfer = argument.transfer or 'none'
         if isinstance(call, gir.Method):
             self.transfer_note = METHOD_ARG_TRANSFER_MODES[argument.transfer or 'none']
@@ -505,6 +524,8 @@ class TemplateArgument:
         if self.is_list:
             self.value_type = argument.target.value_type.name
             self.value_type_cname = argument.target.value_type.ctype
+        if self.is_list_model:
+            self.value_type = argument.attributes.get('element-type', 'GObject')
         if argument.doc is not None:
             self.summary = utils.preprocess_docs(argument.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(argument.doc.content, namespace)
@@ -519,14 +540,20 @@ class TemplateArgument:
         else:
             name = None
         if name is not None:
-            if '.' in name:
-                _, name = name.split('.')
-                self.link = gen_type_link(namespace.repository, namespace, name)
+            if self.is_fundamental:
+                self.link = f"<code>{self.type_cname}</code>"
+            elif self.is_array:
+                self.link = f"<code>{self.value_type_cname}</code>"
+            elif self.is_list:
+                self.link = f"<code>{self.value_type_cname}</code>"
+            elif self.is_list_model:
+                self.link = f"<code>{self.value_type}</code>"
             else:
-                if self.is_array:
-                    self.link = f"<code>{self.value_type_cname}</code>"
-                elif self.is_list:
-                    self.link = f"<code>{self.value_type_cname}</code>"
+                if '.' in name:
+                    ns, name = name.split('.')
+                else:
+                    ns = namespace.name
+                self.link = gen_type_link(namespace.repository, ns, name)
 
     @property
     def is_pointer(self):
@@ -547,6 +574,7 @@ class TemplateReturnValue:
         self.name = retval.name
         self.type_name = retval.target.name
         self.type_cname = retval.target.ctype
+        self.is_fundamental = retval.target.is_fundamental
         if self.type_cname is None:
             self.type_cname = type_name_to_cname(retval.target.name, True)
         self.is_array = isinstance(retval.target, gir.ArrayType)
@@ -588,16 +616,20 @@ class TemplateReturnValue:
         else:
             name = None
         if name is not None:
-            if '.' in name:
-                _, name = name.split('.')
-                self.link = gen_type_link(namespace.repository, namespace, name)
+            if self.is_fundamental:
+                self.link = f"<code>{self.type_name}</code>"
+            elif self.is_array:
+                self.link = f"<code>{self.value_type_cname}</code>"
+            elif self.is_list:
+                self.link = f"<code>{self.value_type_cname}</code>"
+            elif self.is_list_model:
+                self.link = f"<code>{self.value_type}</code>"
             else:
-                if self.is_array:
-                    self.link = f"<code>{self.value_type_cname}</code>"
-                elif self.is_list:
-                    self.link = f"<code>{self.value_type_cname}</code>"
-                elif self.is_list_model:
-                    self.link = f"<code>{self.value_type}</code>"
+                if '.' in name:
+                    ns, name = name.split('.')
+                else:
+                    ns = namespace.name
+                self.link = gen_type_link(namespace.repository, ns, name)
 
     @property
     def is_pointer(self):

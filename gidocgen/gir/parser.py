@@ -119,15 +119,18 @@ class GirParser:
 
     def _lookup_type(self, name: str, ctype: T.Optional[str] = None) -> ast.Type:
         """Look up a type, and if not found, register it"""
+        is_fundamental = False
         if name in FUNDAMENTAL_TYPES:
             if name in GLIB_ALIASES:
                 fqtn = GLIB_ALIASES[name]
             else:
                 fqtn = name
+            is_fundamental = True
         elif name == 'GType':
             # This is messy, because GType is part of GObject, but GLib ends up
             # registering it first
             fqtn = 'GObject.Type'
+            is_fundamental = True
         elif '.' in name:
             fqtn = name
         else:
@@ -151,14 +154,14 @@ class GirParser:
                     if t.resolved and t.ctype == ctype:
                         log.debug(f"Found seen type: {t} (with ctype)")
                         return t
-                t = ast.Type(name=fqtn, ctype=ctype)
+                t = ast.Type(name=fqtn, ctype=ctype, is_fundamental=is_fundamental)
                 found_types.append(t)
                 log.debug(f"Seen new type: {t} (with ctype)")
                 return t
             log.debug(f"Found seen type: {found_types[0]}")
             return found_types[0]
         # First time we saw this type
-        res = ast.Type(name=fqtn, ctype=ctype)
+        res = ast.Type(name=fqtn, ctype=ctype, is_fundamental=is_fundamental)
         self._seen_types[fqtn] = [res]
         log.debug(f"Seen new type: {res}")
         return res
