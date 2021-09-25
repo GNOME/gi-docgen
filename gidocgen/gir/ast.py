@@ -162,9 +162,10 @@ class GIRElement:
 
 class Type(GIRElement):
     """Base class for all Type nodes"""
-    def __init__(self, name: str, ctype: T.Optional[str] = None, namespace: T.Optional[str] = None):
+    def __init__(self, name: str, ctype: T.Optional[str] = None, namespace: T.Optional[str] = None, is_fundamental: bool = False):
         super().__init__(name=name, namespace=namespace)
         self.ctype = ctype
+        self.is_fundamental = is_fundamental
 
     def __eq__(self, other):
         if isinstance(other, Type):
@@ -199,7 +200,9 @@ class Type(GIRElement):
 
     @property
     def fqtn(self):
-        if '.' in self.name:
+        if self.is_fundamental:
+            return self.name
+        elif '.' in self.name:
             return self.name
         elif self.namespace is not None:
             return f"{self.namespace}.{self.name}"
@@ -217,6 +220,7 @@ class ArrayType(GIRElement):
         self.fixed_size = fixed_size
         self.length = length
         self.value_type = value_type
+        self.is_fundamental = False
 
 
 class ListType(GIRElement):
@@ -225,6 +229,7 @@ class ListType(GIRElement):
         super().__init__(name)
         self.ctype = ctype
         self.value_type = value_type
+        self.is_fundamental = False
 
 
 class MapType(GIRElement):
@@ -234,6 +239,7 @@ class MapType(GIRElement):
         self.ctype = ctype
         self.key_type = key_type
         self.value_type = value_type
+        self.is_fundamental = False
 
 
 class GType:
@@ -389,6 +395,7 @@ class Callback(Callable):
     def __init__(self, name: str, namespace: str, ctype: T.Optional[str], throws: bool = False):
         super().__init__(name=name, namespace=namespace, identifier=None, throws=throws)
         self.ctype = ctype
+        self.is_fundamental = False
 
     @property
     def base_ctype(self):
