@@ -574,6 +574,8 @@ class GirParser:
         throws = node.attrib.get('throws', '0') == '1'
         shadows = node.attrib.get('shadows')
         shadowed_by = node.attrib.get('shadowed-by')
+        set_property = node.attrib.get(_glibns('set-property'))
+        get_property = node.attrib.get(_glibns('get-property'))
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -586,7 +588,8 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.Method(name=name, identifier=identifier, instance_param=instance_param, throws=throws)
+        res = ast.Method(name=name, identifier=identifier, instance_param=instance_param, throws=throws,
+                         set_property=set_property, get_property=get_property)
         res.set_return_value(return_value)
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
