@@ -574,6 +574,8 @@ class GirParser:
         throws = node.attrib.get('throws', '0') == '1'
         shadows = node.attrib.get('shadows')
         shadowed_by = node.attrib.get('shadowed-by')
+        set_property = node.attrib.get(_glibns('set-property'))
+        get_property = node.attrib.get(_glibns('get-property'))
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -586,7 +588,8 @@ class GirParser:
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.Method(name=name, identifier=identifier, instance_param=instance_param, throws=throws)
+        res = ast.Method(name=name, identifier=identifier, instance_param=instance_param, throws=throws,
+                         set_property=set_property, get_property=get_property)
         res.set_return_value(return_value)
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
@@ -707,12 +710,15 @@ class GirParser:
         construct_only = node.attrib.get('construct-only', '0') == '1'
         construct = node.attrib.get('construct', '0') == '1'
         transfer = node.attrib.get('transfer-ownership')
+        setter = node.attrib.get('setter')
+        getter = node.attrib.get('getter')
 
         ctype = self._parse_ctype(node)
 
         res = ast.Property(name=name, transfer=transfer, target=ctype,
                            writable=writable, readable=readable,
-                           construct=construct, construct_only=construct_only)
+                           construct=construct, construct_only=construct_only,
+                           setter=setter, getter=getter)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
