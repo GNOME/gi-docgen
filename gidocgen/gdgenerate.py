@@ -205,8 +205,10 @@ def gen_index_ancestor(ancestor_type, namespace, config, md=None):
             is_hidden = config.is_hidden(ancestor_name, "method", m.name)
             if not is_hidden:
                 n_methods += 1
-            if n_methods < 24 and not is_hidden:
-                methods.append(gen_index_func(m, namespace, md))
+        if n_methods > 0 and n_methods < 24:
+            for m in ancestor.methods:
+                if not config.is_hidden(ancestor_name, "method", m.name):
+                    methods.append(gen_index_func(m, namespace, md))
         for p in ancestor.properties.values():
             if not config.is_hidden(ancestor_name, "property", p.name):
                 n_properties += 1
@@ -257,8 +259,10 @@ def gen_index_implements(iface_type, namespace, config, md=None):
             is_hidden = config.is_hidden(iface_name, "method", m.name)
             if not is_hidden:
                 n_methods += 1
-            if n_methods < 24 and not is_hidden:
-                methods.append(gen_index_func(m, namespace, md))
+        if n_methods > 0 and n_methods < 24:
+            for m in iface.methods:
+                if not config.is_hidden(iface_name, "method", m.name):
+                    methods.append(gen_index_func(m, namespace, md))
         for p in iface.properties.values():
             if not config.is_hidden(iface_name, "property", p.name):
                 n_properties += 1
