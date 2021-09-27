@@ -17,7 +17,7 @@ ARG_SIGIL_RE = re.compile(r"(^|\W)@([A-Za-z0-9_]+)\b")
 
 CONST_SIGIL_RE = re.compile(r"(^|\W)%([A-Z0-9_]+)\b")
 
-FUNCTION_RE = re.compile(r"\b([a-z][a-z0-9_]*)\(\)")
+FUNCTION_RE = re.compile(r"(^|\s+)([a-z][a-z0-9_]*)\(\)(\s+|$)")
 
 
 class GtkDocPreprocessor(Preprocessor):
@@ -55,7 +55,7 @@ class GtkDocPreprocessor(Preprocessor):
                 new_line = re.sub(ARG_SIGIL_RE, r"\g<1>`\g<2>`", new_line)
 
                 # Function
-                new_line = re.sub(FUNCTION_RE, r"`\g<1>()`", new_line)
+                new_line = re.sub(FUNCTION_RE, r"\g<1>`\g<2>()`\g<3>", new_line)
 
             new_lines.append(new_line)
         return new_lines
