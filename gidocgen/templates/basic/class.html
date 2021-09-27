@@ -284,10 +284,13 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
           <h5 style="display:block;">Methods inherited from <a class="external" href="javascript:void(0)" data-link="class.{{ ancestor.name }}.html" data-namespace="{{ ancestor.namespace }}">{{ ancestor.type_cname }}</a> ({{ ancestor.n_methods }})</h5>
           {% endif -%}
 
-          {% if ancestor.namespace == namespace.name %}
           <div class="docblock">
           {% for method in ancestor.methods %}
+            {%- if ancestor.namespace == namespace.name %}
             <h6><a href="method.{{ ancestor.name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
+            {%- else -%}
+            <h6><a class="external" href="javascript:void(0)" data-namespace="{{ ancestor.namespace }}" data-link="method.{{ ancestor.name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
+            {% endif -%}
             <div class="docblock">
               {{ method.summary }}
             </div>
@@ -303,7 +306,6 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
             {%- endif %}
           {% endfor %}
           </div>
-          {% endif %}
         </div>
         {% endif %}
       {% endfor %}
@@ -317,10 +319,13 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
           <h5 style="display:block;">Methods inherited from <a class="external" href="javascript:void(0)" data-link="iface.{{ iface.name }}.html" data-namespace="{{ iface.namespace }}">{{ iface.type_cname }}</a> ({{ iface.n_methods }})</h5>
           {% endif -%}
 
-          {% if iface.namespace == namespace.name %}
           <div class="docblock">
           {% for method in iface.methods %}
+            {%- if iface.namespace == namespace.name %}
             <h6><a href="method.{{ iface.name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
+            {%- else -%}
+            <h6><a class="external" href="javascript:void(0)" data-namespace="{{ iface.namespace }}" data-link="method.{{ iface.name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
+            {% endif -%}
             <div class="docblock">
               {{ method.summary }}
             </div>
@@ -336,7 +341,6 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
             {%- endif %}
           {% endfor %}
           </div>
-          {% endif %}
         </div>
         {% endif %}
       {% endfor %}
@@ -378,16 +382,19 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       {% for ancestor in class.ancestors %}
         {% if ancestor.n_properties > 0 %}
         <div class="{% if ancestor.properties %}toggle-wrapper default-hide{% endif %} ancestor-properties">
-          {% if ancestor.namespace == namespace.name %}
+          {%- if ancestor.namespace == namespace.name %}
           <h5 style="display:block;">Properties inherited from <a href="class.{{ ancestor.name }}.html">{{ ancestor.type_cname }}</a> ({{ ancestor.n_properties }})</h5>
-          {% else %}
+          {%- else -%}
           <h5 style="display:block;">Properties inherited from <a class="external" href="javascript:void(0)" data-link="class.{{ ancestor.name }}.html" data-namespace="{{ ancestor.namespace }}">{{ ancestor.type_cname }}</a> ({{ ancestor.n_properties }})</h5>
-          {% endif %}
+          {% endif -%}
 
-          {% if ancestor.namespace == namespace.name %}
           <div class="docblock">
           {% for property in ancestor.properties %}
+            {%- if ancestor.namespace == namespace.name %}
             <h6><a href="property.{{ ancestor.name }}.{{ property.name }}.html">{{ ancestor.fqtn }}:{{ property.name }}</a></h6>
+            {%- else -%}
+            <h6><a class="external" href="javascript:void(0)" data-namespace="{{ ancestor.namespace }}" data-link="property.{{ ancestor.name }}.{{ property.name }}.html">{{ ancestor.fqtn }}:{{ property.name }}</a></h6>
+            {% endif -%}
             <div class="docblock">
               {{ property.summary }}
             </div>
@@ -403,7 +410,6 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
             {%- endif %}
           {% endfor %}
           </div>
-          {% endif %}
         </div>
         {% endif %}
       {% endfor %}
@@ -411,16 +417,19 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       {% for iface in class.interfaces %}
         {% if iface.n_properties > 0 %}
         <div class="{% if iface.properties %}toggle-wrapper default-hide{% endif %} ancestor-properties">
-          {% if iface.namespace == namespace.name %}
+          {%- if iface.namespace == namespace.name %}
           <h5 style="display:block;">Properties inherited from <a href="iface.{{ iface.name }}.html">{{ iface.type_cname }}</a> ({{ iface.n_properties }})</h5>
-          {% else %}
+          {%- else -%}
           <h5 style="display:block;">Properties inherited from <a class="external" href="javascript:void(0)" data-link="iface.{{ iface.name }}.html" data-namespace="{{ iface.namespace }}">{{ iface.type_cname }}</a> ({{ iface.n_properties }})</h5>
-          {% endif %}
+          {% endif -%}
 
-          {% if iface.namespace == namespace.name %}
           <div class="docblock">
           {% for property in iface.properties %}
+            {%- if iface.namespace == namespace.name %}
             <h6><a href="property.{{ iface.name }}.{{ property.name }}.html">{{ iface.fqtn }}:{{ property.name }}</a></h6>
+            {%- else -%}
+            <h6><a class="external" href="javascript:void(0)" data-namespace="{{ iface.namespace }}" data-link="property.{{ iface.name }}.{{ property.name }}.html">{{ iface.fqtn }}:{{ property.name }}</a></h6>
+            {% endif -%}
             <div class="docblock">
               {{ property.summary }}
             </div>
@@ -436,7 +445,6 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
             {%- endif %}
           {% endfor %}
           </div>
-          {% endif %}
         </div>
         {% endif %}
       {% endfor %}
@@ -477,16 +485,19 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       {% for ancestor in class.ancestors %}
         {% if ancestor.n_signals > 0 %}
         <div class="{% if ancestor.signals %}toggle-wrapper default-hide{% endif %} ancestor-signals">
-          {% if ancestor.namespace == namespace.name %}
+          {%- if ancestor.namespace == namespace.name %}
           <h5 style="display:block;">Signals inherited from <a href="class.{{ ancestor.name }}.html">{{ ancestor.type_cname }}</a> ({{ ancestor.n_signals }})</h5>
-          {% else %}
+          {%- else -%}
           <h5 style="display:block;">Signals inherited from <a class="external" href="javascript:void(0)" data-link="class.{{ ancestor.name }}.html" data-namespace="{{ ancestor.namespace }}">{{ ancestor.type_cname }}</a> ({{ ancestor.n_signals }})</h5>
-          {% endif %}
+          {% endif -%}
 
-          {% if ancestor.namespace == namespace.name %}
           <div class="docblock">
           {% for signal in ancestor.signals %}
+            {%- if ancestor.namespace == namespace.name %}
             <h6><a href="signal.{{ ancestor.name }}.{{ signal.name }}.html">{{ ancestor.fqtn }}::{{ signal.name }}</a></h6>
+            {%- else -%}
+            <h6><a class="external" href="javascript:void(0)" data-namespace="{{ ancestor.namespace }}" data-link="signal.{{ ancestor.name }}.{{ signal.name }}.html">{{ ancestor.fqtn }}::{{ signal.name }}</a></h6>
+            {% endif -%}
             <div class="docblock">
               {{ signal.summary }}
             </div>
@@ -502,7 +513,6 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
             {%- endif %}
           {% endfor %}
           </div>
-          {% endif %}
         </div>
         {% endif %}
       {% endfor %}
@@ -510,16 +520,19 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       {% for iface in class.interfaces %}
         {% if iface.n_signals %}
         <div class="{% if iface.signals %}toggle-wrapper default-hide{% endif %} ancestor-signals">
-          {% if iface.namespace == namespace.name %}
+          {%- if iface.namespace == namespace.name %}
           <h5 style="display:block;">Signals inherited from <a href="iface.{{ iface.name }}.html">{{ iface.type_cname }}</a> ({{ iface.n_signals }})</h5>
-          {% else %}
+          {%- else -%}
           <h5 style="display:block;">Signals inherited from <a class="external" href="javascript:void(0)" data-link="iface.{{ iface.name }}.html" data-namespace="{{ iface.namespace }}">{{ iface.type_cname }}</a> ({{ iface.n_signals }})</h5>
-          {% endif %}
+          {% endif -%}
 
-          {% if iface.namespace == namespace.name %}
           <div class="docblock">
           {% for signal in iface.signals %}
+            {%- if iface.namespace == namespace.name %}
             <h6><a href="signal.{{ iface.name }}.{{ signal.name }}.html">{{ iface.fqtn }}::{{ signal.name }}</a></h6>
+            {%- else -%}
+            <h6><a class="external" href="javascript:void(0)" data-namespace="{{ iface.namespace }}" data-link="signal.{{ iface.name }}.{{ signal.name }}.html">{{ iface.fqtn }}::{{ signal.name }}</a></h6>
+            {% endif -%}
             <div class="docblock">
               {{ signal.summary }}
             </div>
@@ -535,7 +548,6 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
             {%- endif %}
           {% endfor %}
           </div>
-          {% endif %}
         </div>
         {% endif %}
       {% endfor %}
