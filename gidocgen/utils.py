@@ -576,7 +576,7 @@ class LinkGenerator:
         elif self._fragment == 'signal':
             return f"<code>{self._type}::{self._signal_name}</code>"
         elif self._fragment in ['ctor', 'func', 'method', 'class_method']:
-            return f"<code>{self._symbol_name}()</code>"
+            return f"<code>{self._symbol_name}</code>"
         elif self._fragment == 'vfunc':
             return f"<code>{self._ns}.{self._type}.{self._vfunc_name}</code>"
         else:
