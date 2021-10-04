@@ -441,6 +441,12 @@ class TemplateProperty:
             href = f"method.{t.name}.{func_name}.html"
             return Markup(f"<a href=\"{href}\"><code>{getter_func}</code></a>")
 
+        def transform_default_attribute(namespace, prop, default_value):
+            if default_value is None:
+                log.warning(f"Missing value in the default attribute for {prop.name}")
+                return None
+            return Markup(f"<code>{default_value}</code>")
+
         ATTRIBUTE_NAMES = {
             "org.gtk.Property.set": {
                 "label": "Setter method",
@@ -449,6 +455,10 @@ class TemplateProperty:
             "org.gtk.Property.get": {
                 "label": "Getter method",
                 "transform": transform_get_attribute,
+            },
+            "org.gtk.Property.default": {
+                "label": "Default value",
+                "transform": transform_default_attribute,
             },
         }
 
