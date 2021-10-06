@@ -14,24 +14,28 @@ GI_NAMESPACES = {
     'glib': "http://www.gtk.org/introspection/glib/1.0",
 }
 
-FUNDAMENTAL_TYPES = [
+FUNDAMENTAL_INTEGRAL_TYPES = [
     'gint8', 'guint8', 'int8_t', 'uint8_t',
     'gint16', 'guint16', 'int16_t', 'uint16_t',
     'gint32', 'guint32', 'int32_t', 'uint32_t',
     'gint64', 'guint64', 'int64_t', 'uint64_t',
-    'gint', 'guint', 'int', 'unsigned', 'unsigned int',
+    'gint', 'int',
+    'guint', 'unsigned', 'unsigned int',
     'gfloat', 'float',
     'gdouble', 'double', 'long double',
     'gchar', 'guchar', 'char', 'unsigned char',
     'gshort', 'gushort', 'short', 'unsigned short',
     'glong', 'gulong', 'long', 'unsigned long',
-    'utf8', 'filename',
     'gunichar',
-    'gpointer', 'gconstpointer',
-    'gchar*', 'char*', 'guchar*',
     'gsize', 'gssize', 'size_t',
     'gboolean', 'bool',
     'va_list',
+]
+
+FUNDAMENTAL_TYPES = FUNDAMENTAL_INTEGRAL_TYPES + [
+    'gpointer', 'gconstpointer',
+    'gchar*', 'char*', 'guchar*',
+    'utf8', 'filename',
 ]
 
 GLIB_ALIASES = {
@@ -342,7 +346,11 @@ class GirParser:
                     target = ast.Type(name=ttype.replace('*', ''), ctype=ttype)
                 if tname == 'none' and ttype == 'void':
                     target = ast.VoidType()
-                elif tname != 'gpointer' and ttype == 'gpointer':
+                elif ttype == 'gpointer' and tname in FUNDAMENTAL_INTEGRAL_TYPES:
+                    # API returning a pointer with an overridden fundamental type,
+                    # like in-out/out signal arguments
+                    ctype = self._lookup_type(name=tname, ctype=f"{tname}*")
+                elif ttype == 'gpointer' and tname != 'gpointer':
                     # API returning gpointer to avoid casting
                     target = self._lookup_type(name=tname)
                 elif tname:
@@ -384,7 +392,11 @@ class GirParser:
                                             value_type=ast.Type(vtname))
                     else:
                         ctype = self._lookup_type(name=tname, ctype=ttype)
-                elif tname != 'gpointer' and ttype == 'gpointer':
+                elif ttype == 'gpointer' and tname in FUNDAMENTAL_INTEGRAL_TYPES:
+                    # API returning a pointer with an overridden fundamental type,
+                    # like in-out/out signal arguments
+                    ctype = self._lookup_type(name=tname, ctype=f"{tname}*")
+                elif ttype == 'gpointer' and tname != 'gpointer':
                     # API returning gpointer to avoid casting
                     ctype = self._lookup_type(name=tname)
                 else:
