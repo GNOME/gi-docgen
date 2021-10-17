@@ -1227,6 +1227,14 @@ class TemplateInterface:
                 if not config.is_hidden(interface.name, "function", func.name):
                     self.type_funcs.append(gen_index_func(func, namespace, md))
 
+        if len(interface.implementations) != 0:
+            self.implementations = []
+            for impl in interface.implementations:
+                self.implementations.append({
+                    'name': impl.name,
+                    'ctype': impl.ctype,
+                })
+
     @property
     def c_decl(self):
         return f"interface {self.fqtn} : {self.requires_fqtn}"
