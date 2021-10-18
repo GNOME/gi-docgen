@@ -514,6 +514,7 @@ class Interface(Type):
         self.functions: T.List[Function] = []
         self.fields: T.List[Field] = []
         self.prerequisite: T.Optional[str] = None
+        self.implementations: T.List[Type] = []
 
     @property
     def type_struct(self) -> T.Optional[str]:
@@ -572,6 +573,7 @@ class Class(Type):
         self.functions: T.List[Function] = []
         self.fields: T.List[Field] = []
         self.callbacks: T.List[Callback] = []
+        self.descendants: T.List[Type] = []
 
     @property
     def type_struct(self) -> T.Optional[str]:
@@ -1090,6 +1092,15 @@ class Repository:
             cls.parent = ancestors[0]
             log.debug(f"Ancestors for {cls}: parent: {cls.parent}, ancestors: {cls.ancestors}")
 
+    def resolve_class_descendants(self) -> None:
+        seen_parents = {}
+        for cls in self.namespace.get_classes():
+            if cls.parent is not None:
+                seen_parents.setdefault(cls.parent.name, []).append(cls)
+        for name, descendants in seen_parents.items():
+            if name in self.namespace._classes:
+                self.namespace._classes[name].descendants = descendants
+
     def resolve_moved_to(self) -> None:
         functions = list(self.namespace.get_functions())
         old_len = len(functions)
@@ -1138,6 +1149,18 @@ class Repository:
             for m in union.functions:
                 symbols[m.identifier] = union
         self.namespace._symbols = symbols
+
+    def resolve_interface_implementations(self) -> None:
+        seen_impls = {}
+        for iface in self.namespace.get_interfaces():
+            for cls in self.namespace.get_classes():
+                if cls.implements is None:
+                    continue
+                if iface in cls.implements:
+                    seen_impls.setdefault(iface.name, []).append(cls)
+        for iface, seen in seen_impls.items():
+            if iface in self.namespace._interfaces:
+                self.namespace._interfaces[iface].implementations = seen
 
     def get_class_hierarchy(self, root=None):
         flat_tree = []

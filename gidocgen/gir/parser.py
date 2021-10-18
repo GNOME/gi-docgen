@@ -96,10 +96,12 @@ class GirParser:
                 repository.girfile = girfile.name
             self._repository = repository
             self._repository.resolve_empty_ctypes(self._seen_types)
-            self._repository.resolve_interface_requires()
             self._repository.resolve_class_type()
             self._repository.resolve_class_implements()
             self._repository.resolve_class_ancestors()
+            self._repository.resolve_class_descendants()
+            self._repository.resolve_interface_requires()
+            self._repository.resolve_interface_implementations()
             self._repository.resolve_moved_to()
             self._repository.resolve_symbols()
 

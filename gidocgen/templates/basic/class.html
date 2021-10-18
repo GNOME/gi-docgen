@@ -162,6 +162,19 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
     </div>
     {% endif %}
 
+    {% if class.descendants %}
+    <div class="descendants toggle-wrapper default-hide">
+      <h4 id="descendants">Descendants <a href="#descendants" class="anchor"></a></h4>
+      <div class="docblock">
+        <ul>
+        {%- for cls in class.descendants %}
+          <li class="class"><a href="class.{{ cls.name }}.html" title="{{ cls.name }}">{{ cls.ctype }}</a></li>
+        {% endfor -%}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
     {% if class.interfaces %}
     <div class="toggle-wrapper implements">
       <h4 id="implements">

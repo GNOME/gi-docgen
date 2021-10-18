@@ -135,6 +135,19 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       </div>
     </div>
 
+    {% if interface.implementations %}
+    <div class="implementations toggle-wrapper default-hide">
+      <h4 id="implementations">Implementations<a href="#implementations" class="anchor"></a></h4>
+      <div class="docblock">
+        <ul>
+        {%- for impl in interface.implementations %}
+          <li><a href="iface.{{ impl.name }}.html">{{ impl.ctype }}</a></li>
+        {% endfor -%}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
     {% if interface.type_funcs %}
     <div class="methods toggle-wrapper">
       <h4 id="type-functions">
