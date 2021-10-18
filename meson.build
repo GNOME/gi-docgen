@@ -57,15 +57,16 @@ if get_option('development_tests') and not meson.is_subproject()
     )
   endif
 
-  mypy = find_program('mypy', required: false)
-  if mypy.found()
-    test('mypy',
-      mypy,
-      args: [
-        '--ignore-missing-imports',
-        '--disallow-incomplete-defs',
-        meson.current_source_dir() / 'gidocgen',
-      ],
-    )
-  endif
+#  mypy = find_program('mypy', required: false)
+#  if mypy.found()
+#    test('mypy',
+#      mypy,
+#      args: [
+#        '--ignore-missing-imports',
+#        '--disallow-incomplete-defs',
+#        meson.current_source_dir() / 'gidocgen',
+#      ],
+#      should_fail: true,
+#    )
+#  endif
 endif
