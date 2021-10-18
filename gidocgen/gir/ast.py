@@ -573,6 +573,7 @@ class Class(Type):
         self.functions: T.List[Function] = []
         self.fields: T.List[Field] = []
         self.callbacks: T.List[Callback] = []
+        self.descendants: T.List[Type] = []
 
     @property
     def type_struct(self) -> T.Optional[str]:
@@ -1090,6 +1091,15 @@ class Repository:
             cls.ancestors = ancestors
             cls.parent = ancestors[0]
             log.debug(f"Ancestors for {cls}: parent: {cls.parent}, ancestors: {cls.ancestors}")
+
+    def resolve_class_descendants(self) -> None:
+        seen_parents = {}
+        for cls in self.namespace.get_classes():
+            if cls.parent is not None:
+                seen_parents.setdefault(cls.parent.name, []).append(cls)
+        for name, descendants in seen_parents.items():
+            if name in self.namespace._classes:
+                self.namespace._classes[name].descendants = descendants
 
     def resolve_moved_to(self) -> None:
         functions = list(self.namespace.get_functions())
