@@ -1281,6 +1281,14 @@ class TemplateClass:
             for ancestor_type in cls.ancestors:
                 self.ancestors.append(gen_index_ancestor(ancestor_type, namespace, config, md))
 
+        if cls.descendants:
+            self.descendants = []
+            for descendant in cls.descendants:
+                self.descendants.append({
+                    'name': descendant.name,
+                    'ctype': descendant.ctype,
+                })
+
         self.class_name = cls.type_struct
 
         self.instance_struct = None
