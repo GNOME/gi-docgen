@@ -861,6 +861,8 @@ table.returns tr.arg-description td {
 .type-funcs h6,
 .implements a,
 .ancestors a,
+.descendants a,
+.implementations a,
 .sidebar .links a
 .toc a
 {
