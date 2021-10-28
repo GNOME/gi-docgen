@@ -1153,6 +1153,7 @@ class TemplateInterface:
             self.requires_ctype = requires.ctype
 
         self.requires_fqtn = f"{self.requires_namespace}.{self.requires_name}"
+        log.debug(f"Preqrequisite for {self.fqtn}: {self.requires_fqtn}")
 
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{interface.symbol_prefix}"
         self.type_cname = interface.base_ctype

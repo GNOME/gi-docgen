@@ -970,13 +970,14 @@ class Repository:
 
     def resolve_interface_requires(self) -> None:
         def find_prerequisite_type(includes, ns, name):
-            for repo in includes.values():
-                if repo.namespace.name != ns:
-                    continue
-                prereq = repo.namespace.find_prerequisite_type(name)
-                if prereq is not None:
-                    return Type(name=f"{repo.namespace.name}.{prereq.name}", ctype=prereq.ctype)
-            return None
+            repository = includes.get(ns)
+            if repository is None:
+                return None
+            prereq = repository.namespace.find_prerequisite_type(name)
+            # If the prerequisite type is unqualified, then we qualify it here
+            if '.' not in prereq.name:
+                prereq.name = f"{repository.namespace.name}.{prereq.name}"
+            return prereq
 
         ifaces = self.namespace.get_interfaces()
         for iface in ifaces:
@@ -993,12 +994,24 @@ class Repository:
                 prerequisite = self.namespace.find_prerequisite_type(iface.prerequisite.name)
             if prerequisite is not None:
                 if prerequisite.ctype is None:
-                    t = self._lookup_type(prerequisite.name)
-                    prerequisite.ctype = t.ctype
+                    if '.' not in prerequisite.name:
+                        name = f"{self.namespace.name}.{prerequisite.name}"
+                    else:
+                        name = prerequisite.name
+                    t = self._lookup_type(name)
+                    if t is not None:
+                        prerequisite.ctype = t.ctype
+                    else:
+                        # This is kind of a kludge, but apparently we can get into
+                        # class definitions missing a c:type; if that happens, we
+                        # take the identifier prefix of the namespace and append the
+                        # class name, because that's the inverse of how g-ir-scanner
+                        # determines the class name
+                        prerequisite.ctype = f"{self.namespace.identifier_prefix[0]}{prerequisite.name}"
                 iface.prerequisite = prerequisite
                 log.debug(f"Prerequisite type for interface {iface}: {iface.prerequisite}")
 
-    def resolve_class_type(self) -> None:
+    def resolve_class_ctype(self) -> None:
         classes = self.namespace.get_classes()
         for cls in classes:
             if cls.ctype is None:
@@ -1020,13 +1033,14 @@ class Repository:
 
     def resolve_class_implements(self) -> None:
         def find_interface_type(includes, ns, name):
-            for repo in includes.values():
-                if repo.namespace.name != ns:
-                    continue
-                iface = repo.namespace.find_interface(name)
-                if iface is not None:
-                    return Type(name=f"{repo.namespace.name}.{iface.name}", ctype=iface.ctype)
-            return None
+            repository = includes.get(ns)
+            if repository is None:
+                return None
+            iface = repository.namespace.find_interface(name)
+            # If the interface type is unqualified, then we qualify it here
+            if '.' not in iface.name:
+                iface.name = f"{repository.namespace.name}.{iface.name}"
+            return iface
 
         classes = self.namespace.get_classes()
         for cls in classes:
