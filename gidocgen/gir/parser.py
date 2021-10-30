@@ -112,7 +112,7 @@ class GirParser:
             return self._dependencies[name]
 
     def _push_namespace(self, ns: ast.Namespace) -> None:
-        assert(ns not in self._current_namespace)
+        assert ns not in self._current_namespace
         self._current_namespace.append(ns)
 
     def _pop_namespace(self) -> None:
@@ -333,10 +333,10 @@ class GirParser:
         child = node.find('core:array', GI_NAMESPACES)
         if child is not None:
             name = node.attrib.get('name')
-            zero_terminated = int(child.attrib.get('zero-terminated', 0))
-            fixed_size = int(child.attrib.get('fixed-size', -1))
-            length = int(child.attrib.get('length', -1))
             array_type = child.attrib.get(_cns('type'))
+            attr_zero_terminated = child.attrib.get('zero-terminated')
+            attr_fixed_size = child.attrib.get('fixed-size')
+            attr_length = child.attrib.get('length')
 
             target: T.Optional[ast.Type] = None
             child_type = child.find('core:type', GI_NAMESPACES)
@@ -361,7 +361,23 @@ class GirParser:
                     target = ast.VoidType()
             else:
                 target = ast.VoidType()
-            ctype = ast.ArrayType(name=name, zero_terminated=zero_terminated, fixed_size=fixed_size, length=length,
+            # This sort of complete brain damage is par for the course in g-i, sadly; I really
+            # need to go into it with a sledgehammer and make the output complete, instead of
+            # relying on assumptions made in 2010.
+            zero_terminated = False
+            fixed_size = -1
+            length = -1
+            if attr_zero_terminated is not None:
+                zero_terminated = bool(attr_zero_terminated == '1')
+            else:
+                zero_terminated = bool(attr_fixed_size is None and attr_length is None)
+            if attr_fixed_size is not None:
+                fixed_size = int(attr_fixed_size)
+            if attr_length is not None:
+                length = int(attr_length)
+
+            ctype = ast.ArrayType(name=name, zero_terminated=zero_terminated,
+                                  fixed_size=fixed_size, length=length,
                                   ctype=array_type, value_type=target)
         else:
             child = node.find('core:type', GI_NAMESPACES)
