@@ -22,8 +22,13 @@ HELP_MSG = "Generates the reference"
 MISSING_DESCRIPTION = "No description available."
 
 STRING_TYPES = {
-    'utf8': 'The string is a NUL terminated UTF-8 string.',
-    'filename': 'The string is a file system path, using the OS encoding.',
+    'utf8': 'The value is a NUL terminated UTF-8 string.',
+    'filename': 'The value is a file system path, using the OS encoding.',
+}
+
+STRING_ELEMENT_TYPES = {
+    'utf8': 'Each element is a NUL terminated UTF-8 string.',
+    'filename': 'Each element is a file system path, using the OS encoding.',
 }
 
 ARG_TRANSFER_MODES = {
@@ -540,8 +545,6 @@ class TemplateArgument:
         self.nullable = argument.nullable
         self.scope = SCOPE_MODES[argument.scope or 'none']
         self.introspectable = argument.introspectable
-        if self.type_name in ['utf8', 'filename']:
-            self.string_note = STRING_TYPES[self.type_name]
         if argument.closure != -1:
             self.closure = call.parameters[argument.closure]
         else:
@@ -557,6 +560,11 @@ class TemplateArgument:
             self.value_type_cname = argument.target.value_type.ctype
         if self.is_list_model:
             self.value_type = argument.attributes.get('element-type', 'GObject')
+        if self.type_name in ['utf8', 'filename']:
+            self.string_note = STRING_TYPES[self.type_name]
+        elif self.is_array or self.is_list:
+            if self.value_type in ['utf8', 'filename']:
+                self.string_note = STRING_ELEMENT_TYPES[self.value_type]
         if argument.doc is not None:
             self.summary = utils.preprocess_docs(argument.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(argument.doc.content, namespace)
@@ -630,6 +638,9 @@ class TemplateReturnValue:
             self.value_type = retval.attributes.get('element-type', 'GObject')
         if self.type_name in ['utf8', 'filename']:
             self.string_note = STRING_TYPES[self.type_name]
+        elif self.is_array or self.is_list:
+            if self.value_type in ['utf8', 'filename']:
+                self.string_note = STRING_ELEMENT_TYPES[self.value_type]
         if retval.doc is not None:
             self.summary = utils.preprocess_docs(retval.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(retval.doc.content, namespace)
