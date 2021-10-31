@@ -290,14 +290,19 @@ def gen_index_implements(iface_type, namespace, config, md=None):
     }
 
 
-def gen_type_link(repository, namespace, name):
+def gen_type_link(repository, namespace, name, ctype=None):
     res = repository.find_type(name, ns=namespace)
     if res is None:
-        return f"<code>{name}</code>"
+        if ctype is not None:
+            return f"<code>{ctype}</code>"
+        elif name in ['utf8', 'filename']:
+            return "<code>char*</code>"
+        else:
+            return f"<code>{name}</code>"
 
     ns, t = res
     if t.is_fundamental:
-        return f"<code>{name}</code>"
+        return f"<code>{t.ctype}</code>"
 
     if isinstance(t, gir.Alias):
         link = f"alias.{name}.html"
@@ -320,15 +325,14 @@ def gen_type_link(repository, namespace, name):
     else:
         return f"<code>{t.ctype}</code>"
 
+    text = f"<code>{t.ctype}</code>"
     if ns.name == repository.namespace.name:
         href = f'href="{link}"'
-        text = f"<code>{t.ctype}</code>"
         css_class = ""
         data_link = ""
         data_ns = ""
     else:
         href = 'href="javascript:void(0)"'
-        text = f"<code>{t.ctype}</code>"
         css_class = ' class="external"'
         data_link = f' data-link="{link}"'
         data_ns = f' data-namespace="{ns.name}"'
@@ -381,15 +385,27 @@ class TemplateProperty:
         self.name = prop.name
         self.type_name = prop.target.name
         self.type_cname = prop.target.ctype
-        if self.type_cname is None:
-            if prop.target.is_fundamental:
-                self.type_cname = prop.target.name
-            else:
-                self.type_cname = type_name_to_cname(prop.target.name, True)
+        self.is_fundamental = prop.target.is_fundamental
+        self.is_array = isinstance(prop.target, gir.ArrayType)
+        self.is_list = isinstance(prop.target, gir.ListType)
+        self.is_list_model = prop.target.name in ['Gio.ListModel', 'GListModel']
         self.readable = prop.readable
         self.writable = prop.writable
         self.construct = prop.construct
         self.construct_only = prop.construct_only
+        if self.type_cname is None:
+            if prop.target.is_fundamental:
+                self.type_cname = prop.target.name
+            elif self.is_array or self.is_list:
+                value_type = prop.target.value_type
+                if value_type.name in ['utf8', 'filename']:
+                    self.type_cname = 'gchar*'
+                elif value_type.ctype is None:
+                    self.type_cname = type_name_to_cname(value_type.name, True)
+                else:
+                    self.type_cname = value_type.ctype
+            else:
+                self.type_cname = type_name_to_cname(prop.target.name, True)
         if prop.doc is not None:
             self.summary = utils.preprocess_docs(prop.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(prop.doc.content, namespace)
@@ -494,13 +510,25 @@ class TemplateProperty:
             if link is not None:
                 self.attributes["Getter method"] = link
 
-        if self.type_name is not None:
+        if self.is_array:
+            name = prop.target.value_type.name
+        elif self.is_list:
+            name = prop.target.value_type.name
+        elif self.type_name is not None:
             name = self.type_name
-            if '.' in name:
-                ns, name = name.split('.')
+        else:
+            name = None
+        if name is not None:
+            if self.is_fundamental:
+                self.link = f"<code>{self.type_cname}</code>"
+            elif self.is_array or self.is_list:
+                self.link = f"<code>{self.type_cname}</code>"
             else:
-                ns = namespace.name
-            self.link = gen_type_link(namespace.repository, ns, name)
+                if '.' in name:
+                    ns, name = name.split('.')
+                else:
+                    ns = namespace.name
+                self.link = gen_type_link(namespace.repository, ns, name, self.type_cname)
 
     @property
     def c_decl(self):
@@ -592,7 +620,7 @@ class TemplateArgument:
                     ns, name = name.split('.')
                 else:
                     ns = namespace.name
-                self.link = gen_type_link(namespace.repository, ns, name)
+                self.link = gen_type_link(namespace.repository, ns, name, self.type_cname)
 
     @property
     def is_pointer(self):
@@ -659,7 +687,7 @@ class TemplateReturnValue:
             name = None
         if name is not None:
             if self.is_fundamental:
-                self.link = f"<code>{self.type_name}</code>"
+                self.link = f"<code>{self.type_cname}</code>"
             elif self.is_array:
                 self.link = f"<code>{self.value_type_cname}</code>"
             elif self.is_list:
@@ -671,7 +699,7 @@ class TemplateReturnValue:
                     ns, name = name.split('.')
                 else:
                     ns = namespace.name
-                self.link = gen_type_link(namespace.repository, ns, name)
+                self.link = gen_type_link(namespace.repository, ns, name, self.type_cname)
 
     @property
     def is_pointer(self):

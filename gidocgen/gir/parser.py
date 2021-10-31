@@ -48,6 +48,8 @@ GLIB_ALIASES = {
 }
 
 FUNDAMENTAL_CTYPES = {
+    'utf8': 'char*',
+    'filename': 'char*',
     'GObject.Object': 'GObject*',
     'GObject.InitiallyUnowned': 'GInitiallyUnowned*',
     'GObject.ParamSpec': 'GObject.ParamSpec*',
