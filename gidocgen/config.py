@@ -74,6 +74,10 @@ class GIDocConfig:
         return self.library.get('website_url', '')
 
     @property
+    def docs_url(self):
+        return self.library.get('docs_url', '')
+
+    @property
     def browse_url(self):
         return self.library.get('browse_url', '')
 
