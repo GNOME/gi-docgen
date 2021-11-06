@@ -62,6 +62,8 @@ The following keys are used, if found:
 ``search_index`` = ``b``
   Whether gi-docgen should generate a search index file for the namespace.
 
+``docs_url`` = ``s``
+  The website that will provide this documentation.
 
 The ``theme`` section
 ~~~~~~~~~~~~~~~~~~~~~

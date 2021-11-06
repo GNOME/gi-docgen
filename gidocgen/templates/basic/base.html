@@ -34,6 +34,11 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
   {% if CONFIG.site_url %}
   <link rel="canonical" href="{{ CONFIG.site_url }}"/>
   {% endif %}
+  {% if CONFIG.search_index %}
+  {% if CONFIG.docs_url %}
+  <link rel="search" type="application/opensearchdescription+xml" title="{{ namespace.name }}" href="opensearch.xml">
+  {% endif %}
+  {% endif %}
 
   <link rel="stylesheet" href="style.css" type="text/css" />
 

@@ -2661,6 +2661,28 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
     }
 
 
+def gen_opensearch(config, repository, namespace, symbols, content_files):
+    desc = etree.Element('OpenSearchDescription')
+    desc.set("xmlns", "http://a9.com/-/spec/opensearch/1.1/")
+    desc.set("xmlns:moz", "http://www.mozilla.org/2006/browser/search/")
+    sub = etree.SubElement(desc, 'ShortName')
+    sub.text = f"{namespace.name}"
+    sub = etree.SubElement(desc, 'Description')
+    sub.text = f"{namespace.name}-{namespace.version} Reference Manual"
+    sub = etree.SubElement(desc, 'InputEncoding')
+    sub.text = "UTF-8"
+    if config.logo_url:
+        sub = etree.SubElement(desc, 'Image')
+        sub.text = config.logo_url
+    sub = etree.SubElement(desc, 'Url', type="text/html")
+    sub.set("type", "text/html")
+    sub.set("template", f"{config.docs_url}/?q={{searchTerms}}")
+    sub = etree.SubElement(desc, 'moz:SearchForm')
+    sub.text = f"{config.docs_url}"
+
+    return etree.ElementTree(desc)
+
+
 def gen_devhelp(config, repository, namespace, symbols, content_files):
     book = etree.Element('book')
     book.set("xmlns", "http://www.devhelp.net/book")
@@ -2945,6 +2967,11 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
         res.write(devhelp_file, encoding="UTF-8")
 
     if config.search_index:
+        if config.docs_url:
+            opensearch_file = os.path.join(ns_dir, "opensearch.xml")
+            log.info(f"Creating OpenSearch file for {namespace.name}-{namespace.version}: {opensearch_file}")
+            res = gen_opensearch(config, repository, namespace, template_symbols, content_files)
+            res.write(opensearch_file, encoding="UTF-8")
         gdgenindices.gen_indices(config, repository, content_dirs, ns_dir)
 
     copy_files = []
