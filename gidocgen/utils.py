@@ -569,7 +569,7 @@ class LinkGenerator:
     def text(self):
         if self._alt_text is not None:
             return self._alt_text[1:len(self._alt_text) - 1]
-        elif self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
+        elif self._fragment in ['alias', 'callback', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
             return f"<code>{self._type}</code>"
         elif self._fragment == 'property':
             return f"<code>{self._type}:{self._property_name}</code>"
@@ -584,7 +584,7 @@ class LinkGenerator:
 
     @property
     def href(self):
-        if self._fragment in ['alias', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
+        if self._fragment in ['alias', 'callback', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
             return f"{self._fragment}.{self._name}.html"
         elif self._fragment == 'property':
             return f"property.{self._name}.{self._property_name}.html"
