@@ -300,29 +300,36 @@ class LinkGenerator:
                 return None
         t = namespace.find_real_type(name)
         if t is not None and t.base_ctype is not None:
-            if fragment == 'type':
-                if isinstance(t, gir.Alias):
-                    self._fragment = 'alias'
-                elif isinstance(t, gir.BitField):
-                    self._fragment = 'flags'
-                elif isinstance(t, gir.Callback):
-                    self._fragment = 'callback'
-                elif isinstance(t, gir.Class):
-                    self._fragment = 'class'
-                elif isinstance(t, gir.Constant):
-                    self._fragment = 'const'
-                elif isinstance(t, gir.Enumeration):
-                    self._fragment = 'enum'
-                elif isinstance(t, gir.ErrorDomain):
-                    self._fragment = 'error'
-                elif isinstance(t, gir.Interface):
-                    self._fragment = 'iface'
-                elif isinstance(t, gir.Record) or isinstance(t, gir.Union):
-                    self._fragment = 'struct'
-                else:
-                    return LinkParseError(self._line, self._start, self._end,
-                                          self._fragment, self._endpoint,
-                                          f"Invalid type {t} for '{ns}.{name}'")
+            # We determine the fragment here, in case `type` was used,
+            # or for validating the fragment passed, to avoid creating
+            # invalid links
+            if isinstance(t, gir.Alias):
+                type_fragment = 'alias'
+            elif isinstance(t, gir.BitField):
+                type_fragment = 'flags'
+            elif isinstance(t, gir.Callback):
+                type_fragment = 'callback'
+            elif isinstance(t, gir.Class):
+                type_fragment = 'class'
+            elif isinstance(t, gir.Constant):
+                type_fragment = 'const'
+            elif isinstance(t, gir.Enumeration):
+                type_fragment = 'enum'
+            elif isinstance(t, gir.ErrorDomain):
+                type_fragment = 'error'
+            elif isinstance(t, gir.Interface):
+                type_fragment = 'iface'
+            elif isinstance(t, gir.Record) or isinstance(t, gir.Union):
+                type_fragment = 'struct'
+            else:
+                return LinkParseError(self._line, self._start, self._end,
+                                      self._fragment, self._endpoint,
+                                      f"Invalid type {t} for '{ns}.{name}'")
+            if fragment != 'type' and fragment != type_fragment:
+                return LinkParseError(self._line, self._start, self._end,
+                                      self._fragment, self._endpoint,
+                                      f"Invalid fragment for '{ns}.{name}': it should be {type_fragment}")
+            self._fragment = type_fragment
             self._name = name
             self._type = t.base_ctype
             return None
