@@ -383,8 +383,6 @@ class TemplateConstant:
 class TemplateProperty:
     def __init__(self, namespace, type_, prop):
         self.name = prop.name
-        self.type_name = prop.target.name
-        self.type_cname = prop.target.ctype
         self.is_fundamental = prop.target.is_fundamental
         self.is_array = isinstance(prop.target, gir.ArrayType)
         self.is_list = isinstance(prop.target, gir.ListType)
@@ -393,19 +391,23 @@ class TemplateProperty:
         self.writable = prop.writable
         self.construct = prop.construct
         self.construct_only = prop.construct_only
-        if self.type_cname is None:
-            if prop.target.is_fundamental:
-                self.type_cname = prop.target.name
-            elif self.is_array or self.is_list:
-                value_type = prop.target.value_type
-                if value_type.name in ['utf8', 'filename']:
-                    self.type_cname = 'gchar*'
-                elif value_type.ctype is None:
-                    self.type_cname = type_name_to_cname(value_type.name, True)
-                else:
-                    self.type_cname = value_type.ctype
+        if self.is_fundamental:
+            self.type_name = prop.target.name
+            self.type_cname = prop.target.ctype
+        elif self.is_array or self.is_list:
+            value_type = prop.target.value_type
+            if value_type.name in ['utf8', 'filename']:
+                self.type_name = "string[]"
+                self.type_cname = "char*"
+            elif value_type.ctype is not None:
+                self.type_name = value_type.name
+                self.type_cname = value_type.ctype
             else:
-                self.type_cname = type_name_to_cname(prop.target.name, True)
+                self.type_name = value_type.name
+                self.type_cname = type_name_to_cname(value_type.name, True)
+        else:
+            self.type_name = prop.target.name
+            self.type_cname = prop.target.ctype
         if prop.doc is not None:
             self.summary = utils.preprocess_docs(prop.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(prop.doc.content, namespace)
@@ -510,25 +512,17 @@ class TemplateProperty:
             if link is not None:
                 self.attributes["Getter method"] = link
 
-        if self.is_array:
-            name = prop.target.value_type.name
-        elif self.is_list:
-            name = prop.target.value_type.name
-        elif self.type_name is not None:
-            name = self.type_name
-        else:
-            name = None
-        if name is not None:
-            if self.is_fundamental:
-                self.link = f"<code>{self.type_cname}</code>"
-            elif self.is_array or self.is_list:
-                self.link = f"<code>{self.type_cname}</code>"
+        if self.is_fundamental:
+            self.link = f"<code>{self.type_cname}</code>"
+        elif self.is_array or self.is_list:
+            self.link = f"<code>{self.type_cname}</code>"
+        elif prop.target.name is not None:
+            name = prop.target.name
+            if '.' in name:
+                ns, name = name.split('.')
             else:
-                if '.' in name:
-                    ns, name = name.split('.')
-                else:
-                    ns = namespace.name
-                self.link = gen_type_link(namespace.repository, ns, name, self.type_cname)
+                ns = namespace.name
+            self.link = gen_type_link(namespace.repository, ns, name, self.type_cname)
 
     @property
     def c_decl(self):
