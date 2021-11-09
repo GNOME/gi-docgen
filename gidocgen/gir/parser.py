@@ -332,7 +332,7 @@ class GirParser:
     def _parse_array(self, node: ET.Element) -> ast.Type:
         child = node.find('core:array', GI_NAMESPACES)
 
-        name = child.attrib.get('name') or node.attrib.get('name')
+        array_name = child.attrib.get('name')
         array_type = child.attrib.get(_cns('type'))
         attr_zero_terminated = child.attrib.get('zero-terminated')
         attr_fixed_size = child.attrib.get('fixed-size')
@@ -344,7 +344,7 @@ class GirParser:
             ttype = child_type.attrib.get(_cns('type'))
             tname = child_type.attrib.get('name')
             if tname is None and ttype is not None:
-                log.debug(f"Unlabled element type {ttype}")
+                log.debug(f"Unlabeled array element type {ttype}")
                 target = ast.Type(name=ttype.replace('*', ''), ctype=ttype)
             if tname == 'none' and ttype == 'void':
                 target = ast.VoidType()
@@ -376,7 +376,7 @@ class GirParser:
         if attr_length is not None:
             length = int(attr_length)
 
-        return ast.ArrayType(name=name, zero_terminated=zero_terminated,
+        return ast.ArrayType(name=array_name, zero_terminated=zero_terminated,
                              fixed_size=fixed_size, length=length,
                              ctype=array_type, value_type=target)
 

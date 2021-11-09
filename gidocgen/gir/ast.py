@@ -212,7 +212,7 @@ class Type(GIRElement):
 
 class ArrayType(GIRElement):
     """Base class for Array nodes"""
-    def __init__(self, name: str, value_type: Type, ctype: str = None, zero_terminated: bool = False,
+    def __init__(self, name: T.Optional[str], value_type: Type, ctype: T.Optional[str] = None, zero_terminated: bool = False,
                  fixed_size: int = -1, length: int = -1):
         super().__init__(name)
         self.ctype = ctype
