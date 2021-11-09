@@ -370,7 +370,7 @@ class GirParser:
         if attr_zero_terminated is not None:
             zero_terminated = bool(attr_zero_terminated == '1')
         else:
-            zero_terminated = bool(attr_fixed_size is None and attr_length is None)
+            zero_terminated = bool(array_name is None and attr_fixed_size is None and attr_length is None)
         if attr_fixed_size is not None:
             fixed_size = int(attr_fixed_size)
         if attr_length is not None:
