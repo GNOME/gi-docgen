@@ -69,12 +69,13 @@ def _cns(tag: str) -> str:
 
 
 class GirParser:
-    def __init__(self, search_paths=[]):
+    def __init__(self, search_paths=[], error=True):
         self._search_paths = search_paths
         self._repository = None
         self._dependencies = {}
         self._seen_types = {}
         self._current_namespace = []
+        self._error = error
 
     def append_search_path(self, path: str) -> None:
         """Append a path to the list of search paths"""
@@ -90,7 +91,10 @@ class GirParser:
         tree = ET.parse(girfile)
         repository = self._parse_tree(tree.getroot())
         if repository is None:
-            log.error(f"Could not parse GIR {girfile}")
+            if self._error:
+                log.error(f"Could not parse GIR {girfile}")
+            else:
+                raise RuntimeError(f"Invalid GIR file {girfile}")
         else:
             if isinstance(girfile, str):
                 repository.girfile = girfile
@@ -194,7 +198,10 @@ class GirParser:
                     found = True
                     break
         if not found:
-            log.error(f"Could not find GIR dependency in the search paths: {include}")
+            if self._error:
+                log.error(f"Could not find GIR dependency in the search paths: {include}")
+            else:
+                raise RuntimeError(f"No {include} found in search paths {self._search_paths}")
 
     def _parse_tree(self, root: ET.Element) -> ast.Repository:
         assert root.tag == _corens('repository')
