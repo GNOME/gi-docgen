@@ -329,102 +329,107 @@ class GirParser:
             if deprecated_doc is not None:
                 element.set_deprecated(deprecated_doc, deprecated_since)
 
+    def _parse_array(self, node: ET.Element) -> ast.Type:
+        child = node.find('core:array', GI_NAMESPACES)
+
+        name = node.attrib.get('name')
+        array_type = child.attrib.get(_cns('type'))
+        attr_zero_terminated = child.attrib.get('zero-terminated')
+        attr_fixed_size = child.attrib.get('fixed-size')
+        attr_length = child.attrib.get('length')
+
+        target: T.Optional[ast.Type] = None
+        child_type = child.find('core:type', GI_NAMESPACES)
+        if child_type is not None:
+            ttype = child_type.attrib.get(_cns('type'))
+            tname = child_type.attrib.get('name')
+            if tname is None and ttype is not None:
+                log.debug(f"Unlabled element type {ttype}")
+                target = ast.Type(name=ttype.replace('*', ''), ctype=ttype)
+            if tname == 'none' and ttype == 'void':
+                target = ast.VoidType()
+            elif ttype == 'gpointer' and tname in FUNDAMENTAL_INTEGRAL_TYPES:
+                # API returning a pointer with an overridden fundamental type,
+                # like in-out/out signal arguments
+                target = self._lookup_type(name=tname, ctype=f"{tname}*")
+            elif ttype == 'gpointer' and tname != 'gpointer':
+                # API returning gpointer to avoid casting
+                target = self._lookup_type(name=tname)
+            elif tname:
+                target = self._lookup_type(name=tname, ctype=ttype)
+            else:
+                target = ast.VoidType()
+        else:
+            target = ast.VoidType()
+        # This sort of complete brain damage is par for the course in g-i, sadly; I really
+        # need to go into it with a sledgehammer and make the output complete, instead of
+        # relying on assumptions made in 2010.
+        zero_terminated = False
+        fixed_size = -1
+        length = -1
+        if attr_zero_terminated is not None:
+            zero_terminated = bool(attr_zero_terminated == '1')
+        else:
+            zero_terminated = bool(attr_fixed_size is None and attr_length is None)
+        if attr_fixed_size is not None:
+            fixed_size = int(attr_fixed_size)
+        if attr_length is not None:
+            length = int(attr_length)
+
+        return ast.ArrayType(name=name, zero_terminated=zero_terminated,
+                             fixed_size=fixed_size, length=length,
+                             ctype=array_type, value_type=target)
+
     def _parse_ctype(self, node: ET.Element) -> ast.Type:
         ctype: T.Optional[ast.Type] = None
 
         child = node.find('core:array', GI_NAMESPACES)
         if child is not None:
-            name = node.attrib.get('name')
-            array_type = child.attrib.get(_cns('type'))
-            attr_zero_terminated = child.attrib.get('zero-terminated')
-            attr_fixed_size = child.attrib.get('fixed-size')
-            attr_length = child.attrib.get('length')
+            return self._parse_array(node)
 
-            target: T.Optional[ast.Type] = None
-            child_type = child.find('core:type', GI_NAMESPACES)
-            if child_type is not None:
-                ttype = child_type.attrib.get(_cns('type'))
-                tname = child_type.attrib.get('name')
-                if tname is None and ttype is not None:
-                    log.debug(f"Unlabled element type {ttype}")
-                    target = ast.Type(name=ttype.replace('*', ''), ctype=ttype)
-                if tname == 'none' and ttype == 'void':
-                    target = ast.VoidType()
-                elif ttype == 'gpointer' and tname in FUNDAMENTAL_INTEGRAL_TYPES:
-                    # API returning a pointer with an overridden fundamental type,
-                    # like in-out/out signal arguments
-                    ctype = self._lookup_type(name=tname, ctype=f"{tname}*")
-                elif ttype == 'gpointer' and tname != 'gpointer':
-                    # API returning gpointer to avoid casting
-                    target = self._lookup_type(name=tname)
-                elif tname:
-                    target = self._lookup_type(name=tname, ctype=ttype)
-                else:
-                    target = ast.VoidType()
-            else:
-                target = ast.VoidType()
-            # This sort of complete brain damage is par for the course in g-i, sadly; I really
-            # need to go into it with a sledgehammer and make the output complete, instead of
-            # relying on assumptions made in 2010.
-            zero_terminated = False
-            fixed_size = -1
-            length = -1
-            if attr_zero_terminated is not None:
-                zero_terminated = bool(attr_zero_terminated == '1')
-            else:
-                zero_terminated = bool(attr_fixed_size is None and attr_length is None)
-            if attr_fixed_size is not None:
-                fixed_size = int(attr_fixed_size)
-            if attr_length is not None:
-                length = int(attr_length)
-
-            ctype = ast.ArrayType(name=name, zero_terminated=zero_terminated,
-                                  fixed_size=fixed_size, length=length,
-                                  ctype=array_type, value_type=target)
-        else:
-            child = node.find('core:type', GI_NAMESPACES)
-            if child is not None:
-                ttype = child.attrib.get(_cns('type'))
-                tname = child.attrib.get('name')
-                if tname is None and ttype is None:
-                    log.debug(f"Found empty type annotation for node {node.tag}")
-                    ctype = ast.VoidType()
-                elif tname is None and ttype is not None:
-                    log.debug(f"Unnamed type {ttype}")
-                    ctype = ast.Type(name=ttype.replace('*', ''), ctype=ttype)
-                elif tname == 'none' and ttype == 'void':
-                    ctype = None
-                elif tname in ['GLib.List', 'GLib.SList']:
-                    child_type = child.find('core:type', GI_NAMESPACES)
-                    if child_type is not None:
-                        etname = child_type.attrib.get('name', 'gpointer')
-                        etype = self._lookup_type(name=etname)
-                        ctype = ast.ListType(name=tname, ctype=ttype, value_type=etype)
-                    else:
-                        ctype = self._lookup_type(name=tname, ctype=ttype)
-                elif tname in ['GList.HashTable']:
-                    child_types = child.findall('core:type', GI_NAMESPACES)
-                    if child_types is not None and len(child_types) == 2:
-                        ktname = child_types[0].attrib.get('name', 'gpointer')
-                        vtname = child_types[1].attrib.get('name', 'gpointer')
-                        ctype = ast.MapType(name=tname, ctype=ttype,
-                                            key_type=ast.Type(ktname),
-                                            value_type=ast.Type(vtname))
-                    else:
-                        ctype = self._lookup_type(name=tname, ctype=ttype)
-                elif ttype == 'gpointer' and tname in FUNDAMENTAL_INTEGRAL_TYPES:
-                    # API returning a pointer with an overridden fundamental type,
-                    # like in-out/out signal arguments
-                    ctype = self._lookup_type(name=tname, ctype=f"{tname}*")
-                elif ttype == 'gpointer' and tname != 'gpointer':
-                    # API returning gpointer to avoid casting
-                    ctype = self._lookup_type(name=tname)
+        child = node.find('core:type', GI_NAMESPACES)
+        if child is not None:
+            ttype = child.attrib.get(_cns('type'))
+            tname = child.attrib.get('name')
+            if tname is None and ttype is None:
+                log.debug(f"Found empty type annotation for node {node.tag}")
+                ctype = ast.VoidType()
+            elif tname is None and ttype is not None:
+                log.debug(f"Unnamed type {ttype}")
+                ctype = ast.Type(name=ttype.replace('*', ''), ctype=ttype)
+            elif tname == 'none' and ttype == 'void':
+                ctype = None
+            elif tname in ['GLib.List', 'GLib.SList']:
+                child_type = child.find('core:type', GI_NAMESPACES)
+                if child_type is not None:
+                    etname = child_type.attrib.get('name', 'gpointer')
+                    etype = self._lookup_type(name=etname)
+                    ctype = ast.ListType(name=tname, ctype=ttype, value_type=etype)
                 else:
                     ctype = self._lookup_type(name=tname, ctype=ttype)
+            elif tname in ['GList.HashTable']:
+                child_types = child.findall('core:type', GI_NAMESPACES)
+                if child_types is not None and len(child_types) == 2:
+                    ktname = child_types[0].attrib.get('name', 'gpointer')
+                    vtname = child_types[1].attrib.get('name', 'gpointer')
+                    ctype = ast.MapType(name=tname, ctype=ttype,
+                                        key_type=ast.Type(ktname),
+                                        value_type=ast.Type(vtname))
+                else:
+                    ctype = self._lookup_type(name=tname, ctype=ttype)
+            elif ttype == 'gpointer' and tname in FUNDAMENTAL_INTEGRAL_TYPES:
+                # API returning a pointer with an overridden fundamental type,
+                # like in-out/out signal arguments
+                ctype = self._lookup_type(name=tname, ctype=f"{tname}*")
+            elif ttype == 'gpointer' and tname != 'gpointer':
+                # API returning gpointer to avoid casting
+                ctype = self._lookup_type(name=tname)
             else:
-                child = node.find('core:varargs', GI_NAMESPACES)
-                if child is not None:
-                    ctype = ast.VarArgs()
+                ctype = self._lookup_type(name=tname, ctype=ttype)
+        else:
+            child = node.find('core:varargs', GI_NAMESPACES)
+            if child is not None:
+                ctype = ast.VarArgs()
 
         if ctype is None:
             ctype = ast.VoidType()
