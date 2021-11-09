@@ -332,7 +332,7 @@ class GirParser:
     def _parse_array(self, node: ET.Element) -> ast.Type:
         child = node.find('core:array', GI_NAMESPACES)
 
-        name = node.attrib.get('name')
+        name = child.attrib.get('name') or node.attrib.get('name')
         array_type = child.attrib.get(_cns('type'))
         attr_zero_terminated = child.attrib.get('zero-terminated')
         attr_fixed_size = child.attrib.get('fixed-size')
