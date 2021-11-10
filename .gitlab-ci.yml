@@ -11,7 +11,7 @@ stages:
 #  stage: build
 #  needs: []
 #  script:
-#    - dnf install -y meson ninja-build python3-flake8 python3-mypy python3-markdown python3-jinja2 python3-toml python3-typogrify
+#    - dnf install -y meson ninja-build pytest python3-flake8 python3-mypy python3-markdown python3-jinja2 python3-toml python3-typogrify
 #    - meson _build .
 #    - meson test -C _build
 #
@@ -26,6 +26,13 @@ stages:
   before_script:
     - export PATH="$HOME/.local/bin:$PATH"
     - dnf install -y python3-pip
+
+pytest:
+  stage: check
+  needs: []
+  script:
+    - dnf install -y pytest python3-markdown python3-jinja2 python3-pygments python3-toml python3-typogrify
+    - pytest --verbose
 
 flake8:
   stage: check
