@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: CC0-1.0
 
 include pyproject.toml
+include pytest.ini
 include README.md meson.build gi-docgen.pc.in
 include gi-docgen.py
 include .flake8
@@ -16,6 +17,8 @@ include docs/*.py
 include docs/Makefile
 include examples/*.js
 include examples/*.toml
+include test/*.py
 include meson_options.txt
 recursive-include docs *.rst
 recursive-include gidocgen/templates *
+recursive-include test/gir *
