@@ -543,12 +543,6 @@ class TemplateArgument:
     def __init__(self, namespace, call, argument):
         self.name = argument.name
         self.type_name = argument.target.name
-        if isinstance(call, gir.FunctionMacro):
-            self.type_cname = '-'
-        else:
-            self.type_cname = argument.target.ctype
-            if self.type_cname is None:
-                self.type_cname = type_name_to_cname(argument.target.name, True)
         self.is_array = isinstance(argument.target, gir.ArrayType)
         self.is_list = isinstance(argument.target, gir.ListType)
         self.is_map = isinstance(argument.target, gir.MapType)
@@ -556,6 +550,32 @@ class TemplateArgument:
         self.is_macro = isinstance(call, gir.FunctionMacro)
         self.is_list_model = self.type_name in ['Gio.ListModel', 'GListModel']
         self.is_fundamental = argument.target.is_fundamental
+        if isinstance(call, gir.FunctionMacro):
+            self.type_cname = '-'
+        elif self.is_array or self.is_list:
+            if argument.target.ctype is None:
+                if argument.target.value_type.name in ['utf8', 'filename']:
+                    self.type_cname = 'char**'
+                elif argument.target.value_type.ctype is not None:
+                    self.type_cname = argument.target.value_type.ctype + '*'
+                else:
+                    self.type_cname = 'gpointer'
+            else:
+                self.type_cname = argument.target.ctype
+        elif self.type_name in ['utf8', 'filename']:
+            if argument.target.ctype is None:
+                self.type_cname = 'char*'
+            else:
+                self.type_cname = argument.target.ctype
+        elif self.is_fundamental:
+            if argument.target.ctype is None:
+                self.type_cname = type_name_to_cname(argument.target.name, False)
+            else:
+                self.type_cname = argument.target.ctype
+        else:
+            self.type_cname = argument.target.ctype
+            if self.type_cname is None:
+                self.type_cname = type_name_to_cname(argument.target.name, True)
         self.transfer = argument.transfer or 'none'
         if isinstance(call, gir.Method):
             self.transfer_note = METHOD_ARG_TRANSFER_MODES[argument.transfer or 'none']
@@ -618,6 +638,8 @@ class TemplateArgument:
 
     @property
     def is_pointer(self):
+        if self.type_cname is None:
+            return False
         return '*' in self.type_cname
 
     @property
