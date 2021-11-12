@@ -290,7 +290,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
       {% for ancestor in class.ancestors %}
         {% if ancestor.n_methods > 0 %}
-        <div class="{% if ancestor.methods %}toggle-wrapper default-hide{% endif %} ancestor-methods">
+        <div class="toggle-wrapper default-hide ancestor-methods">
           {%- if ancestor.namespace == namespace.name %}
           <h5 style="display:block;">Methods inherited from <a href="class.{{ ancestor.name }}.html">{{ ancestor.type_cname }}</a> ({{ ancestor.n_methods }})</h5>
           {%- else -%}
@@ -317,6 +317,16 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
             {%- endif -%}
             </div>
             {%- endif %}
+          {% else %}
+            <div class="docblock">
+              <p>Please see&nbsp;
+              {%- if ancestor.namespace == namespace.name -%}
+              <a href="class.{{ancestor.name}}.html#methods">{{ ancestor.type_cname }}</a>
+              {%- else -%}
+              <a class="external" href="javascript:void(0)" data-link="class.{{ ancestor.name }}.html#methods" data-namespace="{{ ancestor.namespace }}">{{ ancestor.type_cname }}</a>
+              {%- endif -%}
+              &nbsp;for a full list of methods.</em></p>
+            </div>
           {% endfor %}
           </div>
         </div>
@@ -325,7 +335,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
       {% for iface in class.interfaces %}
         {% if iface.n_methods > 0 %}
-        <div class="{% if iface.methods %}toggle-wrapper default-hide{% endif %} ancestor-methods">
+        <div class="toggle-wrapper default-hide ancestor-methods">
           {%- if iface.namespace == namespace.name %}
           <h5 style="display:block;">Methods inherited from <a href="iface.{{ iface.name }}.html">{{ iface.type_cname }}</a> ({{ iface.n_methods }})</h5>
           {%- else -%}
@@ -352,6 +362,16 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
             {%- endif -%}
             </div>
             {%- endif %}
+          {% else %}
+            <div class="docblock">
+              <p><em>Please see&nbsp;
+              {%- if iface.namespace == namespace.name -%}
+              <a href="iface.{{iface.name}}.html#methods">{{ iface.type_cname }}</a>
+              {%- else -%}
+              <a class="external" href="javascript:void(0)" data-link="iface.{{ iface.name }}.html#methods" data-namespace="{{ iface.namespace }}">{{ iface.type_cname }}</a>
+              {%- endif -%}
+              &nbsp;for a full list of methods.</em></p>
+            </div>
           {% endfor %}
           </div>
         </div>
@@ -670,7 +690,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
       {% endfor %}
       </div>
     </div>
-    {% endif %} 
+    {% endif %}
 
   </section>
 </section>
