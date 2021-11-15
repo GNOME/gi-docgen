@@ -640,6 +640,8 @@ class TemplateArgument:
     def is_pointer(self):
         if self.type_cname is None:
             return False
+        if self.direction in ['out', 'inout'] and self.is_fundamental and self.type_cname.count('*') == 1:
+            return False
         return '*' in self.type_cname
 
     @property
@@ -719,6 +721,8 @@ class TemplateReturnValue:
 
     @property
     def is_pointer(self):
+        if self.type_cname is None:
+            return False
         return '*' in self.type_cname
 
 

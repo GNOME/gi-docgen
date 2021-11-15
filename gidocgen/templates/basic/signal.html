@@ -130,8 +130,8 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
             <td>{{ arg.description|safe }}</td>
           </tr>
           {% if arg.direction != "in" %}<tr><td>&nbsp;</td><td title="direction: {{ arg.direction}}">{{ arg.direction_note }}</td></tr>{% endif %}
-          {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>The argument can be <code>NULL</code>.</td></tr>{% endif %}
-          {% if arg.direction == "out" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>The argument can be set to <code>NULL</code>.</td></tr>{% endif %}
+          {% if arg.direction == "in" and arg.nullable %}<tr><td>&nbsp;</td><td>The argument can be <code>NULL</code>.</td></tr>{% endif %}
+          {% if arg.direction in ["inout", "out"] and arg.nullable %}<tr><td>&nbsp;</td><td>The argument can be set to <code>NULL</code>.</td></tr>{% endif %}
           {% if arg.optional %}<tr><td>&nbsp;</td><td>The argument can be <code>NULL</code>.</td></tr>{% endif %}
           {% if arg.is_array and arg.zero_terminated %}<tr><td>&nbsp;</td><td>The array must be <code>NULL</code>-terminated.</td></tr>{% endif %}
           {% if arg.is_array and arg.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array must have {{ arg.fixed_size }} elements.</td></tr>{% endif %}
