@@ -15,8 +15,8 @@
 :root {
 
   /* colors */
-  --text-color: #333;
-  --text-color-muted: #999;
+  --text-color: rgb(51, 51, 51);
+  --text-color-muted: rgba(51, 51, 51, 0.65);
   --primary: rgb(28, 118, 228);
   --body-bg: #fff;
   --sidebar-primary: rgb(144, 194, 255);
