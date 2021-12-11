@@ -19,13 +19,15 @@ exclude_patterns = ['_build']
 
 html_theme = 'sphinx_rtd_theme'
 html_show_copyright = False
+html_logo = "gi-docgen.png"
 html_title = project
 
 html_theme_options = {
+    'logo_only': True,
     'display_version': False,
 }
 
-html_static_path = ['extra.css']
+html_static_path = ['gi-docgen.png', 'extra.css']
 
 html_context = {
     'extra_css_files': [

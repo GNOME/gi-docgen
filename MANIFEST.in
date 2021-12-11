@@ -13,7 +13,9 @@ include LICENSES/*.txt
 include code-of-conduct.md
 include docs/*.1
 include docs/*.css
+include docs/*.png
 include docs/*.py
+include docs/*.svg
 include docs/Makefile
 include examples/*.js
 include examples/*.toml

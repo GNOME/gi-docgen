@@ -7,6 +7,10 @@ Files: gi-docgen.pc.in
 Copyright: 2021  GNOME Foundation
 License: CC0-1.0
 
+Files: docs/gi-docgen.png docs/gi-docgen.svg
+Copyright: 2021  Emmanuele Bassi
+License: CC-BY-SA-3.0
+
 Files: gidocgen/templates/basic/*.png
 Copyright: 2021  GNOME Foundation
 License: CC0-1.0
