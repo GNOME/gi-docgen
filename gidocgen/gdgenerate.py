@@ -1166,6 +1166,7 @@ class TemplateField:
             self.type_name = 'none'
             self.type_cname = 'gpointer'
         self.private = field.private
+        self.bits = field.bits
         if field.doc is not None:
             self.description = utils.preprocess_docs(field.doc.content, namespace)
         else:
@@ -1632,6 +1633,8 @@ class TemplateRecord:
             for field in self.fields:
                 if field.is_callback:
                     res += [f"  {field.type_cname};"]
+                elif field.bits > 0:
+                    res += [f"  {field.type_cname} {field.name} : {field.bits};"]
                 else:
                     res += [f"  {field.type_cname} {field.name};"]
         else:
