@@ -120,7 +120,7 @@ wish to include in the generated API reference, you can use the ``extra`` sectio
         ]
 
 For more information about the project configuration, please see the
-:doc:``project-configuration`` page.
+:doc:`project-configuration` page.
 
 Generating the API reference
 ----------------------------
