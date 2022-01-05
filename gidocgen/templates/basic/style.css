@@ -630,13 +630,15 @@ footer {
 
 kbd {
   display: inline-block;
-  padding: 3px 5px;
-  font: 15px monospace;
+  padding: 8px;
+  font: 10px monospace;
   line-height: 10px;
   vertical-align: middle;
-  border: solid 1px;
-  border-radius: 3px;
-  box-shadow: inset 0 -1px 0;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.3);
+  margin: 3px;
+  background-color: var(--box-bg);
   cursor: default;
 }
 
