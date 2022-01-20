@@ -333,8 +333,9 @@ class GirParser:
         if deprecated is not None:
             deprecated_since = node.attrib.get('deprecated-version')
             deprecated_doc = self._maybe_parse_deprecated_doc(node)
-            if deprecated_doc is not None:
-                element.set_deprecated(deprecated_doc, deprecated_since)
+            if deprecated_doc is None:
+                deprecated_doc = ''
+            element.set_deprecated(deprecated_doc, deprecated_since)
 
     def _parse_array(self, node: ET.Element) -> ast.Type:
         child = node.find('core:array', GI_NAMESPACES)
