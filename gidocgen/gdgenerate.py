@@ -2584,6 +2584,7 @@ def gen_content_files(config, theme_config, content_dirs, output_dir, jinja_env,
             "output_file": content_file,
             "meta": md.Meta,
             "title": title,
+            "toc": md.toc_tokens,
             "data": dst_data,
         }
 

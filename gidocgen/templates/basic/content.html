@@ -24,3 +24,18 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
   </section>
 </section>
 {% endblock %}
+
+{% if content.toc|length > 0 %}
+{% block navbar %}
+<div id="toc" class="toc">
+  <nav aria-labelledby="toc-title">
+    <p id="toc-title">Content</p>
+    <ul class="toc-list">
+      {% for header in content.toc %}
+      <li class="toc-list-item"><a href="#{{ header.id }}"><span class="link-text">{{ header.name }}</span></a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+</div>
+{% endblock %}
+{% endif %}
