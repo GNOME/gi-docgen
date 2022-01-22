@@ -1766,6 +1766,7 @@ class TemplateAlias:
 class TemplateMember:
     def __init__(self, namespace, enum, member):
         self.name = member.identifier
+        self.girname = member.name
         self.nick = member.nick
         self.value = member.value
         if member.doc is not None:

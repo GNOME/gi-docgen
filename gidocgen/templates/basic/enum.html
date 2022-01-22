@@ -132,7 +132,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
         </tr>
       {% for member in enum.members %}
         <tr>
-          <td><code title="Value: {{ member.value }}">{{ member.name }}</code></td>
+          <td><a id="{{ member.girname }}" href="#{{ member.girname }}"><code title="Value: {{ member.value }}">{{ member.name }}</code></a></td>
           <td>{{ member.description }}</td>
         </tr>
       {% endfor %}
