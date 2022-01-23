@@ -39,8 +39,8 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 {{ sidebar_block(enum.type_funcs, enum.name, "Type functions", "func", "type_func") }}
 {% endblock %}
 
-{% macro navbar_block(elements, section_title, section_link) -%}
-{% if elements|length > 0 %}
+{% macro navbar_block(attribute, section_title, section_link) -%}
+{% if attribute %}
 <li class="toc-list-item"><a href="{{ section_link }}"><span class="link-text">{{ section_title }}</span></a></li>
 {% endif %}
 {% endmacro %}
@@ -51,6 +51,8 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
     <p id="toc-title">Content</p>
     <ul class="toc-list">
       <li class="toc-list-item"><a href="#description"><span class="link-text">Description</span></a></li>
+      <li class="toc-list-item"><a href="#members"><span class="link-text">Members</span></a></li>
+      {{ navbar_block(enum.error_domain, "Error domain", "#error-domain") }}
       {{ navbar_block(enum.type_funcs, "Functions", "#type-functions") }}
     </ul>
   </nav>
@@ -132,7 +134,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
         </tr>
       {% for member in enum.members %}
         <tr>
-          <td><code title="Value: {{ member.value }}">{{ member.name }}</code></td>
+          <td><a id="{{ member.girname }}" href="#{{ member.girname }}"><code title="Value: {{ member.value }}">{{ member.name }}</code></a></td>
           <td>{{ member.description }}</td>
         </tr>
       {% endfor %}
