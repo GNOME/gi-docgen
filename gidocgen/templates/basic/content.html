@@ -31,9 +31,22 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
   <nav aria-labelledby="toc-title">
     <p id="toc-title">Content</p>
     <ul class="toc-list">
-      {% for header in content.toc %}
-      <li class="toc-list-item"><a href="#{{ header.id }}"><span class="link-text">{{ header.name }}</span></a></li>
-      {% endfor %}
+      {% if content.toc|length == 1 %}
+        {% for subheader in content.toc[0].children %}
+        <li class="toc-list-item"><a href="#{{ subheader.id }}"><span class="link-text">{{ subheader.name }}</span></a></li>
+        {% endfor %}
+      {% else %}
+        {% for header in content.toc %}
+        <li class="toc-list-item"><a href="#{{ header.id }}"><span class="link-text">{{ header.name }}</span></a></li>
+          {% if header.children %}
+          <ul class="toc-list">
+          {% for subheader in header.children %}
+            <li class="toc-list-item"><a href="#{{ subheader.id }}"><span class="link-text">{{ subheader.name }}</span></a></li>
+          {% endfor %}
+          </ul>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
     </ul>
   </nav>
 </div>
