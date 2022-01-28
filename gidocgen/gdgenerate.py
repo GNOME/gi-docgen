@@ -1521,6 +1521,7 @@ class TemplateClass:
             else:
                 attrs['tooltip'] = other['fqtn']
 
+        ancestors = []
         implements = []
         res = ["graph hierarchy {"]
         res.append("  bgcolor=\"transparent\";")
@@ -1535,8 +1536,6 @@ class TemplateClass:
         }
         this_attrs.update(node_attrs)
         res.append(f"  this [{fmt_attrs(this_attrs)}];")
-
-        # The ancestor classes
         for idx, ancestor in enumerate(self.ancestors):
             node_id = f"ancestor_{idx}"
             ancestor_attrs = {
@@ -1545,16 +1544,8 @@ class TemplateClass:
             ancestor_attrs.update(node_attrs)
             add_link(ancestor_attrs, ancestor, 'class')
             res.append(f"  {node_id} [{fmt_attrs(ancestor_attrs)}];")
-        if len(self.ancestors) > 0:
-            ancestors = self.ancestors.copy()
-            ancestors.reverse()
-            for idx, ancestor in enumerate(ancestors[:-1]):
-                tooltip = f"{self.type_cname} inherits from {ancestor['type_cname']}"
-                res.append(f"  ancestor_{idx} -- this [tooltip=\"{tooltip}\"];")
-            tooltip = f"{self.type_cname} inherits from {ancestors[-1]['type_cname']}"
-            res.append(f"  ancestor_0 -- this [tooltip=\"{tooltip}\"];")
-
-        # The implemented interfaces
+            ancestors.append(node_id)
+        ancestors.reverse()
         for idx, iface in enumerate(getattr(self, "interfaces", [])):
             node_id = f"implements_{idx}"
             iface_attrs = {
@@ -1565,9 +1556,10 @@ class TemplateClass:
             add_link(iface_attrs, iface, 'iface')
             res.append(f"  {node_id} [{fmt_attrs(iface_attrs)}];")
             implements.append(node_id)
+        if len(ancestors) > 0:
+            res.append("  " + " -- ".join(ancestors) + " -- this;")
         for node in implements:
-            tooltip = f"{self.type_cname} implements {iface['type_cname']}"
-            res.append(f"  this -- {node} [tooltip=\"{tooltip}\" style=dotted];")
+            res.append(f"  this -- {node} [style=dotted];")
         res.append("}")
         return "\n".join(res)
 
