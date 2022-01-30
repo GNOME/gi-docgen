@@ -53,6 +53,19 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
     <p id="toc-title">Content</p>
     <ul class="toc-list">
       <li class="toc-list-item"><a href="#description"><span class="link-text">Description</span></a></li>
+      {% if struct.description_toc %}
+      <ul class="toc-list">
+      {% if struct.description_toc|length == 1 %}
+      {% for header in struct.description_toc[0].children %}
+        <li class="toc-list-item"><a href="#{{ header.id }}"><span class="link-text">{{ header.name }}</span></a></li>
+      {% endfor %}
+      {% else %}
+      {% for header in struct.description_toc %}
+        <li class="toc-list-item"><a href="#{{ header.id }}"><span class="link-text">{{ header.name }}</span></a></li>
+      {% endfor %}
+      {% endif %}
+      </ul>
+      {% endif %}
       {{ navbar_block(struct.ctors, "Constructors", "#constructors") }}
       {{ navbar_block(struct.type_funcs, "Functions", "#type-functions") }}
       {{ navbar_block(struct.methods, "Methods", "#methods") }}
