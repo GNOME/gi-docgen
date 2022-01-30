@@ -57,6 +57,19 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
     <p id="toc-title">Content</p>
     <ul class="toc-list">
       <li class="toc-list-item"><a href="#description"><span class="link-text">Description</span></a></li>
+      {% if class.description_toc %}
+      <ul class="toc-list">
+      {% if class.description_toc|length == 1 %}
+      {% for header in class.description_toc[0].children %}
+        <li class="toc-list-item"><a href="#{{ header.id }}"><span class="link-text">{{ header.name }}</span></a></li>
+      {% endfor %}
+      {% else %}
+      {% for header in class.description_toc %}
+        <li class="toc-list-item"><a href="#{{ header.id }}"><span class="link-text">{{ header.name }}</span></a></li>
+      {% endfor %}
+      {% endif %}
+      </ul>
+      {% endif %}
       {% if CONFIG.show_class_hierarchy and (class.ancestors or class.interfaces) %}
       <li class="toc-list-item"><a href="#hierarchy"><span class="link-text">Hierarchy</span></a></li>
       {% endif %}

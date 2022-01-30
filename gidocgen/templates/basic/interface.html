@@ -56,6 +56,19 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
     <p id="toc-title">Content</p>
     <ul class="toc-list">
       <li class="toc-list-item"><a href="#description"><span class="link-text">Description</span></a></li>
+      {% if interface.description_toc %}
+      <ul class="toc-list">
+      {% if interface.description_toc|length == 1 %}
+      {% for header in interface.description_toc[0].children %}
+        <li class="toc-list-item"><a href="#{{ header.id }}"><span class="link-text">{{ header.name }}</span></a></li>
+      {% endfor %}
+      {% else %}
+      {% for header in interface.description_toc %}
+        <li class="toc-list-item"><a href="#{{ header.id }}"><span class="link-text">{{ header.name }}</span></a></li>
+      {% endfor %}
+      {% endif %}
+      </ul>
+      {% endif %}
       {{ navbar_block(interface.type_funcs, "Functions", "#type-functions") }}
       {{ navbar_block(interface.methods, "Methods", "#methods") }}
       {{ navbar_block(interface.properties, "Properties", "#properties") }}
