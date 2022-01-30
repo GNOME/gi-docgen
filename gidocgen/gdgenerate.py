@@ -1223,6 +1223,7 @@ class TemplateInterface:
         if interface.doc is not None:
             self.summary = utils.preprocess_docs(interface.doc.content, namespace, summary=True, md=md)
             self.description = utils.preprocess_docs(interface.doc.content, namespace, md=md)
+            self.description_toc = md.toc_tokens is not None and md.toc_tokens.copy() or None
             filename = interface.doc.filename
             line = interface.doc.line
             if filename.startswith('../'):
@@ -1373,6 +1374,7 @@ class TemplateClass:
         if cls.doc is not None:
             self.summary = utils.preprocess_docs(cls.doc.content, namespace, summary=True, md=md)
             self.description = utils.preprocess_docs(cls.doc.content, namespace, md=md)
+            self.description_toc = md.toc_tokens is not None and md.toc_tokens.copy() or None
             filename = cls.doc.filename
             line = cls.doc.line
             if filename.startswith('../'):
@@ -1580,6 +1582,7 @@ class TemplateRecord:
         if record.doc is not None:
             self.summary = utils.preprocess_docs(record.doc.content, namespace, summary=True, md=md)
             self.description = utils.preprocess_docs(record.doc.content, namespace, md=md)
+            self.description_toc = md.toc_tokens is not None and md.toc_tokens.copy() or None
             filename = record.doc.filename
             line = record.doc.line
             if filename.startswith('../'):
@@ -1658,6 +1661,7 @@ class TemplateUnion:
         if union.doc is not None:
             self.summary = utils.preprocess_docs(union.doc.content, namespace, summary=True, md=md)
             self.description = utils.preprocess_docs(union.doc.content, namespace, md=md)
+            self.description_toc = md.toc_tokens is not None and md.toc_tokens.copy() or None
             filename = union.doc.filename
             line = union.doc.line
             if filename.startswith('../'):
