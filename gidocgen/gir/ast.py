@@ -73,6 +73,7 @@ class Info:
         self.introspectable = introspectable
         self.deprecated_msg = deprecated
         self.deprecated_version = deprecated_version
+        self.deprecated = deprecated is not None or deprecated_version is not None
         self.version = version
         self.stability = stability
         self.attributes: T.Mapping[str, T.Optional[str]] = {}
@@ -135,6 +136,7 @@ class GIRElement:
         """Set the deprecation annotations for the element"""
         self.info.deprecated_msg = doc
         self.info.deprecated_version = since_version
+        self.info.deprecated = True
 
     def set_attributes(self, attrs: T.Mapping[str, T.Optional[str]]) -> None:
         """Add an annotation to the symbol"""
@@ -151,9 +153,9 @@ class GIRElement:
 
     @property
     def deprecated_since(self) -> T.Optional[T.Tuple[str, str]]:
-        if not self.info.deprecated_msg:
-            return None
         version = self.info.deprecated_version
+        if version is None:
+            return None
         message = self.info.deprecated_msg
         if message is None:
             message = "Please do not use it in newly written code"
