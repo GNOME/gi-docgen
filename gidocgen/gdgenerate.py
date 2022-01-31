@@ -120,7 +120,7 @@ def gen_index_func(func, namespace, md=None):
         available_since = func.available_since
     else:
         available_since = None
-    if func.deprecated_since is not None:
+    if func.deprecated:
         (version, msg) = func.deprecated_since
         deprecated_since = version
     else:
@@ -144,7 +144,7 @@ def gen_index_property(prop, namespace, md=None):
         available_since = prop.available_since
     else:
         available_since = None
-    if prop.deprecated_since is not None:
+    if prop.deprecated:
         (version, msg) = prop.deprecated_since
         deprecated_since = version
     else:
@@ -167,7 +167,7 @@ def gen_index_signal(signal, namespace, md=None):
         available_since = signal.available_since
     else:
         available_since = None
-    if signal.deprecated_since is not None:
+    if signal.deprecated:
         (version, msg) = signal.deprecated_since
         deprecated_since = version
     else:
@@ -363,7 +363,7 @@ class TemplateConstant:
         self.stability = const.stability
         self.attributes = const.attributes
         self.available_since = const.available_since
-        if const.deprecated_since is not None:
+        if const.deprecated:
             (version, msg) = const.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -421,7 +421,7 @@ class TemplateProperty:
 
         self.stability = prop.stability
         self.available_since = prop.available_since
-        if prop.deprecated_since is not None:
+        if prop.deprecated:
             (version, msg) = prop.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -761,7 +761,7 @@ class TemplateSignal:
         self.stability = signal.stability
         self.attributes = signal.attributes
         self.available_since = signal.available_since
-        if signal.deprecated_since is not None:
+        if signal.deprecated:
             (version, msg) = signal.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -818,7 +818,7 @@ class TemplateMethod:
 
         self.stability = method.stability
         self.available_since = method.available_since
-        if method.deprecated_since is not None:
+        if method.deprecated:
             (version, msg) = method.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -954,7 +954,7 @@ class TemplateClassMethod:
         self.stability = method.stability
         self.attributes = method.attributes
         self.available_since = method.available_since
-        if method.deprecated_since is not None:
+        if method.deprecated:
             (version, msg) = method.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -1027,7 +1027,7 @@ class TemplateFunction:
         self.stability = func.stability
         self.attributes = func.attributes
         self.available_since = func.available_since
-        if func.deprecated_since is not None:
+        if func.deprecated:
             (version, msg) = func.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -1101,7 +1101,7 @@ class TemplateCallback:
         self.stability = cb.stability
         self.attributes = cb.attributes
         self.available_since = cb.available_since
-        if cb.deprecated_since is not None:
+        if cb.deprecated:
             (version, msg) = cb.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -1235,7 +1235,7 @@ class TemplateInterface:
         self.stability = interface.stability
         self.attributes = interface.attributes
         self.available_since = interface.available_since
-        if interface.deprecated_since is not None:
+        if interface.deprecated:
             (version, msg) = interface.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -1386,7 +1386,7 @@ class TemplateClass:
         self.stability = cls.stability
         self.attributes = cls.attributes
         self.available_since = cls.available_since
-        if cls.deprecated_since is not None:
+        if cls.deprecated:
             (version, msg) = cls.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -1594,7 +1594,7 @@ class TemplateRecord:
         self.stability = record.stability
         self.attributes = record.attributes
         self.available_since = record.available_since
-        if record.deprecated_since is not None:
+        if record.deprecated:
             (version, msg) = record.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -1673,7 +1673,7 @@ class TemplateUnion:
         self.stability = union.stability
         self.attributes = union.attributes
         self.available_since = union.available_since
-        if union.deprecated_since is not None:
+        if union.deprecated:
             (version, msg) = union.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -1750,8 +1750,7 @@ class TemplateAlias:
         self.stability = alias.stability
         self.attributes = alias.attributes
         self.available_since = alias.available_since
-        self.deprecated_since = alias.deprecated_since
-        if alias.deprecated_since is not None:
+        if alias.deprecated:
             (version, msg) = alias.deprecated_since
             self.deprecated_since = {
                 "version": version,
@@ -1813,8 +1812,7 @@ class TemplateEnum:
         self.stability = enum.stability
         self.attributes = enum.attributes
         self.available_since = enum.available_since
-        self.deprecated_since = enum.deprecated_since
-        if enum.deprecated_since is not None:
+        if enum.deprecated:
             (version, msg) = enum.deprecated_since
             self.deprecated_since = {
                 "version": version,
