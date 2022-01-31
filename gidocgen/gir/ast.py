@@ -152,11 +152,17 @@ class GIRElement:
         return self.info.version
 
     @property
+    def deprecated(self) -> bool:
+        return self.info.deprecated
+
+    @property
     def deprecated_since(self) -> T.Optional[T.Tuple[str, str]]:
-        version = self.info.deprecated_version
-        if version is None:
+        if not self.info.deprecated:
             return None
+        version = self.info.deprecated_version
         message = self.info.deprecated_msg
+        if version is None:
+            version = "Unknown"
         if message is None:
             message = "Please do not use it in newly written code"
         return (version, message)
