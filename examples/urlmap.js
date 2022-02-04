@@ -3,11 +3,15 @@
 
 // A map between namespaces and base URLs for their online documentation
 baseURLs = [
-    [ 'Gdk', 'https://people.gnome.org/~ebassi/docs/_build/Gdk/4.0/' ],
-    [ 'GdkWayland', 'https://people.gnome.org/~ebassi/docs/_build/GdkWayland/4.0/' ],
-    [ 'GdkX11', 'https://people.gnome.org/~ebassi/docs/_build/GdkX11/4.0/' ],
-    [ 'Gsk', 'https://people.gnome.org/~ebassi/docs/_build/Gsk/4.0/' ],
-    [ 'Gtk', 'https://people.gnome.org/~ebassi/docs/_build/Gtk/4.0/' ],
-    [ 'Pango', 'https://people.gnome.org/~ebassi/docs/_build/Pango/1.0/' ],
-    [ 'PangoCairo', 'https://people.gnome.org/~ebassi/docs/_build/PangoCairo/1.0/' ],
+    [ 'GLib', 'https://docs.gtk.org/glib/' ],
+    [ 'GObject', 'https://docs.gtk.org/gobject/' ],
+    [ 'Gdk', 'https://docs.gtk.org/gdk4/' ],
+    [ 'GdkPixbuf', 'https://docs.gtk.org/gdk-pixbuf/' ],
+    [ 'GdkWayland', 'https://docs.gtk.org/gdk4-wayland/' ],
+    [ 'GdkX11', 'https://docs.gtk.org/gdk4-x11/' ],
+    [ 'Gio', 'https://docs.gtk.org/gio/' ],
+    [ 'Gsk', 'https://docs.gtk.org/gsk4/' ],
+    [ 'Gtk', 'https://docs.gtk.org/gtk4/' ],
+    [ 'Pango', 'https://docs.gtk.org/Pango/' ],
+    [ 'PangoCairo', 'https://docs.gtk.org/PangoCairo/' ],
 ]
