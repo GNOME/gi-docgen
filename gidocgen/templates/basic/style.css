@@ -524,6 +524,10 @@ footer {
   padding-top: .25em;
 }
 
+ul.toc-list > ul.toc-list {
+  padding-left: 1em;
+}
+
 /*********************************
  * ANCHORS & TOGGLERS
  *********************************/
