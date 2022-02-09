@@ -642,6 +642,8 @@ class TemplateArgument:
             return False
         if self.direction in ['out', 'inout'] and self.is_fundamental and self.type_cname.count('*') == 1:
             return False
+        if self.is_fundamental and self.type_cname in ['gpointer', 'gconstpointer']:
+            return True
         return '*' in self.type_cname
 
     @property
@@ -723,7 +725,10 @@ class TemplateReturnValue:
     def is_pointer(self):
         if self.type_cname is None:
             return False
-        return '*' in self.type_cname
+        elif self.is_fundamental and self.type_cname in ['gpointer', 'gconstpointer']:
+            return True
+        else:
+            return '*' in self.type_cname
 
 
 class TemplateSignal:
