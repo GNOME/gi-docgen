@@ -77,6 +77,9 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
           <tr><td>Deprecated since:</td><td>{{ class_method.deprecated_since.version }}</td></tr>
           <tr><td colspan="2">{{ class_method.deprecated_since.message }}</td></tr>
           {% endif %}
+          {% if not class_method.introspectable %}
+          <tr><td>This class method is not directly available to language bindings</td></tr>
+          {% endif %}
         </table>
       </div>
 

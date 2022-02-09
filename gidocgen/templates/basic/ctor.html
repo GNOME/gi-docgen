@@ -79,6 +79,9 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
           <tr><td>Deprecated since:</td><td>{{ type_func.deprecated_since.version }}</td></tr>
           <tr><td colspan="2">{{ type_func.deprecated_since.message }}</td></tr>
           {% endif %}
+          {% if not type_func.introspectable %}
+          <tr><td>This constructor is not directly available to language bindings</td></tr>
+          {% endif %}
         </table>
       </div>
 
