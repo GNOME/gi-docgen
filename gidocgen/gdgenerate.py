@@ -835,6 +835,19 @@ class TemplateMethod:
 
         self.introspectable = method.introspectable
 
+        self.shadows = method.shadows
+        if method.shadows:
+            for m in type_.methods:
+                if m.name == method.shadows:
+                    self.shadows_symbol = m.identifier
+                    break
+        self.shadowed_by = method.shadowed_by
+        if method.shadowed_by:
+            for m in type_.methods:
+                if m.name == method.shadowed_by:
+                    self.shadowed_by_symbol = m.identifier
+                    break
+
         def transform_property_attribute(namespace, type_, method, value):
             if value in type_.properties:
                 text = f"{namespace.name}.{type_.name}:{value}"
@@ -1043,6 +1056,17 @@ class TemplateFunction:
             self.source_location = (filename, line)
 
         self.introspectable = func.introspectable
+
+        self.shadows = func.shadows
+        if func.shadows:
+            f = namespace.find_function(func.shadows)
+            if f is not None:
+                self.shadows_symbol = f.identifier
+        self.shadowed_by = func.shadowed_by
+        if func.shadowed_by:
+            f = namespace.find_function(func.shadowed_by)
+            if f is not None:
+                self.shadowed_by_symbol = f.identifier
 
     @property
     def c_decl(self):
