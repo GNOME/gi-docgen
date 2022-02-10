@@ -84,6 +84,15 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
           <tr><td>Deprecated since:</td><td>{{ func.deprecated_since.version }}</td></tr>
           <tr><td colspan="2">{{ func.deprecated_since.message }}</td></tr>
           {% endif %}
+          {% if not func.introspectable %}
+          <tr><td>This function is not directly available to language bindings</td></tr>
+          {% endif %}
+          {% if func.shadows %}
+          <tr><td>This function is renamed to <a href="func.{{func.shadows}}.html"><code>{{func.shadows_symbol}}()</code></a> in language bindings</td></tr>
+          {% endif %}
+          {% if func.shadowed_by %}
+          <tr><td>The implementation of this function is provided by <a href="func.{{func.shadowed_by}}.html"><code>{{func.shadowed_by_symbol}}()</code></a> in language bindings</td></tr>
+          {% endif %}
         </table>
       </div>
 

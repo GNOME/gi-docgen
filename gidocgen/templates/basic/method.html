@@ -79,6 +79,15 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
           <tr><td>Deprecated since:</td><td>{{ method.deprecated_since.version }}</td></tr>
           <tr><td colspan="2">{{ method.deprecated_since.message|safe }}</td></tr>
           {% endif %}
+          {% if not method.introspectable %}
+          <tr><td>This method is not directly available to language bindings.</td></tr>
+          {% endif %}
+          {% if method.shadows %}
+          <tr><td>This method is renamed to <a href="method.{{class.name}}.{{method.shadows}}.html"><code>{{method.shadows_symbol}}()</code></a> in language bindings</td></tr>
+          {% endif %}
+          {% if method.shadowed_by %}
+          <tr><td>The implementation of this method is provided by <a href="method.{{class.name}}.{{method.shadowed_by}}.html"><code>{{method.shadowed_by_symbol}}()</code></a> in language bindings</td></tr>
+          {% endif %}
         </table>
       </div>
 
