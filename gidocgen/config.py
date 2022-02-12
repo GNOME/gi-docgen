@@ -108,6 +108,24 @@ class GIDocConfig:
         return retval
 
     @property
+    def related(self):
+        library = self._config.get('library', None)
+        if library is None:
+            return {}
+
+        retval = {}
+        dependencies = self._config.get('related', {})
+        for gir_name, dep in dependencies.items():
+            res = {}
+            res['name'] = dep.get('name', 'Unknown')
+            res['description'] = dep.get('description', 'No description provided')
+            res['docs_url'] = dep.get('docs_url', '#')
+            retval[gir_name] = res
+            log.debug(f"Found related library {gir_name}: {res}")
+
+        return retval
+
+    @property
     def devhelp(self):
         return self.library.get('devhelp', False)
 
