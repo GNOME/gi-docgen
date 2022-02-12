@@ -83,7 +83,7 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
     </div>
   </header>
 
-  {% if CONFIG.dependencies|length > 0 %}
+  {% if repository.includes %}
   <section>
     <div class="toggle-wrapper">
       <h4 id="dependencies" style="display:flex;">
@@ -93,14 +93,42 @@ SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
       <div class="docblock">
         <table>
-        {% for gir_name, dep in CONFIG.dependencies.items() %}
+        {% for ns_name, repo in repository.includes.items() %}
+          {% for _, lib in CONFIG.dependencies.items() if lib.name == repo.namespace.name %}
           <tr>
-            <td><strong>{{ dep.name }}</strong></td>
-            <td>{{ dep.description }}</td>
+            <td><strong>{{ repo.namespace.name }}</strong>&mdash;{{ repo.namespace.version }}</td>
+            <td>{{ lib.description }}</td>
           </tr>
           <tr>
             <td></td>
-            <td><a href="{{ dep.docs_url }}" class="external">Browse documentation</a></td>
+            <td><a href="{{ lib.docs_url }}" class="external">Browse documentation</a></td>
+          </tr>
+          {% endfor %}
+        {% endfor %}
+        </table>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if CONFIG.related|length > 0 %}
+  <section>
+    <div class="toggle-wrapper">
+      <h4 id="related" style="display:flex;">
+        Related libraries
+        <a href="#related" class="anchor"></a>
+      </h4>
+
+      <div class="docblock">
+        <table>
+        {% for gir_name, lib in CONFIG.related.items() %}
+          <tr>
+            <td><strong>{{ lib.name }}</strong></td>
+            <td>{{ lib.description }}</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><a href="{{ lib.docs_url }}" class="external">Browse documentation</a></td>
           </tr>
         {% endfor %}
         </table>
