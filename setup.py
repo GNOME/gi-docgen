@@ -8,7 +8,7 @@ if sys.version_info < (3, 6, 0):
 
 from gidocgen.core import version
 
-from distutils.command.build_py import build_py as _build_py
+from setuptools.command.build_py import build_py as _build_py
 from setuptools import setup
 
 
