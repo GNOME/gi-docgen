@@ -2793,7 +2793,7 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
                 keyword = etree.SubElement(functions, "keyword")
                 keyword.set("type", "constant")
                 keyword.set("name", t.identifier)
-                keyword.set("link", f"constant.{t.name}.html")
+                keyword.set("link", f"const.{t.name}.html")
                 if t.available_since is not None:
                     keyword.set("since", t.available_since)
                 if t.deprecated_since is not None and t.deprecated_since["version"] is not None:
