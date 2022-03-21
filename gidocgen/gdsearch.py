@@ -352,6 +352,20 @@ def _gen_vfunc_result(symbol, namespace):
     return None
 
 
+def search_symbols(real_term, symbols):
+    term = real_term.lower()
+
+    matches = []
+    for symbol in symbols:
+        if any([
+            term in symbol.get("name", "").lower(),
+            term in symbol.get("ctype", "").lower(),
+            term in symbol.get("summary", "").lower(),
+        ]):
+            matches.append(symbol)
+    return matches
+
+
 def query(repository, terms, index_file):
     if index_file is None:
         index_file = os.path.join(os.getcwd(), "index.json")
@@ -363,7 +377,6 @@ def query(repository, terms, index_file):
 
     index_meta = index["meta"]
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     if index_meta["ns"] != namespace.name or index_meta["version"] != namespace.version:
         log.error("Index file does not match the GIR namespace")
@@ -393,20 +406,22 @@ def query(repository, terms, index_file):
     results = []
 
     for term in terms:
-        docs = index_terms.get(term, [])
-        for doc in docs:
-            symbol = index_symbols[doc]
-
+        symbols = search_symbols(term, index_symbols)
+        for symbol in symbols:
             gen_result = result_types.get(symbol["type"])
             if gen_result is None:
                 log.warning(f"Unhandled symbol type {symbol['type']} for '{term}'")
                 continue
 
             res = gen_result(symbol, namespace)
-            results.append(res)
+            if not res:
+                log.debug(f"No details for result {symbol['name']}")
+            else:
+                log.debug(f"Adding results for {symbol['name']}")
+                results.append(res)
 
     prefix = "result:"
-    indent = ''.join([' ' for x in range(len(prefix))])
+    indent = ' ' * len(prefix)
 
     n_results = len(results)
     terms_str = ", ".join(terms)
