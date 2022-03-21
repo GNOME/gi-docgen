@@ -89,6 +89,23 @@ def _gen_class_method_result(symbol, namespace):
     return None
 
 
+def _gen_constant_result(symbol, namespace):
+    const = namespace.find_real_type(symbol["name"])
+
+    if const.doc is not None:
+        summary = utils.preprocess_docs(const.doc.content, namespace, summary=True, plain=True)
+    else:
+        summary = "Missing documentation"
+
+    return {
+        "type": "constant",
+        "name": const.name,
+        "ctype": const.ctype,
+        "summary": summary.split("\n"),
+        "link": f"const.{const.name}.html",
+    }
+
+
 def _gen_ctor_result(symbol, namespace):
     t = namespace.find_real_type(symbol["type_name"])
 
@@ -357,6 +374,7 @@ def query(repository, terms, index_file):
         "callback": _gen_callback_result,
         "class": _gen_class_result,
         "class_method": _gen_class_method_result,
+        "constant": _gen_constant_result,
         "ctor": _gen_ctor_result,
         "domain": _gen_domain_result,
         "enum": _gen_enum_result,
