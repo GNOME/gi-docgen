@@ -13,7 +13,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from typogrify.filters import typogrify
 
-from . import gir, log, mdext, porter
+from . import gir, log, mdext
 
 
 # The beginning of a gtk-doc code block:
@@ -725,80 +725,6 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plai
         text = md.reset().convert("\n".join(processed_text))
 
     return Markup(typogrify(text, ignore_tags=['h1', 'h2', 'h3', 'h4']))
-
-
-def stem(word, stemmer=None):
-    if stemmer is None:
-        stemmer = porter.PorterStemmer()
-    return stemmer.stem(word, 0, len(word) - 1)
-
-
-def index_description(text, stemmer=None):
-    processed_text = []
-
-    inside_code_block = False
-    for line in text.split("\n"):
-        if not inside_code_block and (line.startswith('```') or line.startswith('|[')):
-            inside_code_block = True
-            continue
-
-        if inside_code_block and (line.startswith('```') or line.startswith(']|')):
-            inside_code_block = False
-            continue
-
-        if not inside_code_block:
-            processed_text.append(line)
-
-    data = " ".join(processed_text)
-    terms = set()
-    for chunk in data.split(" "):
-        chunk = chunk.lower()
-        if chunk in ["\n", "\r", "\r\n"]:
-            continue
-        # Skip gtk-doc sygils
-        if chunk.startswith('%') or chunk.startswith('#') or chunk.startswith('@') or chunk.endswith('()'):
-            continue
-        # Skip gi-docgen links
-        if chunk.startswith('[') and chunk.endswith(']') and '@' in chunk:
-            continue
-        # Skip images
-        if chunk.startswith('!['):
-            continue
-        if chunk in EN_STOPWORDS:
-            continue
-        chunk = re.sub(r"`(\w+)`", r"\g<1>", chunk)
-        chunk = re.sub(r"[,\.:;`]$", '', chunk)
-        chunk = re.sub(r"[\(\)]+", '', chunk)
-        terms.add(stem(chunk, stemmer))
-    return terms
-
-
-def canonicalize(symbol):
-    return symbol.replace('-', '_')
-
-
-def index_identifier(symbol, stemmer=None):
-    """Chunks an identifier (e.g. EventControllerClik) into terms useful for indexing."""
-    symbol = re.sub(CAMEL_CASE_START_RE, r"\g<1>_\g<2>", symbol)
-    symbol = re.sub(CAMEL_CASE_CHUNK_RE, r"\g<1>_\g<2>", symbol)
-    symbol = symbol.replace('-', '_')
-    symbol = symbol.lower()
-    terms = set()
-    for chunk in symbol.split('_'):
-        if chunk in EN_STOPWORDS:
-            continue
-        terms.add(stem(chunk, stemmer))
-    return terms
-
-
-def index_symbol(symbol, stemmer=None):
-    """Chunks a symbol (e.g. set_layout_manager) into terms useful for indexing."""
-    terms = set()
-    for chunk in canonicalize(symbol).split('_'):
-        if chunk in EN_STOPWORDS:
-            continue
-        terms.add(stem(chunk, stemmer))
-    return terms
 
 
 def code_highlight(text, language='c'):
