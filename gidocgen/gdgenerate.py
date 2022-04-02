@@ -1279,13 +1279,15 @@ class TemplateInterface:
 
         self.class_struct = namespace.find_record(interface.type_struct)
         if self.class_struct is not None:
+            if self.class_struct.doc:
+                self.class_description = utils.preprocess_docs(self.class_struct.doc.content, namespace, md=md)
+            else:
+                self.class_description = MISSING_DESCRIPTION
             self.class_fields = []
-            self.class_methods = []
-
             for field in self.class_struct.fields:
                 if not field.private:
                     self.class_fields.append(TemplateField(namespace, field))
-
+            self.class_methods = []
             for method in self.class_struct.methods:
                 self.class_methods.append(gen_index_func(method, namespace, md))
 
@@ -1457,13 +1459,15 @@ class TemplateClass:
 
         if self.class_struct is not None:
             self.class_ctype = self.class_struct.ctype
+            if self.class_struct.doc:
+                self.class_description = utils.preprocess_docs(self.class_struct.doc.content, namespace, md=md)
+            else:
+                self.class_description = MISSING_DESCRIPTION
             self.class_fields = []
-            self.class_methods = []
-
             for field in self.class_struct.fields:
                 if not field.private:
                     self.class_fields.append(TemplateField(namespace, field))
-
+            self.class_methods = []
             for method in self.class_struct.methods:
                 self.class_methods.append(gen_index_func(method, namespace, md))
 
