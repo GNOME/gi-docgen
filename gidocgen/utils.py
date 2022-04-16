@@ -305,8 +305,6 @@ class LinkGenerator:
             # invalid links
             if isinstance(t, gir.Alias):
                 type_fragment = 'alias'
-            elif isinstance(t, gir.BitField):
-                type_fragment = 'flags'
             elif isinstance(t, gir.Callback):
                 type_fragment = 'callback'
             elif isinstance(t, gir.Class):
@@ -314,9 +312,12 @@ class LinkGenerator:
             elif isinstance(t, gir.Constant):
                 type_fragment = 'const'
             elif isinstance(t, gir.Enumeration):
-                type_fragment = 'enum'
-            elif isinstance(t, gir.ErrorDomain):
-                type_fragment = 'error'
+                if isinstance(t, gir.BitField):
+                    type_fragment = 'flags'
+                elif isinstance(t, gir.ErrorDomain):
+                    type_fragment = 'error'
+                else:
+                    type_fragment = 'enum'
             elif isinstance(t, gir.Interface):
                 type_fragment = 'iface'
             elif isinstance(t, gir.Record) or isinstance(t, gir.Union):
