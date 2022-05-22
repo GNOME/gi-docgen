@@ -23,6 +23,7 @@ stages:
 #    - python3 -m pip install --user -e .
 
 .pip:
+  image: fedora:latest
   before_script:
     - export PATH="$HOME/.local/bin:$PATH"
     - dnf install -y python3-pip
@@ -30,6 +31,7 @@ stages:
 pytest:
   stage: check
   needs: []
+  image: fedora:latest
   script:
     - dnf install -y pytest python3-markdown python3-jinja2 python3-pygments python3-toml python3-typogrify
     - pytest --verbose
@@ -37,6 +39,7 @@ pytest:
 flake8:
   stage: check
   needs: []
+  image: fedora:latest
   script:
     - dnf install -y python3-flake8
     - flake8 --ignore E501,E402,F405,W503 --show-source gidocgen
@@ -44,6 +47,7 @@ flake8:
 mypy:
   stage: check
   needs: []
+  image: fedora:latest
   script:
     - dnf install -y python3-mypy
     - mypy --ignore-missing-imports --disallow-incomplete-defs gidocgen
