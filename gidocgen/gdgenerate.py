@@ -344,6 +344,7 @@ class TemplateConstant:
     def __init__(self, namespace, const):
         self.value = const.value
         self.identifier = const.ctype
+        self.type_name = const.target.name
         self.type_cname = const.target.ctype
         self.namespace = namespace.name
         self.name = const.name
@@ -377,6 +378,9 @@ class TemplateConstant:
 
     @property
     def c_decl(self):
+        # String constants are unquoted in the GIR
+        if self.type_name in ["utf8", "filename"]:
+            return utils.code_highlight(f'#define {self.identifier} "{self.value}"')
         return utils.code_highlight(f"#define {self.identifier} {self.value}")
 
 
