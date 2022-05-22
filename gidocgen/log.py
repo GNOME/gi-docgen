@@ -5,6 +5,7 @@ import os
 import platform
 import sys
 import time
+import threading
 
 
 def setup_output():
@@ -28,6 +29,7 @@ log_quiet = False
 log_fatal_warnings = False
 log_warnings_counter = 0
 log_epoch = 0
+log_lock = threading.Lock()
 
 colors = {
     'NONE': "[0m",
@@ -144,13 +146,14 @@ def log(text, prefix=None, location=None, out=None):
     @location: (optional): a location string, or a Location object
     @out: (optional): a File object
     '''
-    res = []
-    if prefix:
-        res += [str(prefix), ': ']
-    if location:
-        res += [str(location), ' ']
-    res += [text]
-    print(''.join(res), file=out)
+    with log_lock:
+        res = []
+        if prefix:
+            res += [str(prefix), ': ']
+        if location:
+            res += [str(location), ' ']
+        res += [text]
+        print(''.join(res), file=out)
 
 
 def error(text, location=None):
