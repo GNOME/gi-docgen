@@ -68,6 +68,7 @@ SCOPE_MODES = {
     'call': 'The callback arguments are valid during the call.',
     'notified': 'The callback arguments are valid until the notify function is called.',
     'async': 'The callback arguments are valid until the asynchronous call is completed.',
+    'forever': 'The callback arguments are valid until the process is terminated',
 }
 
 SIGNAL_WHEN = {
