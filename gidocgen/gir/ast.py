@@ -933,8 +933,8 @@ class Namespace:
 class Repository:
     def __init__(self):
         self.includes: T.Mapping[str, Repository] = {}
-        self.packages: T.List[Package] = []
-        self.c_includes: T.List[CInclude] = []
+        self.packages: T.List[str] = []
+        self.c_includes: T.List[str] = []
         self.types: T.Mapping[str, T.List[Type]] = {}
         self._namespaces: T.List[Namespace] = []
         self.girfile: T.Optional[str] = None
