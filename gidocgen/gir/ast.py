@@ -36,12 +36,6 @@ class Attribute:
         self.value = value
 
 
-class CInclude:
-    """A C include header"""
-    def __init__(self, name: str):
-        self.name = name
-
-
 class Include:
     """A GIR include"""
     def __init__(self, name: str, version: str = None):
@@ -57,12 +51,6 @@ class Include:
         if self.version is not None:
             return f"{self.name}-{self.version}.gir"
         return f"{self.name}.gir"
-
-
-class Package:
-    """Pkg-config containing the library"""
-    def __init__(self, name: str):
-        self.name = name
 
 
 class Info:
