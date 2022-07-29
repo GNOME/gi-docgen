@@ -85,7 +85,7 @@ class GirParser:
         """Prepend a path to the list of search paths"""
         self._search_paths = [path] + self._search_paths
 
-    def parse(self, girfile: T.TextIO) -> None:
+    def parse(self, girfile: T.TextIO | str) -> None:
         """Parse @girfile"""
         log.debug(f"Loading GIR for {girfile}")
         tree = ET.parse(girfile)
