@@ -6,7 +6,7 @@ import json
 import os
 import sys
 
-from . import config, core, gir, log, porter, utils
+from . import config, core, gir, log, utils
 
 
 HELP_MSG = "Generates the symbol indices for search"
@@ -14,22 +14,13 @@ HELP_MSG = "Generates the symbol indices for search"
 MISSING_DESCRIPTION = "No description available."
 
 
-def add_index_terms(index, terms, docid):
-    for term in terms:
-        docs = index.setdefault(term, [])
-        if docid not in docs:
-            docs.append(docid)
-
-
-def _gen_aliases(config, stemmer, index, repository, symbols):
+def _gen_aliases(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for alias in symbols:
         if config.is_hidden(alias.name):
             log.debug(f"Skipping hidden type {alias.name}")
             continue
-        idx = len(index_symbols)
         if alias.doc is not None:
             description = alias.doc.content
         else:
@@ -40,20 +31,15 @@ def _gen_aliases(config, stemmer, index, repository, symbols):
             "ctype": alias.base_ctype,
             "summary": utils.preprocess_docs(description, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [alias.base_ctype.lower()], idx)
-        add_index_terms(index_terms, utils.index_identifier(alias.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(description, stemmer), idx)
 
 
-def _gen_bitfields(config, stemmer, index, repository, symbols):
+def _gen_bitfields(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for bitfield in symbols:
         if config.is_hidden(bitfield.name):
             log.debug(f"Skipping hidden type {bitfield.name}")
             continue
-        idx = len(index_symbols)
         if bitfield.doc is not None:
             description = bitfield.doc.content
         else:
@@ -64,17 +50,8 @@ def _gen_bitfields(config, stemmer, index, repository, symbols):
             "ctype": bitfield.base_ctype,
             "summary": utils.preprocess_docs(description, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [bitfield.base_ctype.lower()], idx)
-        add_index_terms(index_terms, utils.index_identifier(bitfield.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(description, stemmer), idx)
-
-        for member in bitfield.members:
-            add_index_terms(index_terms, [member.name], idx)
-            if member.doc is not None:
-                add_index_terms(index_terms, utils.index_description(member.doc.content, stemmer), idx)
 
         for func in bitfield.functions:
-            func_idx = len(index_symbols)
             if func.doc is not None:
                 func_desc = func.doc.content
             else:
@@ -86,20 +63,15 @@ def _gen_bitfields(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True)
             })
-            add_index_terms(index_terms, [func.identifier], func_idx)
-            add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
-            add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
 
-def _gen_callbacks(config, stemmer, index, repository, symbols):
+def _gen_callbacks(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for callback in symbols:
         if config.is_hidden(callback.name):
             log.debug(f"Skipping hidden callback {callback.name}")
             continue
-        idx = len(index_symbols)
         if callback.doc is not None:
             cb_desc = callback.doc.content
         else:
@@ -110,22 +82,16 @@ def _gen_callbacks(config, stemmer, index, repository, symbols):
             "ctype": callback.base_ctype,
             "summary": utils.preprocess_docs(cb_desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [callback.base_ctype.lower()], idx)
-        add_index_terms(index_terms, utils.index_identifier(callback.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(cb_desc, stemmer), idx)
 
 
-def _gen_classes(config, stemmer, index, repository, symbols):
+def _gen_classes(config, index, repository, symbols):
     namespace = repository.namespace
-
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for cls in symbols:
         if config.is_hidden(cls.name):
             log.debug(f"Skipping hidden type {cls.name}")
             continue
-        idx = len(index_symbols)
         if cls.doc is not None:
             cls_desc = cls.doc.content
         else:
@@ -136,12 +102,8 @@ def _gen_classes(config, stemmer, index, repository, symbols):
             "ctype": cls.base_ctype,
             "summary": utils.preprocess_docs(cls_desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [cls.base_ctype.lower()], idx)
-        add_index_terms(index_terms, utils.index_identifier(cls.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(cls_desc, stemmer), idx)
 
         for ctor in cls.constructors:
-            ctor_idx = len(index_symbols)
             if ctor.doc is not None:
                 ctor_desc = ctor.doc.content
             else:
@@ -153,12 +115,8 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 "ident": ctor.identifier,
                 "summary": utils.preprocess_docs(ctor_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [ctor.identifier], ctor_idx)
-            add_index_terms(index_terms, utils.index_symbol(ctor.name, stemmer), ctor_idx)
-            add_index_terms(index_terms, utils.index_description(ctor_desc, stemmer), ctor_idx)
 
         for method in cls.methods:
-            method_idx = len(index_symbols)
             if method.doc is not None:
                 method_desc = method.doc.content
             else:
@@ -170,12 +128,8 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [method.identifier], method_idx)
-            add_index_terms(index_terms, utils.index_symbol(method.name, stemmer), method_idx)
-            add_index_terms(index_terms, utils.index_description(method_desc, stemmer), method_idx)
 
         for func in cls.functions:
-            func_idx = len(index_symbols)
             if func.doc is not None:
                 func_desc = func.doc.content
             else:
@@ -187,15 +141,11 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [func.identifier], func_idx)
-            add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
-            add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
         for prop_name, prop in cls.properties.items():
             if config.is_hidden(cls.name, 'property', prop_name):
                 log.debug(f"Skipping hidden property {cls.name}.{prop_name}")
                 continue
-            prop_idx = len(index_symbols)
             if prop.doc is not None:
                 prop_desc = prop.doc.content
             else:
@@ -206,14 +156,11 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 "type_name": cls.name,
                 "summary": utils.preprocess_docs(prop_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, utils.index_symbol(prop.name, stemmer), prop_idx)
-            add_index_terms(index_terms, utils.index_description(prop_desc, stemmer), prop_idx)
 
         for signal_name, signal in cls.signals.items():
             if config.is_hidden(cls.name, 'signal', signal_name):
                 log.debug(f"Skipping hidden signal {cls.name}.{signal_name}")
                 continue
-            signal_idx = len(index_symbols)
             if signal.doc is not None:
                 signal_desc = signal.doc.content
             else:
@@ -224,11 +171,8 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 "type_name": cls.name,
                 "summary": utils.preprocess_docs(signal_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, utils.index_symbol(signal.name, stemmer), signal_idx)
-            add_index_terms(index_terms, utils.index_description(signal_desc, stemmer), signal_idx)
 
         for vfunc in cls.virtual_methods:
-            vfunc_idx = len(index_symbols)
             if vfunc.doc is not None:
                 vfunc_desc = vfunc.doc.content
             else:
@@ -239,13 +183,10 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                 "type_name": cls.name,
                 "summary": utils.preprocess_docs(vfunc_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, utils.index_symbol(vfunc.name, stemmer), vfunc_idx)
-            add_index_terms(index_terms, utils.index_description(vfunc_desc, stemmer), vfunc_idx)
 
         if cls.type_struct is not None:
             cls_struct = namespace.find_record(cls.type_struct)
             for cls_method in cls_struct.methods:
-                cls_method_idx = len(index_symbols)
                 if cls_method.doc is not None:
                     cls_method_desc = cls_method.doc.content
                 else:
@@ -258,20 +199,15 @@ def _gen_classes(config, stemmer, index, repository, symbols):
                     "ident": cls_method.identifier,
                     "summary": utils.preprocess_docs(cls_method_desc, repository.namespace, summary=True, plain=True),
                 })
-                add_index_terms(index_terms, [cls_method.identifier], cls_method_idx)
-                add_index_terms(index_terms, utils.index_symbol(cls_method.name, stemmer), cls_method_idx)
-                add_index_terms(index_terms, utils.index_description(cls_method_desc, stemmer), cls_method_idx)
 
 
-def _gen_constants(config, stemmer, index, repository, symbols):
+def _gen_constants(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for const in symbols:
         if config.is_hidden(const.name):
             log.debug(f"Skipping hidden const {const.name}")
             continue
-        idx = len(index_symbols)
         if const.doc is not None:
             const_desc = const.doc.content
         else:
@@ -282,20 +218,15 @@ def _gen_constants(config, stemmer, index, repository, symbols):
             "ident": const.ctype,
             "summary": utils.preprocess_docs(const_desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [const.ctype.lower()], idx)
-        add_index_terms(index_terms, utils.index_symbol(const.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(const_desc, stemmer), idx)
 
 
-def _gen_domains(config, stemmer, index, repository, symbols):
+def _gen_domains(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for domain in symbols:
         if config.is_hidden(domain.name):
             log.debug(f"Skipping hidden type {domain.name}")
             continue
-        idx = len(index_symbols)
         if domain.doc is not None:
             domain_desc = domain.doc.content
         else:
@@ -306,17 +237,8 @@ def _gen_domains(config, stemmer, index, repository, symbols):
             "ctype": domain.base_ctype,
             "summary": utils.preprocess_docs(domain_desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [domain.base_ctype.lower()], idx)
-        add_index_terms(index_terms, utils.index_identifier(domain.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(domain_desc, stemmer), idx)
-
-        for member in domain.members:
-            add_index_terms(index_terms, [member.name], idx)
-            if member.doc is not None:
-                add_index_terms(index_terms, utils.index_description(member.doc.content, stemmer), idx)
 
         for func in domain.functions:
-            func_idx = len(index_symbols)
             if func.doc is not None:
                 func_desc = func.doc.content
             else:
@@ -328,20 +250,15 @@ def _gen_domains(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [func.identifier], func_idx)
-            add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
-            add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
 
-def _gen_enums(config, stemmer, index, repository, symbols):
+def _gen_enums(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for enum in symbols:
         if config.is_hidden(enum.name):
             log.debug(f"Skipping hidden type {enum.name}")
             continue
-        idx = len(index_symbols)
         if enum.doc is not None:
             enum_desc = enum.doc.content
         else:
@@ -352,17 +269,8 @@ def _gen_enums(config, stemmer, index, repository, symbols):
             "ctype": enum.base_ctype,
             "summary": utils.preprocess_docs(enum_desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [enum.base_ctype.lower()], idx)
-        add_index_terms(index_terms, utils.index_identifier(enum.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(enum_desc, stemmer), idx)
-
-        for member in enum.members:
-            add_index_terms(index_terms, [member.name], idx)
-            if member.doc is not None:
-                add_index_terms(index_terms, utils.index_description(member.doc.content, stemmer), idx)
 
         for func in enum.functions:
-            func_idx = len(index_symbols)
             if func.doc is not None:
                 func_desc = func.doc.content
             else:
@@ -374,20 +282,15 @@ def _gen_enums(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [func.identifier], func_idx)
-            add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
-            add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
 
-def _gen_functions(config, stemmer, index, repository, symbols):
+def _gen_functions(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for func in symbols:
         if config.is_hidden(func.name):
             log.debug(f"Skipping hidden function {func.name}")
             continue
-        idx = len(index_symbols)
         if func.doc is not None:
             func_desc = func.doc.content
         else:
@@ -398,20 +301,15 @@ def _gen_functions(config, stemmer, index, repository, symbols):
             "ident": func.identifier,
             "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [func.identifier], idx)
-        add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(func_desc, stemmer), idx)
 
 
-def _gen_function_macros(config, stemmer, index, repository, symbols):
+def _gen_function_macros(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for func in symbols:
         if config.is_hidden(func.name):
             log.debug(f"Skipping hidden macro {func.name}")
             continue
-        idx = len(index_symbols)
         if func.doc is not None:
             func_desc = func.doc.content
         else:
@@ -422,20 +320,15 @@ def _gen_function_macros(config, stemmer, index, repository, symbols):
             "ident": func.identifier,
             "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [func.identifier], idx)
-        add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(func_desc, stemmer), idx)
 
 
-def _gen_interfaces(config, stemmer, index, repository, symbols):
+def _gen_interfaces(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for iface in symbols:
         if config.is_hidden(iface.name):
             log.debug(f"Skipping hidden type {iface.name}")
             continue
-        idx = len(index_symbols)
         if iface.doc is not None:
             iface_desc = iface.doc.content
         else:
@@ -446,12 +339,8 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
             "ctype": iface.base_ctype,
             "summary": utils.preprocess_docs(iface_desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [iface.base_ctype.lower()], idx)
-        add_index_terms(index_terms, utils.index_identifier(iface.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(iface_desc, stemmer), idx)
 
         for method in iface.methods:
-            method_idx = len(index_symbols)
             if method.doc is not None:
                 method_desc = method.doc.content
             else:
@@ -463,12 +352,8 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [method.identifier], method_idx)
-            add_index_terms(index_terms, utils.index_symbol(method.name, stemmer), method_idx)
-            add_index_terms(index_terms, utils.index_description(method_desc, stemmer), method_idx)
 
         for func in iface.functions:
-            func_idx = len(index_symbols)
             if func.doc is not None:
                 func_desc = func.doc.content
             else:
@@ -480,15 +365,11 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [func.identifier], func_idx)
-            add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
-            add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
         for prop_name, prop in iface.properties.items():
             if config.is_hidden(iface.name, 'property', prop_name):
                 log.debug(f"Skipping hidden property {iface.name}.{prop_name}")
                 continue
-            prop_idx = len(index_symbols)
             if prop.doc is not None:
                 prop_desc = prop.doc.content
             else:
@@ -499,14 +380,11 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
                 "type_name": iface.name,
                 "summary": utils.preprocess_docs(prop_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, utils.index_symbol(prop.name, stemmer), prop_idx)
-            add_index_terms(index_terms, utils.index_description(prop_desc, stemmer), prop_idx)
 
         for signal_name, signal in iface.signals.items():
             if config.is_hidden(iface.name, 'signal', signal_name):
                 log.debug(f"Skipping hidden signal {iface.name}.{signal_name}")
                 continue
-            signal_idx = len(index_symbols)
             if signal.doc is not None:
                 signal_desc = signal.doc.content
             else:
@@ -517,11 +395,8 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
                 "type_name": iface.name,
                 "summary": utils.preprocess_docs(signal_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, utils.index_symbol(signal.name, stemmer), signal_idx)
-            add_index_terms(index_terms, utils.index_description(signal_desc, stemmer), signal_idx)
 
         for vfunc in iface.virtual_methods:
-            vfunc_idx = len(index_symbols)
             if vfunc.doc is not None:
                 vfunc_desc = vfunc.doc.content
             else:
@@ -532,19 +407,15 @@ def _gen_interfaces(config, stemmer, index, repository, symbols):
                 "type_name": iface.name,
                 "summary": utils.preprocess_docs(vfunc_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, utils.index_symbol(vfunc.name, stemmer), vfunc_idx)
-            add_index_terms(index_terms, utils.index_description(vfunc_desc, stemmer), vfunc_idx)
 
 
-def _gen_records(config, stemmer, index, repository, symbols):
+def _gen_records(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for record in symbols:
         if config.is_hidden(record.name):
             log.debug(f"Skipping hidden type {record.name}")
             continue
-        idx = len(index_symbols)
         if record.doc is not None:
             desc = record.doc.content
         else:
@@ -555,12 +426,8 @@ def _gen_records(config, stemmer, index, repository, symbols):
             "ctype": record.base_ctype,
             "summary": utils.preprocess_docs(desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [record.base_ctype.lower()], idx)
-        add_index_terms(index_terms, utils.index_identifier(record.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(desc, stemmer), idx)
 
         for ctor in record.constructors:
-            ctor_idx = len(index_symbols)
             if ctor.doc is not None:
                 ctor_desc = ctor.doc.content
             else:
@@ -572,12 +439,8 @@ def _gen_records(config, stemmer, index, repository, symbols):
                 "ident": ctor.identifier,
                 "summary": utils.preprocess_docs(ctor_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [ctor.identifier], ctor_idx)
-            add_index_terms(index_terms, utils.index_symbol(ctor.name, stemmer), ctor_idx)
-            add_index_terms(index_terms, utils.index_description(ctor_desc, stemmer), ctor_idx)
 
         for method in record.methods:
-            method_idx = len(index_symbols)
             if method.doc is not None:
                 method_desc = method.doc.content
             else:
@@ -589,12 +452,8 @@ def _gen_records(config, stemmer, index, repository, symbols):
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [method.identifier], method_idx)
-            add_index_terms(index_terms, utils.index_symbol(method.name, stemmer), method_idx)
-            add_index_terms(index_terms, utils.index_description(method_desc, stemmer), method_idx)
 
         for func in record.functions:
-            func_idx = len(index_symbols)
             if func.doc is not None:
                 func_desc = func.doc.content
             else:
@@ -606,20 +465,15 @@ def _gen_records(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [func.identifier], func_idx)
-            add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
-            add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
 
-def _gen_unions(config, stemmer, index, repository, symbols):
+def _gen_unions(config, index, repository, symbols):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for union in symbols:
         if config.is_hidden(union.name):
             log.debug(f"Skipping hidden type {union.name}")
             continue
-        idx = len(index_symbols)
         if union.doc is not None:
             desc = union.doc.content
         else:
@@ -630,12 +484,8 @@ def _gen_unions(config, stemmer, index, repository, symbols):
             "ctype": union.base_ctype,
             "summary": utils.preprocess_docs(desc, repository.namespace, summary=True, plain=True),
         })
-        add_index_terms(index_terms, [union.base_ctype.lower()], idx)
-        add_index_terms(index_terms, utils.index_identifier(union.name, stemmer), idx)
-        add_index_terms(index_terms, utils.index_description(desc, stemmer), idx)
 
         for ctor in union.constructors:
-            ctor_idx = len(index_symbols)
             if ctor.doc is not None:
                 ctor_desc = ctor.doc.content
             else:
@@ -647,12 +497,8 @@ def _gen_unions(config, stemmer, index, repository, symbols):
                 "ident": ctor.identifier,
                 "summary": utils.preprocess_docs(ctor_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [ctor.identifier], ctor_idx)
-            add_index_terms(index_terms, utils.index_symbol(ctor.name, stemmer), ctor_idx)
-            add_index_terms(index_terms, utils.index_description(ctor_desc, stemmer), ctor_idx)
 
         for method in union.methods:
-            method_idx = len(index_symbols)
             if method.doc is not None:
                 method_desc = method.doc.content
             else:
@@ -664,12 +510,8 @@ def _gen_unions(config, stemmer, index, repository, symbols):
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [method.identifier], method_idx)
-            add_index_terms(index_terms, utils.index_symbol(method.name, stemmer), method_idx)
-            add_index_terms(index_terms, utils.index_description(method_desc, stemmer), method_idx)
 
         for func in union.functions:
-            func_idx = len(index_symbols)
             if func.doc is not None:
                 func_desc = func.doc.content
             else:
@@ -681,14 +523,10 @@ def _gen_unions(config, stemmer, index, repository, symbols):
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
             })
-            add_index_terms(index_terms, [func.identifier], func_idx)
-            add_index_terms(index_terms, utils.index_symbol(func.name, stemmer), func_idx)
-            add_index_terms(index_terms, utils.index_description(func_desc, stemmer), func_idx)
 
 
-def _gen_content_files(config, stemmer, index, repository, content_dirs):
+def _gen_content_files(config, index, repository, content_dirs):
     index_symbols = index["symbols"]
-    index_terms = index["terms"]
 
     for file_name in config.content_files:
         src_file = utils.find_extra_content_file(content_dirs, file_name)
@@ -718,9 +556,6 @@ def _gen_content_files(config, stemmer, index, repository, content_dirs):
             "href": file_name.replace(".md", ".html"),
             "summary": utils.preprocess_docs(src_data, repository.namespace, summary=True, plain=True),
         })
-
-        content_idx = len(index_symbols)
-        add_index_terms(index_terms, utils.index_description(src_data, stemmer), content_idx)
 
 
 def gen_indices(config, repository, content_dirs, output_dir):
@@ -767,8 +602,6 @@ def gen_indices(config, repository, content_dirs, output_dir):
         "terms": {},
     }
 
-    stemmer = porter.PorterStemmer()
-
     # Each section is isolated, so we run it into a thread pool
     for section in all_indices:
         generator = all_indices.get(section, None)
@@ -782,14 +615,14 @@ def gen_indices(config, repository, content_dirs, output_dir):
             continue
 
         log.debug(f"Generating symbols for section {section}")
-        generator(config, stemmer, index, repository, s)
+        generator(config, index, repository, s)
 
-    _gen_content_files(config, stemmer, index, repository, content_dirs)
+    _gen_content_files(config, index, repository, content_dirs)
 
     # Ensure iteration order is reproducible by sorting symbols by type/name,
     # and terms by key. This has no overhead since values are not copied.
     index["symbols"].sort(key=lambda s: (s["type"], s["name"]))
-    index["terms"] = dict(sorted(index["terms"].items()))
+    index["terms"] = {}
 
     data = json.dumps(index, separators=(',', ':'))
     index_file = os.path.join(output_dir, "index.json")
