@@ -2675,7 +2675,12 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
     def dump_tree(node, out):
         for k in node:
             if '.' in k:
-                out.append(f'<li class="type"><code>{k}</code>')
+                ns, name = k.split('.', 2)
+                data_ns = f'data-namespace="{ns}"'
+                data_link = f'data-link="class.{name}.html"'
+                href = 'href="javascript:void(0)"'
+                css_class = 'class="external"'
+                out.append(f'<li class="type"><a {data_ns} {data_link} {href} {css_class}><code>{k}</code></a>')
             else:
                 out.append(f'<li class="type"><a href="class.{k}.html"><code>{k}</code></a>')
             if len(node[k]) != 0:
@@ -2687,7 +2692,7 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
     if len(objects_tree) != 0:
         res += ["<div class=\"docblock\">"]
         res += ["<ul class=\"type root\">"]
-        res += [" <li class=\"type\"><code>GObject</code></li><ul class=\"type\">"]
+        res += [" <li class=\"type\"><a data-namespace=\"GObject\" data-link=\"class.Object.html\" href=\"javascript:void(0)\" class=\"external\"><code>GObject.Object</code></a></li><ul class=\"type\">"]  # noqa: E501
         dump_tree(objects_tree, res)
         res += [" </ul></li>"]
         res += ["</ul>"]
@@ -2696,7 +2701,7 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
     if len(typed_tree) != 0:
         res += ["<div class=\"docblock\">"]
         res += ["<ul class=\"type root\">"]
-        res += [" <li class=\"type\"><code>GTypeInstance</code></li><ul class=\"type\">"]
+        res += [" <li class=\"type\"><a data-namespace=\"GObject\" data-link=\"struct.TypeInstance.html\" href=\"javascript:void(0)\" class=\"external\"><code>GObject.TypeInstance</code></li><ul class=\"type\">"]  # noqa: E501
         dump_tree(typed_tree, res)
         res += [" </ul></li>"]
         res += ["</ul>"]
