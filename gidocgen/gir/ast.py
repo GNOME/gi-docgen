@@ -36,12 +36,6 @@ class Attribute:
         self.value = value
 
 
-class CInclude:
-    """A C include header"""
-    def __init__(self, name: str):
-        self.name = name
-
-
 class Include:
     """A GIR include"""
     def __init__(self, name: str, version: str = None):
@@ -57,12 +51,6 @@ class Include:
         if self.version is not None:
             return f"{self.name}-{self.version}.gir"
         return f"{self.name}.gir"
-
-
-class Package:
-    """Pkg-config containing the library"""
-    def __init__(self, name: str):
-        self.name = name
 
 
 class Info:
@@ -933,8 +921,8 @@ class Namespace:
 class Repository:
     def __init__(self):
         self.includes: T.Mapping[str, Repository] = {}
-        self.packages: T.List[Package] = []
-        self.c_includes: T.List[CInclude] = []
+        self.packages: T.List[str] = []
+        self.c_includes: T.List[str] = []
         self.types: T.Mapping[str, T.List[Type]] = {}
         self._namespaces: T.List[Namespace] = []
         self.girfile: T.Optional[str] = None
