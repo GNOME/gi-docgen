@@ -189,12 +189,14 @@ def gen_index_ancestor(ancestor_type, namespace, config, md=None):
         ns = ancestor_type.namespace or namespace.name
     res = namespace.repository.find_class(ancestor_name, ns)
     if res is not None:
-        ancestor_ns = res[0].name
+        ancestor_ns_name = res[0].name
         ancestor_ctype = res[1].base_ctype
+        ancestor_ns = res[0]
         ancestor = res[1]
     else:
-        ancestor_ns = ancestor_type.namespace or namespace.name
+        ancestor_ns_name = ancestor_type.namespace or namespace.name
         ancestor_ctype = ancestor_type.base_ctype
+        ancestor_ns = None
         ancestor = None
     n_methods = 0
     methods = []
@@ -214,19 +216,19 @@ def gen_index_ancestor(ancestor_type, namespace, config, md=None):
         if n_methods > 0 and n_methods < 24:
             for m in ancestor.methods:
                 if not config.is_hidden(ancestor_name, "method", m.name):
-                    methods.append(gen_index_func(m, namespace, md))
+                    methods.append(gen_index_func(m, ancestor_ns, md))
         for p in ancestor.properties.values():
             if not config.is_hidden(ancestor_name, "property", p.name):
                 n_properties += 1
-                properties.append(gen_index_property(p, namespace, md))
+                properties.append(gen_index_property(p, ancestor_ns, md))
         for s in ancestor.signals.values():
             if not config.is_hidden(ancestor_name, "signal", s.name):
                 n_signals += 1
-                signals.append(gen_index_signal(s, namespace, md))
+                signals.append(gen_index_signal(s, ancestor_ns, md))
     return {
-        "namespace": ancestor_ns,
+        "namespace": ancestor_ns_name,
         "name": ancestor_name,
-        "fqtn": f"{ancestor_ns}.{ancestor_name}",
+        "fqtn": f"{ancestor_ns_name}.{ancestor_name}",
         "type_cname": ancestor_ctype,
         "properties": properties,
         "n_properties": n_properties,
@@ -245,12 +247,14 @@ def gen_index_implements(iface_type, namespace, config, md=None):
         ns = iface_type.namespace or namespace.name
     res = namespace.repository.find_interface(iface_name, ns)
     if res is not None:
-        iface_ns = res[0].name
+        iface_ns_name = res[0].name
         iface_ctype = res[1].base_ctype
+        iface_ns = res[0]
         iface = res[1]
     else:
-        iface_ns = iface_type.namespace or namespace.name
+        iface_ns_name = iface_type.namespace or namespace.name
         iface_ctype = iface_type.base_ctype
+        iface_ns = None
         iface = None
     n_methods = 0
     methods = []
@@ -268,17 +272,17 @@ def gen_index_implements(iface_type, namespace, config, md=None):
         if n_methods > 0 and n_methods < 24:
             for m in iface.methods:
                 if not config.is_hidden(iface_name, "method", m.name):
-                    methods.append(gen_index_func(m, namespace, md))
+                    methods.append(gen_index_func(m, iface_ns, md))
         for p in iface.properties.values():
             if not config.is_hidden(iface_name, "property", p.name):
                 n_properties += 1
-                properties.append(gen_index_property(p, namespace, md))
+                properties.append(gen_index_property(p, iface_ns, md))
         for s in iface.signals.values():
             if not config.is_hidden(iface.name, "signal", s.name):
                 n_signals += 1
-                signals.append(gen_index_signal(s, namespace, md))
+                signals.append(gen_index_signal(s, iface_ns, md))
     return {
-        "namespace": iface_ns,
+        "namespace": iface_ns_name,
         "name": iface_name,
         "fqtn": f"{iface_ns}.{iface_name}",
         "type_cname": iface_ctype,
