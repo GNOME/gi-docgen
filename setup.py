@@ -51,6 +51,7 @@ package_data = {
         "templates/basic/*.png",
         "templates/basic/*.woff2",
         "templates/basic/*.woff",
+        "py.typed",
     ],
 }
 
