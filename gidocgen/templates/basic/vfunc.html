@@ -95,11 +95,11 @@
       </h4>
 
       <div class="docblock">
-        <table class="arguments">
+        <dl class="arguments">
           {% for arg in vfunc.arguments %}
-          <tr class="arg-name">
-            <td><code>{{ arg.name }}</code></td>
-            <td>
+          <dt class="arg-name"><code>{{ arg.name }}</code></dt>
+          <dd class="arg-description">
+            <p><em>Type:</em>&nbsp;
             {%- if arg.is_array -%}An array of&nbsp;{%- endif -%}
             {%- if arg.is_list -%}A list of&nbsp;{%- endif -%}
             {%- if arg.link -%}
@@ -107,33 +107,30 @@
             {%- else -%}
             <code>{{ arg.type_cname }}</code>
             {%- endif -%}
-            </td>
-          </tr>
-          <tr class="arg-description">
-            <td>&nbsp;</td>
-            <td>{{ arg.description|safe }}</td>
-          </tr>
-          {% if arg.direction != "in" %}<tr><td>&nbsp;</td><td title="direction: {{ arg.direction}}">{{ arg.direction_note }}</td></tr>{% endif %}
-          {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>The argument can be <code>NULL</code>.</td></tr>{% endif %}
-          {% if arg.direction == "out" and arg.is_pointer and arg.nullable %}<tr><td>&nbsp;</td><td>The argument can be set to <code>NULL</code>.</td></tr>{% endif %}
-          {% if arg.optional %}<tr><td>&nbsp;</td><td>The argument can be <code>NULL</code>.</td></tr>{% endif %}
-          {% if arg.is_array and arg.zero_terminated %}<tr><td>&nbsp;</td><td>The array must be <code>NULL</code>-terminated.</td></tr>{% endif %}
-          {% if arg.is_array and arg.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array must have {{ arg.fixed_size }} elements.</td></tr>{% endif %}
-          {% if arg.is_array and arg.len_arg %}<tr><td>&nbsp;</td><td>The length of the array is specified in the <code>{{ arg.len_arg }}</code> argument.</td></tr>{% endif %}
-          {% if arg.is_pointer %}<tr><td>&nbsp;</td><td title="transfer: {{ arg.transfer }}">{{ arg.transfer_note }}</td></tr>{% endif %}
-          {% if arg.string_note %}<tr><td>&nbsp;</td><td>{{ arg.string_note }}</td></tr>{% endif %}
+            </p>
+            <p>{{ arg.description|safe }}</p>
+            <table>
+            {% if arg.direction != "in" %}<tr><td title="direction: {{ arg.direction}}">{{ arg.direction_note }}</td></tr>{% endif %}
+            {% if arg.direction == "in" and arg.is_pointer and arg.nullable %}<tr><td>The argument can be <code>NULL</code>.</td></tr>{% endif %}
+            {% if arg.direction == "out" and arg.is_pointer and arg.nullable %}<tr><td>The argument can be set to <code>NULL</code>.</td></tr>{% endif %}
+            {% if arg.optional %}<tr><td>The argument can be <code>NULL</code>.</td></tr>{% endif %}
+            {% if arg.is_array and arg.zero_terminated %}<tr><td>The array must be <code>NULL</code>-terminated.</td></tr>{% endif %}
+            {% if arg.is_array and arg.fixed_size > 0 %}<tr><td>The array must have {{ arg.fixed_size }} elements.</td></tr>{% endif %}
+            {% if arg.is_array and arg.len_arg %}<tr><td>The length of the array is specified in the <code>{{ arg.len_arg }}</code> argument.</td></tr>{% endif %}
+            {% if arg.is_pointer %}<tr><td title="transfer: {{ arg.transfer }}">{{ arg.transfer_note }}</td></tr>{% endif %}
+            {% if arg.string_note %}<tr><td>{{ arg.string_note }}</td></tr>{% endif %}
+            </table>
+          </dd>
           {% endfor %}
+
           {% if vfunc.throws %}
-          <tr class="arg-name">
-            <td><code>error</code></td>
-            <td><code>GError **</code></td>
-          </tr>
-          <tr class="arg-description">
-            <td>&nbsp;</td>
-            <td>The return location for a <code>GError*</code>, or <code>NULL</code>.</td>
-          </tr>
+          <dt class="arg-name"><code>error</code></dt>
+          <dd class="arg-description">
+            <p><em>Type:</em>&nbsp;<code>GError **</code></p>
+            <p>The return location for a <code>GError*</code>, or <code>NULL</code>.</p>
+          </dd>
           {% endif %}
-        </table>
+        </dl>
       </div>
     </div>
     {% endif %}
@@ -146,10 +143,9 @@
       </h4>
 
       <div class="docblock">
-        <table class="returns">
-          <tr class="arg-name">
-            <td>Returns:</td>
-            <td>
+        <div class="returns">
+          <div>
+            <p><em>Type:</em>&nbsp;
             {%- if vfunc.return_value.is_array -%}An array of&nbsp;{%- endif -%}
             {%- if vfunc.return_value.is_list -%}A list of&nbsp;{%- endif -%}
             {%- if vfunc.return_value.is_list_model -%}A list model of&nbsp;{%- endif -%}
@@ -158,19 +154,20 @@
             {%- else -%}
             <code>{{ vfunc.return_value.type_cname }}</code>
             {%- endif -%}
-            </td>
-          </tr>
-          <tr class="arg-description">
-            <td>&nbsp;</td>
-            <td>{{ vfunc.return_value.description|safe }}</td>
-          </tr>
-          {% if vfunc.return_value.is_array and vfunc.return_value.zero_terminated %}<tr><td>&nbsp;</td><td>The array is <code>NULL</code>-terminated.</td></tr>{% endif %}
-          {% if vfunc.return_value.is_array and vfunc.return_value.fixed_size > 0 %}<tr><td>&nbsp;</td><td>The array has {{ vfunc.return_value.fixed_size }} elements.</td></tr>{% endif %}
-          {% if vfunc.return_value.is_array and vfunc.return_value.len_arg %}<tr><td>&nbsp;</td><td>The length of the array is in the <code>{{ vfunc.return_value.len_arg }}</code> argument.</td></tr>{% endif %}
-          {% if vfunc.return_value.is_pointer %}<tr><td>&nbsp;</td><td title="transfer: {{ vfunc.return_value.transfer }}">{{ vfunc.return_value.transfer_note }}</td></tr>{% endif %}
-          {% if vfunc.return_value.is_pointer and vfunc.return_value.nullable %}<tr><td>&nbsp;</td><td>The return value can be <code>NULL</code>.</td></tr>{% endif %}
-          {% if vfunc.return_value.string_note %}<tr><td>&nbsp;</td><td>{{ vfunc.return_value.string_note }}</td></tr>{% endif %}
-        </table>
+            </p>
+            <p>{{ vfunc.return_value.description|safe }}</p>
+          </div>
+          <div>
+            <table>
+            {% if vfunc.return_value.is_array and vfunc.return_value.zero_terminated %}<tr><td>The array is <code>NULL</code>-terminated.</td></tr>{% endif %}
+            {% if vfunc.return_value.is_array and vfunc.return_value.fixed_size > 0 %}<tr><td>The array has {{ vfunc.return_value.fixed_size }} elements.</td></tr>{% endif %}
+            {% if vfunc.return_value.is_array and vfunc.return_value.len_arg %}<tr><td>The length of the array is in the <code>{{ vfunc.return_value.len_arg }}</code> argument.</td></tr>{% endif %}
+            {% if vfunc.return_value.is_pointer %}<tr><td title="transfer: {{ vfunc.return_value.transfer }}">{{ vfunc.return_value.transfer_note }}</td></tr>{% endif %}
+            {% if vfunc.return_value.is_pointer and vfunc.return_value.nullable %}<tr><td>The return value can be <code>NULL</code>.</td></tr>{% endif %}
+            {% if vfunc.return_value.string_note %}<tr><td>{{ vfunc.return_value.string_note }}</td></tr>{% endif %}
+            </table>
+          </div>
+        </div>
       </div>
     </div>
     {% endif %}
