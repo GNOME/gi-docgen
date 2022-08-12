@@ -102,14 +102,12 @@
           </h6>
 
           <div class="docblock">
-            <table>
+            <dl>
             {% for field in struct.fields %}
-              <tr>
-                <td><code>{{ field.name }}</code></td>
-                <td>{{ field.description }}</td>
-              </tr>
+              <dt><code>{{ field.name }}</code></dt>
+              <dd>{{ field.description }}</dd>
             {% endfor %}
-            </table>
+            </dl>
           </div>
         </div>
         {% endif %}

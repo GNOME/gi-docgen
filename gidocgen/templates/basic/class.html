@@ -622,18 +622,12 @@
       <div class="docblock">
         <h6>Class members</h6>
 
-        <table class="members">
+        <dl class="members">
         {% for field in class.class_fields %}
-        <tr>
-          <td style="vertical-align:top"><code>{{ field.name }}</code></td>
-          <td style="vertical-align:top"><pre><code>{{ field.type_cname }}</code></pre></td>
-        </tr>
-        <tr>
-          <td>&nbsp;</td>
-          <td style="vertical-align:top">{{ field.description }}</td>
-        </td>
+          <dt><code>{{ field.name }}: {{ field.type_cname }}</code></dt>
+          <dd>{{ field.description }}</dd>
         {% endfor %}
-        </table>
+        </dd>
       </div>
       {% endif %}
     </div>
