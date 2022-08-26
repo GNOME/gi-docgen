@@ -137,10 +137,16 @@
           <dt class="arg-name"><code>error</code></dt>
           <dd class="arg-description">
             <p><em>Type:</em>&nbsp;<code>GError **</code></p>
-            <p>The return location for a <code>GError*</code>, or <code>NULL</code>.</p>
+            <p>The return location for <a href="https://docs.gtk.org/glib/error-reporting.html#rules-for-use-of-gerror">a recoverable error</a>.</p>
+            <table>
+              <tr><td>The argument can be <code>NULL</code>.</td></tr>
+              <tr><td>If the return location is not <code>NULL</code>, then you must initialize it to a <code>NULL</code> <code>GError*</code>.</td></tr>
+              <tr><td>The argument will left initialized to <code>NULL</code> by the signal handler if there are no errors.</td></tr>
+              <tr><td>In case of error, the argument will be set to a newly allocated <code>GError</code>; the caller will take ownership of the data, and be responsible for freeing it.</td></tr>
+            </table>
           </dd>
           {% endif %}
-        </table>
+        </dl>
       </div>
     </div>
     {% endif %}
