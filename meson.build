@@ -18,6 +18,15 @@ py = import('python').find_installation('python3',
   ],
 )
 
+markdown_version = run_command(
+  py, '-c', 'import markdown; print(markdown.__version__)',
+  check: true,
+).stdout().strip()
+
+if not markdown_version.version_compare('>=3.2')
+  error('gi-docgen requires at least markdown >= 3.2')
+endif
+
 configure_file(
   input: 'gi-docgen.py',
   output: 'gi-docgen',

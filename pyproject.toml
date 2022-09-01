@@ -35,7 +35,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6"
-Markdown = "^3"
+Markdown = "^3.2"
 MarkupSafe = "^1"
 Pygments = "^2"
 Jinja2 = "^2"
