@@ -863,6 +863,7 @@ table.returns tr.arg-description td {
 .emblem {
   padding: 0 0.75em;
   border-radius: 9999px;
+  font-size: 80%;
 }
 
 .emblem.available-next {
