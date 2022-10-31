@@ -94,6 +94,20 @@
 
   <section>
     <summary>
+      <div class="docblock">
+        <p>
+        {%- if CONFIG.is_unstable(class.available_since) -%}
+        <span class="emblem available-next" title="This type will be available in the next stable release">unstable</span>&nbsp;
+        {%- endif %}
+        {%- if class.deprecated_since -%}
+        <span class="emblem deprecated">deprecated: {{ class.deprecated_since.version }}</span>&nbsp;
+        {%- endif -%}
+        {%- if class.available_since -%}
+        <span class="emblem available">since: {{ class.available_since }}</span>
+        {%- endif -%}
+        </p>
+      </div>
+
       <div class="toggle-wrapper">
         <h4 id="description" style="display:flex;">
           Description
@@ -110,18 +124,22 @@
         </div>
 
         <div class="docblock">
-          <table class="attributes">
-            {% if class.stability %}
-            <tr><td>Stability:</td><td>{{ class.stability }}</td></tr>
-            {% endif %}
-            {% if class.available_since %}
-            <tr><td>Available since:</td><td>{{ class.available_since }}</td></tr>
-            {% endif %}
-            {% if class.deprecated_since %}
-            <tr><td>Deprecated since:</td><td>{{ class.deprecated_since.version }}</td></tr>
-            <tr><td colspan="2">{{ class.deprecated_since.message }}</td></tr>
-            {% endif %}
-          </table>
+          {% if class.stability %}
+          <p>Stability: {{ class.stability }}</p>
+          {% endif %}
+          {% if class.available_since %}
+          <p>Available since: {{ class.available_since }}</p>
+          {% endif %}
+          {% if class.deprecated_since %}
+          {%- if class.deprecated_since.message -%}
+          <div>
+            <p>Deprecated since: {{ class.deprecated_since.version }}</p>
+            {{ class.deprecated_since.message }}
+          </div>
+          {%- else -%}
+          <p>Deprecated since: {{ class.deprecated_since.version }}. Do not use in newly written code.</p>
+          {%- endif -%}
+          {% endif %}
         </div>
 
         {% if class.attributes %}
@@ -214,21 +232,22 @@
       {% for ctor in class.ctors %}
         <div class="{% if ctor.deprecated_since %}deprecated{% endif %}">
           <h6><a href="ctor.{{ class.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a></h6>
-
           <div class="docblock">
             {{ ctor.summary }}
           </div>
-
-          {% if ctor.available_since or ctor.deprecated_since -%}
           <div class="docblock">
-          {%- if ctor.available_since -%}
-          <p>Available since: {{ ctor.available_since }}</p>
-          {%- endif -%}
-          {%- if ctor.deprecated_since -%}
-          <p>Deprecated since: {{ ctor.deprecated_since }}</p>
-          {%- endif -%}
+            <p>
+            {%- if CONFIG.is_unstable(ctor.available_since) -%}
+            <span class="emblem available-next" title="This constructor will be available in the next stable release">unstable</span>&nbsp;
+            {%- endif %}
+            {%- if ctor.deprecated_since -%}
+            <span class="emblem deprecated">deprecated: {{ ctor.deprecated_since }}</span>&nbsp;
+            {%- endif -%}
+            {%- if ctor.available_since -%}
+            <span class="emblem available">since: {{ ctor.available_since }}</span>
+            {%- endif -%}
+            </p>
           </div>
-          {%- endif %}
         </div>
       {% endfor %}
       </div>
@@ -246,21 +265,22 @@
       {% for func in class.type_funcs %}
       <div class="{% if func.deprecated_since %}deprecated{% endif %}">
         <h6><a href="type_func.{{ class.name }}.{{ func.name }}.html">{{ func.identifier }}</a></h6>
-
         <div class="docblock">
           {{ func.summary }}
         </div>
-
-        {% if func.available_since or func.deprecated_since -%}
         <div class="docblock">
-        {%- if func.available_since -%}
-        <p>Available since: {{ func.available_since }}</p>
-        {%- endif -%}
-        {%- if func.deprecated_since -%}
-        <p>Deprecated since: {{ func.deprecated_since }}</p>
-        {%- endif -%}
+          <p>
+          {%- if CONFIG.is_unstable(func.available_since) -%}
+          <span class="emblem available-next" title="This function will be available in the next stable release">unstable</span>&nbsp;
+          {%- endif %}
+          {%- if func.deprecated_since -%}
+          <span class="emblem deprecated">deprecated: {{ func.deprecated_since }}</span>&nbsp;
+          {%- endif -%}
+          {%- if func.available_since -%}
+          <span class="emblem available">since: {{ func.available_since }}</span>
+          {%- endif -%}
+          </p>
         </div>
-        {%- endif %}
       </div>
       {% endfor %}
       </div>
@@ -281,16 +301,19 @@
           <div class="docblock">
             {{ method.summary }}
           </div>
-          {% if method.available_since or method.deprecated_since -%}
           <div class="docblock">
-          {%- if method.available_since -%}
-          <p>Available since: {{ method.available_since }}</p>
-          {%- endif -%}
-          {%- if method.deprecated_since -%}
-          <p>Deprecated since: {{ method.deprecated_since }}</p>
-          {%- endif -%}
+            <p>
+            {%- if CONFIG.is_unstable(method.available_since) -%}
+            <span class="emblem available-next" title="This method will be available in the next stable release">unstable</span>&nbsp;
+            {%- endif %}
+            {%- if method.deprecated_since -%}
+            <span class="emblem deprecated">deprecated: {{ method.deprecated_since }}</span>&nbsp;
+            {%- endif -%}
+            {%- if method.available_since -%}
+            <span class="emblem available">since: {{ method.available_since }}</span>
+            {%- endif -%}
+            </p>
           </div>
-          {%- endif %}
         </div>
       {% endfor %}
       </div>
@@ -314,16 +337,19 @@
             <div class="docblock">
               {{ method.summary }}
             </div>
-            {% if method.available_since or method.deprecated_since -%}
             <div class="docblock">
-            {%- if method.available_since -%}
-              <p>Available since: {{ method.available_since }}</p>
-            {%- endif -%}
-            {%- if method.deprecated_since -%}
-              <p>Deprecated since: {{ method.deprecated_since }}</p>
-            {%- endif -%}
+              <p>
+              {%- if CONFIG.is_unstable(method.available_since) -%}
+              <span class="emblem available-next" title="This method will be available in the next stable release">unstable</span>&nbsp;
+              {%- endif %}
+              {%- if method.deprecated_since -%}
+              <span class="emblem deprecated">deprecated: {{ method.deprecated_since }}</span>&nbsp;
+              {%- endif -%}
+              {%- if method.available_since -%}
+              <span class="emblem available">since: {{ method.available_since }}</span>
+              {%- endif -%}
+              </p>
             </div>
-            {%- endif %}
           {% else %}
             <div class="docblock">
               <p>Please see&nbsp;
@@ -359,16 +385,19 @@
             <div class="docblock">
               {{ method.summary }}
             </div>
-            {% if method.available_since or method.deprecated_since -%}
             <div class="docblock">
-            {%- if method.available_since -%}
-              <p>Available since: {{ method.available_since }}</p>
-            {%- endif -%}
-            {%- if method.deprecated_since -%}
-              <p>Deprecated since: {{ method.deprecated_since }}</p>
-            {%- endif -%}
+              <p>
+              {%- if CONFIG.is_unstable(method.available_since) -%}
+              <span class="emblem available-next" title="This method will be available in the next stable release">unstable</span>&nbsp;
+              {%- endif %}
+              {%- if method.deprecated_since -%}
+              <span class="emblem deprecated">deprecated: {{ method.deprecated_since }}</span>&nbsp;
+              {%- endif -%}
+              {%- if method.available_since -%}
+              <span class="emblem available">since: {{ method.available_since }}</span>
+              {%- endif -%}
+              </p>
             </div>
-            {%- endif %}
           {% else %}
             <div class="docblock">
               <p><em>Please see&nbsp;
@@ -399,21 +428,22 @@
       {% for property in class.properties %}
         <div class="{% if property.deprecated_since %}deprecated{% endif %}">
           <h6><a href="property.{{ class.name }}.{{ property.name }}.html">{{ class.fqtn }}:{{ property.name }}</a></h6>
-
           <div class="docblock">
             {{ property.summary }}
           </div>
-
-          {% if property.available_since or property.deprecated_since -%}
           <div class="docblock">
-          {%- if property.available_since -%}
-          <p>Available since: {{ property.available_since }}</p>
-          {%- endif -%}
-          {%- if property.deprecated_since -%}
-          <p>Deprecated since: {{ property.deprecated_since }}</p>
-          {%- endif -%}
+            <p>
+            {%- if CONFIG.is_unstable(property.available_since) -%}
+            <span class="emblem available-next" title="This property will be available in the next stable release">unstable</span>&nbsp;
+            {%- endif %}
+            {%- if property.deprecated_since -%}
+            <span class="emblem deprecated">deprecated: {{ property.deprecated_since }}</span>&nbsp;
+            {%- endif -%}
+            {%- if property.available_since -%}
+            <span class="emblem available">since: {{ property.available_since }}</span>
+            {%- endif -%}
+            </p>
           </div>
-          {%- endif %}
         </div>
       {% endfor %}
       </div>
@@ -438,16 +468,19 @@
             <div class="docblock">
               {{ property.summary }}
             </div>
-            {% if property.available_since or property.deprecated_since -%}
             <div class="docblock">
-            {%- if property.available_since -%}
-              <p>Available since: {{ property.available_since }}</p>
-            {%- endif -%}
-            {%- if property.deprecated_since -%}
-              <p>Deprecated since: {{ property.deprecated_since }}</p>
-            {%- endif -%}
+              <p>
+              {%- if CONFIG.is_unstable(property.available_since) -%}
+              <span class="emblem available-next" title="This property will be available in the next stable release">unstable</span>&nbsp;
+              {%- endif %}
+              {%- if property.deprecated_since -%}
+              <span class="emblem deprecated">deprecated: {{ property.deprecated_since }}</span>&nbsp;
+              {%- endif -%}
+              {%- if property.available_since -%}
+              <span class="emblem available">since: {{ property.available_since }}</span>
+              {%- endif -%}
+              </p>
             </div>
-            {%- endif %}
           {% endfor %}
           </div>
         </div>
@@ -466,23 +499,26 @@
           <div class="docblock">
           {% for property in iface.properties %}
             {%- if iface.namespace == namespace.name %}
-            <h6><a href="property.{{ iface.name }}.{{ property.name }}.html">{{ iface.fqtn }}:{{ property.name }}</a></h6>
+            <h6><a href="property.{{ iface.name }}.{{ property.name }}.html">{{ iface.type_cname }}:{{ property.name }}</a></h6>
             {%- else -%}
             <h6><a class="external" href="javascript:void(0)" data-namespace="{{ iface.namespace }}" data-link="property.{{ iface.name }}.{{ property.name }}.html">{{ iface.fqtn }}:{{ property.name }}</a></h6>
             {% endif -%}
             <div class="docblock">
               {{ property.summary }}
             </div>
-            {% if property.available_since or property.deprecated_since -%}
             <div class="docblock">
-            {%- if property.available_since -%}
-              <p>Available since: {{ property.available_since }}</p>
-            {%- endif -%}
-            {%- if property.deprecated_since -%}
-              <p>Deprecated since: {{ property.deprecated_since }}</p>
-            {%- endif -%}
+              <p>
+              {%- if CONFIG.is_unstable(property.available_since) -%}
+              <span class="emblem available-next" title="This property will be available in the next stable release">unstable</span>&nbsp;
+              {%- endif %}
+              {%- if property.deprecated_since -%}
+              <span class="emblem deprecated">deprecated: {{ property.deprecated_since }}</span>&nbsp;
+              {%- endif -%}
+              {%- if property.available_since -%}
+              <span class="emblem available">since: {{ property.available_since }}</span>
+              {%- endif -%}
+              </p>
             </div>
-            {%- endif %}
           {% endfor %}
           </div>
         </div>
@@ -507,16 +543,19 @@
           <div class="docblock">
             {{ signal.summary }}
           </div>
-          {% if signal.available_since or signal.deprecated_since -%}
           <div class="docblock">
-          {%- if signal.available_since -%}
-          <p>Available since: {{ signal.available_since }}</p>
-          {%- endif -%}
-          {%- if signal.deprecated_since -%}
-          <p>Deprecated since: {{ signal.deprecated_since }}</p>
-          {%- endif -%}
+            <p>
+            {%- if CONFIG.is_unstable(signal.available_since) -%}
+            <span class="emblem available-next" title="This signal will be available in the next stable release">unstable</span>&nbsp;
+            {%- endif %}
+            {%- if signal.deprecated_since -%}
+            <span class="emblem deprecated">deprecated: {{ signal.deprecated_since }}</span>&nbsp;
+            {%- endif -%}
+            {%- if signal.available_since -%}
+            <span class="emblem available">since: {{ signal.available_since }}</span>
+            {%- endif -%}
+            </p>
           </div>
-          {%- endif %}
         </div>
       {% endfor %}
       </div>
@@ -534,23 +573,26 @@
           <div class="docblock">
           {% for signal in ancestor.signals %}
             {%- if ancestor.namespace == namespace.name %}
-            <h6><a href="signal.{{ ancestor.name }}.{{ signal.name }}.html">{{ ancestor.fqtn }}::{{ signal.name }}</a></h6>
+            <h6><a href="signal.{{ ancestor.name }}.{{ signal.name }}.html">{{ ancestor.type_cname }}::{{ signal.name }}</a></h6>
             {%- else -%}
-            <h6><a class="external" href="javascript:void(0)" data-namespace="{{ ancestor.namespace }}" data-link="signal.{{ ancestor.name }}.{{ signal.name }}.html">{{ ancestor.fqtn }}::{{ signal.name }}</a></h6>
+            <h6><a class="external" href="javascript:void(0)" data-namespace="{{ ancestor.namespace }}" data-link="signal.{{ ancestor.name }}.{{ signal.name }}.html">{{ ancestor.type_cname }}::{{ signal.name }}</a></h6>
             {% endif -%}
             <div class="docblock">
               {{ signal.summary }}
             </div>
-            {% if signal.available_since or signal.deprecated_since -%}
             <div class="docblock">
-            {%- if signal.available_since -%}
-              <p>Available since: {{ signal.available_since }}</p>
-            {%- endif -%}
-            {%- if signal.deprecated_since -%}
-              <p>Deprecated since: {{ signal.deprecated_since }}</p>
-            {%- endif -%}
+              <p>
+              {%- if CONFIG.is_unstable(signal.available_since) -%}
+              <span class="emblem available-next" title="This signal will be available in the next stable release">unstable</span>&nbsp;
+              {%- endif %}
+              {%- if signal.deprecated_since -%}
+              <span class="emblem deprecated">deprecated: {{ signal.deprecated_since }}</span>&nbsp;
+              {%- endif -%}
+              {%- if signal.available_since -%}
+              <span class="emblem available">since: {{ signal.available_since }}</span>
+              {%- endif -%}
+              </p>
             </div>
-            {%- endif %}
           {% endfor %}
           </div>
         </div>
@@ -569,23 +611,26 @@
           <div class="docblock">
           {% for signal in iface.signals %}
             {%- if iface.namespace == namespace.name %}
-            <h6><a href="signal.{{ iface.name }}.{{ signal.name }}.html">{{ iface.fqtn }}::{{ signal.name }}</a></h6>
+            <h6><a href="signal.{{ iface.name }}.{{ signal.name }}.html">{{ iface.type_cname }}::{{ signal.name }}</a></h6>
             {%- else -%}
-            <h6><a class="external" href="javascript:void(0)" data-namespace="{{ iface.namespace }}" data-link="signal.{{ iface.name }}.{{ signal.name }}.html">{{ iface.fqtn }}::{{ signal.name }}</a></h6>
+            <h6><a class="external" href="javascript:void(0)" data-namespace="{{ iface.namespace }}" data-link="signal.{{ iface.name }}.{{ signal.name }}.html">{{ iface.type_cname }}::{{ signal.name }}</a></h6>
             {% endif -%}
             <div class="docblock">
               {{ signal.summary }}
             </div>
-            {% if signal.available_since or signal.deprecated_since -%}
             <div class="docblock">
-            {%- if signal.available_since -%}
-              <p>Available since: {{ signal.available_since }}</p>
-            {%- endif -%}
-            {%- if signal.deprecated_since -%}
-              <p>Deprecated since: {{ signal.deprecated_since }}</p>
-            {%- endif -%}
+              <p>
+              {%- if CONFIG.is_unstable(signal.available_since) -%}
+              <span class="emblem available-next" title="This signal will be available in the next stable release">unstable</span>&nbsp;
+              {%- endif %}
+              {%- if signal.deprecated_since -%}
+              <span class="emblem deprecated">deprecated: {{ signal.deprecated_since }}</span>&nbsp;
+              {%- endif -%}
+              {%- if signal.available_since -%}
+              <span class="emblem available">since: {{ signal.available_since }}</span>
+              {%- endif -%}
+              </p>
             </div>
-            {%- endif %}
           {% endfor %}
           </div>
         </div>
@@ -644,21 +689,22 @@
       {% for method in class.virtual_methods %}
       <div class="{% if method.deprecated_since %}deprecated{% endif %}">
         <h6 id="vfunc-{{ method.name }}"><a href="vfunc.{{ class.name }}.{{ method.name }}.html">{{ namespace.name }}.{{ class.class_name }}.{{ method.name }}</a></h6>
-
         <div class="docblock">
           {{ method.summary }}
         </div>
-
-          {% if method.available_since or method.deprecated_since -%}
-          <div class="docblock">
-          {%- if method.available_since -%}
-          <p>Available since: {{ method.available_since }}</p>
-          {%- endif -%}
-          {%- if method.deprecated_since -%}
-          <p>Deprecated since: {{ method.deprecated_since }}</p>
-          {%- endif -%}
-          </div>
+        <div class="docblock">
+          <p>
+          {%- if CONFIG.is_unstable(method.available_since) -%}
+          <span class="emblem available-next" title="This virtual method will be available in the next stable release">unstable</span>&nbsp;
           {%- endif %}
+          {%- if method.deprecated_since -%}
+          <span class="emblem deprecated">deprecated: {{ method.deprecated_since }}</span>&nbsp;
+          {%- endif -%}
+          {%- if method.available_since -%}
+          <span class="emblem available">since: {{ method.available_since }}</span>
+          {%- endif -%}
+          </p>
+        </div>
       </div>
       {% endfor %}
       </div>
@@ -676,21 +722,22 @@
       {% for method in class.class_methods %}
       <div class="{% if method.deprecated_since %}deprecated{% endif %}">
         <h6><a href="class_method.{{ class.name }}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
-
         <div class="docblock">
           {{ method.summary }}
         </div>
-
-        {% if method.available_since or method.deprecated_since -%}
         <div class="docblock">
-        {%- if method.available_since -%}
-        <p>Available since: {{ method.available_since }}</p>
-        {%- endif -%}
-        {%- if method.deprecated_since -%}
-        <p>Deprecated since: {{ method.deprecated_since }}</p>
-        {%- endif -%}
+          <p>
+          {%- if CONFIG.is_unstable(method.available_since) -%}
+          <span class="emblem available-next" title="This class method will be available in the next stable release">unstable</span>&nbsp;
+          {%- endif %}
+          {%- if method.deprecated_since -%}
+          <span class="emblem deprecated">deprecated: {{ method.deprecated_since }}</span>&nbsp;
+          {%- endif -%}
+          {%- if method.available_since -%}
+          <span class="emblem available">since: {{ method.available_since }}</span>
+          {%- endif -%}
+          </p>
         </div>
-        {%- endif %}
       </div>
       {% endfor %}
       </div>

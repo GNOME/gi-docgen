@@ -34,6 +34,19 @@
   </header>
 
   <section>
+    <div class="docblock">
+      <p>
+      {%- if CONFIG.is_unstable(signal.available_since) -%}
+      <span class="emblem available-next" title="This signal will be available in the next stable release">unstable</span>&nbsp;
+      {%- endif %}
+      {%- if signal.deprecated_since -%}
+      <span class="emblem deprecated">deprecated: {{ signal.deprecated_since.version }}</span>&nbsp;
+      {%- endif -%}
+      {%- if signal.available_since -%}
+      <span class="emblem available">since: {{ signal.available_since }}</span>
+      {%- endif -%}
+      </p>
+    </div>
     <div class="declaration toggle-wrapper">
       <h4 id="declaration">
         Declaration
@@ -60,28 +73,28 @@
 
       <div class="docblock">
         <table>
-          <tr><td>Default handler:</td><td> {{ signal.when }}</td></tr>
+          <tr><td>Default handler: {{ signal.when }}</td></tr>
           {% if signal.no_recurse %}
-          <tr><td colspan="2">Signal emission will restart instead of recursing</td></tr>
+          <tr><td>Signal emission will restart instead of recursing</td></tr>
           {% endif %}
           {% if signal.is_action %}
-          <tr><td colspan="2">The signal can be emitted directly</td></tr>
+          <tr><td>The signal can be emitted directly</td></tr>
           {% endif %}
           {% if signal.is_detailed %}
-          <tr><td colspan="2">The signal can be detailed</td></tr>
+          <tr><td>The signal can be detailed</td></tr>
           {% endif %}
           {% if signal.no_hooks %}
-          <tr><td colspan="2">Hooks are disabled for this signal</td></tr>
+          <tr><td>Hooks are disabled for this signal</td></tr>
           {% endif %}
           {% if signal.stability %}
-          <tr><td>Stability:</td><td>{{ signal.stability }}</td></tr>
+          <tr><td>Stability: {{ signal.stability }}</td></tr>
           {% endif %}
           {% if signal.available_since %}
-          <tr><td>Available since:</td><td>{{ signal.available_since }}</td></tr>
+          <tr><td>Available since: {{ signal.available_since }}</td></tr>
           {% endif %}
           {% if signal.deprecated_since %}
-          <tr><td>Deprecated since:</td><td>{{ signal.deprecated_since.version }}</td></tr>
-          <tr><td colspan="2">{{ signal.deprecated_since.message }}</td></tr>
+          <tr><td>Deprecated since: {{ signal.deprecated_since.version }}</td></tr>
+          <tr><td>{{ signal.deprecated_since.message }}</td></tr>
           {% endif %}
         </table>
       </div>

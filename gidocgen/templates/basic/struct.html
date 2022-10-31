@@ -77,6 +77,19 @@
 
   <section>
     <summary>
+      <div class="docblock">
+        <p>
+        {%- if CONFIG.is_unstable(struct.available_since) -%}
+        <span class="emblem available-next" title="This type will be available in the next stable release">unstable</span>&nbsp;
+        {%- endif %}
+        {%- if struct.deprecated_since -%}
+        <span class="emblem deprecated">deprecated: {{ struct.deprecated_since.version }}</span>&nbsp;
+        {%- endif -%}
+        {%- if struct.available_since -%}
+        <span class="emblem available">since: {{ struct.available_since }}</span>
+        {%- endif -%}
+        </p>
+      </div>
       <div class="toggle-wrapper">
         <h4 style="display:flex;" id="description">
           Description
@@ -113,18 +126,22 @@
         {% endif %}
 
         <div class="docblock">
-          <table class="attributes">
-            {% if struct.stability %}
-            <tr><td>Stability:</td><td>{{ struct.stability }}</td></tr>
-            {% endif %}
-            {% if struct.available_since %}
-            <tr><td>Available since:</td><td>{{ struct.available_since }}</td></tr>
-            {% endif %}
-            {% if struct.deprecated_since %}
-            <tr><td>Deprecated since:</td><td>{{ struct.deprecated_since.version }}</td></tr>
-            <tr><td colspan="2">{{ struct.deprecated_since.message }}</td></tr>
-            {% endif %}
-          </table>
+          {% if struct.stability %}
+          <p>Stability: {{ struct.stability }}</p>
+          {% endif %}
+          {% if struct.available_since %}
+          <p>Available since: {{ struct.available_since }}</p>
+          {% endif %}
+          {% if struct.deprecated_since %}
+          {%- if struct.deprecated_since.message -%}
+          <div>
+            <p>Deprecated since: {{ struct.deprecated_since.version }}</p>
+            {{ struct.deprecated_since.message }}
+          </div>
+          {%- else -%}
+          <p>Deprecated since: {{ struct.deprecated_since.version }}. Do not use in newly written code.</p>
+          {%- endif -%}
+          {% endif %}
         </div>
 
         {% if struct.attributes %}
@@ -150,21 +167,22 @@
       {% for ctor in struct.ctors %}
         <div class="{% if ctor.deprecated_since %}deprecated{% endif %}">
           <h6><a href="ctor.{{ struct.name }}.{{ ctor.name }}.html">{{ ctor.identifier }}</a></h6>
-
           <div class="docblock">
             {{ ctor.summary }}
           </div>
-
-          {% if ctor.available_since or ctor.deprecated_since -%}
           <div class="docblock">
-          {%- if ctor.available_since -%}
-          <p>Available since: {{ ctor.available_since }}</p>
-          {%- endif -%}
-          {%- if ctor.deprecated_since -%}
-          <p>Deprecated since: {{ ctor.deprecated_since }}</p>
-          {%- endif -%}
+            <p>
+            {%- if CONFIG.is_unstable(ctor.available_since) -%}
+            <span class="emblem available-next" title="This constructor will be available in the next stable release">unstable</span>&nbsp;
+            {%- endif %}
+            {%- if ctor.deprecated_since -%}
+            <span class="emblem deprecated">deprecated: {{ ctor.deprecated_since }}</span>&nbsp;
+            {%- endif -%}
+            {%- if ctor.available_since -%}
+            <span class="emblem available">since: {{ ctor.available_since }}</span>
+            {%- endif -%}
+            </p>
           </div>
-          {%- endif %}
         </div>
       {% endfor %}
       </div>
@@ -182,21 +200,22 @@
       {% for func in struct.type_funcs %}
       <div class="{% if func.deprecated_since %}deprecated{% endif %}">
         <h6><a href="type_func.{{ struct.name }}.{{ func.name }}.html">{{ func.identifier }}</a></h6>
-
         <div class="docblock">
           {{ func.summary }}
         </div>
-
-        {% if func.available_since or func.deprecated_since -%}
         <div class="docblock">
-        {%- if func.available_since -%}
-        <p>Available since: {{ func.available_since }}</p>
-        {%- endif -%}
-        {%- if func.deprecated_since -%}
-        <p>Deprecated since: {{ func.deprecated_since }}</p>
-        {%- endif -%}
+          <p>
+          {%- if CONFIG.is_unstable(func.available_since) -%}
+          <span class="emblem available-next" title="This function will be available in the next stable release">unstable</span>&nbsp;
+          {%- endif %}
+          {%- if func.deprecated_since -%}
+          <span class="emblem deprecated">deprecated: {{ func.deprecated_since }}</span>&nbsp;
+          {%- endif -%}
+          {%- if func.available_since -%}
+          <span class="emblem available">since: {{ func.available_since }}</span>
+          {%- endif -%}
+          </p>
         </div>
-        {%- endif %}
       </div>
       {% endfor %}
       </div>
@@ -214,21 +233,22 @@
       {% for method in struct.methods %}
         <div class="{% if method.deprecated_since %}deprecated{% endif %}">
           <h6><a href="method.{{ struct.name}}.{{ method.name }}.html">{{ method.identifier }}</a></h6>
-
           <div class="docblock">
             {{ method.summary }}
           </div>
-
-          {% if method.available_since or method.deprecated_since -%}
           <div class="docblock">
-          {%- if method.available_since -%}
-          <p>Available since: {{ method.available_since }}</p>
-          {%- endif -%}
-          {%- if method.deprecated_since -%}
-          <p>Deprecated since: {{ method.deprecated_since }}</p>
-          {%- endif -%}
+            <p>
+            {%- if CONFIG.is_unstable(method.available_since) -%}
+            <span class="emblem available-next" title="This method will be available in the next stable release">unstable</span>&nbsp;
+            {%- endif %}
+            {%- if method.deprecated_since -%}
+            <span class="emblem deprecated">deprecated: {{ method.deprecated_since }}</span>&nbsp;
+            {%- endif -%}
+            {%- if method.available_since -%}
+            <span class="emblem available">since: {{ method.available_since }}</span>
+            {%- endif -%}
+            </p>
           </div>
-          {%- endif %}
         </div>
       {% endfor %}
       </div>

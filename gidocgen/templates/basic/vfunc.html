@@ -34,6 +34,20 @@
   </header>
 
   <section>
+    <div class="docblock">
+      <p>
+      {%- if CONFIG.is_unstable(vfunc.available_since) -%}
+      <span class="emblem available-next" title="This virtual functionwill be available in the next stable release">unstable</span>&nbsp;
+      {%- endif %}
+      {%- if vfunc.deprecated_since -%}
+      <span class="emblem deprecated">deprecated: {{ vfunc.deprecated_since.version }}</span>&nbsp;
+      {%- endif -%}
+      {%- if vfunc.available_since -%}
+      <span class="emblem available">since: {{ vfunc.available_since }}</span>
+      {%- endif -%}
+      </p>
+    </div>
+
     <div class="declaration toggle-wrapper">
       <h4 id="declaration">
         Declaration
@@ -62,18 +76,22 @@
       </div>
 
       <div class="docblock">
-        <table>
-          {% if vfunc.stability %}
-          <tr><td>Stability:</td><td>{{ vfunc.stability }}</td></tr>
-          {% endif %}
-          {% if vfunc.available_since %}
-          <tr><td>Available since:</td><td>{{ vfunc.available_since }}</td></tr>
-          {% endif %}
-          {% if vfunc.deprecated_since %}
-          <tr><td>Deprecated since:</td><td>{{ vfunc.deprecated_since.version }}</td></tr>
-          <tr><td colspan="2">{{ vfunc.deprecated_since.message }}</td></tr>
-          {% endif %}
-        </table>
+        {% if vfunc.stability -%}
+        <p>Stability: {{ vfunc.stability }}</p>
+        {%- endif %}
+        {% if vfunc.available_since -%}
+        <p>Available since: {{ vfunc.available_since }}</p>
+        {%- endif %}
+        {% if vfunc.deprecated_since -%}
+        <div>
+          {%- if vfunc.deprecated_since.message -%}
+          <p>Deprecated since: {{ vfunc.deprecated_since.version }}</p>
+          {{ vfunc.deprecated_since.message }}
+          {%- else -%}
+          <p>Deprecated since: {{ vfunc.deprecated_since.version }}. Do not use in newly written code</p>
+          {%- endif -%}
+        </div>
+        {%- endif %}
       </div>
 
       {% if vfunc.attributes %}

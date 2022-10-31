@@ -3,8 +3,10 @@
 {% block title %}{{ namespace.name }}.{{ class.class_name }}.{{ class_method.name }}{% endblock %}
 
 {% block meta_other %}
-<meta name="og:title" content="{{ namespace.name }}.{{ class.class_name }}.{{ class_method.name }}"/>
-<meta name="og:description" content="Reference for {{ namespace.name }}.{{ class.class_name }}.{{ class_method.name }}"/>
+  <meta priority="og:title" content="{{ namespace.name }}.{{ class.class_name }}.{{ class_method.name }}"/>
+  <meta priority="og:description" content="Reference for {{ namespace.name }}.{{ class.class_name }}.{{ class_method.name }}"/>
+  <meta name="og:title" content="{{ namespace.name }}.{{ class.class_name }}.{{ class_method.name }}"/>
+  <meta name="og:description" content="Reference for {{ namespace.name }}.{{ class.class_name }}.{{ class_method.name }}"/>
 {% endblock %}
 
 {% block sidebar %}
@@ -32,6 +34,19 @@
   </header>
 
   <section>
+    <div class="docblock">
+      <p>
+      {%- if CONFIG.is_unstable(class_method.available_since) -%}
+      <span class="emblem available-next" title="This method will be available in the next stable release">unstable</span>&nbsp;
+      {%- endif %}
+      {%- if class_method.deprecated_since -%}
+      <span class="emblem deprecated">deprecated: {{ class_method.deprecated_since.version }}</span>&nbsp;
+      {%- endif -%}
+      {%- if class_method.available_since -%}
+      <span class="emblem available">since: {{ class_method.available_since }}</span>
+      {%- endif -%}
+      </p>
+    </div>
     <div class="declaration">
       <h4 id="declaration" style="display:flex;">
         Declaration
@@ -60,21 +75,25 @@
       </div>
 
       <div class="docblock">
-        <table>
-          {% if class_method.stability %}
-          <tr><td>Stability:</td><td>{{ class_method.stability }}</td></tr>
-          {% endif %}
-          {% if class_method.available_since %}
-          <tr><td>Available since:</td><td>{{ class_method.available_since }}</td></tr>
-          {% endif %}
-          {% if class_method.deprecated_since %}
-          <tr><td>Deprecated since:</td><td>{{ class_method.deprecated_since.version }}</td></tr>
-          <tr><td colspan="2">{{ class_method.deprecated_since.message }}</td></tr>
-          {% endif %}
-          {% if not class_method.introspectable %}
-          <tr><td>This class method is not directly available to language bindings</td></tr>
-          {% endif %}
-        </table>
+        {% if class_method.stability -%}
+        <p>Stability: {{ class_method.stability }}</p>
+        {%- endif %}
+        {% if class_method.available_since -%}
+        <p>Available since: {{ class_method.available_since }}</p>
+        {%- endif %}
+        {% if class_method.deprecated_since -%}
+        <div>
+          {%- if class_method.deprecated_since.message -%}
+          <p>Deprecated since: {{ class_method.deprecated_since.version }}</p>
+          {{ class_method.deprecated_since.message }}
+          {%- else -%}
+          <p>Deprecated since: {{ class_method.deprecated_since.version }}. Do not use in newly written code</p>
+          {%- endif -%}
+        </div>
+        {%- endif %}
+        {% if not class_method.introspectable -%}
+        <p>This method is not directly available to language bindings.</p>
+        {%- endif %}
       </div>
 
       {% if class_method.attributes %}
