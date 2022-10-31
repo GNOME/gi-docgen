@@ -34,6 +34,19 @@
   </header>
 
   <section>
+    <div class="docblock">
+      <p>
+      {%- if CONFIG.is_unstable(property.available_since) -%}
+      <span class="emblem available-next" title="This property will be available in the next stable release">unstable</span>&nbsp;
+      {%- endif %}
+      {%- if property.deprecated_since -%}
+      <span class="emblem deprecated">deprecated: {{ property.deprecated_since.version }}</span>&nbsp;
+      {%- endif -%}
+      {%- if property.available_since -%}
+      <span class="emblem available">since: {{ property.available_since }}</span>
+      {%- endif -%}
+      </p>
+    </div>
     <div class="declaration toggle-wrapper">
       <h4 id="declaration">
         Declaration
