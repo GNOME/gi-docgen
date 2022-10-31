@@ -208,6 +208,24 @@ class GIDocConfig:
             return True
         return self.match_object(name, 'check_ignore', category, key)
 
+    def is_unstable(self, version):
+        if not version:
+            return False
+        cur_version = self.library.get('version')
+        if cur_version is None:
+            return False
+        library_version = cur_version.split('.')
+        symbol_version = version.split('.')
+        if int(symbol_version[0]) > int(library_version[0]):
+            return True
+        elif int(symbol_version[0]) == int(library_version[0]):
+            if int(symbol_version[1]) > int(library_version[1]):
+                return True
+            else:
+                return False
+        else:
+            return False
+
 
 class GITemplateConfig:
     """Load and represent the template configuration"""
