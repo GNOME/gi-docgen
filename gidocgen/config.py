@@ -7,7 +7,7 @@ import toml
 
 from urllib.parse import urljoin
 
-from . import log, utils
+from . import core, log, utils
 
 
 class GIDocConfig:
@@ -225,6 +225,10 @@ class GIDocConfig:
                 return False
         else:
             return False
+
+    @property
+    def generator(self):
+        return f"{core.version}"
 
 
 class GITemplateConfig:
