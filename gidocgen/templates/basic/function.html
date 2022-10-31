@@ -100,10 +100,10 @@
         <p>This function is not directly available to language bindings.</p>
         {%- endif %}
         {% if func.shadows -%}
-        <p>This method is renamed to <a href="func.{{class.name}}.{{func.shadows}}.html"><code>{{func.shadows_symbol}}()</code></a> in language bindings</p>
+        <p>This method is renamed to <a href="func.{{func.shadows}}.html"><code>{{func.shadows_symbol}}()</code></a> in language bindings</p>
         {%- endif %}
         {% if func.shadowed_by -%}
-        <p>The implementation of this method is provided by <a href="func.{{class.name}}.{{func.shadowed_by}}.html"><code>{{func.shadowed_by_symbol}}()</code></a> in language bindings</p>
+        <p>The implementation of this method is provided by <a href="func.{{func.shadowed_by}}.html"><code>{{func.shadowed_by_symbol}}()</code></a> in language bindings</p>
         {%- endif %}
       </div>
 
