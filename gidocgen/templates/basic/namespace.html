@@ -166,7 +166,20 @@
           <tr class="section-item">
             <td><a title="{{ element.name }}" class="symbol" href="{{ section_fragment }}.{{ element.name }}.html">{{ element.name }}</a></td>
             {% if CONFIG.show_index_summary %}
-            <td class="docblock-summary">{{ element.summary }}</td>
+            <td class="docblock-summary">
+            {{ element.summary }}
+            <p>
+            {%- if CONFIG.is_unstable(element.available_since) -%}
+            <span class="emblem available-next" title="This symbol will be available in the next stable release">unstable</span>&nbsp;
+            {%- endif %}
+            {%- if element.deprecated_since -%}
+            <span class="emblem deprecated">deprecated: {{ element.deprecated_since.version }}</span>&nbsp;
+            {%- endif -%}
+            {%- if element.available_since -%}
+            <span class="emblem available">since: {{ element.available_since }}</span>
+            {%- endif -%}
+            </p>
+            </td>
             {% endif %}
           </tr>
           {% endfor %}
