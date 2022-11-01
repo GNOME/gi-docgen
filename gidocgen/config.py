@@ -216,6 +216,10 @@ class GIDocConfig:
             return False
         library_version = cur_version.split('.')
         symbol_version = version.split('.')
+        if len(library_version) < 2:
+            return False
+        if len(symbol_version) != len(library_version):
+            return False
         if int(symbol_version[0]) > int(library_version[0]):
             return True
         elif int(symbol_version[0]) == int(library_version[0]):
