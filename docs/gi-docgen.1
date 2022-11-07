@@ -141,6 +141,33 @@ use the given project configuration file
 add a directory to the path which the scanner uses to find GIR files. Can
 be used multiple times to specify multiple directories
 
+.SH The serve command
+.sp
+
+The \fBserve\fR command generates an API reference and serves it
+using a local HTTP server.
+
+.B gi-docgen serve [
+.I OPTIONS
+.B ] [
+.I GIR_FILE
+.B ]
+
+.sp
+The serve command will parse the given GIR file, as well as its
+dependencies, and build an API reference for the namespace it finds
+in the introspection data. Once the reference has been built successfully,
+gi\-docgen will start a local HTTP server pointing at the output
+directory.
+
+.SS "options:"
+.TP
+.BI \-\-bind\fB= ADDRESS
+use the given address for the HTTP server; the default is 127.0.0.1
+.TP
+.BI \-\-port\fB= PORT
+use the given port for the HTTP server; the default is 8080
+
 .SH The help command
 .sp
 The \fBhelp\fR command prints out the command line help. If you don't

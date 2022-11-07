@@ -5,15 +5,16 @@
 ========
 Commands
 ========
-  
+
 .. toctree::
     :hidden:
     :titlesonly:
     :maxdepth: 1
-  
+
     generate
     gen-index
     check
+    serve
 
 SYNOPSIS
 ========
@@ -28,12 +29,15 @@ COMMANDS
 
 :doc:`generate`
   Generates the API reference
-  
+
 :doc:`gen-index`
   Generates the symbol indices for search
 
 :doc:`check`
   Checks the documentation
+
+:doc:`serve`
+  Serves the API reference on a local web server
 
 OPTIONS
 =======
