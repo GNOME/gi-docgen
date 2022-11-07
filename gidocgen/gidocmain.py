@@ -7,7 +7,7 @@ import sys
 import traceback
 
 from . import core, log
-from . import gdindex, gdgenerate, gdgenindices, gdgendeps, gdsearch, gdcheck
+from . import gdindex, gdgenerate, gdgenindices, gdgendeps, gdsearch, gdcheck, gdserver
 
 
 class GIDocGenApp:
@@ -54,6 +54,10 @@ class GIDocGenApp:
                          add_args_func=gdcheck.add_args,
                          run_func=gdcheck.run,
                          help_msg=gdcheck.HELP_MSG)
+        self.add_command('serve',
+                         add_args_func=gdserver.add_args,
+                         run_func=gdserver.run,
+                         help_msg=gdserver.HELP_MSG)
 
     def run(self, args):
         """
