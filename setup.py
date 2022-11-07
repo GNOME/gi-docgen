@@ -28,51 +28,9 @@ class BuildCommand(_build_py):
         return super().run()
 
 
-def readme_md():
-    '''Return the contents of the README.md file'''
-    return open('README.md').read()
-
-
-entries = {
-    'console_scripts': ['gi-docgen=gidocgen.gidocmain:main'],
-}
-
-packages = [
-    'gidocgen',
-    'gidocgen.gir',
-]
-
-package_data = {
-    'gidocgen': [
-        "templates/basic/basic.toml",
-        "templates/basic/*.css",
-        "templates/basic/*.html",
-        "templates/basic/*.js",
-        "templates/basic/*.png",
-        "templates/basic/*.woff2",
-        "templates/basic/*.woff",
-        "py.typed",
-    ],
-}
-
-data_files = [
-    ('share/pkgconfig', ['gi-docgen.pc']),
-    ('share/man/man1', ['docs/gi-docgen.1']),
-]
-
 if __name__ == '__main__':
     setup(
         cmdclass={
             'build_py': BuildCommand,
         },
-        name='gi-docgen',
-        version=version,
-        license='GPL-3.0-or-later AND Apache-2.0 AND CC0-1.0',
-        long_description=readme_md(),
-        long_description_content_type='text/markdown',
-        include_package_data=True,
-        packages=packages,
-        package_data=package_data,
-        entry_points=entries,
-        data_files=data_files,
     )
