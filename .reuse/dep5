@@ -3,6 +3,14 @@ Upstream-Name: gi-docgen
 Upstream-Contact: Emmanuele Bassi <ebassi@gnome.org>
 Source: https://gitlab.gnome.org/ebassi/gi-docgen
 
+Files: README.md
+Copyright: 2021  GNOME Foundation
+License: Apache-2.0 OR GPL-3.0-or-later
+
+Files: CHANGES.md
+Copyright: 2022  Emmanuele Bassi
+License: CC0-1.0
+
 Files: gi-docgen.pc.in
 Copyright: 2021  GNOME Foundation
 License: CC0-1.0

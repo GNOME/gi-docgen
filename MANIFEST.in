@@ -3,7 +3,7 @@
 
 include pyproject.toml
 include pytest.ini
-include README.md meson.build gi-docgen.pc.in
+include CHANGES.md README.md meson.build gi-docgen.pc.in
 include gi-docgen.py
 include .flake8
 include .green
