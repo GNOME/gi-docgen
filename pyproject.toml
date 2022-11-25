@@ -39,7 +39,7 @@ Markdown = "^3.2"
 MarkupSafe = "^1"
 Pygments = "^2"
 Jinja2 = "^2"
-toml = "^0"
+tomli = { version = ">=1,<3" markers = "python_version < '3.11'" }
 typogrify = "^2"
 
 [tool.poetry.dev-dependencies]

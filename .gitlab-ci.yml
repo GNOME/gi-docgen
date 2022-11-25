@@ -33,7 +33,16 @@ pytest:
   needs: []
   image: fedora:latest
   script:
-    - dnf install -y pytest python3-markdown python3-jinja2 python3-pygments python3-toml python3-typogrify
+    - dnf install -y pytest python3-markdown python3-jinja2 python3-pygments python3-typogrify
+    - pytest --verbose
+
+pytest-tomli:
+  # Validates that tomli configuration works correctly
+  stage: check
+  needs: []
+  image: fedora:36
+  script:
+    - dnf install -y pytest python3-markdown python3-jinja2 python3-pygments python3-tomli python3-typogrify
     - pytest --verbose
 
 flake8:

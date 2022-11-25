@@ -3,7 +3,10 @@
 
 import os
 import re
-import toml
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 from urllib.parse import urljoin
 
@@ -19,8 +22,9 @@ class GIDocConfig:
         if self._config_file is not None:
             try:
                 log.debug(f"Reading configuration file: {self._config_file}")
-                self._config = toml.load(self._config_file)
-            except toml.TomlDecodeError as err:
+                with open(self._config_file, "rb") as f:
+                    self._config = tomllib.load(f)
+            except tomllib.TOMLDecodeError as err:
                 log.error(f"Invalid configuration file: {self._config_file}: {err}")
 
     @property
@@ -243,8 +247,9 @@ class GITemplateConfig:
         self._config = {}
         try:
             log.debug(f"Reading template configuration file: {self._config_file}")
-            self._config = toml.load(self._config_file)
-        except toml.TomlDecodeError as err:
+            with open(self._config_file, "rb") as f:
+                self._config = tomllib.load(f)
+        except tomllib.TOMLDecodeError as err:
             log.error(f"Invalid template configuration file: {self._config_file}: {err}")
 
     @property

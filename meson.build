@@ -13,7 +13,6 @@ py = import('python').find_installation('python3',
     'markdown',
     'markupsafe',
     'pygments',
-    'toml',
     'typogrify',
   ],
 )
@@ -25,6 +24,15 @@ markdown_version = run_command(
 
 if not markdown_version.version_compare('>=3.2')
   error('gi-docgen requires at least markdown >= 3.2')
+endif
+
+if py.language_version().version_compare('<3.11')
+  tomli_version = run_command(
+    py, '-c', 'import tomli; print(tomli.__version__)',
+  ).stdout().strip()
+  if not tomli_version.version_compare('>=1.0')
+    error('tomli 1.0 or newer required on Python 3.10 and older')
+  endif
 endif
 
 configure_file(
