@@ -7,14 +7,15 @@ stages:
   - check
   - deploy
 
-#meson-build:
-#  stage: build
-#  needs: []
-#  script:
-#    - dnf install -y meson ninja-build pytest python3-flake8 python3-mypy python3-markdown python3-jinja2 python3-toml python3-typogrify
-#    - meson _build .
-#    - meson test -C _build
-#
+meson-build:
+  image: fedora:latest
+  stage: build
+  needs: []
+  script:
+    - dnf install -y meson ninja-build pytest python3-markdown python3-jinja2 python3-pygments python3-typogrify python3-flake8 python3-mypy
+    - meson _build .
+    - meson test -C _build
+
 #pip-build:
 #  stage: build
 #  needs: []
