@@ -3,14 +3,43 @@
 
 import os
 import re
+
+toml_module = None
 try:
-    import tomllib
+    import tomllib as toml_lib
+    toml_module = 'tomlib'
 except ImportError:
-    import tomli as tomllib
+    try:
+        import tomli as toml_lib
+        toml_module = 'tomli'
+    except ImportError:
+        import toml as toml_lib
+        toml_module = 'toml'
 
 from urllib.parse import urljoin
 
 from . import core, log, utils
+
+
+class TomlConfig:
+    """Wrapper class for TOML loading"""
+
+    @staticmethod
+    def load(toml):
+        log.debug(f"Using TOML module: {toml_module}")
+        if toml_module is None:
+            log.error("No toml module found")
+        elif toml_module in ['tomlib', 'tomli']:
+            try:
+                with open(toml, "rb") as f:
+                    return toml_lib.load(f)
+            except toml_lib.TOMLDecodeError as err:
+                log.error(f"Invalid configuration file: {toml}: {err}")
+        elif toml_module in ['toml']:
+            try:
+                return toml_lib.load(toml)
+            except toml_lib.TomlDecodeError as err:
+                log.error(f"Invalid configuration file: {toml}: {err}")
 
 
 class GIDocConfig:
@@ -20,12 +49,8 @@ class GIDocConfig:
 
         self._config = {}
         if self._config_file is not None:
-            try:
-                log.debug(f"Reading configuration file: {self._config_file}")
-                with open(self._config_file, "rb") as f:
-                    self._config = tomllib.load(f)
-            except tomllib.TOMLDecodeError as err:
-                log.error(f"Invalid configuration file: {self._config_file}: {err}")
+            log.debug(f"Reading configuration file: {self._config_file}")
+            self._config = TomlConfig.load(self._config_file)
 
     @property
     def library(self):
@@ -245,12 +270,8 @@ class GITemplateConfig:
         self._config_file = os.path.join(templates_dir, template_name, f"{template_name}.toml")
 
         self._config = {}
-        try:
-            log.debug(f"Reading template configuration file: {self._config_file}")
-            with open(self._config_file, "rb") as f:
-                self._config = tomllib.load(f)
-        except tomllib.TOMLDecodeError as err:
-            log.error(f"Invalid template configuration file: {self._config_file}: {err}")
+        log.debug(f"Reading template configuration file: {self._config_file}")
+        self._config = TomlConfig.load(self._config_file)
 
     @property
     def name(self):
