@@ -7,6 +7,12 @@ stages:
   - check
   - deploy
 
+.pip:
+  image: fedora:latest
+  before_script:
+    - export PATH="$HOME/.local/bin:$PATH"
+    - dnf install -y python3-pip
+
 meson-build:
   image: fedora:latest
   stage: build
@@ -16,18 +22,12 @@ meson-build:
     - meson _build .
     - meson test -C _build
 
-#pip-build:
-#  stage: build
-#  needs: []
-#  script:
-#    - dnf install -y python3-pip
-#    - python3 -m pip install --user -e .
-
-.pip:
-  image: fedora:latest
-  before_script:
-    - export PATH="$HOME/.local/bin:$PATH"
-    - dnf install -y python3-pip
+pip-build:
+  extends: .pip
+  stage: build
+  needs: []
+  script:
+    - python3 -m pip install --user -e .
 
 pytest:
   stage: check
