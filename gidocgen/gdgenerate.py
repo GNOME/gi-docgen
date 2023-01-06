@@ -1253,6 +1253,16 @@ class TemplateInterface:
         self.requires_fqtn = f"{self.requires_namespace}.{self.requires_name}"
         log.debug(f"Preqrequisite for {self.fqtn}: {self.requires_fqtn}")
 
+        def prereq_link_fragment(_ns: gir.Namespace, ns: str, name: str) -> str:
+            if _ns.repository.find_class(name, ns) is not None:
+                return "class"
+            elif _ns.repository.find_interface(name, ns) is not None:
+                return "iface"
+            else:
+                log.error(f"Invalid prerequisite type {ns}.{name}")
+
+        self.requires_link_fragment = prereq_link_fragment(namespace, self.requires_namespace, self.requires_name)
+
         self.symbol_prefix = f"{namespace.symbol_prefix[0]}_{interface.symbol_prefix}"
         self.type_cname = interface.base_ctype
 
