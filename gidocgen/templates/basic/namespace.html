@@ -37,8 +37,10 @@
 <div class="section">
   <h5>Dependencies</h5>
   <div class="links">
-  {% for gir_name, dep in CONFIG.dependencies.items() %}
-    <a href="{{ dep.docs_url }}" class="external">{{ dep.name }}</a>
+  {% for ns_name, repo in repository.includes.items() %}
+    {% for _, lib in CONFIG.dependencies.items() if lib.name == repo.namespace.name %}
+      <a href="{{ lib.docs_url }}" class="external">{{ lib.name }}</a>
+    {% endfor %}
   {% endfor %}
   </div>
 </div>
