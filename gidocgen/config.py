@@ -17,6 +17,7 @@ except ImportError:
         toml_module = 'toml'
 
 from urllib.parse import urljoin
+from packaging import version as packaging_version
 
 from . import core, log, utils
 
@@ -243,19 +244,8 @@ class GIDocConfig:
         cur_version = self.library.get('version')
         if cur_version is None:
             return False
-        library_version = cur_version.split('.')
-        symbol_version = version.split('.')
-        if len(library_version) < 2 or len(symbol_version) < 2:
-            return False
-        if int(symbol_version[0]) > int(library_version[0]):
-            return True
-        elif int(symbol_version[0]) == int(library_version[0]):
-            if int(symbol_version[1]) > int(library_version[1]):
-                return True
-            else:
-                return False
-        else:
-            return False
+
+        return packaging_version.parse(version) > packaging_version.parse(cur_version)
 
     @property
     def generator(self):
