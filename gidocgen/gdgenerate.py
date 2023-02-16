@@ -1545,11 +1545,18 @@ class TemplateClass:
     @property
     def c_decl(self):
         if self.abstract:
-            res = [f"abstract class {self.fqtn} : {self.parent_fqtn} {{"]
+            res = [f"abstract class {self.fqtn} : {self.parent_fqtn}"]
         elif self.final:
-            res = [f"final class {self.fqtn} : {self.parent_fqtn} {{"]
+            res = [f"final class {self.fqtn} : {self.parent_fqtn}"]
         else:
-            res = [f"class {self.fqtn} : {self.parent_fqtn} {{"]
+            res = [f"class {self.fqtn} : {self.parent_fqtn}"]
+        n_interfaces = len(self.interfaces)
+        if n_interfaces:
+            ifaces = [x['fqtn'] for x in self.interfaces]
+            ifaces = ", ".join(ifaces)
+            res += [f"  implements {ifaces} {{"]
+        else:
+            res += ["{"]
         n_fields = len(self.fields)
         if n_fields > 0:
             for (idx, field) in enumerate(self.fields):
