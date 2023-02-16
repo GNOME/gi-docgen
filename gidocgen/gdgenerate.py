@@ -284,7 +284,7 @@ def gen_index_implements(iface_type, namespace, config, md=None):
     return {
         "namespace": iface_ns_name,
         "name": iface_name,
-        "fqtn": f"{iface_ns}.{iface_name}",
+        "fqtn": f"{iface_ns_name}.{iface_name}",
         "type_cname": iface_ctype,
         "properties": properties,
         "n_properties": n_properties,
