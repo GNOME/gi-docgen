@@ -1448,9 +1448,11 @@ class TemplateClass:
         self.introspectable = cls.introspectable
 
         self.fields = []
-        for field in cls.fields:
-            if not field.private:
-                self.fields.append(TemplateField(namespace, field))
+        if len(cls.fields) > 1:
+            # The first field is always the parent instance
+            for field in cls.fields[1:]:
+                if not field.private:
+                    self.fields.append(TemplateField(namespace, field))
 
         self.properties = []
         if len(cls.properties) != 0:
