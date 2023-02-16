@@ -284,7 +284,7 @@ def gen_index_implements(iface_type, namespace, config, md=None):
     return {
         "namespace": iface_ns_name,
         "name": iface_name,
-        "fqtn": f"{iface_ns}.{iface_name}",
+        "fqtn": f"{iface_ns_name}.{iface_name}",
         "type_cname": iface_ctype,
         "properties": properties,
         "n_properties": n_properties,
@@ -1448,9 +1448,11 @@ class TemplateClass:
         self.introspectable = cls.introspectable
 
         self.fields = []
-        for field in cls.fields:
-            if not field.private:
-                self.fields.append(TemplateField(namespace, field))
+        if len(cls.fields) > 1:
+            # The first field is always the parent instance
+            for field in cls.fields[1:]:
+                if not field.private:
+                    self.fields.append(TemplateField(namespace, field))
 
         self.properties = []
         if len(cls.properties) != 0:
@@ -1545,11 +1547,18 @@ class TemplateClass:
     @property
     def c_decl(self):
         if self.abstract:
-            res = [f"abstract class {self.fqtn} : {self.parent_fqtn} {{"]
+            res = [f"abstract class {self.fqtn} : {self.parent_fqtn}"]
         elif self.final:
-            res = [f"final class {self.fqtn} : {self.parent_fqtn} {{"]
+            res = [f"final class {self.fqtn} : {self.parent_fqtn}"]
         else:
-            res = [f"class {self.fqtn} : {self.parent_fqtn} {{"]
+            res = [f"class {self.fqtn} : {self.parent_fqtn}"]
+        n_interfaces = len(self.interfaces)
+        if n_interfaces:
+            ifaces = [x['fqtn'] for x in self.interfaces]
+            ifaces = ", ".join(ifaces)
+            res += [f"  implements {ifaces} {{"]
+        else:
+            res += ["{"]
         n_fields = len(self.fields)
         if n_fields > 0:
             for (idx, field) in enumerate(self.fields):
