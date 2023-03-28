@@ -521,6 +521,9 @@ class TemplateProperty:
             if link is not None:
                 self.attributes["Getter method"] = link
 
+        if prop.default_value is not None:
+            self.attributes["Default value"] = prop.default_value
+
         if self.is_fundamental:
             self.link = f"<code>{self.type_cname}</code>"
         elif self.is_array or self.is_list:

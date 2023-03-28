@@ -7,7 +7,7 @@ name = "gi-docgen"
 packages = [
     { include = "gidocgen" },
 ]
-version = "2021.1"
+version = "2023.2"
 description = "Documentation tool for GObject-based libraries"
 authors = ["Emmanuele Bassi <ebassi@gnome.org>"]
 license = "GPL-3.0-or-later AND Apache-2.0 AND CC0-1.0"

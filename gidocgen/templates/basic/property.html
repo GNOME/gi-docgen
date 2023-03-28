@@ -100,7 +100,7 @@
       {% if property.attributes %}
       <div class="docblock">
         <table>
-        {% for (key, value) in property.attributes.items() %}
+        {% for (key, value) in property.attributes.items()|sort %}
           <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
         {% endfor %}
         </table>
