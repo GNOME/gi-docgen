@@ -133,7 +133,7 @@
         {% if interface.attributes %}
         <div class="docblock">
           <table class="attributes">
-          {% for (key, value) in interface.attributes.items() %}
+          {% for (key, value) in interface.attributes.items()|sort %}
             <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
           {% endfor %}
           </table>

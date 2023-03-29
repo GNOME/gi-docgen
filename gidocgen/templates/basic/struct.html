@@ -147,7 +147,7 @@
         {% if struct.attributes %}
         <div class="docblock">
           <table class="attributes">
-          {% for (key, value) in struct.attributes.items() %}
+          {% for (key, value) in struct.attributes.items()|sort %}
             <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
           {% endfor %}
           </table>
