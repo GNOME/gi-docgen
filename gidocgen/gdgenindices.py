@@ -25,11 +25,16 @@ def _gen_aliases(config, index, repository, symbols):
             description = alias.doc.content
         else:
             description = MISSING_DESCRIPTION
+        if alias.deprecated:
+            (deprecated, _) = alias.deprecated_since
+        else:
+            deprecated = None
         index_symbols.append({
             "type": "alias",
             "name": alias.name,
             "ctype": alias.base_ctype,
             "summary": utils.preprocess_docs(description, repository.namespace, summary=True, plain=True),
+            "deprecated": deprecated,
         })
 
 
@@ -44,11 +49,16 @@ def _gen_bitfields(config, index, repository, symbols):
             description = bitfield.doc.content
         else:
             description = MISSING_DESCRIPTION
+        if bitfield.deprecated:
+            (deprecated, _) = bitfield.deprecated_since
+        else:
+            deprecated = None
         index_symbols.append({
             "type": "bitfield",
             "name": bitfield.name,
             "ctype": bitfield.base_ctype,
             "summary": utils.preprocess_docs(description, repository.namespace, summary=True, plain=True),
+            "deprecated": deprecated,
         })
 
         for func in bitfield.functions:
@@ -56,12 +66,17 @@ def _gen_bitfields(config, index, repository, symbols):
                 func_desc = func.doc.content
             else:
                 func_desc = MISSING_DESCRIPTION
+            if func.deprecated:
+                (func_deprecated, _) = func.deprecated_since
+            else:
+                func_deprecated = None
             index_symbols.append({
                 "type": "type_func",
                 "name": func.name,
                 "type_name": bitfield.name,
                 "ident": func.identifier,
-                "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True)
+                "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": func_deprecated,
             })
 
 
@@ -76,11 +91,16 @@ def _gen_callbacks(config, index, repository, symbols):
             cb_desc = callback.doc.content
         else:
             cb_desc = MISSING_DESCRIPTION
+        if callback.deprecated:
+            (cb_deprecated, _) = callback.deprecated_since
+        else:
+            cb_deprecated = None
         index_symbols.append({
             "type": "callback",
             "name": callback.name,
             "ctype": callback.base_ctype,
             "summary": utils.preprocess_docs(cb_desc, repository.namespace, summary=True, plain=True),
+            "deprecated": cb_deprecated,
         })
 
 
@@ -96,11 +116,16 @@ def _gen_classes(config, index, repository, symbols):
             cls_desc = cls.doc.content
         else:
             cls_desc = MISSING_DESCRIPTION
+        if cls.deprecated:
+            (cls_deprecated, _) = cls.deprecated_since
+        else:
+            cls_deprecated = None
         index_symbols.append({
             "type": "class",
             "name": cls.name,
             "ctype": cls.base_ctype,
             "summary": utils.preprocess_docs(cls_desc, repository.namespace, summary=True, plain=True),
+            "deprecated": cls_deprecated,
         })
 
         for ctor in cls.constructors:
@@ -108,12 +133,17 @@ def _gen_classes(config, index, repository, symbols):
                 ctor_desc = ctor.doc.content
             else:
                 ctor_desc = MISSING_DESCRIPTION
+            if ctor.deprecated:
+                (ctor_deprecated, _) = ctor.deprecated_since
+            else:
+                ctor_deprecated = None
             index_symbols.append({
                 "type": "ctor",
                 "name": ctor.name,
                 "type_name": cls.name,
                 "ident": ctor.identifier,
                 "summary": utils.preprocess_docs(ctor_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": ctor_deprecated,
             })
 
         for method in cls.methods:
@@ -121,12 +151,17 @@ def _gen_classes(config, index, repository, symbols):
                 method_desc = method.doc.content
             else:
                 method_desc = MISSING_DESCRIPTION
+            if method.deprecated:
+                (method_deprecated, _) = method.deprecated_since
+            else:
+                method_deprecated = None
             index_symbols.append({
                 "type": "method",
                 "name": method.name,
                 "type_name": cls.name,
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": method_deprecated,
             })
 
         for func in cls.functions:
@@ -134,12 +169,17 @@ def _gen_classes(config, index, repository, symbols):
                 func_desc = func.doc.content
             else:
                 func_desc = MISSING_DESCRIPTION
+            if func.deprecated:
+                (func_deprecated, _) = func.deprecated_since
+            else:
+                func_deprecated = None
             index_symbols.append({
                 "type": "type_func",
                 "name": func.name,
                 "type_name": cls.name,
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": func_deprecated,
             })
 
         for prop_name, prop in cls.properties.items():
@@ -150,11 +190,16 @@ def _gen_classes(config, index, repository, symbols):
                 prop_desc = prop.doc.content
             else:
                 prop_desc = MISSING_DESCRIPTION
+            if prop.deprecated:
+                (prop_deprecated, _) = prop.deprecated_since
+            else:
+                prop_deprecated = None
             index_symbols.append({
                 "type": "property",
                 "name": prop.name,
                 "type_name": cls.name,
                 "summary": utils.preprocess_docs(prop_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": prop_deprecated,
             })
 
         for signal_name, signal in cls.signals.items():
@@ -165,11 +210,16 @@ def _gen_classes(config, index, repository, symbols):
                 signal_desc = signal.doc.content
             else:
                 signal_desc = MISSING_DESCRIPTION
+            if signal.deprecated:
+                (signal_deprecated, _) = signal.deprecated_since
+            else:
+                signal_deprecated = None
             index_symbols.append({
                 "type": "signal",
                 "name": signal.name,
                 "type_name": cls.name,
                 "summary": utils.preprocess_docs(signal_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": signal_deprecated,
             })
 
         for vfunc in cls.virtual_methods:
@@ -177,11 +227,16 @@ def _gen_classes(config, index, repository, symbols):
                 vfunc_desc = vfunc.doc.content
             else:
                 vfunc_desc = MISSING_DESCRIPTION
+            if vfunc.deprecated:
+                (vfunc_deprecated, _) = vfunc.deprecated_since
+            else:
+                vfunc_deprecated = None
             index_symbols.append({
                 "type": "vfunc",
                 "name": vfunc.name,
                 "type_name": cls.name,
                 "summary": utils.preprocess_docs(vfunc_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": vfunc_deprecated,
             })
 
         if cls.type_struct is not None:
@@ -191,6 +246,10 @@ def _gen_classes(config, index, repository, symbols):
                     cls_method_desc = cls_method.doc.content
                 else:
                     cls_method_desc = MISSING_DESCRIPTION
+                if cls_method.deprecated:
+                    (method_deprecated, _) = cls_method.deprecated_since
+                else:
+                    method_deprecated = None
                 index_symbols.append({
                     "type": "class_method",
                     "name": cls_method.name,
@@ -198,6 +257,7 @@ def _gen_classes(config, index, repository, symbols):
                     "struct_for": cls_struct.struct_for,
                     "ident": cls_method.identifier,
                     "summary": utils.preprocess_docs(cls_method_desc, repository.namespace, summary=True, plain=True),
+                    "deprecated": method_deprecated,
                 })
 
 
@@ -212,11 +272,16 @@ def _gen_constants(config, index, repository, symbols):
             const_desc = const.doc.content
         else:
             const_desc = MISSING_DESCRIPTION
+        if const.deprecated:
+            (const_deprecated, _) = const.deprecated_since
+        else:
+            const_deprecated = None
         index_symbols.append({
             "type": "constant",
             "name": const.name,
             "ident": const.ctype,
             "summary": utils.preprocess_docs(const_desc, repository.namespace, summary=True, plain=True),
+            "deprecated": const_deprecated,
         })
 
 
@@ -231,11 +296,16 @@ def _gen_domains(config, index, repository, symbols):
             domain_desc = domain.doc.content
         else:
             domain_desc = MISSING_DESCRIPTION
+        if domain.deprecated:
+            (domain_deprecated, _) = domain.deprecated_since
+        else:
+            domain_deprecated = None
         index_symbols.append({
             "type": "domain",
             "name": domain.name,
             "ctype": domain.base_ctype,
             "summary": utils.preprocess_docs(domain_desc, repository.namespace, summary=True, plain=True),
+            "deprecated": domain_deprecated,
         })
 
         for func in domain.functions:
@@ -243,12 +313,17 @@ def _gen_domains(config, index, repository, symbols):
                 func_desc = func.doc.content
             else:
                 func_desc = MISSING_DESCRIPTION
+            if func.deprecated:
+                (func_deprecated, _) = func.deprecated_since
+            else:
+                func_deprecated = None
             index_symbols.append({
                 "type": "type_func",
                 "name": func.name,
                 "type_name": domain.name,
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": func_deprecated,
             })
 
 
@@ -263,11 +338,16 @@ def _gen_enums(config, index, repository, symbols):
             enum_desc = enum.doc.content
         else:
             enum_desc = MISSING_DESCRIPTION
+        if enum.deprecated:
+            (enum_deprecated, _) = enum.deprecated_since
+        else:
+            enum_deprecated = None
         index_symbols.append({
             "type": "enum",
             "name": enum.name,
             "ctype": enum.base_ctype,
             "summary": utils.preprocess_docs(enum_desc, repository.namespace, summary=True, plain=True),
+            "deprecated": enum_deprecated,
         })
 
         for func in enum.functions:
@@ -275,12 +355,17 @@ def _gen_enums(config, index, repository, symbols):
                 func_desc = func.doc.content
             else:
                 func_desc = MISSING_DESCRIPTION
+            if func.deprecated:
+                (func_deprecated, _) = func.deprecated_since
+            else:
+                func_deprecated = None
             index_symbols.append({
                 "type": "type_func",
                 "name": func.name,
                 "type_name": enum.name,
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": func_deprecated,
             })
 
 
@@ -295,11 +380,16 @@ def _gen_functions(config, index, repository, symbols):
             func_desc = func.doc.content
         else:
             func_desc = MISSING_DESCRIPTION
+        if func.deprecated:
+            (func_deprecated, _) = func.deprecated_since
+        else:
+            func_deprecated = None
         index_symbols.append({
             "type": "function",
             "name": func.name,
             "ident": func.identifier,
             "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
+            "deprecated": func_deprecated,
         })
 
 
@@ -314,15 +404,21 @@ def _gen_function_macros(config, index, repository, symbols):
             func_desc = func.doc.content
         else:
             func_desc = MISSING_DESCRIPTION
+        if func.deprecated:
+            (func_deprecated, _) = func.deprecated_since
+        else:
+            func_deprecated = None
         index_symbols.append({
             "type": "function_macro",
             "name": func.name,
             "ident": func.identifier,
             "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
+            "deprecated": func_deprecated,
         })
 
 
 def _gen_interfaces(config, index, repository, symbols):
+    namespace = repository.namespace
     index_symbols = index["symbols"]
 
     for iface in symbols:
@@ -333,11 +429,16 @@ def _gen_interfaces(config, index, repository, symbols):
             iface_desc = iface.doc.content
         else:
             iface_desc = MISSING_DESCRIPTION
+        if iface.deprecated:
+            (iface_deprecated, _) = iface.deprecated_since
+        else:
+            iface_deprecated = None
         index_symbols.append({
             "type": "interface",
             "name": iface.name,
             "ctype": iface.base_ctype,
             "summary": utils.preprocess_docs(iface_desc, repository.namespace, summary=True, plain=True),
+            "deprecated": iface_deprecated,
         })
 
         for method in iface.methods:
@@ -345,12 +446,17 @@ def _gen_interfaces(config, index, repository, symbols):
                 method_desc = method.doc.content
             else:
                 method_desc = MISSING_DESCRIPTION
+            if method.deprecated:
+                (method_deprecated, _) = method.deprecated_since
+            else:
+                method_deprecated = None
             index_symbols.append({
                 "type": "method",
                 "name": method.name,
                 "type_name": iface.name,
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": method_deprecated,
             })
 
         for func in iface.functions:
@@ -358,12 +464,17 @@ def _gen_interfaces(config, index, repository, symbols):
                 func_desc = func.doc.content
             else:
                 func_desc = MISSING_DESCRIPTION
+            if func.deprecated:
+                (func_deprecated, _) = func.deprecated_since
+            else:
+                func_deprecated = None
             index_symbols.append({
                 "type": "type_func",
                 "name": func.name,
                 "type_name": iface.name,
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": func_deprecated,
             })
 
         for prop_name, prop in iface.properties.items():
@@ -374,11 +485,16 @@ def _gen_interfaces(config, index, repository, symbols):
                 prop_desc = prop.doc.content
             else:
                 prop_desc = MISSING_DESCRIPTION
+            if prop.deprecated:
+                (prop_deprecated, _) = prop.deprecated_since
+            else:
+                prop_deprecated = None
             index_symbols.append({
                 "type": "property",
                 "name": prop.name,
                 "type_name": iface.name,
                 "summary": utils.preprocess_docs(prop_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": prop_deprecated,
             })
 
         for signal_name, signal in iface.signals.items():
@@ -389,11 +505,16 @@ def _gen_interfaces(config, index, repository, symbols):
                 signal_desc = signal.doc.content
             else:
                 signal_desc = MISSING_DESCRIPTION
+            if signal.deprecated:
+                (signal_deprecated, _) = signal.deprecated_since
+            else:
+                signal_deprecated = None
             index_symbols.append({
                 "type": "signal",
                 "name": signal.name,
                 "type_name": iface.name,
                 "summary": utils.preprocess_docs(signal_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": signal_deprecated,
             })
 
         for vfunc in iface.virtual_methods:
@@ -401,12 +522,38 @@ def _gen_interfaces(config, index, repository, symbols):
                 vfunc_desc = vfunc.doc.content
             else:
                 vfunc_desc = MISSING_DESCRIPTION
+            if vfunc.deprecated:
+                (vfunc_deprecated, _) = vfunc.deprecated_since
+            else:
+                vfunc_deprecated = None
             index_symbols.append({
                 "type": "vfunc",
                 "name": vfunc.name,
                 "type_name": iface.name,
                 "summary": utils.preprocess_docs(vfunc_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": vfunc_deprecated,
             })
+
+        if iface.type_struct is not None:
+            iface_struct = namespace.find_record(iface.type_struct)
+            for iface_method in iface_struct.methods:
+                if iface_method.doc is not None:
+                    iface_method_desc = iface_method.doc.content
+                else:
+                    iface_method_desc = MISSING_DESCRIPTION
+                if iface_method.deprecated:
+                    (method_deprecated, _) = iface_method.deprecated_since
+                else:
+                    method_deprecated = None
+                index_symbols.append({
+                    "type": "class_method",
+                    "name": iface_method.name,
+                    "type_name": iface_struct.name,
+                    "struct_for": iface_struct.struct_for,
+                    "ident": iface_method.identifier,
+                    "summary": utils.preprocess_docs(iface_method_desc, repository.namespace, summary=True, plain=True),
+                    "deprecated": method_deprecated,
+                })
 
 
 def _gen_records(config, index, repository, symbols):
@@ -420,11 +567,16 @@ def _gen_records(config, index, repository, symbols):
             desc = record.doc.content
         else:
             desc = MISSING_DESCRIPTION
+        if record.deprecated:
+            (deprecated, _) = record.deprecated_since
+        else:
+            deprecated = None
         index_symbols.append({
             "type": "record",
             "name": record.name,
             "ctype": record.base_ctype,
             "summary": utils.preprocess_docs(desc, repository.namespace, summary=True, plain=True),
+            "deprecated": deprecated,
         })
 
         for ctor in record.constructors:
@@ -432,12 +584,17 @@ def _gen_records(config, index, repository, symbols):
                 ctor_desc = ctor.doc.content
             else:
                 ctor_desc = MISSING_DESCRIPTION
+            if ctor.deprecated:
+                (ctor_deprecated, _) = ctor.deprecated_since
+            else:
+                ctor_deprecated = None
             index_symbols.append({
                 "type": "ctor",
                 "name": ctor.name,
                 "type_name": record.name,
                 "ident": ctor.identifier,
                 "summary": utils.preprocess_docs(ctor_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": ctor_deprecated,
             })
 
         for method in record.methods:
@@ -478,11 +635,16 @@ def _gen_unions(config, index, repository, symbols):
             desc = union.doc.content
         else:
             desc = MISSING_DESCRIPTION
+        if union.deprecated:
+            (deprecated, _) = union.deprecated_since
+        else:
+            deprecated = None
         index_symbols.append({
             "type": "union",
             "name": union.name,
             "ctype": union.base_ctype,
             "summary": utils.preprocess_docs(desc, repository.namespace, summary=True, plain=True),
+            "deprecated": deprecated,
         })
 
         for ctor in union.constructors:
@@ -490,12 +652,17 @@ def _gen_unions(config, index, repository, symbols):
                 ctor_desc = ctor.doc.content
             else:
                 ctor_desc = MISSING_DESCRIPTION
+            if ctor.deprecated:
+                (ctor_deprecated, _) = ctor.deprecated_since
+            else:
+                ctor_deprecated = None
             index_symbols.append({
                 "type": "ctor",
                 "name": ctor.name,
                 "type_name": union.name,
                 "ident": ctor.identifier,
                 "summary": utils.preprocess_docs(ctor_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": ctor_deprecated,
             })
 
         for method in union.methods:
@@ -503,12 +670,17 @@ def _gen_unions(config, index, repository, symbols):
                 method_desc = method.doc.content
             else:
                 method_desc = MISSING_DESCRIPTION
+            if method.deprecated:
+                (method_deprecated, _) = method.deprecated_since
+            else:
+                method_deprecated = None
             index_symbols.append({
                 "type": "method",
                 "name": method.name,
                 "type_name": union.name,
                 "ident": method.identifier,
                 "summary": utils.preprocess_docs(method_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": method_deprecated,
             })
 
         for func in union.functions:
@@ -516,12 +688,17 @@ def _gen_unions(config, index, repository, symbols):
                 func_desc = func.doc.content
             else:
                 func_desc = MISSING_DESCRIPTION
+            if func.deprecated:
+                (func_deprecated, _) = func.deprecated_since
+            else:
+                func_deprecated = None
             index_symbols.append({
                 "type": "type_func",
                 "name": func.name,
                 "type_name": union.name,
                 "ident": func.identifier,
                 "summary": utils.preprocess_docs(func_desc, repository.namespace, summary=True, plain=True),
+                "deprecated": func_deprecated,
             })
 
 
