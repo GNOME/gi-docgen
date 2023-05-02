@@ -54,6 +54,8 @@ configure_file(
   install_dir: get_option('bindir'),
 )
 
+# When using gi-docgen as a sub-project
+dummy_dep = declare_dependency()
 meson.override_find_program('gi-docgen', find_program('gi-docgen.py'))
 
 pkgconf = configuration_data()
