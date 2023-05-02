@@ -99,7 +99,7 @@
       {% if class_method.attributes %}
       <div class="docblock">
         <table>
-        {% for (key, value) in class_method.attributes.items() %}
+        {% for (key, value) in class_method.attributes.items()|sort %}
           <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
         {% endfor %}
         </table>

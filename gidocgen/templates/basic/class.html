@@ -145,7 +145,7 @@
         {% if class.attributes %}
         <div class="docblock">
           <table class="attributes">
-          {% for (key, value) in class.attributes.items() %}
+          {% for (key, value) in class.attributes.items()|sort %}
             <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
           {% endfor %}
           </table>

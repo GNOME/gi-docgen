@@ -124,7 +124,7 @@
       {% if enum.attributes %}
       <div class="docblock">
         <table class="attributes">
-        {% for (key, value) in enum.attributes.items() %}
+        {% for (key, value) in enum.attributes.items()|sort %}
           <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
         {% endfor %}
         </table>

@@ -105,7 +105,7 @@
       {% if type_func.attributes %}
       <div class="docblock">
         <table>
-        {% for (key, value) in type_func.attributes.items() %}
+        {% for (key, value) in type_func.attributes.items()|sort %}
           <tr><td>{{ key|escape }}</td><td>{{ value|escape }}</td></tr>
         {% endfor %}
         </table>
