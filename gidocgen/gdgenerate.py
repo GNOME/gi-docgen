@@ -31,16 +31,28 @@ STRING_ELEMENT_TYPES = {
     'filename': 'Each element is a file system path, using the OS encoding.',
 }
 
-ARG_TRANSFER_MODES = {
+FUNCTION_IN_ARG_TRANSFER_MODES = {
     'none': 'The data is owned by the caller of the function.',
     'container': 'The called function takes ownership of the data container, but not the data inside it.',
     'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
 }
 
-METHOD_ARG_TRANSFER_MODES = {
-    'none': 'The data is owned by the caller of the function.',
+METHOD_IN_ARG_TRANSFER_MODES = {
+    'none': 'The data is owned by the caller of the method.',
     'container': 'The instance takes ownership of the data container, but not the data inside it.',
     'full': 'The instance takes ownership of the data, and is responsible for freeing it.',
+}
+
+FUNCTION_OUT_ARG_TRANSFER_MODES = {
+    'none': 'The data is owned by the function.',
+    'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+}
+
+METHOD_OUT_ARG_TRANSFER_MODES = {
+    'none': 'The data is owned by the instance.',
+    'container': 'The caller of the method takes ownership of the data container, but not the data inside it.',
+    'full': 'The caller of the method takes ownership of the data, and is responsible for freeing it.',
 }
 
 RETVAL_TRANSFER_MODES = {
@@ -104,6 +116,20 @@ def type_name_to_cname(fqtn, is_pointer=False):
     if is_pointer:
         res.append('*')
     return "".join(res)
+
+
+def transfer_note(transfer, direction, method=False):
+    if direction in ['out', 'inout']:
+        if method:
+            return METHOD_OUT_ARG_TRANSFER_MODES[transfer]
+        else:
+            return FUNCTION_OUT_ARG_TRANSFER_MODES[transfer]
+    else:
+        if method:
+            return METHOD_IN_ARG_TRANSFER_MODES[transfer]
+        else:
+            return FUNCTION_IN_ARG_TRANSFER_MODES[transfer]
+    return None
 
 
 def gen_index_func(func, namespace, md=None):
@@ -588,13 +614,10 @@ class TemplateArgument:
             self.type_cname = argument.target.ctype
             if self.type_cname is None:
                 self.type_cname = type_name_to_cname(argument.target.name, True)
-        self.transfer = argument.transfer or 'none'
-        if isinstance(call, gir.Method):
-            self.transfer_note = METHOD_ARG_TRANSFER_MODES[argument.transfer or 'none']
-        else:
-            self.transfer_note = ARG_TRANSFER_MODES[argument.transfer or 'none']
         self.direction = argument.direction or 'in'
         self.direction_note = DIRECTION_MODES[argument.direction]
+        self.transfer = argument.transfer or 'none'
+        self.transfer_note = transfer_note(self.transfer, self.direction, method=isinstance(call, gir.Method))
         self.optional = argument.optional
         self.nullable = argument.nullable
         self.scope = SCOPE_MODES[argument.scope or 'none']
