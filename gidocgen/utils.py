@@ -625,7 +625,7 @@ class LinkGenerator:
             return f"<a href=\"{link}\">{text}</a>"
 
 
-def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plain=False, max_length=10):
+def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plain=False, max_length=20):
     if plain:
         text = text.replace('\n', ' ')
         text = re.sub(r'<[^<]+?>', '', text)
