@@ -75,16 +75,16 @@
         <table>
           <tr><td>Default handler: {{ signal.when }}</td></tr>
           {% if signal.no_recurse %}
-          <tr><td>Signal emission will restart instead of recursing</td></tr>
+          <tr><td>Signal emission will restart instead of <a href="https://docs.gtk.org/gobject/flags.SignalFlags.html#no_recurse" class="external">recursing</a></td></tr>
           {% endif %}
           {% if signal.is_action %}
-          <tr><td>The signal can be emitted directly</td></tr>
+          <tr><td>Signal can be <a href="https://docs.gtk.org/gobject/flags.SignalFlags.html#action" class="external">directly emitted</a> on objects from user code</td></tr>
           {% endif %}
           {% if signal.is_detailed %}
-          <tr><td>The signal can be detailed</td></tr>
+          <tr><td>The signal can be <a href="https://docs.gtk.org/gobject/flags.SignalFlags.html#detailed" class="external">detailed</a></td></tr>
           {% endif %}
           {% if signal.no_hooks %}
-          <tr><td>Hooks are disabled for this signal</td></tr>
+          <tr><td><a href="https://docs.gtk.org/gobject/flags.SignalFlags.html#no_hooks" class="external">Hooks</a> are disabled for this signal</td></tr>
           {% endif %}
           {% if signal.stability %}
           <tr><td>Stability: {{ signal.stability }}</td></tr>
