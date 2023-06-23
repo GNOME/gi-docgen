@@ -67,16 +67,22 @@
       </table>
     </div>
 
+    {% if repository.c_includes or repository.packages %}
     <div class="meta build toggle-wrapper">
       <h4>Build</h4>
 
       <div class="docblock">
       <table>
+        {% if repository.c_includes %}
         <tr><td>C headers</td><td><code>{{ repository.c_includes|join(', ') }}</code></td></tr>
+        {% endif %}
+        {% if repository.packages %}
         <tr><td>pkg-config files</td><td><code>{{ repository.packages|join(', ') }}</code></td></tr>
+        {% endif %}
       </table>
       </div>
     </div>
+    {% endif %}
   </header>
 
   {% if repository.includes %}
