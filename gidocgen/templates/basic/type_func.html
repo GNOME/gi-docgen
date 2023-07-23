@@ -128,6 +128,7 @@
             <p><em>Type:</em>&nbsp;
             {%- if arg.is_array -%}An array of&nbsp;{%- endif -%}
             {%- if arg.is_list -%}A list of&nbsp;{%- endif -%}
+            {%- if arg.is_list_model -%}A list model of&nbsp;{%- endif -%}
             {%- if arg.link -%}
             {{ arg.link|safe }}
             {%- else -%}
