@@ -441,6 +441,8 @@ class TemplateProperty:
                 self.type_name = value_type.name
                 self.type_cname = type_name_to_cname(value_type.name, True)
         else:
+            if self.is_list_model:
+                self.value_type = prop.attributes.get('element-type', 'GObject')
             self.type_name = prop.target.name
             self.type_cname = prop.target.ctype
         if prop.doc is not None:
@@ -522,6 +524,8 @@ class TemplateProperty:
 
         self.attributes = {}
         for name in (prop.attributes or {}):
+            if name == "element-type":
+                continue
             value = prop.attributes[name]
             if name in ATTRIBUTE_NAMES:
                 label = ATTRIBUTE_NAMES[name].get("label")
@@ -552,8 +556,13 @@ class TemplateProperty:
 
         if self.is_fundamental:
             self.link = f"<code>{self.type_cname}</code>"
-        elif self.is_array or self.is_list:
-            self.link = f"<code>{self.type_cname}</code>"
+        elif self.is_array or self.is_list or self.is_list_model:
+            ret_type = self.value_type if self.is_list_model else self.value_type_cname
+            if ret_type.startswith(namespace.name):
+                name = ret_type.lstrip(namespace.name)
+                self.link = gen_type_link(namespace.repository, namespace.name, name, ret_type)
+            else:
+                self.link = f"<code>{ret_type}</code>"
         elif prop.target.name is not None:
             name = prop.target.name
             if '.' in name:
