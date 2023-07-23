@@ -658,12 +658,13 @@ class TemplateArgument:
         if name is not None:
             if self.is_fundamental:
                 self.link = f"<code>{self.type_cname}</code>"
-            elif self.is_array:
-                self.link = f"<code>{self.value_type_cname}</code>"
-            elif self.is_list:
-                self.link = f"<code>{self.value_type_cname}</code>"
-            elif self.is_list_model:
-                self.link = f"<code>{self.value_type}</code>"
+            elif self.is_array or self.is_list or self.is_list_model:
+                ret_type = self.value_type if self.is_list_model else self.value_type_cname
+                if ret_type.startswith(namespace.name):
+                    name = ret_type.lstrip(namespace.name)
+                    self.link = gen_type_link(namespace.repository, namespace.name, name, ret_type)
+                else:
+                    self.link = f"<code>{ret_type}</code>"
             else:
                 if '.' in name:
                     ns, name = name.split('.')
@@ -743,12 +744,13 @@ class TemplateReturnValue:
         if name is not None:
             if self.is_fundamental:
                 self.link = f"<code>{self.type_cname}</code>"
-            elif self.is_array:
-                self.link = f"<code>{self.value_type_cname}</code>"
-            elif self.is_list:
-                self.link = f"<code>{self.value_type_cname}</code>"
-            elif self.is_list_model:
-                self.link = f"<code>{self.value_type}</code>"
+            elif self.is_array or self.is_list or self.is_list_model:
+                ret_type = self.value_type if self.is_list_model else self.value_type_cname
+                if ret_type.startswith(namespace.name):
+                    name = ret_type.lstrip(namespace.name)
+                    self.link = gen_type_link(namespace.repository, namespace.name, name, ret_type)
+                else:
+                    self.link = f"<code>{ret_type}</code>"
             else:
                 if '.' in name:
                     ns, name = name.split('.')
