@@ -804,7 +804,7 @@ def gen_indices(config, repository, content_dirs, output_dir):
     data = json.dumps(index, separators=(',', ':'))
     index_file = os.path.join(output_dir, "index.json")
     log.info(f"Creating index file for {namespace.name}-{namespace.version}: {index_file}")
-    with open(index_file, "w") as out:
+    with open(index_file, "w", encoding="utf-8") as out:
         out.write(data)
 
 

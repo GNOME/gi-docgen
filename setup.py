@@ -16,11 +16,11 @@ class BuildCommand(_build_py):
 
     def generate_pkgconfig_file(self):
         lines = []
-        with open('gi-docgen.pc.in', 'r') as f:
+        with open('gi-docgen.pc.in', 'r', encoding='utf-8') as f:
             for line in f.readlines():
                 new_line = line.strip().replace('@VERSION@', version)
                 lines.append(new_line)
-        with open('gi-docgen.pc', 'w') as f:
+        with open('gi-docgen.pc', 'w', encoding='utf-8') as f:
             f.write('\n'.join(lines))
 
     def run(self):

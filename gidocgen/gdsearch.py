@@ -370,7 +370,7 @@ def query(repository, terms, index_file):
     if index_file is None:
         index_file = os.path.join(os.getcwd(), "index.json")
 
-    with open(index_file, "r") as f:
+    with open(index_file, "r", encoding="utf-8") as f:
         index = json.load(f)
 
     namespace = repository.namespace
