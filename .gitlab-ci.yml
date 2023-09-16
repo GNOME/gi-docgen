@@ -18,7 +18,7 @@ meson-build:
   stage: build
   needs: []
   script:
-    - dnf install -y meson ninja-build pytest python3-markdown python3-jinja2 python3-pygments python3-typogrify python3-flake8 python3-mypy
+    - dnf install -y meson ninja-build pytest python3-markdown python3-jinja2 python3-packaging python3-pygments python3-typogrify python3-flake8 python3-mypy
     - meson _build .
     - meson test -C _build
 
@@ -34,7 +34,7 @@ pytest:
   needs: []
   image: fedora:latest
   script:
-    - dnf install -y pytest python3-markdown python3-jinja2 python3-pygments python3-typogrify
+    - dnf install -y pytest python3-markdown python3-jinja2 python3-packaging python3-pygments python3-typogrify
     - pytest --verbose
 
 pytest-tomli:
@@ -43,7 +43,7 @@ pytest-tomli:
   needs: []
   image: fedora:36
   script:
-    - dnf install -y pytest python3-markdown python3-jinja2 python3-pygments python3-tomli python3-typogrify
+    - dnf install -y pytest python3-markdown python3-jinja2 python3-packaging python3-pygments python3-tomli python3-typogrify
     - pytest --verbose
 
 flake8:
