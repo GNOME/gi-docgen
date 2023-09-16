@@ -1976,7 +1976,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
         if config.show_class_hierarchy:
             tmpl.hierarchy_svg = utils.render_dot(tmpl.dot, output_format="svg")
 
-        with open(class_file, "w") as out:
+        with open(class_file, "w", encoding="utf-8") as out:
             content = class_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -1993,7 +1993,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             ctor_file = os.path.join(output_dir, f"ctor.{cls.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{cls.name}.{ctor.name}: {ctor_file}")
 
-            with open(ctor_file, "w") as out:
+            with open(ctor_file, "w", encoding="utf-8") as out:
                 out.write(ctor_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2009,7 +2009,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             method_file = os.path.join(output_dir, f"method.{cls.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{cls.name}.{method.name}: {method_file}")
 
-            with open(method_file, "w") as out:
+            with open(method_file, "w", encoding="utf-8") as out:
                 out.write(method_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2025,7 +2025,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             prop_file = os.path.join(output_dir, f"property.{cls.name}.{prop.name}.html")
             log.debug(f"Creating property file for {namespace.name}.{cls.name}.{prop.name}: {prop_file}")
 
-            with open(prop_file, "w") as out:
+            with open(prop_file, "w", encoding="utf-8") as out:
                 out.write(property_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2041,7 +2041,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             signal_file = os.path.join(output_dir, f"signal.{cls.name}.{signal.name}.html")
             log.debug(f"Creating signal file for {namespace.name}.{cls.name}.{signal.name}: {signal_file}")
 
-            with open(signal_file, "w") as out:
+            with open(signal_file, "w", encoding="utf-8") as out:
                 out.write(signal_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2056,7 +2056,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                 cls_method_file = os.path.join(output_dir, f"class_method.{cls.name}.{cls_method.name}.html")
                 log.debug(f"Creating class method file for {namespace.name}.{cls.name}.{cls_method.name}: {cls_method_file}")
 
-                with open(cls_method_file, "w") as out:
+                with open(cls_method_file, "w", encoding="utf-8") as out:
                     out.write(class_method_tmpl.render({
                         'CONFIG': config,
                         'namespace': namespace,
@@ -2069,7 +2069,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             vfunc_file = os.path.join(output_dir, f"vfunc.{cls.name}.{vfunc.name}.html")
             log.debug(f"Creating vfunc file for {namespace.name}.{cls.name}.{vfunc.name}: {vfunc_file}")
 
-            with open(vfunc_file, "w") as out:
+            with open(vfunc_file, "w", encoding="utf-8") as out:
                 out.write(vfunc_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2085,7 +2085,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
             type_func_file = os.path.join(output_dir, f"type_func.{cls.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{cls.name}.{type_func.name}: {type_func_file}")
 
-            with open(type_func_file, "w") as out:
+            with open(type_func_file, "w", encoding="utf-8") as out:
                 out.write(type_func_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2119,7 +2119,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
         tmpl = TemplateInterface(namespace, iface, config)
         template_interfaces.append(tmpl)
 
-        with open(iface_file, "w") as out:
+        with open(iface_file, "w", encoding="utf-8") as out:
             out.write(iface_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2134,7 +2134,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
             method_file = os.path.join(output_dir, f"method.{iface.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{iface.name}.{method.name}: {method_file}")
 
-            with open(method_file, "w") as out:
+            with open(method_file, "w", encoding="utf-8") as out:
                 out.write(method_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2150,7 +2150,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
             prop_file = os.path.join(output_dir, f"property.{iface.name}.{prop.name}.html")
             log.debug(f"Creating property file for {namespace.name}.{iface.name}.{prop.name}: {prop_file}")
 
-            with open(prop_file, "w") as out:
+            with open(prop_file, "w", encoding="utf-8") as out:
                 out.write(property_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2166,7 +2166,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
             signal_file = os.path.join(output_dir, f"signal.{iface.name}.{signal.name}.html")
             log.debug(f"Creating signal file for {namespace.name}.{iface.name}.{signal.name}: {signal_file}")
 
-            with open(signal_file, "w") as out:
+            with open(signal_file, "w", encoding="utf-8") as out:
                 out.write(signal_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2179,7 +2179,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
             vfunc_file = os.path.join(output_dir, f"vfunc.{iface.name}.{vfunc.name}.html")
             log.debug(f"Creating vfunc file for {namespace.name}.{iface.name}.{vfunc.name}: {vfunc_file}")
 
-            with open(vfunc_file, "w") as out:
+            with open(vfunc_file, "w", encoding="utf-8") as out:
                 out.write(vfunc_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2194,7 +2194,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                 cls_method_file = os.path.join(output_dir, f"class_method.{iface.name}.{cls_method.name}.html")
                 log.debug(f"Creating class method file for {namespace.name}.{iface.name}.{cls_method.name}: {cls_method_file}")
 
-                with open(cls_method_file, "w") as out:
+                with open(cls_method_file, "w", encoding="utf-8") as out:
                     out.write(class_method_tmpl.render({
                         'CONFIG': config,
                         'namespace': namespace,
@@ -2210,7 +2210,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
             type_func_file = os.path.join(output_dir, f"type_func.{iface.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{iface.name}.{type_func.name}: {type_func_file}")
 
-            with open(type_func_file, "w") as out:
+            with open(type_func_file, "w", encoding="utf-8") as out:
                 out.write(type_func_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2239,7 +2239,7 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
         tmpl = TemplateEnum(namespace, enum, config)
         template_enums.append(tmpl)
 
-        with open(enum_file, "w") as out:
+        with open(enum_file, "w", encoding="utf-8") as out:
             out.write(enum_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2251,7 +2251,7 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
             type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
-            with open(type_func_file, "w") as out:
+            with open(type_func_file, "w", encoding="utf-8") as out:
                 out.write(type_func_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2280,7 +2280,7 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
         tmpl = TemplateEnum(namespace, enum, config)
         template_bitfields.append(tmpl)
 
-        with open(enum_file, "w") as out:
+        with open(enum_file, "w", encoding="utf-8") as out:
             out.write(enum_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2292,7 +2292,7 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
             type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
-            with open(type_func_file, "w") as out:
+            with open(type_func_file, "w", encoding="utf-8") as out:
                 out.write(type_func_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2321,7 +2321,7 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
         tmpl = TemplateEnum(namespace, enum, config)
         template_domains.append(tmpl)
 
-        with open(enum_file, "w") as out:
+        with open(enum_file, "w", encoding="utf-8") as out:
             out.write(enum_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2333,7 +2333,7 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
             type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
-            with open(type_func_file, "w") as out:
+            with open(type_func_file, "w", encoding="utf-8") as out:
                 out.write(type_func_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2361,7 +2361,7 @@ def _gen_constants(config, theme_config, output_dir, jinja_env, repository, all_
         tmpl = TemplateConstant(namespace, const)
         template_constants.append(tmpl)
 
-        with open(const_file, "w") as out:
+        with open(const_file, "w", encoding="utf-8") as out:
             out.write(const_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2388,7 +2388,7 @@ def _gen_aliases(config, theme_config, output_dir, jinja_env, repository, all_al
         tmpl = TemplateAlias(namespace, alias)
         template_aliases.append(tmpl)
 
-        with open(alias_file, "w") as out:
+        with open(alias_file, "w", encoding="utf-8") as out:
             content = alias_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2419,7 +2419,7 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
         tmpl = TemplateRecord(namespace, record, config)
         template_records.append(tmpl)
 
-        with open(record_file, "w") as out:
+        with open(record_file, "w", encoding="utf-8") as out:
             content = record_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2436,7 +2436,7 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
             ctor_file = os.path.join(output_dir, f"ctor.{record.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{record.name}.{ctor.name}: {ctor_file}")
 
-            with open(ctor_file, "w") as out:
+            with open(ctor_file, "w", encoding="utf-8") as out:
                 out.write(type_func_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2452,7 +2452,7 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
             method_file = os.path.join(output_dir, f"method.{record.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{record.name}.{method.name}: {method_file}")
 
-            with open(method_file, "w") as out:
+            with open(method_file, "w", encoding="utf-8") as out:
                 out.write(method_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2468,7 +2468,7 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
             type_func_file = os.path.join(output_dir, f"type_func.{record.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{record.name}.{type_func.name}: {type_func_file}")
 
-            with open(type_func_file, "w") as out:
+            with open(type_func_file, "w", encoding="utf-8") as out:
                 out.write(type_func_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2498,7 +2498,7 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
         tmpl = TemplateUnion(namespace, union, config)
         template_unions.append(tmpl)
 
-        with open(union_file, "w") as out:
+        with open(union_file, "w", encoding="utf-8") as out:
             content = union_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2515,7 +2515,7 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
             ctor_file = os.path.join(output_dir, f"ctor.{union.name}.{ctor.name}.html")
             log.debug(f"Creating ctor file for {namespace.name}.{union.name}.{ctor.name}: {ctor_file}")
 
-            with open(ctor_file, "w") as out:
+            with open(ctor_file, "w", encoding="utf-8") as out:
                 out.write(type_func_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2531,7 +2531,7 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
             method_file = os.path.join(output_dir, f"method.{union.name}.{method.name}.html")
             log.debug(f"Creating method file for {namespace.name}.{union.name}.{method.name}: {method_file}")
 
-            with open(method_file, "w") as out:
+            with open(method_file, "w", encoding="utf-8") as out:
                 out.write(method_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2547,7 +2547,7 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
             type_func_file = os.path.join(output_dir, f"type_func.{union.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{union.name}.{type_func.name}: {type_func_file}")
 
-            with open(type_func_file, "w") as out:
+            with open(type_func_file, "w", encoding="utf-8") as out:
                 out.write(type_func_tmpl.render({
                     'CONFIG': config,
                     'namespace': namespace,
@@ -2575,7 +2575,7 @@ def _gen_functions(config, theme_config, output_dir, jinja_env, repository, all_
         tmpl = TemplateFunction(namespace, func)
         template_functions.append(tmpl)
 
-        with open(func_file, "w") as out:
+        with open(func_file, "w", encoding="utf-8") as out:
             content = func_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2604,7 +2604,7 @@ def _gen_callbacks(config, theme_config, output_dir, jinja_env, repository, all_
         tmpl = TemplateCallback(namespace, func)
         template_callbacks.append(tmpl)
 
-        with open(func_file, "w") as out:
+        with open(func_file, "w", encoding="utf-8") as out:
             content = func_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2633,7 +2633,7 @@ def _gen_function_macros(config, theme_config, output_dir, jinja_env, repository
         tmpl = TemplateFunction(namespace, func)
         template_functions.append(tmpl)
 
-        with open(func_file, "w") as out:
+        with open(func_file, "w", encoding="utf-8") as out:
             content = func_tmpl.render({
                 'CONFIG': config,
                 'namespace': namespace,
@@ -2767,7 +2767,7 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
 
     dst_file = os.path.join(output_dir, content["output_file"])
     log.info(f"Generating type hierarchy file: {dst_file}")
-    with open(dst_file, "w") as outfile:
+    with open(dst_file, "w", encoding="utf-8") as outfile:
         outfile.write(content_tmpl.render({
             "CONFIG": config,
             "namespace": namespace,
@@ -3069,7 +3069,7 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
     ns_file = os.path.join(ns_dir, "index.html")
     log.info(f"Creating namespace index file for {namespace.name}-{namespace.version}: {ns_file}")
-    with open(ns_file, "w") as out:
+    with open(ns_file, "w", encoding="utf-8") as out:
         out.write(ns_tmpl.render({
             "CONFIG": config,
             "repository": repository,
