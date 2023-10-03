@@ -20,6 +20,32 @@ CONST_SIGIL_RE = re.compile(r"(^|\W)%([A-Z0-9_]+)\b")
 FUNCTION_RE = re.compile(r"(^|\s+)([a-z][a-z0-9_]*)\(\)(\s+|$)")
 
 
+def process_gtkdoc_sigils(line: str) -> str:
+    # XXX: The order is important; signals and properties have
+    # higher precedence than types
+    new_line = line
+
+    # Signal sigil
+    new_line = re.sub(SIGNAL_SIGIL_RE, r"\g<1>`\g<2>::\g<3>`", new_line)
+
+    # Property sigil
+    new_line = re.sub(PROP_SIGIL_RE, r"\g<1>`\g<2>:\g<3>`", new_line)
+
+    # Type sigil
+    new_line = re.sub(TYPE_SIGIL_RE, r"\g<1>`\g<2>`", new_line)
+
+    # Constant sygil
+    new_line = re.sub(CONST_SIGIL_RE, r"\g<1>`\g<2>`", new_line)
+
+    # Argument sygil
+    new_line = re.sub(ARG_SIGIL_RE, r"\g<1>`\g<2>`", new_line)
+
+    # Function
+    new_line = re.sub(FUNCTION_RE, r"\g<1>`\g<2>()`\g<3>", new_line)
+
+    return new_line
+
+
 class GtkDocPreprocessor(Preprocessor):
     """Remove all gtk-doc sigils from the Markdown text"""
     def run(self, lines):
@@ -36,26 +62,7 @@ class GtkDocPreprocessor(Preprocessor):
 
             # Never transform code blocks
             if not inside_code_block:
-                # XXX: The order is important; signals and properties have
-                # higher precedence than types
-
-                # Signal sigil
-                new_line = re.sub(SIGNAL_SIGIL_RE, r"\g<1>`\g<2>::\g<3>`", new_line)
-
-                # Property sigil
-                new_line = re.sub(PROP_SIGIL_RE, r"\g<1>`\g<2>:\g<3>`", new_line)
-
-                # Type sigil
-                new_line = re.sub(TYPE_SIGIL_RE, r"\g<1>`\g<2>`", new_line)
-
-                # Constant sygil
-                new_line = re.sub(CONST_SIGIL_RE, r"\g<1>`\g<2>`", new_line)
-
-                # Argument sygil
-                new_line = re.sub(ARG_SIGIL_RE, r"\g<1>`\g<2>`", new_line)
-
-                # Function
-                new_line = re.sub(FUNCTION_RE, r"\g<1>`\g<2>()`\g<3>", new_line)
+                new_line = process_gtkdoc_sigils(new_line)
 
             new_lines.append(new_line)
         return new_lines
