@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 import os
 import unittest
 
-from gidocgen import gir, utils
+from gidocgen import gir, mdext, utils
 
 
 class TestProcessLanguage(unittest.TestCase):
@@ -75,3 +75,21 @@ class TestLinkGenerator(unittest.TestCase):
         self.assertTrue('href' in root.attrib)
         self.assertTrue(root.attrib['href'] == 'class.Binding.html')
         self.assertTrue(root.text == 'with some, amazing, text')
+
+
+class TestGtkDocExtension(unittest.TestCase):
+
+    def test_gtkdoc_sigils(self):
+
+        self.assertTrue(mdext.process_gtkdoc_sigils("will emit the #GCancellable::cancelled signal."),
+                        "will emit the `GCancellable::cancelled` signal.")
+        self.assertTrue(mdext.process_gtkdoc_sigils("If @cancellable is %NULL,"),
+                        "If `cancellable` is `NULL`,")
+        self.assertTrue(mdext.process_gtkdoc_sigils("A #GCancellable object."),
+                        "A `GCancellable` object.")
+        self.assertTrue(mdext.process_gtkdoc_sigils("are two helper functions: g_cancellable_connect() and"),
+                        "are two helper functions: `g_cancellable_connect()` and")
+        self.assertTrue(mdext.process_gtkdoc_sigils("#GDBusProxy:g-connection must be %NULL and will be set to the"),
+                        "`GDBusProxy:g-connection` must be `NULL` and will be set to the")
+        self.assertTrue(mdext.process_gtkdoc_sigils("#GDBusProxy:g-name-owner. Connect to the #GObject::notify signal"),
+                        "`GDBusProxy:g-name-owner`. Connect to the `GObject::notify` signal")
