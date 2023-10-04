@@ -17,6 +17,7 @@ Welcome to gi-docgen's documentation!
    linking
    attributes
    templates
+   content
    tools/index
 
 
