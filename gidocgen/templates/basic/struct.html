@@ -30,9 +30,9 @@
   </div>
 </div>
 
-{{ sidebar_block(struct.ctors, struct.name, "Constructors", "ctor", "ctor") }}
-{{ sidebar_block(struct.type_funcs, struct.name, "Functions", "func", "type_func") }}
-{{ sidebar_block(struct.methods, struct.name, "Instance methods", "method", "method") }}
+{% for section in sections %}
+  {{ sidebar_block(section.index, struct.name, section.title, section.section_class, section.section_fragment) }}
+{% endfor %}
 {% endblock %}
 
 {% macro navbar_block(elements, section_title, section_link) -%}

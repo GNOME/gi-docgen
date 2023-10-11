@@ -30,13 +30,9 @@
   </div>
 </div>
 
-{{ sidebar_block(class.ctors, class.name, "Constructors", "ctor", "ctor") }}
-{{ sidebar_block(class.type_funcs, class.name, "Functions", "func", "type_func") }}
-{{ sidebar_block(class.methods, class.name, "Instance methods", "method", "method") }}
-{{ sidebar_block(class.properties, class.name, "Properties", "property", "property") }}
-{{ sidebar_block(class.signals, class.name, "Signals", "signal", "signal") }}
-{{ sidebar_block(class.class_methods, class.name, "Class methods", "method", "class_method") }}
-{{ sidebar_block(class.virtual_methods, class.name, "Virtual methods", "method", "vfunc") }}
+{% for section in sections %}
+  {{ sidebar_block(section.index, class.name, section.title, section.section_class, section.section_fragment) }}
+{% endfor %}
 {% endblock %}
 
 {% macro navbar_block(elements, section_title, section_link) -%}
