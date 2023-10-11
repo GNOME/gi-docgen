@@ -134,6 +134,7 @@ MD_EXTENSIONS = [
 
     # Local extensions
     mdext.GtkDocExtension(),
+    mdext.AdmonitionExtension(),
 ]
 
 MD_EXTENSIONS_CONF = {

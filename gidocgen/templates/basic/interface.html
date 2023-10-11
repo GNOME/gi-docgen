@@ -30,12 +30,9 @@
   </div>
 </div>
 
-{{ sidebar_block(interface.type_funcs, interface.name, "Functions", "func", "type_func") }}
-{{ sidebar_block(interface.methods, interface.name, "Instance methods", "method", "method") }}
-{{ sidebar_block(interface.properties, interface.name, "Properties", "property", "property") }}
-{{ sidebar_block(interface.signals, interface.name, "Signals", "signal", "signal") }}
-{{ sidebar_block(interface.class_methods, interface.name, "Interface methods", "method", "class_method") }}
-{{ sidebar_block(interface.virtual_methods, interface.name, "Virtual methods", "method", "vfunc") }}
+{% for section in sections %}
+  {{ sidebar_block(section.index, interface.name, section.title, section.section_class, section.section_fragment) }}
+{% endfor %}
 {% endblock %}
 
 {% macro navbar_block(elements, section_title, section_link) -%}
