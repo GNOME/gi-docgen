@@ -12,10 +12,14 @@ All notable changes to this project will be documented in this file.
 - Parse default-value attribute [#103]
 - Test the gtk-doc sigil parsing
 - Support admonitions in docblocks [#170]
+- Add link to the extra content files location in the source repository [#118]
+- Search for GIR XML in `$GI_GIR_PATH` and `/usr/share/gir-1.0` [!196]
+- Add fallback for missing "since" [!198]
 
 ### Changed
 
 - Redesign the search results
+- Redesign the index for enumeration types
 
 ### Fixed
 
