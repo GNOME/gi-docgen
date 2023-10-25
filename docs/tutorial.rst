@@ -31,6 +31,8 @@ and you can use the ``--config`` command line option for gi-docgen.
 We begin with the ``library`` preamble:
 
 ::
+        # SPDX-FileCopyrightText: 2023 Your Name Here
+        # SPDX-License-Identifier: CC0-1.0
 
         [library]
         description = "The GTK toolkit"
@@ -41,6 +43,9 @@ We begin with the ``library`` preamble:
         website_url = "https://www.gtk.org"
 
 The keys above will be used in the main landing page for the library.
+
+The copyright and license for the documentation configuration should be
+specified using `SPDX syntax <https://reuse.software/tutorial/>`__.
 
 If your project has dependencies, and you wish to display them or cross-link
 types and symbols from your API reference, you will need to describe them using
@@ -118,6 +123,19 @@ wish to include in the generated API reference, you can use the ``extra`` sectio
           "images/appchooserdialog.png",
           ...
         ]
+
+Each additional Markdown file should have its copyright and license specified
+as metadata in its header:
+
+::
+
+        Title: An Extra Markdown File
+        SPDX-License-Identifier: LGPL-2.1-or-later
+        SPDX-FileCopyrightText: 2023 Your Name Here
+
+        # An Extra Markdown File
+
+        Content starts here…
 
 For more information about the project configuration, please see the
 :doc:`project-configuration` page.

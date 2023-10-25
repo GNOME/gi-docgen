@@ -154,6 +154,8 @@ The following keys are used, if found:
   JavaScript map with the name `baseURLs`:
 
 ::
+    # SPDX-FileCopyrightText: 2023 Your Name Here
+    # SPDX-License-Identifier: CC0-1.0
 
     baseURLs = [
       [ 'Pango', 'https://gnome.pages.gitlab.gnome.org/pango/Pango/' ],
