@@ -819,6 +819,8 @@ def default_search_paths():
         paths.append(os.path.join(xdg_data_home, "gir-1.0"))
     if xdg_data_dirs is not None:
         paths.extend([os.path.join(x, "gir-1.0") for x in xdg_data_dirs])
+    if sys.platform != 'win32' and '/usr/share/gir-1.0' not in paths:
+        paths.append('/usr/share/gir-1.0')
 
     return paths
 
