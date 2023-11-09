@@ -809,6 +809,9 @@ def default_search_paths():
 
     paths = []
     paths.append(os.getcwd())
+    gi_gir_path = os.environ.get('GI_GIR_PATH')
+    if gi_gir_path is not None:
+        paths.extend(gi_gir_path.split(os.pathsep))
     # Add sys.base_prefix when using MSYS2
     if sys.platform == 'win32' and 'GCC' in sys.version:
         paths.append(os.path.join(sys.base_prefix, 'share', 'gir-1.0'))
