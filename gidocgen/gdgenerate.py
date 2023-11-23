@@ -1866,6 +1866,7 @@ class TemplateMember:
         self.girname = member.name
         self.nick = member.nick
         self.value = member.value
+        self.available_since = member.available_since or enum.available_since
         if member.doc is not None:
             self.description = utils.preprocess_docs(member.doc.content, namespace)
             filename = member.doc.filename
