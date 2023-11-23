@@ -139,24 +139,23 @@
       </h4>
 
       <div class="docblock">
-      <table class="enum-members">
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Available since</th>
-        </tr>
-      {% for member in enum.members %}
-        <tr>
-          <td><a id="{{ member.girname }}" href="#{{ member.girname }}"><code title="Value: {{ member.value }}">{{ member.name }}</code></a></td>
-          <td>{{ member.description }}</td>
-          {% if member.available_since -%}
-          <td>{{ member.available_since }}</td>
-          {%- else -%}
-          <td>{{ namespace.version }}</td>
-          {%- endif %}
-        </tr>
-      {% endfor %}
-      </table>
+        <dl class="enum-members">
+        {% for member in enum.members %}
+          <dt><a id="{{ member.girname }}" href="#{{ member.girname }}"><code>{{ member.name }}</code></a></dt>
+          <dd>
+            <div>{{ member.description }}</div>
+            <ul>
+              <li>Value: <code>{{ member.value }}</code></li>
+              <li>Nickname: <code>{{ member.nick }}</code></li>
+              {% if member.available_since -%}
+              <li>Available since: {{ member.available_since }}</li>
+              {%- else -%}
+              <li>Available since: {{ namespace.version }}</li>
+              {%- endif %}
+            </ul>
+          </dd>
+        {% endfor %}
+        </dl>
       </div>
     </div>
 
