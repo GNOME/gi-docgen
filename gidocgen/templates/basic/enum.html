@@ -143,11 +143,17 @@
         <tr>
           <th>Name</th>
           <th>Description</th>
+          <th>Available since</th>
         </tr>
       {% for member in enum.members %}
         <tr>
           <td><a id="{{ member.girname }}" href="#{{ member.girname }}"><code title="Value: {{ member.value }}">{{ member.name }}</code></a></td>
           <td>{{ member.description }}</td>
+          {% if member.available_since -%}
+          <td>{{ member.available_since }}</td>
+          {%- else -%}
+          <td>{{ namespace.version }}</td>
+          {%- endif %}
         </tr>
       {% endfor %}
       </table>
