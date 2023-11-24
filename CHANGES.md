@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [2023.2] - 2023-11-24
+
+### Added
+
 - Use packaging module to properly compare versions
 - Add "implements" in class definition pseudocode
 - Ignore the first class instance struct field
@@ -32,8 +42,6 @@ All notable changes to this project will be documented in this file.
 - Hide build section if empty [#160]
 - Always explicitely use utf-8 when reading/writing files [!193]
 - use `color-scheme: dark` when in dark mode [!188]
-
-### Removed
 
 ## [2023.1] - 2023-01-06
 
