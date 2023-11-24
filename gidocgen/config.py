@@ -177,6 +177,10 @@ class GIDocConfig:
         return source_location.get('base_url', '')
 
     @property
+    def content_base_url(self):
+        return self.extra.get('content_base_url')
+
+    @property
     def file_format(self):
         source_location = self._config.get('source-location', {})
         return source_location.get('file_format', '{filename}#L{line}')
@@ -202,6 +206,10 @@ class GIDocConfig:
         endpoint = file_format.replace('{filename}', filename)
         endpoint = endpoint.replace('{line}', str(line))
         return urljoin(base_url, endpoint)
+
+    def content_link(self, content_file):
+        base_url = self.content_base_url
+        return urljoin(base_url, content_file)
 
     @property
     def objects(self):
