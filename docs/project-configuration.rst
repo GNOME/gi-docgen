@@ -148,6 +148,12 @@ The following keys are used, if found:
   ``--content-dir`` command line arguments. The files will be copied
   in the root directory of the namespace.
 
+``content_base_url`` = ``s``
+  The base URL for accessing a content file in the source code repository.
+  The final URL will use the base name of the content file. You can use
+  the ``origin`` field in the content metadata to control the base name of
+  the file when generating the URL.
+
 ``urlmap_file`` = ``s``
   Path of a JavaScript file that defines the mapping from namespaces
   to url prefixes for resolving links to external symbols, as a
