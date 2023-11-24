@@ -2707,13 +2707,15 @@ def gen_content_files(config, theme_config, content_dirs, output_dir, jinja_env,
         dst_data = utils.preprocess_docs(src_data, namespace, md=md)
         title = "\n".join(md.Meta.get("title", ["Unknown document"]))
 
+        origin = md.Meta.get("origin", file_name)
+
         content_file = file_name.replace(".md", ".html")
         dst_file = os.path.join(output_dir, content_file)
 
         content = {
             "abs_input_file": src_file,
             "abs_output_file": dst_file,
-            "source_file": file_name,
+            "source_file": origin,
             "output_file": content_file,
             "meta": md.Meta,
             "title": title,

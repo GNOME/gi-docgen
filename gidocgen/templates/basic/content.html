@@ -11,6 +11,15 @@
 
 {% block content %}
 <section id="main" class="content">
+  {% if content.title %}
+  <h4 id="title" style="display:flex;">
+    {{ content.title }}
+    <a href="#title" class="anchor"></a>
+    {% if CONFIG.content_base_url %}
+    <a class="srclink" title="go to source location" href="{{ CONFIG.content_link(content.source_file) }}">[src]</a>
+    {% endif %}
+  </h4>
+  {% endif %}
   <section>
     <div class="docblock">
     {{ content.data }}
