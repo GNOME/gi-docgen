@@ -6,9 +6,28 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Use packaging module to properly compare versions
+- Add "implements" in class definition pseudocode
+- Ignore the first class instance struct field
+- Parse default-value attribute [#103]
+- Test the gtk-doc sigil parsing
+- Support admonitions in docblocks [#170]
+
 ### Changed
 
+- Redesign the search results
+
 ### Fixed
+
+- Match dependencies list in the index and sidebar [!177]
+- Use KeyboardEvent.key to focus search input [#151]
+- Build fixes for subproject use [!185]
+- Remove display:flex from headings [#147]
+- Split transfer notes based on direction [#141]
+- Clarify signal flags [!189]
+- Hide build section if empty [#160]
+- Always explicitely use utf-8 when reading/writing files [!193]
+- use `color-scheme: dark` when in dark mode [!188]
 
 ### Removed
 

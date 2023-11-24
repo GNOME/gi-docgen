@@ -674,6 +674,7 @@ class GirParser:
         nick = node.attrib.get(_glibns("nick"))
 
         res = ast.Member(name=name, value=value, identifier=identifier, nick=nick)
+        res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
         return res
 
