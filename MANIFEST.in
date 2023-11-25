@@ -19,8 +19,8 @@ include docs/*.svg
 include docs/Makefile
 include examples/*.js
 include examples/*.toml
-include test/*.py
+include tests/*.py
 include meson_options.txt
 recursive-include docs *.rst
 recursive-include gidocgen/templates *
-recursive-include test/gir *
+recursive-include tests/data *

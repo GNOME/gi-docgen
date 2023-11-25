@@ -10,28 +10,28 @@ from gidocgen import gir, config
 class TestConfig(unittest.TestCase):
 
     def test_is_unstable(self):
-        conf = config.GIDocConfig("test/config/gtk4.toml")
+        conf = config.GIDocConfig("tests/data/config/gtk4.toml")
         self.assertFalse(conf.is_unstable("4.0"))
         self.assertFalse(conf.is_unstable("4.9"))
         self.assertTrue(conf.is_unstable("4.10"))
         self.assertTrue(conf.is_unstable("4.90"))
         self.assertTrue(conf.is_unstable("5.0"))
 
-        conf = config.GIDocConfig("test/config/gtk4-stable.toml")
+        conf = config.GIDocConfig("tests/data/config/gtk4-stable.toml")
         self.assertFalse(conf.is_unstable("4.0"))
         self.assertFalse(conf.is_unstable("4.9"))
         self.assertFalse(conf.is_unstable("4.10"))
         self.assertTrue(conf.is_unstable("4.90"))
         self.assertTrue(conf.is_unstable("5.0"))
 
-        conf = config.GIDocConfig("test/config/gtk5-beta.toml")
+        conf = config.GIDocConfig("tests/data/config/gtk5-beta.toml")
         self.assertFalse(conf.is_unstable("4.0"))
         self.assertFalse(conf.is_unstable("4.9"))
         self.assertFalse(conf.is_unstable("4.10"))
         self.assertFalse(conf.is_unstable("4.90"))
         self.assertTrue(conf.is_unstable("5.0"))
 
-        conf = config.GIDocConfig("test/config/libadwaita.toml")
+        conf = config.GIDocConfig("tests/data/config/libadwaita.toml")
         self.assertFalse(conf.is_unstable("0.3"))
         self.assertFalse(conf.is_unstable("1.2"))
         self.assertTrue(conf.is_unstable("1.3"))

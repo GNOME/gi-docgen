@@ -23,11 +23,11 @@ class TestLinkGenerator(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         paths = []
-        paths.extend([os.path.join(os.getcwd(), "test/gir")])
+        paths.extend([os.path.join(os.getcwd(), "tests/data/gir")])
         paths.extend(utils.default_search_paths())
 
         parser = gir.GirParser(search_paths=paths, error=False)
-        parser.parse(os.path.join(os.getcwd(), "test/gir", "GObject-2.0.gir"))
+        parser.parse(os.path.join(os.getcwd(), "tests/data/gir", "GObject-2.0.gir"))
 
         cls._repository = parser.get_repository()
 

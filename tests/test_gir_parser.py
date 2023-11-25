@@ -17,11 +17,11 @@ class TestGir(unittest.TestCase):
             paths = list(search_paths)
         else:
             paths = []
-            paths.extend([os.path.join(os.getcwd(), "test/gir")])
+            paths.extend([os.path.join(os.getcwd(), "tests/data/gir")])
             paths.extend(utils.default_search_paths())
 
         parser = gir.GirParser(search_paths=paths, error=False)
-        parser.parse(os.path.join(os.getcwd(), "test/gir", "Regress-1.0.gir"))
+        parser.parse(os.path.join(os.getcwd(), "tests/data/gir", "Regress-1.0.gir"))
 
         repo = parser.get_repository()
         self.assertIsNotNone(repo, "Parser error in Regress-1.0")
@@ -32,7 +32,7 @@ class TestGir(unittest.TestCase):
         """Same as test_gir_regress(), but using GI_GIR_PATH"""
 
         old_gi_gir_path = os.environ.get('GI_GIR_PATH')
-        os.environ['GI_GIR_PATH'] = os.path.join(os.getcwd(), "test/gir")
+        os.environ['GI_GIR_PATH'] = os.path.join(os.getcwd(), "tests/data/gir")
 
         try:
             paths = utils.default_search_paths()
