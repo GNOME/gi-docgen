@@ -10,10 +10,14 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+### Removed
+
+## [2023.3] - 2023-11-25
+
+### Fixed
+
 - Add missing dependency [#175]
 - Add missing test data to the source archive [#174]
-
-### Removed
 
 ## [2023.2] - 2023-11-24
 
