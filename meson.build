@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
 project('gi-docgen',
-  version: '2023.3',
+  version: '2023.4',
   meson_version: '>= 0.55.0',
 )
 
