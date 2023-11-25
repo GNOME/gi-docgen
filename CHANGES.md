@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Add missing dependency [#175]
+
 ### Removed
 
 ## [2023.2] - 2023-11-24
