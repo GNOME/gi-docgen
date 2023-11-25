@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Add missing dependency [#175]
+- Add missing test data to the source archive [#174]
 
 ### Removed
 
