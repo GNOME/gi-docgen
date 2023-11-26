@@ -46,6 +46,7 @@ class TomlConfig:
 class GIDocConfig:
     """Load and represent the configuration for gidocgen"""
     def __init__(self, config_file=None):
+        self._favicons = []
         self._config_file = config_file
 
         self._config = {}
@@ -258,6 +259,17 @@ class GIDocConfig:
     @property
     def generator(self):
         return f"{core.version}"
+
+    @property
+    def favicons(self):
+        if not self._favicons:
+            self._favicons = [
+                os.path.basename(p)
+                for p in self.content_images
+                if os.path.basename(p).startswith('favicon')
+            ]
+
+        return self._favicons
 
 
 class GITemplateConfig:

@@ -148,6 +148,10 @@ The following keys are used, if found:
   ``--content-dir`` command line arguments. The files will be copied
   in the root directory of the namespace.
 
+  Any image whose filename starts with ``favicon`` will be used as a favicon.
+  Icons whose name ends in ``{size}x{size}.png`` for sizes in 32, 128, 180
+  (iOS), and 192 (Android) will be special cased.
+
 ``content_base_url`` = ``s``
   The base URL for accessing a content file in the source code repository.
   The final URL will use the base name of the content file. You can use
