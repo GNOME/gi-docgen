@@ -39,18 +39,18 @@ Files: gidocgen/templates/basic/SourceCodePro*.woff
 Copyright: 2010, 2012  Adobe Systems Inc.
 License: OFL-1.1
 
-Files: test/gir/Utility-1.0.gir
+Files: tests/data/gir/Utility-1.0.gir
 Copyright: 2021  The gobject-introspection authors
 License: GPL-2.0-or-later
 
-Files: test/gir/Regress-1.0.gir
+Files: tests/data/gir/Regress-1.0.gir
 Copyright: 2021  The gobject-introspection authors
 License: GPL-2.0-or-later
 
-Files: test/gir/GLib-2.0.gir test/gir/GObject-2.0.gir test/gir/Gio-2.0.gir
+Files: tests/data/gir/GLib-2.0.gir tests/data/gir/GObject-2.0.gir tests/data/gir/Gio-2.0.gir
 Copyright: 2021  The GLib authors
 License: LGPL-2.0-or-later
 
-Files: test/gir/cairo-1.0.gir
+Files: tests/data/gir/cairo-1.0.gir
 Copyright: 2021  The gobject-introspection authors
 License: LGPL-2.0-or-later OR MPL-1.1
