@@ -17,6 +17,14 @@ from . import config, gir, log, utils
 from . import gdgenindices
 
 
+class CallableType:
+    CALLBACK = 0
+    FUNCTION = 1
+    METHOD = 2
+    CLASS_METHOD = 3
+    SIGNAL = 4
+
+
 HELP_MSG = "Generates the reference"
 
 MISSING_DESCRIPTION = "No description available."
@@ -31,61 +39,93 @@ STRING_ELEMENT_TYPES = {
     'filename': 'Each element is a file system path, using the OS encoding.',
 }
 
-FUNCTION_IN_ARG_TRANSFER_MODES = {
-    'none': 'The data is owned by the caller of the function.',
-    'container': 'The called function takes ownership of the data container, but not the data inside it.',
-    'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
+IN_ARG_TRANSFER_MODES = {
+    CallableType.CALLBACK: {
+        'none': 'The data is owned by the caller of the function.',
+        'container': 'The called function takes ownership of the data container, but not the data inside it.',
+        'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
+    },
+    CallableType.FUNCTION: {
+        'none': 'The data is owned by the caller of the function.',
+        'container': 'The called function takes ownership of the data container, but not the data inside it.',
+        'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
+    },
+    CallableType.METHOD: {
+        'none': 'The data is owned by the caller of the method.',
+        'container': 'The instance takes ownership of the data container, but not the data inside it.',
+        'full': 'The instance takes ownership of the data, and is responsible for freeing it.',
+    },
+    CallableType.CLASS_METHOD: {
+        'none': 'The data is owned by the caller of the method.',
+        'container': 'The class takes ownership of the data container, but not the data inside it.',
+        'full': 'The class takes ownership of the data, and is responsible for freeing it.',
+    },
+    CallableType.SIGNAL: {
+        'none': 'The data is owned by the caller of the function.',
+        'container': 'The called function takes ownership of the data container, but not the data inside it.',
+        'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
+    },
 }
 
-METHOD_IN_ARG_TRANSFER_MODES = {
-    'none': 'The data is owned by the caller of the method.',
-    'container': 'The instance takes ownership of the data container, but not the data inside it.',
-    'full': 'The instance takes ownership of the data, and is responsible for freeing it.',
+OUT_ARG_TRANSFER_MODES = {
+    CallableType.CALLBACK: {
+        'none': 'The returned data is owned by the function.',
+        'container': 'The caller of the function takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the returned data, and is responsible for freeing it.',
+    },
+    CallableType.FUNCTION: {
+        'none': 'The returned data is owned by the function.',
+        'container': 'The caller of the function takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the returned data, and is responsible for freeing it.',
+    },
+    CallableType.METHOD: {
+        'none': 'The returned data is owned by the instance.',
+        'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
+    },
+    CallableType.CLASS_METHOD: {
+        'none': 'The returned data is owned by the class.',
+        'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
+    },
+    CallableType.SIGNAL: {
+        'none': 'The returned data is owned by the function.',
+        'container': 'The caller of the function takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the returned data, and is responsible for freeing it.',
+    },
 }
 
-CLASS_METHOD_IN_ARG_TRANSFER_MODES = {
-    'none': 'The data is owned by the caller of the method.',
-    'container': 'The class takes ownership of the data container, but not the data inside it.',
-    'full': 'The class takes ownership of the data, and is responsible for freeing it.',
-}
-
-FUNCTION_OUT_ARG_TRANSFER_MODES = {
-    'none': 'The returned data is owned by the function.',
-    'container': 'The caller of the function takes ownership of the returned data container, but not the data inside it.',
-    'full': 'The caller of the function takes ownership of the returned data, and is responsible for freeing it.',
-}
-
-METHOD_OUT_ARG_TRANSFER_MODES = {
-    'none': 'The returned data is owned by the instance.',
-    'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
-    'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
-}
-
-CLASS_METHOD_OUT_ARG_TRANSFER_MODES = {
-    'none': 'The returned data is owned by the class.',
-    'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
-    'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
-}
-
-RETVAL_TRANSFER_MODES = {
-    'none': 'The data is owned by the called function.',
-    'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
-    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
-    'floating': 'The returned data has a floating reference.',
-}
-
-METHOD_RETVAL_TRANSFER_MODES = {
-    'none': 'The returned data is owned by the instance.',
-    'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
-    'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
-    'floating': 'The returned data has a floating reference.',
-}
-
-CLASS_METHOD_RETVAL_TRANSFER_MODES = {
-    'none': 'The returned data is owned by the class.',
-    'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
-    'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
-    'floating': 'The returned data has a floating reference.',
+RETURN_TRANSFER_MODES = {
+    CallableType.CALLBACK: {
+        'none': 'The data is owned by the called function.',
+        'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+        'floating': 'The returned data has a floating reference.',
+    },
+    CallableType.FUNCTION: {
+        'none': 'The data is owned by the called function.',
+        'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+        'floating': 'The returned data has a floating reference.',
+    },
+    CallableType.METHOD: {
+        'none': 'The returned data is owned by the instance.',
+        'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
+        'floating': 'The returned data has a floating reference.',
+    },
+    CallableType.CLASS_METHOD: {
+        'none': 'The returned data is owned by the class.',
+        'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
+        'floating': 'The returned data has a floating reference.',
+    },
+    CallableType.SIGNAL: {
+        'none': 'The data is owned by the called function.',
+        'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+        'floating': 'The returned data has a floating reference.',
+    },
 }
 
 DIRECTION_MODES = {
@@ -137,34 +177,12 @@ def type_name_to_cname(fqtn, is_pointer=False):
     return "".join(res)
 
 
-class CallableType:
-    CALLBACK = 0
-    FUNCTION = 1
-    METHOD = 2
-    CLASS_METHOD = 3
-    SIGNAL = 4
-
-
 def transfer_note(transfer, direction, method=CallableType.FUNCTION):
     if direction in ['out', 'inout']:
-        if method == CallableType.FUNCTION:
-            return FUNCTION_OUT_ARG_TRANSFER_MODES[transfer]
-        elif method == CallableType.METHOD:
-            return METHOD_OUT_ARG_TRANSFER_MODES[transfer]
-        elif method == CallableType.CLASS_METHOD:
-            return CLASS_METHOD_OUT_ARG_TRANSFER_MODES[transfer]
-        else:
-            return FUNCTION_OUT_ARG_TRANSFER_MODES[transfer]
+        mode = OUT_ARG_TRANSFER_MODES[method]
     else:
-        if method == CallableType.FUNCTION:
-            return FUNCTION_IN_ARG_TRANSFER_MODES[transfer]
-        elif method == CallableType.METHOD:
-            return METHOD_IN_ARG_TRANSFER_MODES[transfer]
-        elif method == CallableType.CLASS_METHOD:
-            return CLASS_METHOD_IN_ARG_TRANSFER_MODES[transfer]
-        else:
-            return FUNCTION_IN_ARG_TRANSFER_MODES[transfer]
-    return None
+        mode = IN_ARG_TRANSFER_MODES[method]
+    return mode.get(transfer)
 
 
 def gen_index_func(func, namespace, md=None):
@@ -738,12 +756,8 @@ class TemplateReturnValue:
         self.is_list = isinstance(retval.target, gir.ListType)
         self.is_list_model = self.type_name in ['Gio.ListModel', 'GListModel']
         self.transfer = retval.transfer or 'none'
-        if callable_type == CallableType.METHOD:
-            self.transfer_note = METHOD_RETVAL_TRANSFER_MODES[retval.transfer or 'none']
-        elif callable_type == CallableType.CLASS_METHOD:
-            self.transfer_note = CLASS_METHOD_RETVAL_TRANSFER_MODES[retval.transfer or 'none']
-        else:
-            self.transfer_note = RETVAL_TRANSFER_MODES[retval.transfer or 'none']
+        transfer_mode = RETURN_TRANSFER_MODES[callable_type]
+        self.transfer_note = transfer_mode.get(self.transfer)
         self.nullable = retval.nullable
         if self.is_array:
             self.value_type = retval.target.value_type.name
