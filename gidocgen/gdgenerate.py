@@ -17,6 +17,14 @@ from . import config, gir, log, utils
 from . import gdgenindices
 
 
+class CallableType:
+    CALLBACK = 0
+    FUNCTION = 1
+    METHOD = 2
+    CLASS_METHOD = 3
+    SIGNAL = 4
+
+
 HELP_MSG = "Generates the reference"
 
 MISSING_DESCRIPTION = "No description available."
@@ -31,42 +39,93 @@ STRING_ELEMENT_TYPES = {
     'filename': 'Each element is a file system path, using the OS encoding.',
 }
 
-FUNCTION_IN_ARG_TRANSFER_MODES = {
-    'none': 'The data is owned by the caller of the function.',
-    'container': 'The called function takes ownership of the data container, but not the data inside it.',
-    'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
+IN_ARG_TRANSFER_MODES = {
+    CallableType.CALLBACK: {
+        'none': 'The data is owned by the caller of the function.',
+        'container': 'The called function takes ownership of the data container, but not the data inside it.',
+        'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
+    },
+    CallableType.FUNCTION: {
+        'none': 'The data is owned by the caller of the function.',
+        'container': 'The called function takes ownership of the data container, but not the data inside it.',
+        'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
+    },
+    CallableType.METHOD: {
+        'none': 'The data is owned by the caller of the method.',
+        'container': 'The instance takes ownership of the data container, but not the data inside it.',
+        'full': 'The instance takes ownership of the data, and is responsible for freeing it.',
+    },
+    CallableType.CLASS_METHOD: {
+        'none': 'The data is owned by the caller of the method.',
+        'container': 'The class takes ownership of the data container, but not the data inside it.',
+        'full': 'The class takes ownership of the data, and is responsible for freeing it.',
+    },
+    CallableType.SIGNAL: {
+        'none': 'The data is owned by the caller of the function.',
+        'container': 'The called function takes ownership of the data container, but not the data inside it.',
+        'full': 'The called function takes ownership of the data, and is responsible for freeing it.',
+    },
 }
 
-METHOD_IN_ARG_TRANSFER_MODES = {
-    'none': 'The data is owned by the caller of the method.',
-    'container': 'The instance takes ownership of the data container, but not the data inside it.',
-    'full': 'The instance takes ownership of the data, and is responsible for freeing it.',
+OUT_ARG_TRANSFER_MODES = {
+    CallableType.CALLBACK: {
+        'none': 'The returned data is owned by the function.',
+        'container': 'The caller of the function takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the returned data, and is responsible for freeing it.',
+    },
+    CallableType.FUNCTION: {
+        'none': 'The returned data is owned by the function.',
+        'container': 'The caller of the function takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the returned data, and is responsible for freeing it.',
+    },
+    CallableType.METHOD: {
+        'none': 'The returned data is owned by the instance.',
+        'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
+    },
+    CallableType.CLASS_METHOD: {
+        'none': 'The returned data is owned by the class.',
+        'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
+    },
+    CallableType.SIGNAL: {
+        'none': 'The returned data is owned by the function.',
+        'container': 'The caller of the function takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the returned data, and is responsible for freeing it.',
+    },
 }
 
-FUNCTION_OUT_ARG_TRANSFER_MODES = {
-    'none': 'The data is owned by the function.',
-    'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
-    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
-}
-
-METHOD_OUT_ARG_TRANSFER_MODES = {
-    'none': 'The data is owned by the instance.',
-    'container': 'The caller of the method takes ownership of the data container, but not the data inside it.',
-    'full': 'The caller of the method takes ownership of the data, and is responsible for freeing it.',
-}
-
-RETVAL_TRANSFER_MODES = {
-    'none': 'The data is owned by the called function.',
-    'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
-    'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
-    'floating': 'The returned data has a floating reference.',
-}
-
-METHOD_RETVAL_TRANSFER_MODES = {
-    'none': 'The data is owned by the instance.',
-    'container': 'The caller of the method takes ownership of the data container, but not the data inside it.',
-    'full': 'The caller of the method takes ownership of the data, and is responsible for freeing it.',
-    'floating': 'The returned data has a floating reference.',
+RETURN_TRANSFER_MODES = {
+    CallableType.CALLBACK: {
+        'none': 'The data is owned by the called function.',
+        'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+        'floating': 'The returned data has a floating reference.',
+    },
+    CallableType.FUNCTION: {
+        'none': 'The data is owned by the called function.',
+        'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+        'floating': 'The returned data has a floating reference.',
+    },
+    CallableType.METHOD: {
+        'none': 'The returned data is owned by the instance.',
+        'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
+        'floating': 'The returned data has a floating reference.',
+    },
+    CallableType.CLASS_METHOD: {
+        'none': 'The returned data is owned by the class.',
+        'container': 'The caller of the method takes ownership of the returned data container, but not the data inside it.',
+        'full': 'The caller of the method takes ownership of the returned data, and is responsible for freeing it.',
+        'floating': 'The returned data has a floating reference.',
+    },
+    CallableType.SIGNAL: {
+        'none': 'The data is owned by the called function.',
+        'container': 'The caller of the function takes ownership of the data container, but not the data inside it.',
+        'full': 'The caller of the function takes ownership of the data, and is responsible for freeing it.',
+        'floating': 'The returned data has a floating reference.',
+    },
 }
 
 DIRECTION_MODES = {
@@ -118,18 +177,12 @@ def type_name_to_cname(fqtn, is_pointer=False):
     return "".join(res)
 
 
-def transfer_note(transfer, direction, method=False):
+def transfer_note(transfer, direction, method=CallableType.FUNCTION):
     if direction in ['out', 'inout']:
-        if method:
-            return METHOD_OUT_ARG_TRANSFER_MODES[transfer]
-        else:
-            return FUNCTION_OUT_ARG_TRANSFER_MODES[transfer]
+        mode = OUT_ARG_TRANSFER_MODES[method]
     else:
-        if method:
-            return METHOD_IN_ARG_TRANSFER_MODES[transfer]
-        else:
-            return FUNCTION_IN_ARG_TRANSFER_MODES[transfer]
-    return None
+        mode = IN_ARG_TRANSFER_MODES[method]
+    return mode.get(transfer)
 
 
 def gen_index_func(func, namespace, md=None):
@@ -578,7 +631,7 @@ class TemplateProperty:
 
 
 class TemplateArgument:
-    def __init__(self, namespace, call, argument):
+    def __init__(self, namespace, call, argument, callable_type):
         self.name = argument.name
         self.type_name = argument.target.name
         self.is_array = isinstance(argument.target, gir.ArrayType)
@@ -617,7 +670,7 @@ class TemplateArgument:
         self.direction = argument.direction or 'in'
         self.direction_note = DIRECTION_MODES[argument.direction]
         self.transfer = argument.transfer or 'none'
-        self.transfer_note = transfer_note(self.transfer, self.direction, method=isinstance(call, gir.Method))
+        self.transfer_note = transfer_note(self.transfer, self.direction, callable_type)
         self.optional = argument.optional
         self.nullable = argument.nullable
         self.scope = SCOPE_MODES[argument.scope or 'none']
@@ -692,7 +745,7 @@ class TemplateArgument:
 
 
 class TemplateReturnValue:
-    def __init__(self, namespace, call, retval):
+    def __init__(self, namespace, call, retval, callable_type):
         self.name = retval.name
         self.type_name = retval.target.name
         self.type_cname = retval.target.ctype
@@ -703,10 +756,8 @@ class TemplateReturnValue:
         self.is_list = isinstance(retval.target, gir.ListType)
         self.is_list_model = self.type_name in ['Gio.ListModel', 'GListModel']
         self.transfer = retval.transfer or 'none'
-        if isinstance(call, gir.Method):
-            self.transfer_note = METHOD_RETVAL_TRANSFER_MODES[retval.transfer or 'none']
-        else:
-            self.transfer_note = RETVAL_TRANSFER_MODES[retval.transfer or 'none']
+        transfer_mode = RETURN_TRANSFER_MODES[callable_type]
+        self.transfer_note = transfer_mode.get(self.transfer)
         self.nullable = retval.nullable
         if self.is_array:
             self.value_type = retval.target.value_type.name
@@ -792,11 +843,11 @@ class TemplateSignal:
 
         self.arguments = []
         for arg in signal.parameters:
-            self.arguments.append(TemplateArgument(namespace, signal, arg))
+            self.arguments.append(TemplateArgument(namespace, signal, arg, CallableType.SIGNAL))
 
         self.return_value = None
         if not isinstance(signal.return_value.target, gir.VoidType):
-            self.return_value = TemplateReturnValue(namespace, signal, signal.return_value)
+            self.return_value = TemplateReturnValue(namespace, signal, signal.return_value, CallableType.SIGNAL)
 
         self.stability = signal.stability
         self.attributes = signal.attributes
@@ -846,15 +897,15 @@ class TemplateMethod:
 
         self.throws = method.throws
 
-        self.instance_parameter = TemplateArgument(namespace, method, method.instance_param)
+        self.instance_parameter = TemplateArgument(namespace, method, method.instance_param, CallableType.METHOD)
 
         self.arguments = []
         for arg in method.parameters:
-            self.arguments.append(TemplateArgument(namespace, method, arg))
+            self.arguments.append(TemplateArgument(namespace, method, arg, CallableType.METHOD))
 
         self.return_value = None
         if not isinstance(method.return_value.target, gir.VoidType):
-            self.return_value = TemplateReturnValue(namespace, method, method.return_value)
+            self.return_value = TemplateReturnValue(namespace, method, method.return_value, CallableType.METHOD)
 
         self.stability = method.stability
         self.available_since = method.available_since or type_.available_since
@@ -994,15 +1045,15 @@ class TemplateClassMethod:
         else:
             self.description = MISSING_DESCRIPTION
 
-        self.instance_parameter = TemplateArgument(namespace, method, method.instance_param)
+        self.instance_parameter = TemplateArgument(namespace, method, method.instance_param, CallableType.CLASS_METHOD)
 
         self.arguments = []
         for arg in method.parameters:
-            self.arguments.append(TemplateArgument(namespace, method, arg))
+            self.arguments.append(TemplateArgument(namespace, method, arg, CallableType.CLASS_METHOD))
 
         self.return_value = None
         if not isinstance(method.return_value.target, gir.VoidType):
-            self.return_value = TemplateReturnValue(namespace, method, method.return_value)
+            self.return_value = TemplateReturnValue(namespace, method, method.return_value, CallableType.CLASS_METHOD)
 
         self.stability = method.stability
         self.attributes = method.attributes
@@ -1072,11 +1123,11 @@ class TemplateFunction:
 
         self.arguments = []
         for arg in func.parameters:
-            self.arguments.append(TemplateArgument(namespace, func, arg))
+            self.arguments.append(TemplateArgument(namespace, func, arg, CallableType.FUNCTION))
 
         self.return_value = None
         if not isinstance(func.return_value.target, gir.VoidType):
-            self.return_value = TemplateReturnValue(namespace, func, func.return_value)
+            self.return_value = TemplateReturnValue(namespace, func, func.return_value, CallableType.FUNCTION)
 
         self.stability = func.stability
         self.attributes = func.attributes
@@ -1161,11 +1212,11 @@ class TemplateCallback:
 
         self.arguments = []
         for arg in cb.parameters:
-            self.arguments.append(TemplateArgument(namespace, cb, arg))
+            self.arguments.append(TemplateArgument(namespace, cb, arg, CallableType.CALLBACK))
 
         self.return_value = None
         if not isinstance(cb.return_value.target, gir.VoidType):
-            self.return_value = TemplateReturnValue(namespace, cb, cb.return_value)
+            self.return_value = TemplateReturnValue(namespace, cb, cb.return_value, CallableType.CALLBACK)
 
         self.throws = cb.throws
 
