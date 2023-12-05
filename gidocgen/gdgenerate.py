@@ -443,7 +443,7 @@ class TemplateConstant:
             line = const.doc.line
             const.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.stability = const.stability
         self.attributes = const.attributes
@@ -505,7 +505,7 @@ class TemplateProperty:
             line = prop.doc.line
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.stability = prop.stability
         self.available_since = prop.available_since or namespace.version
@@ -699,7 +699,7 @@ class TemplateArgument:
             self.summary = utils.preprocess_docs(argument.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(argument.doc.content, namespace)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
         if self.is_array:
             name = self.value_type
         elif self.is_list:
@@ -779,7 +779,7 @@ class TemplateReturnValue:
             self.summary = utils.preprocess_docs(retval.doc.content, namespace, summary=True)
             self.description = utils.preprocess_docs(retval.doc.content, namespace)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
         self.introspectable = retval.introspectable
         if self.is_array:
             name = self.value_type
@@ -832,7 +832,7 @@ class TemplateSignal:
             line = signal.doc.line
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.is_detailed = signal.detailed
         self.is_action = signal.action
@@ -893,7 +893,7 @@ class TemplateMethod:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.throws = method.throws
 
@@ -1043,7 +1043,7 @@ class TemplateClassMethod:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.instance_parameter = TemplateArgument(namespace, method, method.instance_param, CallableType.CLASS_METHOD)
 
@@ -1119,7 +1119,7 @@ class TemplateFunction:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.arguments = []
         for arg in func.parameters:
@@ -1208,7 +1208,7 @@ class TemplateCallback:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.arguments = []
         for arg in cb.parameters:
@@ -1292,7 +1292,7 @@ class TemplateField:
         if field.doc is not None:
             self.description = utils.preprocess_docs(field.doc.content, namespace)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
         self.introspectable = field.introspectable
 
 
@@ -1315,7 +1315,7 @@ class TemplateInterface:
             self.fqtn = f"{self.namespace}.{self.name}"
             self.requires = "GObject.Object"
             self.link_prefix = "iface"
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
             return
 
         md = markdown.Markdown(extensions=utils.MD_EXTENSIONS,
@@ -1362,7 +1362,7 @@ class TemplateInterface:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.stability = interface.stability
         self.attributes = interface.attributes
@@ -1385,7 +1385,7 @@ class TemplateInterface:
             if self.class_struct.doc:
                 self.class_description = utils.preprocess_docs(self.class_struct.doc.content, namespace, md=md)
             else:
-                self.class_description = MISSING_DESCRIPTION
+                self.class_description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
             self.class_fields = []
             for field in self.class_struct.fields:
                 if not field.private:
@@ -1518,7 +1518,7 @@ class TemplateClass:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.stability = cls.stability
         self.attributes = cls.attributes
@@ -1570,7 +1570,7 @@ class TemplateClass:
             if self.class_struct.doc:
                 self.class_description = utils.preprocess_docs(self.class_struct.doc.content, namespace, md=md)
             else:
-                self.class_description = MISSING_DESCRIPTION
+                self.class_description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
             self.class_fields = []
             for field in self.class_struct.fields:
                 if not field.private:
@@ -1740,7 +1740,7 @@ class TemplateRecord:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.stability = record.stability
         self.attributes = record.attributes
@@ -1819,7 +1819,7 @@ class TemplateUnion:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.stability = union.stability
         self.attributes = union.attributes
@@ -1896,7 +1896,7 @@ class TemplateAlias:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.stability = alias.stability
         self.attributes = alias.attributes
@@ -1932,7 +1932,7 @@ class TemplateMember:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
 
 class TemplateEnum:
@@ -1959,7 +1959,7 @@ class TemplateEnum:
                 filename = filename.replace('../', '')
             self.docs_location = (filename, line)
         else:
-            self.description = MISSING_DESCRIPTION
+            self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.stability = enum.stability
         self.attributes = enum.attributes
