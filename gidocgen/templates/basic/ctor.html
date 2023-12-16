@@ -128,7 +128,7 @@
             <code>{{ arg.type_cname }}</code>
             {%- endif -%}
             </p>
-            <p>{{ arg.description|safe }}</p>
+            {{ arg.description|safe }}
             <table>
             {% if arg.direction != "in" %}<tr><td title="direction: {{ arg.direction}}">{{ arg.direction_note }}</td></tr>{% endif %}
             {% if arg.direction == "in" and arg.nullable %}<tr><td>The argument can be <code>NULL</code>.</td></tr>{% endif %}
@@ -180,7 +180,7 @@
             <code>{{ type_func.return_value.type_cname }}</code>
             {%- endif -%}
             </p>
-            <p>{{ type_func.return_value.description|safe }}</p>
+            {{ type_func.return_value.description|safe }}
           </div>
           <div>
             <table>
