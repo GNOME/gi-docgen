@@ -333,6 +333,7 @@
             <div class="docblock">
               {{ method.summary }}
             </div>
+            {%- if ancestor.namespace == namespace.name %}
             <div class="docblock">
               <p>
               {%- if CONFIG.is_unstable(method.available_since) -%}
@@ -346,6 +347,7 @@
               {%- endif -%}
               </p>
             </div>
+            {% endif -%}
           {% else %}
             <div class="docblock">
               <p>Please see&nbsp;
@@ -381,6 +383,7 @@
             <div class="docblock">
               {{ method.summary }}
             </div>
+            {%- if iface.namespace == namespace.name %}
             <div class="docblock">
               <p>
               {%- if CONFIG.is_unstable(method.available_since) -%}
@@ -394,6 +397,7 @@
               {%- endif -%}
               </p>
             </div>
+            {% endif -%}
           {% else %}
             <div class="docblock">
               <p><em>Please see&nbsp;
@@ -464,6 +468,7 @@
             <div class="docblock">
               {{ property.summary }}
             </div>
+            {%- if ancestor.namespace == namespace.name %}
             <div class="docblock">
               <p>
               {%- if CONFIG.is_unstable(property.available_since) -%}
@@ -477,6 +482,7 @@
               {%- endif -%}
               </p>
             </div>
+            {% endif -%}
           {% endfor %}
           </div>
         </div>
@@ -502,6 +508,7 @@
             <div class="docblock">
               {{ property.summary }}
             </div>
+            {%- if iface.namespace == namespace.name %}
             <div class="docblock">
               <p>
               {%- if CONFIG.is_unstable(property.available_since) -%}
@@ -515,6 +522,7 @@
               {%- endif -%}
               </p>
             </div>
+            {% endif -%}
           {% endfor %}
           </div>
         </div>
@@ -576,6 +584,7 @@
             <div class="docblock">
               {{ signal.summary }}
             </div>
+            {%- if ancestor.namespace == namespace.name %}
             <div class="docblock">
               <p>
               {%- if CONFIG.is_unstable(signal.available_since) -%}
@@ -589,6 +598,7 @@
               {%- endif -%}
               </p>
             </div>
+            {% endif -%}
           {% endfor %}
           </div>
         </div>
@@ -614,6 +624,7 @@
             <div class="docblock">
               {{ signal.summary }}
             </div>
+            {%- if iface.namespace == namespace.name %}
             <div class="docblock">
               <p>
               {%- if CONFIG.is_unstable(signal.available_since) -%}
@@ -627,6 +638,7 @@
               {%- endif -%}
               </p>
             </div>
+            {% endif -%}
           {% endfor %}
           </div>
         </div>
