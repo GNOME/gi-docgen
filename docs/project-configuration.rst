@@ -33,6 +33,11 @@ The following keys are used, if found:
   library, as opposed to the version of the API as represented by the
   namespace.
 
+``earliest_version`` = ``s``
+  The version to use for Since tags when no Since annotation is present
+  for the API. By default, the project's API version will be used. Set
+  this key if using the API version is not correct for your project.
+
 ``authors`` = ``s``
   The name of the authors of the library, as a string.
 

@@ -92,6 +92,10 @@ class GIDocConfig:
         return self.library.get('version', 'Unknown')
 
     @property
+    def earliest_version(self):
+        return self.library.get('earliest_version', '')
+
+    @property
     def authors(self):
         return self.library.get('authors', 'Unknown authors')
 

@@ -185,7 +185,13 @@ def transfer_note(transfer, direction, method=CallableType.FUNCTION):
     return mode.get(transfer)
 
 
-def gen_index_func(func, namespace, md=None):
+def earliest_since_version(namespace, config):
+    if config.earliest_version:
+        return config.earliest_version
+    return namespace.version
+
+
+def gen_index_func(func, namespace, config, md=None):
     """Generates a dictionary with the callable metadata required by an index template"""
     name = func.name
     if getattr(func, "identifier"):
@@ -199,7 +205,7 @@ def gen_index_func(func, namespace, md=None):
     if func.available_since is not None:
         available_since = func.available_since
     else:
-        available_since = namespace.version
+        available_since = earliest_since_version(namespace, config)
     if func.deprecated:
         (version, msg) = func.deprecated_since
         deprecated_since = version
@@ -214,7 +220,7 @@ def gen_index_func(func, namespace, md=None):
     }
 
 
-def gen_index_property(prop, namespace, md=None):
+def gen_index_property(prop, namespace, config, md=None):
     name = prop.name
     if prop.doc is not None:
         summary = utils.preprocess_docs(prop.doc.content, namespace, summary=True, md=md)
@@ -223,7 +229,7 @@ def gen_index_property(prop, namespace, md=None):
     if prop.available_since is not None:
         available_since = prop.available_since
     else:
-        available_since = namespace.version
+        available_since = earliest_since_version(namespace, config)
     if prop.deprecated:
         (version, msg) = prop.deprecated_since
         deprecated_since = version
@@ -237,7 +243,7 @@ def gen_index_property(prop, namespace, md=None):
     }
 
 
-def gen_index_signal(signal, namespace, md=None):
+def gen_index_signal(signal, namespace, config, md=None):
     name = signal.name
     if signal.doc is not None:
         summary = utils.preprocess_docs(signal.doc.content, namespace, summary=True, md=md)
@@ -246,7 +252,7 @@ def gen_index_signal(signal, namespace, md=None):
     if signal.available_since is not None:
         available_since = signal.available_since
     else:
-        available_since = namespace.version
+        available_since = earliest_since_version(namespace, config)
     if signal.deprecated:
         (version, msg) = signal.deprecated_since
         deprecated_since = version
@@ -295,15 +301,15 @@ def gen_index_ancestor(ancestor_type, namespace, config, md=None):
         if n_methods > 0 and n_methods < 24:
             for m in ancestor.methods:
                 if not config.is_hidden(ancestor_name, "method", m.name):
-                    methods.append(gen_index_func(m, ancestor_ns, md))
+                    methods.append(gen_index_func(m, ancestor_ns, config, md))
         for p in ancestor.properties.values():
             if not config.is_hidden(ancestor_name, "property", p.name):
                 n_properties += 1
-                properties.append(gen_index_property(p, ancestor_ns, md))
+                properties.append(gen_index_property(p, ancestor_ns, config, md))
         for s in ancestor.signals.values():
             if not config.is_hidden(ancestor_name, "signal", s.name):
                 n_signals += 1
-                signals.append(gen_index_signal(s, ancestor_ns, md))
+                signals.append(gen_index_signal(s, ancestor_ns, config, md))
     return {
         "namespace": ancestor_ns_name,
         "name": ancestor_name,
@@ -351,15 +357,15 @@ def gen_index_implements(iface_type, namespace, config, md=None):
         if n_methods > 0 and n_methods < 24:
             for m in iface.methods:
                 if not config.is_hidden(iface_name, "method", m.name):
-                    methods.append(gen_index_func(m, iface_ns, md))
+                    methods.append(gen_index_func(m, iface_ns, config, md))
         for p in iface.properties.values():
             if not config.is_hidden(iface_name, "property", p.name):
                 n_properties += 1
-                properties.append(gen_index_property(p, iface_ns, md))
+                properties.append(gen_index_property(p, iface_ns, config, md))
         for s in iface.signals.values():
             if not config.is_hidden(iface.name, "signal", s.name):
                 n_signals += 1
-                signals.append(gen_index_signal(s, iface_ns, md))
+                signals.append(gen_index_signal(s, iface_ns, config, md))
     return {
         "namespace": iface_ns_name,
         "name": iface_name,
@@ -425,7 +431,7 @@ def gen_type_link(repository, namespace, name, ctype=None):
 
 
 class TemplateConstant:
-    def __init__(self, namespace, const):
+    def __init__(self, namespace, const, config):
         self.value = const.value
         self.identifier = const.ctype
         self.type_name = const.target.name
@@ -447,7 +453,7 @@ class TemplateConstant:
 
         self.stability = const.stability
         self.attributes = const.attributes
-        self.available_since = const.available_since or namespace.version
+        self.available_since = const.available_since or earliest_since_version(namespace, config)
         if const.deprecated:
             (version, msg) = const.deprecated_since
             self.deprecated_since = {
@@ -469,7 +475,7 @@ class TemplateConstant:
 
 
 class TemplateProperty:
-    def __init__(self, namespace, type_, prop):
+    def __init__(self, namespace, type_, prop, config):
         self.name = prop.name
         self.is_fundamental = prop.target.is_fundamental
         self.is_array = isinstance(prop.target, gir.ArrayType)
@@ -508,7 +514,7 @@ class TemplateProperty:
             self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
         self.stability = prop.stability
-        self.available_since = prop.available_since or namespace.version
+        self.available_since = prop.available_since or earliest_since_version(namespace, config)
         if prop.deprecated:
             (version, msg) = prop.deprecated_since
             self.deprecated_since = {
@@ -818,7 +824,7 @@ class TemplateReturnValue:
 
 
 class TemplateSignal:
-    def __init__(self, namespace, type_, signal):
+    def __init__(self, namespace, type_, signal, config):
         self.name = signal.name
         self.type_cname = type_.base_ctype
         self.identifier = signal.name.replace("-", "_")
@@ -851,7 +857,7 @@ class TemplateSignal:
 
         self.stability = signal.stability
         self.attributes = signal.attributes
-        self.available_since = signal.available_since or namespace.version
+        self.available_since = signal.available_since or earliest_since_version(namespace, config)
         if signal.deprecated:
             (version, msg) = signal.deprecated_since
             self.deprecated_since = {
@@ -880,7 +886,7 @@ class TemplateSignal:
 
 
 class TemplateMethod:
-    def __init__(self, namespace, type_, method):
+    def __init__(self, namespace, type_, method, config):
         self.name = method.name
         self.identifier = method.identifier
 
@@ -1027,7 +1033,7 @@ class TemplateMethod:
 
 
 class TemplateClassMethod:
-    def __init__(self, namespace, cls, method):
+    def __init__(self, namespace, cls, method, config):
         self.name = method.name
         self.identifier = method.identifier
         self.class_type_cname = namespace.identifier_prefix[0] + cls.type_struct
@@ -1100,7 +1106,7 @@ class TemplateClassMethod:
 
 
 class TemplateFunction:
-    def __init__(self, namespace, type_, func):
+    def __init__(self, namespace, type_, func, config):
         self.identifier = func.identifier
         self.name = func.name
         self.namespace = namespace.name
@@ -1133,7 +1139,7 @@ class TemplateFunction:
         self.attributes = func.attributes
         if func.available_since is None:
             if type_ is None:
-                self.available_since = namespace.version
+                self.available_since = earliest_since_version(namespace, config)
             else:
                 self.available_since = type_.available_since
         else:
@@ -1193,7 +1199,7 @@ class TemplateFunction:
 
 
 class TemplateCallback:
-    def __init__(self, namespace, cb, field=False):
+    def __init__(self, namespace, cb, config, field=False):
         self.name = cb.name
         self.type_cname = cb.ctype
         self.identifier = cb.name.replace("-", "_")
@@ -1222,7 +1228,7 @@ class TemplateCallback:
 
         self.stability = cb.stability
         self.attributes = cb.attributes
-        self.available_since = cb.available_since or namespace.version
+        self.available_since = cb.available_since or earliest_since_version(namespace, config)
         if cb.deprecated:
             (version, msg) = cb.deprecated_since
             self.deprecated_since = {
@@ -1272,13 +1278,13 @@ class TemplateCallback:
 
 
 class TemplateField:
-    def __init__(self, namespace, field):
+    def __init__(self, namespace, field, config):
         self.name = field.name
         if field.target is not None:
             if isinstance(field.target, gir.Callback):
                 self.is_callback = True
                 self.type_name: field.target.name
-                self.type_cname = TemplateCallback(namespace, field.target, field=True).c_decl
+                self.type_cname = TemplateCallback(namespace, field.target, config, field=True).c_decl
             else:
                 self.is_callback = False
                 self.type_name = field.target.name
@@ -1366,7 +1372,7 @@ class TemplateInterface:
 
         self.stability = interface.stability
         self.attributes = interface.attributes
-        self.available_since = interface.available_since or namespace.version
+        self.available_since = interface.available_since or earliest_since_version(namespace, config)
         if interface.deprecated:
             (version, msg) = interface.deprecated_since
             self.deprecated_since = {
@@ -1389,10 +1395,10 @@ class TemplateInterface:
             self.class_fields = []
             for field in self.class_struct.fields:
                 if not field.private:
-                    self.class_fields.append(TemplateField(namespace, field))
+                    self.class_fields.append(TemplateField(namespace, field, config))
             self.class_methods = []
             for method in self.class_struct.methods:
-                self.class_methods.append(gen_index_func(method, namespace, md))
+                self.class_methods.append(gen_index_func(method, namespace, config, md))
         else:
             self.class_fields = []
             self.class_methods = []
@@ -1401,30 +1407,30 @@ class TemplateInterface:
         if len(interface.properties) != 0:
             for pname, prop in interface.properties.items():
                 if not config.is_hidden(interface.name, "property", pname):
-                    self.properties.append(gen_index_property(prop, namespace, md))
+                    self.properties.append(gen_index_property(prop, namespace, config, md))
 
         self.signals = []
         if len(interface.signals) != 0:
             for sname, signal in interface.signals.items():
                 if not config.is_hidden(interface.name, "signal", sname):
-                    self.signals.append(gen_index_signal(signal, namespace, md))
+                    self.signals.append(gen_index_signal(signal, namespace, config, md))
 
         self.methods = []
         if len(interface.methods) != 0:
             for method in interface.methods:
                 if not config.is_hidden(interface.name, "method", method.name):
-                    self.methods.append(gen_index_func(method, namespace, md))
+                    self.methods.append(gen_index_func(method, namespace, config, md))
 
         self.virtual_methods = []
         if len(interface.virtual_methods) != 0:
             for vfunc in interface.virtual_methods:
-                self.virtual_methods.append(gen_index_func(vfunc, namespace, md))
+                self.virtual_methods.append(gen_index_func(vfunc, namespace, config, md))
 
         self.type_funcs = []
         if len(interface.functions) != 0:
             for func in interface.functions:
                 if not config.is_hidden(interface.name, "function", func.name):
-                    self.type_funcs.append(gen_index_func(func, namespace, md))
+                    self.type_funcs.append(gen_index_func(func, namespace, config, md))
 
         self.implementations = []
         if len(interface.implementations) != 0:
@@ -1522,7 +1528,7 @@ class TemplateClass:
 
         self.stability = cls.stability
         self.attributes = cls.attributes
-        self.available_since = cls.available_since or namespace.version
+        self.available_since = cls.available_since or earliest_since_version(namespace, config)
         if cls.deprecated:
             (version, msg) = cls.deprecated_since
             self.deprecated_since = {
@@ -1539,31 +1545,31 @@ class TemplateClass:
             # The first field is always the parent instance
             for field in cls.fields[1:]:
                 if not field.private:
-                    self.fields.append(TemplateField(namespace, field))
+                    self.fields.append(TemplateField(namespace, field, config))
 
         self.properties = []
         if len(cls.properties) != 0:
             for pname, prop in cls.properties.items():
                 if not config.is_hidden(cls.name, "property", pname):
-                    self.properties.append(gen_index_property(prop, namespace, md))
+                    self.properties.append(gen_index_property(prop, namespace, config, md))
 
         self.signals = []
         if len(cls.signals) != 0:
             for sname, signal in cls.signals.items():
                 if not config.is_hidden(cls.name, "signal", sname):
-                    self.signals.append(gen_index_signal(signal, namespace, md))
+                    self.signals.append(gen_index_signal(signal, namespace, config, md))
 
         self.ctors = []
         if len(cls.constructors) != 0:
             for ctor in cls.constructors:
                 if not config.is_hidden(cls.name, "constructor", ctor.name):
-                    self.ctors.append(gen_index_func(ctor, namespace, md))
+                    self.ctors.append(gen_index_func(ctor, namespace, config, md))
 
         self.methods = []
         if len(cls.methods) != 0:
             for method in cls.methods:
                 if not config.is_hidden(cls.name, "method", method.name):
-                    self.methods.append(gen_index_func(method, namespace, md))
+                    self.methods.append(gen_index_func(method, namespace, config, md))
 
         if self.class_struct is not None:
             self.class_ctype = self.class_struct.ctype
@@ -1574,10 +1580,10 @@ class TemplateClass:
             self.class_fields = []
             for field in self.class_struct.fields:
                 if not field.private:
-                    self.class_fields.append(TemplateField(namespace, field))
+                    self.class_fields.append(TemplateField(namespace, field, config))
             self.class_methods = []
             for method in self.class_struct.methods:
-                self.class_methods.append(gen_index_func(method, namespace, md))
+                self.class_methods.append(gen_index_func(method, namespace, config, md))
         else:
             self.class_fields = []
             self.class_methods = []
@@ -1590,13 +1596,13 @@ class TemplateClass:
         self.virtual_methods = []
         if len(cls.virtual_methods) != 0:
             for vfunc in cls.virtual_methods:
-                self.virtual_methods.append(gen_index_func(vfunc, namespace, md))
+                self.virtual_methods.append(gen_index_func(vfunc, namespace, config, md))
 
         self.type_funcs = []
         if len(cls.functions) != 0:
             for func in cls.functions:
                 if not config.is_hidden(cls.name, "function", func.name):
-                    self.type_funcs.append(gen_index_func(func, namespace, md))
+                    self.type_funcs.append(gen_index_func(func, namespace, config, md))
 
     @property
     def show_methods(self):
@@ -1744,7 +1750,7 @@ class TemplateRecord:
 
         self.stability = record.stability
         self.attributes = record.attributes
-        self.available_since = record.available_since or namespace.version
+        self.available_since = record.available_since or earliest_since_version(namespace, config)
         if record.deprecated:
             (version, msg) = record.deprecated_since
             self.deprecated_since = {
@@ -1759,25 +1765,25 @@ class TemplateRecord:
         self.fields = []
         for field in record.fields:
             if not field.private:
-                self.fields.append(TemplateField(namespace, field))
+                self.fields.append(TemplateField(namespace, field, config))
 
         self.ctors = []
         if len(record.constructors) != 0:
             for ctor in record.constructors:
                 if not config.is_hidden(record.name, "constructor", ctor.name):
-                    self.ctors.append(gen_index_func(ctor, namespace, md))
+                    self.ctors.append(gen_index_func(ctor, namespace, config, md))
 
         self.methods = []
         if len(record.methods) != 0:
             for method in record.methods:
                 if not config.is_hidden(record.name, "method", method.name):
-                    self.methods.append(gen_index_func(method, namespace, md))
+                    self.methods.append(gen_index_func(method, namespace, config, md))
 
         self.type_funcs = []
         if len(record.functions) != 0:
             for func in record.functions:
                 if not config.is_hidden(record.name, "function", func.name):
-                    self.type_funcs.append(gen_index_func(func, namespace, md))
+                    self.type_funcs.append(gen_index_func(func, namespace, config, md))
 
     @property
     def c_decl(self):
@@ -1823,7 +1829,7 @@ class TemplateUnion:
 
         self.stability = union.stability
         self.attributes = union.attributes
-        self.available_since = union.available_since or namespace.version
+        self.available_since = union.available_since or earliest_since_version(namespace, config)
         if union.deprecated:
             (version, msg) = union.deprecated_since
             self.deprecated_since = {
@@ -1838,25 +1844,25 @@ class TemplateUnion:
         self.fields = []
         for field in union.fields:
             if not field.private:
-                self.fields.append(TemplateField(namespace, field))
+                self.fields.append(TemplateField(namespace, field, config))
 
         self.ctors = []
         if len(union.constructors) != 0:
             for ctor in union.constructors:
                 if not config.is_hidden(union.name, "constructor", ctor.name):
-                    self.ctors.append(gen_index_func(ctor, namespace, md))
+                    self.ctors.append(gen_index_func(ctor, namespace, config, md))
 
         self.methods = []
         if len(union.methods) != 0:
             for method in union.methods:
                 if not config.is_hidden(union.name, "method", method.name):
-                    self.methods.append(gen_index_func(method, namespace, md))
+                    self.methods.append(gen_index_func(method, namespace, config, md))
 
         self.type_funcs = []
         if len(union.functions) != 0:
             for func in union.functions:
                 if not config.is_hidden(union.name, "function", func.name):
-                    self.type_funcs.append(gen_index_func(func, namespace, md))
+                    self.type_funcs.append(gen_index_func(func, namespace, config, md))
 
     @property
     def c_decl(self):
@@ -1875,7 +1881,7 @@ class TemplateUnion:
 
 
 class TemplateAlias:
-    def __init__(self, namespace, alias):
+    def __init__(self, namespace, alias, config):
         self.type_cname = alias.base_ctype
         self.target_ctype = alias.target.ctype
         self.link_prefix = "alias"
@@ -1900,7 +1906,7 @@ class TemplateAlias:
 
         self.stability = alias.stability
         self.attributes = alias.attributes
-        self.available_since = alias.available_since or namespace.version
+        self.available_since = alias.available_since or earliest_since_version(namespace, config)
         if alias.deprecated:
             (version, msg) = alias.deprecated_since
             self.deprecated_since = {
@@ -1963,7 +1969,7 @@ class TemplateEnum:
 
         self.stability = enum.stability
         self.attributes = enum.attributes
-        self.available_since = enum.available_since or namespace.version
+        self.available_since = enum.available_since or earliest_since_version(namespace, config)
         if enum.deprecated:
             (version, msg) = enum.deprecated_since
             self.deprecated_since = {
@@ -1994,7 +2000,7 @@ class TemplateEnum:
             self.type_funcs = []
             for func in enum.functions:
                 if not config.is_hidden(enum.name, "function", func.name):
-                    self.type_funcs.append(gen_index_func(func, namespace, md))
+                    self.type_funcs.append(gen_index_func(func, namespace, config, md))
 
     @property
     def c_decl(self):
@@ -2143,7 +2149,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     log.debug(f"Skipping hidden symbol {cls.name}.{sym.name}")
                     continue
 
-                s = section['template_class'](namespace, cls, sym)
+                s = section['template_class'](namespace, cls, sym, config)
                 sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{cls.name}.{sym.name}.html")
                 log.debug(f"Creating symbol file for {namespace.name}.{cls.name}.{sym.name}: {sym_file}")
 
@@ -2271,7 +2277,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     log.debug(f"Skipping hidden symbol {iface.name}.{sym.name}")
                     continue
 
-                s = section['template_class'](namespace, iface, sym)
+                s = section['template_class'](namespace, iface, sym, config)
                 sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{iface.name}.{sym.name}.html")
                 log.debug(f"Creating symbol file for {namespace.name}.{iface.name}.{sym.name}: {sym_file}")
 
@@ -2317,7 +2323,7 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
                 log.debug(f"Skipping hidden symbol {enum.name}.{type_func.name}")
                 continue
 
-            f = TemplateFunction(namespace, enum, type_func)
+            f = TemplateFunction(namespace, enum, type_func, config)
             type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
@@ -2362,7 +2368,7 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
                 log.debug(f"Skipping hidden symbol {enum.name}.{type_func.name}")
                 continue
 
-            f = TemplateFunction(namespace, enum, type_func)
+            f = TemplateFunction(namespace, enum, type_func, config)
             type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
@@ -2407,7 +2413,7 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
                 log.debug(f"Skipping hidden symbol {enum.name}.{type_func.name}")
                 continue
 
-            f = TemplateFunction(namespace, enum, type_func)
+            f = TemplateFunction(namespace, enum, type_func, config)
             type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
@@ -2436,7 +2442,7 @@ def _gen_constants(config, theme_config, output_dir, jinja_env, repository, all_
         const_file = os.path.join(output_dir, f"const.{const.name}.html")
         log.info(f"Creating constant file for {namespace.name}.{const.name}: {const_file}")
 
-        tmpl = TemplateConstant(namespace, const)
+        tmpl = TemplateConstant(namespace, const, config)
         template_constants.append(tmpl)
 
         with open(const_file, "w", encoding="utf-8") as out:
@@ -2463,7 +2469,7 @@ def _gen_aliases(config, theme_config, output_dir, jinja_env, repository, all_al
         alias_file = os.path.join(output_dir, f"alias.{alias.name}.html")
         log.info(f"Creating alias file for {namespace.name}.{alias.name}: {alias_file}")
 
-        tmpl = TemplateAlias(namespace, alias)
+        tmpl = TemplateAlias(namespace, alias, config)
         template_aliases.append(tmpl)
 
         with open(alias_file, "w", encoding="utf-8") as out:
@@ -2549,7 +2555,7 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
                     log.debug(f"Skipping hidden symbol {record.name}.{sym.name}")
                     continue
 
-                s = section['template_class'](namespace, record, sym)
+                s = section['template_class'](namespace, record, sym, config)
                 sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{record.name}.{sym.name}.html")
                 log.debug(f"Creating symbol file for {namespace.name}.{record.name}.{sym.name}: {sym_file}")
 
@@ -2636,7 +2642,7 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
                     log.debug(f"Skipping hidden symbol {union.name}.{sym.name}")
                     continue
 
-                s = section['template_class'](namespace, union, sym)
+                s = section['template_class'](namespace, union, sym, config)
                 sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{union.name}.{sym.name}.html")
                 log.debug(f"Creating symbol file for {namespace.name}.{union.name}.{sym.name}: {sym_file}")
 
@@ -2666,7 +2672,7 @@ def _gen_functions(config, theme_config, output_dir, jinja_env, repository, all_
         func_file = os.path.join(output_dir, f"func.{func.name}.html")
         log.info(f"Creating function file for {namespace.name}.{func.name}: {func_file}")
 
-        tmpl = TemplateFunction(namespace, None, func)
+        tmpl = TemplateFunction(namespace, None, func, config)
         template_functions.append(tmpl)
 
         with open(func_file, "w", encoding="utf-8") as out:
@@ -2695,7 +2701,7 @@ def _gen_callbacks(config, theme_config, output_dir, jinja_env, repository, all_
         func_file = os.path.join(output_dir, f"callback.{func.name}.html")
         log.info(f"Creating callback file for {namespace.name}.{func.name}: {func_file}")
 
-        tmpl = TemplateCallback(namespace, func)
+        tmpl = TemplateCallback(namespace, func, config)
         template_callbacks.append(tmpl)
 
         with open(func_file, "w", encoding="utf-8") as out:
@@ -2724,7 +2730,7 @@ def _gen_function_macros(config, theme_config, output_dir, jinja_env, repository
         func_file = os.path.join(output_dir, f"func.{func.name}.html")
         log.info(f"Creating function macro file for {namespace.name}.{func.name}: {func_file}")
 
-        tmpl = TemplateFunction(namespace, None, func)
+        tmpl = TemplateFunction(namespace, None, func, config)
         template_functions.append(tmpl)
 
         with open(func_file, "w", encoding="utf-8") as out:
