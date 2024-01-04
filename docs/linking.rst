@@ -76,16 +76,16 @@ The available qualifier fragments are:
      - ``[ctor@Gtk.Box.new]``, ``[ctor@Button.new_with_label]``
    * - ``enum``
      - ``TypeName``
-     - A plain enumeration
-     - ``[enum@Orientation]``
+     - A plain enumeration or member
+     - ``[enum@Orientation]``, ``[enum@Orientation.HORIZONTAL]``
    * - ``error``
      - ``TypeName``
-     - A ``GError`` domain enumeration
-     - ``[error@Gtk.BuilderParseError]``
+     - A ``GError`` domain enumeration or member
+     - ``[error@Gtk.BuilderParseError]``, ``[error@Gtk.FileChooserError.NONEXISTENT]``
    * - ``flags``
      - ``TypeName``
-     - A bitfield
-     - ``[flags@Gdk.ModifierType]``
+     - A bitfield or member
+     - ``[flags@Gdk.ModifierType]``, ``[flags@Gdk.ModifierType.SHIFT_MASK]``
    * - ``func``
      - ``function``, ``TypeName.function``
      - A global or a type function
