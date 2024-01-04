@@ -36,27 +36,27 @@ class TestLinkGenerator(unittest.TestCase):
         cls._repository = None
 
     def test_link_re(self):
+        """
+        Test the link regular expression.
+        """
         text = "Some text [type@GObject.Value] other text"
         res = utils.LINK_RE.search(text)
         self.assertIsNotNone(res)
-
-        fragment = res.group('fragment')
-        self.assertTrue(fragment == 'type')
-
-        endpoint = res.group('endpoint')
-        self.assertTrue(endpoint == 'GObject.Value')
-
-        alt_text = res.group('text')
-        self.assertIsNone(alt_text)
+        self.assertEqual(res.group('fragment'), 'type')
+        self.assertEqual(res.group('endpoint'), 'GObject.Value')
+        self.assertIsNone(res.group('text'))
 
         text = "Some text [with some text][type@GObject.Binding] other text"
         res = utils.LINK_RE.search(text)
         self.assertIsNotNone(res)
-
-        alt_text = res.group('text')
-        self.assertTrue(alt_text == '[with some text]')
+        self.assertEqual(res.group('fragment'), 'type')
+        self.assertEqual(res.group('endpoint'), 'GObject.Binding')
+        self.assertEqual(res.group('text'), '[with some text]')
 
     def test_link_generator(self):
+        """
+        Test LinkGenerator
+        """
         text = "Some text [with some, amazing, text][type@GObject.Binding] other text"
         res = utils.LINK_RE.search(text)
         self.assertIsNotNone(res)
