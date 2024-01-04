@@ -111,10 +111,6 @@ METHOD_RE = re.compile(
     ''',
     re.VERBOSE)
 
-CAMEL_CASE_START_RE = re.compile(r"([A-Z]+)([A-Z][a-z])")
-
-CAMEL_CASE_CHUNK_RE = re.compile(r"([a-z\d])([A-Z])")
-
 LANGUAGE_MAP = {
     'c': 'c',
     'css': 'css',
@@ -212,6 +208,7 @@ class LinkGenerator:
         self._repository = self._namespace.repository
         self._valid_namespaces = [n for n in self._repository.includes]
         self._external = False
+        self._anchor = None
 
         fragment_parsers = {
             "alias": self._parse_type,
@@ -219,9 +216,9 @@ class LinkGenerator:
             "class": self._parse_type,
             "const": self._parse_type,
             "ctor": self._parse_method,
-            "enum": self._parse_type,
-            "error": self._parse_type,
-            "flags": self._parse_type,
+            "enum": self._parse_enum_type,
+            "error": self._parse_enum_type,
+            "flags": self._parse_enum_type,
             "func": self._parse_func,
             "id": self._parse_id,
             "iface": self._parse_type,
@@ -357,6 +354,86 @@ class LinkGenerator:
                 raise LinkParseError(self._line, self._start, self._end,
                                      fragment, endpoint,
                                      f"Invalid fragment for '{ns}.{name}': it should be {type_fragment}")
+            self._fragment = type_fragment
+            self._name = name
+            self._type = t.base_ctype
+        else:
+            raise LinkParseError(self._line, self._start, self._end,
+                                 fragment, endpoint,
+                                 f"Unable to find type '{ns}.{name}'")
+
+    def _parse_enum_type(self, fragment, endpoint):
+        res = TYPE_RE.match(endpoint)
+        if res:
+            ns = res.group('ns')
+            name = res.group('name')
+            rest = endpoint
+            if ns is not None:
+                rest = rest.replace(ns, '')
+            rest = rest.replace(name, '')
+            if ns is not None and name is None:
+                name = ns
+                ns = None
+            if ns is not None:
+                ns = ns[:len(ns) - 1]   # Drop the trailing dot
+            else:
+                ns = self._namespace.name
+                # Accept FooBar in place of Foo.Bar
+                if name.startswith(tuple(self._namespace.identifier_prefix)):
+                    for prefix in self._namespace.identifier_prefix:
+                        name = name.replace(prefix, '')
+        else:
+            raise LinkParseError(self._line, self._start, self._end,
+                                 fragment, endpoint,
+                                 "Invalid type link")
+        if ns == self._namespace.name:
+            namespace = self._namespace
+            self._external = False
+            self._ns = ns
+        else:
+            repository = self._namespace.repository
+            namespace = repository.find_included_namespace(ns)
+            if namespace is not None:
+                self._external = True
+                self._ns = namespace.name
+            else:
+                raise LinkParseError(self._line, self._start, self._end,
+                                     fragment, endpoint,
+                                     f"Unknown namespace {ns}")
+        t = namespace.find_real_type(name)
+        if t is not None and t.base_ctype is not None:
+            if isinstance(t, gir.Enumeration):
+                if isinstance(t, gir.BitField):
+                    type_fragment = 'flags'
+                elif isinstance(t, gir.ErrorDomain):
+                    type_fragment = 'error'
+                else:
+                    type_fragment = 'enum'
+            else:
+                raise LinkParseError(self._line, self._start, self._end,
+                                     fragment, endpoint,
+                                     f"Invalid type {t} for '{ns}.{name}'")
+            if fragment != type_fragment:
+                raise LinkParseError(self._line, self._start, self._end,
+                                     fragment, endpoint,
+                                     f"Invalid fragment for '{ns}.{name}': it should be {type_fragment}")
+            if rest:
+                if not rest.startswith('.'):
+                    raise LinkParseError(self._line, self._start, self._end,
+                                         fragment, endpoint,
+                                         f"Invalid member for enumeration {ns}.{name}")
+                e = rest[1:len(rest)]
+                uc_member = e.upper().replace('-', '_')
+                found = False
+                for member in t:
+                    if member.identifier.endswith(uc_member):
+                        self._anchor = member.nick
+                        found = True
+                        break
+                if not found:
+                    raise LinkParseError(self._line, self._start, self._end,
+                                         fragment, endpoint,
+                                         f"Invalid member {e} for enumeration {ns}.{name}")
             self._fragment = type_fragment
             self._name = name
             self._type = t.base_ctype
@@ -617,19 +694,23 @@ class LinkGenerator:
 
     @property
     def href(self):
+        if self._anchor is not None:
+            anchor = f"#{self._anchor}"
+        else:
+            anchor = ""
         if self._fragment in ['alias', 'callback', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
-            return f"{self._fragment}.{self._name}.html"
+            return f"{self._fragment}.{self._name}.html{anchor}"
         elif self._fragment == 'property':
-            return f"property.{self._name}.{self._property_name}.html"
+            return f"property.{self._name}.{self._property_name}.html{anchor}"
         elif self._fragment == 'signal':
-            return f"signal.{self._name}.{self._signal_name}.html"
+            return f"signal.{self._name}.{self._signal_name}.html{anchor}"
         elif self._fragment in ['ctor', 'method', 'class_method', 'vfunc']:
-            return f"{self._fragment}.{self._name}.{self._method_name}.html"
+            return f"{self._fragment}.{self._name}.{self._method_name}.html{anchor}"
         elif self._fragment == 'func':
             if self._name is not None:
-                return f"type_func.{self._name}.{self._func_name}.html"
+                return f"type_func.{self._name}.{self._func_name}.html{anchor}"
             else:
-                return f"func.{self._func_name}.html"
+                return f"func.{self._func_name}.html{anchor}"
         else:
             return None
 

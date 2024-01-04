@@ -101,6 +101,60 @@ class TestLinkGenerator(unittest.TestCase):
                                         text=res.group('text'),
                                         do_raise=True)
 
+    def test_link_enum(self):
+        """
+        Check that the enum types link to the corresponding item.
+        """
+        text = "A value of [flags@GObject.BindingFlags]"
+        res = utils.LINK_RE.search(text)
+        self.assertIsNotNone(res)
+
+        fragment = res.group('fragment')
+        endpoint = res.group('endpoint')
+        alt_text = res.group('text')
+
+        link = utils.LinkGenerator(line=text, start=res.start(), end=res.end(),
+                                   namespace=self._repository.namespace,
+                                   fragment=fragment, endpoint=endpoint, text=alt_text)
+        self.assertIsNotNone(link)
+
+        root = ET.fromstring(str(link))
+        self.assertEqual(root.tag, 'a')
+        self.assertIn('href', root.attrib)
+        self.assertEqual(root.attrib['href'], 'flags.BindingFlags.html')
+
+        text = "A value of [flags@GObject.BindingFlags.SYNC_CREATE]"
+        res = utils.LINK_RE.search(text)
+        self.assertIsNotNone(res)
+
+        fragment = res.group('fragment')
+        endpoint = res.group('endpoint')
+        alt_text = res.group('text')
+
+        link = utils.LinkGenerator(line=text, start=res.start(), end=res.end(),
+                                   namespace=self._repository.namespace,
+                                   fragment=fragment, endpoint=endpoint, text=alt_text)
+        self.assertIsNotNone(link)
+
+        root = ET.fromstring(str(link))
+        self.assertEqual(root.tag, 'a')
+        self.assertIn('href', root.attrib)
+        self.assertEqual(root.attrib['href'], 'flags.BindingFlags.html#sync-create')
+
+        text = "A value of [flags@GObject.BindingFlags.INVALID_NAME]"
+        res = utils.LINK_RE.search(text)
+        self.assertIsNotNone(res)
+
+        fragment = res.group('fragment')
+        endpoint = res.group('endpoint')
+        alt_text = res.group('text')
+
+        with self.assertRaises(utils.LinkParseError):
+            utils.LinkGenerator(line=text, start=res.start(), end=res.end(),
+                                namespace=self._repository.namespace,
+                                fragment=fragment, endpoint=endpoint, text=alt_text,
+                                do_raise=True)
+
 
 class TestGtkDocExtension(unittest.TestCase):
 
