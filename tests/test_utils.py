@@ -71,10 +71,34 @@ class TestLinkGenerator(unittest.TestCase):
         self.assertIsNotNone(link)
 
         root = ET.fromstring(str(link))
-        self.assertTrue(root.tag == 'a')
-        self.assertTrue('href' in root.attrib)
-        self.assertTrue(root.attrib['href'] == 'class.Binding.html')
-        self.assertTrue(root.text == 'with some, amazing, text')
+        self.assertEqual(root.tag, 'a')
+        self.assertIn('href', root.attrib)
+        self.assertEqual(root.attrib['href'], 'class.Binding.html')
+        self.assertEqual(root.text, 'with some, amazing, text')
+
+    def test_link_error(self):
+        """
+        Check that the LinkGenerator errors out when we expect it to.
+        """
+        checks = [
+            "An [invalid fragment][enum@GObject.BindingFlags]",
+            "An [unknown namespace][class@InvalidNamespace.Object]",
+            "An [unknown fragment][foo@GObject.Object]",
+            "An [unknown type][type@GObject.Unknown]",
+            "An [unknown identifier][id@unknown_symbol]",
+        ]
+
+        for idx, c in enumerate(checks):
+            with self.subTest(msg=f"Link '{c}' should fail", idx=idx):
+                with self.assertRaises(utils.LinkParseError):
+                    res = utils.LINK_RE.search(c)
+                    self.assertIsNotNone(res)
+                    utils.LinkGenerator(line=c, start=res.start(), end=res.end(),
+                                        namespace=self._repository.namespace,
+                                        fragment=res.group('fragment'),
+                                        endpoint=res.group('endpoint'),
+                                        text=res.group('text'),
+                                        do_raise=True)
 
 
 class TestGtkDocExtension(unittest.TestCase):
