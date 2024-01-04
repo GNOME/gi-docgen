@@ -202,6 +202,8 @@ class LinkGenerator:
         self._no_link = kwargs.get('no_link', False)
         self._alt_text = kwargs.get('text')
         self._do_raise = kwargs.get('do_raise', False)
+        self._enum_member_name = None
+        self._vfunc_name = None
 
         assert self._namespace is not None
 
@@ -368,9 +370,9 @@ class LinkGenerator:
             ns = res.group('ns')
             name = res.group('name')
             rest = endpoint
-            if ns is not None:
-                rest = rest.replace(ns, '')
-            rest = rest.replace(name, '')
+            len_ns = len(ns)
+            len_name = len(name)
+            rest = endpoint[len_ns + len_name:]
             if ns is not None and name is None:
                 name = ns
                 ns = None
@@ -426,8 +428,9 @@ class LinkGenerator:
                 uc_member = e.upper().replace('-', '_')
                 found = False
                 for member in t:
-                    if member.identifier.endswith(uc_member):
+                    if member.name.upper() == uc_member:
                         self._anchor = member.nick
+                        self._enum_member_name = member.identifier
                         found = True
                         break
                 if not found:
@@ -679,8 +682,13 @@ class LinkGenerator:
     def text(self):
         if self._alt_text is not None:
             return self._alt_text[1:len(self._alt_text) - 1]
-        elif self._fragment in ['alias', 'callback', 'class', 'const', 'enum', 'error', 'flags', 'iface', 'struct']:
+        elif self._fragment in ['alias', 'callback', 'class', 'const', 'iface', 'struct']:
             return f"<code>{self._type}</code>"
+        elif self._fragment in ['enum', 'error', 'flags']:
+            if self._enum_member_name:
+                return f"<code>{self._enum_member_name}</code>"
+            else:
+                return f"<code>{self._type}</code>"
         elif self._fragment == 'property':
             return f"<code>{self._type}:{self._property_name}</code>"
         elif self._fragment == 'signal':
