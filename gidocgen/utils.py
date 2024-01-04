@@ -288,6 +288,13 @@ class LinkGenerator:
         if res:
             ns = res.group('ns')
             name = res.group('name')
+            rest = endpoint
+            if ns is not None:
+                rest = rest.replace(ns, '')
+            rest = rest.replace(name, '')
+            if ns is not None and name is None:
+                name = ns
+                ns = None
             if ns is not None:
                 ns = ns[:len(ns) - 1]   # Drop the trailing dot
             else:
@@ -300,6 +307,10 @@ class LinkGenerator:
             raise LinkParseError(self._line, self._start, self._end,
                                  fragment, endpoint,
                                  "Invalid type link")
+        if fragment in ['alias', 'callback', 'class', 'const', 'iface', 'struct', 'type'] and rest:
+            raise LinkParseError(self._line, self._start, self._end,
+                                 fragment, endpoint,
+                                 f"Unknown component in {fragment} link for {ns}.{name}: {rest}")
         if ns == self._namespace.name:
             namespace = self._namespace
             self._external = False

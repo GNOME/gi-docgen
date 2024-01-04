@@ -86,6 +86,7 @@ class TestLinkGenerator(unittest.TestCase):
             "An [unknown fragment][foo@GObject.Object]",
             "An [unknown type][type@GObject.Unknown]",
             "An [unknown identifier][id@unknown_symbol]",
+            "An [unknown component][type@GObject.Object.Foo]",
         ]
 
         for idx, c in enumerate(checks):
