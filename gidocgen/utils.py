@@ -288,9 +288,9 @@ class LinkGenerator:
             ns = res.group('ns')
             name = res.group('name')
             rest = endpoint
-            if ns is not None:
-                rest = rest.replace(ns, '')
-            rest = rest.replace(name, '')
+            len_ns = len(ns) if ns else 0
+            len_name = len(name) if name else 0
+            rest = endpoint[len_ns + len_name:]
             if ns is not None and name is None:
                 name = ns
                 ns = None
@@ -370,8 +370,8 @@ class LinkGenerator:
             ns = res.group('ns')
             name = res.group('name')
             rest = endpoint
-            len_ns = len(ns)
-            len_name = len(name)
+            len_ns = len(ns) if ns else 0
+            len_name = len(name) if name else 0
             rest = endpoint[len_ns + len_name:]
             if ns is not None and name is None:
                 name = ns
