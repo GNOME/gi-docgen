@@ -236,7 +236,7 @@ class LinkGenerator:
         parser_method = fragment_parsers.get(self._fragment)
         if parser_method is not None:
             try:
-                parser_method(self._fragment)
+                parser_method(self._fragment, self._endpoint)
             except LinkParseError as err:
                 if self._do_raise:
                     raise
@@ -254,11 +254,11 @@ class LinkGenerator:
                                         self._fragment, self._endpoint))
                 self._fragment = None
 
-    def _parse_id(self, fragment):
-        symbol = self._repository.find_symbol(self._endpoint)
+    def _parse_id(self, fragment, endpoint):
+        symbol = self._repository.find_symbol(endpoint)
         if symbol is None:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  f"Unable to find symbol {self._endpoint}")
         (ns, t) = symbol
         if isinstance(t, gir.Class) or \
@@ -267,24 +267,24 @@ class LinkGenerator:
             self._external = ns is not self._namespace
             self._ns = ns.name
             self._fragment = 'method'
-            self._symbol_name = f"{self._endpoint}()"
+            self._symbol_name = f"{endpoint}()"
             self._name = t.name
-            self._method_name = self._endpoint.replace(ns.symbol_prefix[0] + '_', '')
+            self._method_name = endpoint.replace(ns.symbol_prefix[0] + '_', '')
             self._method_name = self._method_name.replace(t.symbol_prefix + '_', '')
         elif isinstance(t, gir.Function):
             self._external = ns is not self._namespace
             self._ns = ns.name
             self._fragment = 'func'
-            self._symbol_name = f"{self._endpoint}()"
+            self._symbol_name = f"{endpoint}()"
             self._name = None
-            self._func_name = self._endpoint.replace(ns.symbol_prefix[0] + '_', '')
+            self._func_name = endpoint.replace(ns.symbol_prefix[0] + '_', '')
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
-                                 f"Unsupported symbol {self._endpoint}")
+                                 fragment, endpoint,
+                                 f"Unsupported symbol {endpoint}")
 
-    def _parse_type(self, fragment):
-        res = TYPE_RE.match(self._endpoint)
+    def _parse_type(self, fragment, endpoint):
+        res = TYPE_RE.match(endpoint)
         if res:
             ns = res.group('ns')
             name = res.group('name')
@@ -298,7 +298,7 @@ class LinkGenerator:
                         name = name.replace(prefix, '')
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  "Invalid type link")
         if ns == self._namespace.name:
             namespace = self._namespace
@@ -312,7 +312,7 @@ class LinkGenerator:
                 self._ns = namespace.name
             else:
                 raise LinkParseError(self._line, self._start, self._end,
-                                     self._fragment, self._endpoint,
+                                     fragment, endpoint,
                                      f"Unknown namespace {ns}")
         t = namespace.find_real_type(name)
         if t is not None and t.base_ctype is not None:
@@ -340,22 +340,22 @@ class LinkGenerator:
                 type_fragment = 'struct'
             else:
                 raise LinkParseError(self._line, self._start, self._end,
-                                     self._fragment, self._endpoint,
+                                     fragment, endpoint,
                                      f"Invalid type {t} for '{ns}.{name}'")
             if fragment != 'type' and fragment != type_fragment:
                 raise LinkParseError(self._line, self._start, self._end,
-                                     self._fragment, self._endpoint,
+                                     fragment, endpoint,
                                      f"Invalid fragment for '{ns}.{name}': it should be {type_fragment}")
             self._fragment = type_fragment
             self._name = name
             self._type = t.base_ctype
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  f"Unable to find type '{ns}.{name}'")
 
-    def _parse_property(self, fragment):
-        res = PROPERTY_RE.match(self._endpoint)
+    def _parse_property(self, fragment, endpoint):
+        res = PROPERTY_RE.match(endpoint)
         if res:
             ns = res.group('ns')
             name = res.group('name')
@@ -372,7 +372,7 @@ class LinkGenerator:
             pname = pname.replace('_', '-')
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  "Invalid property link")
         if ns == self._namespace.name:
             namespace = self._namespace
@@ -393,17 +393,17 @@ class LinkGenerator:
             self._name = name
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  f"Unable to find type '{ns}.{name}'")
         if (isinstance(t, gir.Class) or isinstance(t, gir.Interface)) and pname in t.properties:
             self._property_name = pname
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  f"Invalid property '{pname}' for type '{ns}.{name}'")
 
-    def _parse_signal(self, fragment):
-        res = SIGNAL_RE.match(self._endpoint)
+    def _parse_signal(self, fragment, endpoint):
+        res = SIGNAL_RE.match(endpoint)
         if res:
             ns = res.group('ns')
             name = res.group('name')
@@ -420,7 +420,7 @@ class LinkGenerator:
             sname = sname.replace('_', '-')
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  "Invalid signal link")
         if ns == self._namespace.name:
             namespace = self._namespace
@@ -441,17 +441,17 @@ class LinkGenerator:
             self._name = name
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  f"Unable to find type '{ns}.{name}'")
         if (isinstance(t, gir.Class) or isinstance(t, gir.Interface)) and sname in t.signals:
             self._signal_name = sname
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  f"Invalid signal name '{sname}' for type '{ns}.{name}'")
 
-    def _parse_method(self, fragment):
-        res = METHOD_RE.match(self._endpoint)
+    def _parse_method(self, fragment, endpoint):
+        res = METHOD_RE.match(endpoint)
         if res:
             ns = res.group('ns')
             name = res.group('name')
@@ -466,7 +466,7 @@ class LinkGenerator:
                         name = name.replace(prefix, '')
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  "Invalid method link")
         if ns == self._namespace.name:
             namespace = self._namespace
@@ -496,7 +496,7 @@ class LinkGenerator:
                 self._name = name
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  f"Unable to find type '{ns}.{name}'")
         if fragment == "ctor":
             methods = getattr(t, "constructors", [])
@@ -514,11 +514,11 @@ class LinkGenerator:
                     self._symbol_name = f"{m.identifier}()"
                 return
         raise LinkParseError(self._line, self._start, self._end,
-                             self._fragment, self._endpoint,
+                             fragment, endpoint,
                              f"Unable to find method '{ns}.{name}.{method}'")
 
-    def _parse_func(self, fragment):
-        tokens = self._endpoint.split('.')
+    def _parse_func(self, fragment, endpoint):
+        tokens = endpoint.split('.')
         # Case 1: [func@init] => gtk_init()
         if len(tokens) == 1:
             ns = self._namespace.name
@@ -545,7 +545,7 @@ class LinkGenerator:
                 func_name = tokens[1]
         else:
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  "Invalid function link")
         if ns == self._namespace.name:
             namespace = self._namespace
@@ -559,7 +559,7 @@ class LinkGenerator:
                 self._ns = namespace.name
             else:
                 raise LinkParseError(self._line, self._start, self._end,
-                                     self._fragment, self._endpoint,
+                                     fragment, endpoint,
                                      f"Namespace {ns} not found")
         if name is None:
             t = namespace.find_function(func_name)
@@ -569,13 +569,13 @@ class LinkGenerator:
                 self._symbol_name = f"{t.identifier}()"
             else:
                 raise LinkParseError(self._line, self._start, self._end,
-                                     self._fragment, self._endpoint,
+                                     fragment, endpoint,
                                      f"Unable to find function '{ns}.{func_name}'")
         else:
             t = namespace.find_real_type(name)
             if t is None:
                 raise LinkParseError(self._line, self._start, self._end,
-                                     self._fragment, self._endpoint,
+                                     fragment, endpoint,
                                      f"Unable to find type '{ns}.{name}'")
             for func in t.functions:
                 if func.name == func_name:
@@ -584,7 +584,7 @@ class LinkGenerator:
                     self._symbol_name = f"{func.identifier}()"
                     return
             raise LinkParseError(self._line, self._start, self._end,
-                                 self._fragment, self._endpoint,
+                                 fragment, endpoint,
                                  f"Unable to find function '{ns}.{name}.{func_name}'")
 
     @property
