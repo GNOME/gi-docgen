@@ -27,11 +27,11 @@
   --sidebar-search-bg: rgba(127, 127, 127, 0.25);
   --sidebar-search-focus-bg: rgba(127, 127, 127, 0.3);
   --sidebar-padding: 1.5em;
-  --warning-bg-color: #e5a50a;
+  --warning-bg-color: rgba(229, 165, 10, 0.7);
   --warning-fg-color: rgba(0, 0, 0, 0.8);
-  --error-bg-color: #e01b24;
+  --error-bg-color: rgba(224, 27, 36, 0.7);
   --error-fg-color: #ffffff;
-  --accent-bg-color: #3584e4;
+  --accent-bg-color: rgba(53, 132, 228, 0.7);
   --accent-fg-color: #ffffff;
 
   /* boxes, e.g. code blocks */
