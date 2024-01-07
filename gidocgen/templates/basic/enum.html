@@ -146,7 +146,9 @@
             <div>{{ member.description }}</div>
             <ul>
               <li>Value: <code>{{ member.value }}</code></li>
+              {% if enum.nick -%}
               <li>Nickname: <code>{{ member.nick }}</code></li>
+              {%- endif %}
               {% if member.available_since -%}
               <li>Available since: {{ member.available_since }}</li>
               {%- else -%}
