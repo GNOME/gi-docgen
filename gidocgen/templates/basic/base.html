@@ -96,5 +96,10 @@ SPDX-License-Identifier: {{ CONFIG.license }}
     {% block footer %}{% endblock %}
     </footer>
   </div>
+
+  <script type="module">
+    import {mermaid as mermaid} from '/mermaid.js';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
 </body>
 </html>

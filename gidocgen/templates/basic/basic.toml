@@ -39,6 +39,7 @@ files = [
   "fzy.js",
   "go-up-symbolic.png",
   "main.js",
+  "mermaid.js",
   "solarized-light.css",
   "solarized-dark.css",
   "search.js",

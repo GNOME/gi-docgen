@@ -7,8 +7,12 @@ from markdown.extensions import Extension
 from markdown.blockprocessors import BlockProcessor
 from markdown.preprocessors import Preprocessor
 
+from textwrap import dedent
+
 import xml.etree.ElementTree as etree
 import re
+
+from . import log
 
 
 SIGNAL_SIGIL_RE = re.compile(r"(^|\W)#([A-Z][A-Za-z0-9]+)::([a-z0-9_-]+)\b")
@@ -235,3 +239,43 @@ class AdmonitionExtension(Extension):
         """Add extensions"""
         md.registerExtension(self)
         md.parser.blockprocessors.register(AdmonitionProcessor(md.parser), 'admonition', 105)
+
+
+class MermaidProcessor(Preprocessor):
+    """
+    The MermaidProcessor class takes over from the code blocks extension
+    for the Mermaid format.
+    """
+
+    CLASSNAME = 'mermaid'
+    MERMAID_RE = re.compile(
+        dedent(r'''
+            (?P<fence>^(?:~{3,}|`{3,}))[ ]*     # opening fence
+            [Mm]ermaid[ ]*                      # declarator
+            \n                                  # end of opening fence
+            (?P<code>.*?)(?<=\n)                # block
+            (?P=fence)[ ]*$                     # closing fence
+        '''),
+        re.MULTILINE | re.DOTALL | re.VERBOSE
+    )
+
+    def run(self, lines):
+        """Match Mermaid fences."""
+        text = "\n".join(lines)
+        while 1:
+            res = self.MERMAID_RE.search(text)
+            if res:
+                code = res.group('code')
+                code = f'<div><pre class="mermaid">{code}</pre></div>'
+                text = f'{text[:res.start()]}\n{code}\n{text[res.end():]}'
+            else:
+                break
+        return text.split("\n")
+
+
+class MermaidExtension(Extension):
+    """Notice extension"""
+    def extendMarkdown(self, md):
+        """Add extensions"""
+        md.registerExtension(self)
+        md.preprocessors.register(MermaidProcessor(md), 'mermaid', 35)

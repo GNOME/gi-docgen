@@ -131,6 +131,7 @@ MD_EXTENSIONS = [
     # Local extensions
     mdext.GtkDocExtension(),
     mdext.AdmonitionExtension(),
+    mdext.MermaidExtension(),
 ]
 
 MD_EXTENSIONS_CONF = {
