@@ -35,6 +35,7 @@ style = "style.css"
 
 [extra_files]
 files = [
+  "mermaid@10.9.0/mermaid.min.js",
   "fonts.css",
   "fzy.js",
   "go-up-symbolic.png",

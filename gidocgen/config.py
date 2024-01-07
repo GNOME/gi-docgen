@@ -182,6 +182,10 @@ class GIDocConfig:
         return self.extra.get('content_base_url')
 
     @property
+    def mermaid(self):
+        return self.library.get('mermaid', True)
+
+    @property
     def file_format(self):
         source_location = self._config.get('source-location', {})
         return source_location.get('file_format', '{filename}#L{line}')

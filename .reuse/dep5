@@ -39,6 +39,10 @@ Files: gidocgen/templates/basic/SourceCodePro*.woff
 Copyright: 2010, 2012  Adobe Systems Inc.
 License: OFL-1.1
 
+Files: gidocgen/templates/basic/mermaid@10.9.0/mermaid.min.js
+Copyright: 2014 - 2022 Knut Sveidqvist
+License: MIT
+
 Files: tests/data/gir/Utility-1.0.gir
 Copyright: 2021  The gobject-introspection authors
 License: GPL-2.0-or-later
