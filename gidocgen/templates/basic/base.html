@@ -54,17 +54,17 @@ SPDX-License-Identifier: {{ CONFIG.license }}
   <script src="main.js"></script>
 
   {% for f in CONFIG.favicons %}
-  {% elif f.endswith("180x180.png") %}
+    {% if f.endswith("180x180.png") %}
   <link rel="apple-touch-icon" sizes="180x180" href="/{{ f }}">
-  {% elif f.endswith("192x192.png") %}
+    {% elif f.endswith("192x192.png") %}
   <link rel="icon" sizes="192x192" href="/{{ f }}">
-  {% elif f.endswith("128x128.png") %}
+    {% elif f.endswith("128x128.png") %}
   <link rel="icon" sizes="128x128" href="/{{ f }}">
-  {% elif f.endswith("32x32.png") %}
+    {% elif f.endswith("32x32.png") %}
   <link rel="icon" sizes="32x32" href="/{{ f }}">
-  {% else %}
+    {% else %}
   <link rel="icon" href="/{{ f }}">
-  {% endif %}
+    {% endif %}
   {% endfor %}
 </head>
 
