@@ -141,7 +141,10 @@
       <div class="docblock">
         <dl class="enum-members">
         {% for member in enum.members %}
-          <dt><a id="{{ member.girname }}" href="#{{ member.girname }}"><code>{{ member.name }}</code></a></dt>
+          <dt>
+            <code id="{{ member.girname }}">{{ member.name }}</code>
+            <a class="anchor" href="#{{ member.girname }}"></a>
+          </dt>
           <dd>
             <div>{{ member.description }}</div>
             <ul>
