@@ -826,9 +826,9 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plai
     if first_line and first_line[0].isalpha():
         processed_text[0] = ''.join([first_line[0:1].upper(), first_line[1:]])
 
-    # Append a period, if one isn't there already
+    # Append a period, if one isn't there already, but not after any code block
     last_line = processed_text[-1]
-    if last_line and last_line[-1].isalpha():
+    if last_line and not last_line.endswith((".", "?", "!", "```")):
         processed_text[-1] = ''.join([last_line, '.'])
 
     if md is None:
