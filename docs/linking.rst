@@ -205,5 +205,5 @@ done by defining a JavaScript map called ``baseURLs`` like this:
       [ 'PangoCairo', 'https://gnome.pages.gitlab.gnome.org/pango/PangoCairo/' ],
     ]
 
-And specifying the path of the JavaScript file into the ``extras`` section
+And specifying the path of the JavaScript file into the ``extra`` section
 of the project configuration, in the ``urlmap_file`` key.
