@@ -878,12 +878,14 @@ def render_dot(dot, output_format="svg"):
 found_programs = {}
 
 
-def find_program(bin_name, path=None):
+def find_program(bin_name, path=None, error_if_not_found=False):
     """Finds a program @bin_name inside the given @path, and returns
     its full path if found, or None if the program could not be found.
 
     The @bin_name will automatically get an extension depending on the
     platform.
+
+    If @error_if_not_found is True, then we'll log an error.
     """
     global found_programs
 
@@ -915,6 +917,9 @@ def find_program(bin_name, path=None):
                 if path is None:
                     found_programs[bin_name] = full_path
                 return full_path
+
+    if error_if_not_found:
+        log.error(f"Unable to find {bin_name}")
 
     return None
 
