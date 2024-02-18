@@ -853,7 +853,13 @@ def render_dot(dot, output_format="svg"):
     if output_format not in ["svg", "png"]:
         log.error("Invalid output format for render_dot(): {output_format}")
 
-    args = ["dot", f"-T{output_format}"]
+    dot_bin = find_program("dot")
+    if not dot_bin:
+        return None
+
+    args = []
+    args.append(dot_bin)
+    args.append(f"-T{output_format}")
 
     try:
         proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
