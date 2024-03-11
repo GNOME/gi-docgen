@@ -859,7 +859,7 @@ def render_dot(dot, output_format="svg"):
         proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc.stdin.write(dot.encode("utf-8"))
         output, err = proc.communicate()
-        if err:
+        if proc.returncode:
             log.warning(f"Unable to process dot data: {err}")
             return None
         if output_format == "svg":
