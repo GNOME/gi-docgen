@@ -323,6 +323,9 @@ class Callable(GIRElement):
         self.moved_to: T.Optional[str] = None
         self.shadows: T.Optional[str] = None
         self.shadowed_by: T.Optional[str] = None
+        self.async_func: T.Optional[str] = None
+        self.sync_func: T.Optional[str] = None
+        self.finish_func: T.Optioal[str] = None
 
     def add_parameter(self, param: Parameter) -> None:
         self.parameters.append(param)
@@ -341,6 +344,15 @@ class Callable(GIRElement):
 
     def set_moved_to(self, func: str) -> None:
         self.moved_to = func
+
+    def set_async_func(self, func: T.Optional[str]) -> None:
+        self.async_func = func
+
+    def set_sync_func(self, func: T.Optional[str]) -> None:
+        self.sync_func = func
+
+    def set_finish_func(self, func: T.Optional[str]) -> None:
+        self.finish_func = func
 
     def __contains__(self, param):
         if isinstance(param, str):

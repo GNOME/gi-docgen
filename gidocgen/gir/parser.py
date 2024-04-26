@@ -560,6 +560,9 @@ class GirParser:
         shadows = node.attrib.get('shadows')
         shadowed_by = node.attrib.get('shadowed-by')
         moved_to = node.attrib.get('moved-to')
+        async_func = node.attrib.get(_glibns('async-func'))
+        sync_func = node.attrib.get(_glibns('sync-func'))
+        finish_func = node.attrib.get(_glibns('finish-func'))
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -582,6 +585,9 @@ class GirParser:
         res.set_shadows(shadows)
         res.set_shadowed_by(shadowed_by)
         res.set_moved_to(moved_to)
+        res.set_async_func(async_func)
+        res.set_sync_func(sync_func)
+        res.set_finish_func(finish_func)
         self._maybe_parse_docs(node, res)
         return res
 
@@ -619,6 +625,9 @@ class GirParser:
         shadowed_by = node.attrib.get('shadowed-by')
         set_property = node.attrib.get(_glibns('set-property'))
         get_property = node.attrib.get(_glibns('get-property'))
+        async_func = node.attrib.get(_glibns('async-func'))
+        sync_func = node.attrib.get(_glibns('sync-func'))
+        finish_func = node.attrib.get(_glibns('finish-func'))
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
@@ -638,6 +647,9 @@ class GirParser:
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_shadows(shadows)
         res.set_shadowed_by(shadowed_by)
+        res.set_async_func(async_func)
+        res.set_sync_func(sync_func)
+        res.set_finish_func(finish_func)
         res.set_version(node.attrib.get('version'))
         self._maybe_parse_docs(node, res)
         return res
