@@ -939,6 +939,13 @@ class TemplateMethod:
                     self.shadowed_by_symbol = m.identifier
                     break
 
+        self.finish_func = method.finish_func
+        if method.finish_func:
+            for m in type_.methods:
+                if m.name == method.finish_func:
+                    self.finish_func_symbol = m.identifier
+                    break
+
         def transform_property_attribute(namespace, type_, method, value):
             if value in type_.properties:
                 text = f"{namespace.name}.{type_.name}:{value}"
@@ -1159,6 +1166,21 @@ class TemplateFunction:
             f = namespace.find_function(func.shadowed_by)
             if f is not None:
                 self.shadowed_by_symbol = f.identifier
+
+        self.finish_func = func.finish_func
+        if func.finish_func:
+            if type_ is not None:
+                type_funcs = []
+                type_funcs.extend(getattr(type_, 'constructors', []))
+                type_funcs.extend(getattr(type_, 'functions', []))
+                for f in type_funcs:
+                    if f.name == func.finish_func:
+                        self.finish_func_symbol = f.identifier
+                        break
+            else:
+                f = namespace.find_function(func.finish_func)
+                if f is not None:
+                    self.finish_func_symbol = f.identifier
 
     @property
     def c_decl(self):
