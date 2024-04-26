@@ -26,6 +26,12 @@ For instance:
      */
 
     /**
+     * ExampleFoo::bar-changed:
+     *
+     * Emitted when the [bar instance][struct@Example.Bar] changes.
+     /
+
+    /**
      * ExampleFoo:bar:
      *
      * Sets an instance of [`Bar`](struct.Bar.html) on `Foo`.
