@@ -91,8 +91,18 @@
           {%- endif -%}
         </div>
         {%- endif %}
+        {% if type_func.finish_func -%}
+        <p>This constructor completes asynchronously. Use <a href="ctor.{{class.name}}.{{type_func.finish_func}}.html"><code>{{type_func.finish_func_symbol}}()</code></a> inside the <code>GAsyncReadyCallback</code> to obtain the
+        result of the operation.</p>
+        {%- endif %}
         {% if not type_func.introspectable -%}
-        <p>This method is not directly available to language bindings.</p>
+        <p>This constructor is not directly available to language bindings.</p>
+        {%- endif %}
+        {% if type_func.shadows -%}
+        <p>This constructor is renamed to <a href="ctor.{{class.name}}.{{type_func.shadows}}.html"><code>{{type_func.shadows_symbol}}()</code></a> in language bindings.</p>
+        {%- endif %}
+        {% if type_func.shadowed_by -%}
+        <p>The implementation of this constructor is provided by <a href="ctor.{{class.name}}.{{type_func.shadowed_by}}.html"><code>{{type_func.shadowed_by_symbol}}()</code></a> in language bindings.</p>
         {%- endif %}
       </div>
 
