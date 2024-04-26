@@ -31,12 +31,12 @@ MISSING_DESCRIPTION = "No description available."
 
 STRING_TYPES = {
     'utf8': 'The value is a NUL terminated UTF-8 string.',
-    'filename': 'The value is a file system path, using the OS encoding.',
+    'filename': 'The value is a platform-native string, using the preferred OS encoding on Unix and UTF-8 on Windows.',
 }
 
 STRING_ELEMENT_TYPES = {
     'utf8': 'Each element is a NUL terminated UTF-8 string.',
-    'filename': 'Each element is a file system path, using the OS encoding.',
+    'filename': 'Each element is a platform-native string, using the preferred OS encoding on Unix and UTF-8 on Windows..',
 }
 
 IN_ARG_TRANSFER_MODES = {
