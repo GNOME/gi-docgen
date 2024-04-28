@@ -253,6 +253,7 @@ class GirParser:
             _corens('class'): self._parse_class,
             _corens('constant'): self._parse_constant,
             _corens('enumeration'): self._parse_enumeration,
+            _corens('function-inline'): self._parse_function_inline,
             _corens('function-macro'): self._parse_function_macro,
             _corens('function'): self._parse_function,
             _corens('interface'): self._parse_interface,
@@ -553,7 +554,7 @@ class GirParser:
 
         return res
 
-    def _parse_type_function(self, node: ET.Element, ns: T.Optional[ast.Namespace] = None) -> ast.Function:
+    def _parse_type_function(self, node: ET.Element, ns: T.Optional[ast.Namespace] = None, inline: bool = False) -> ast.Function:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
         throws = node.attrib.get('throws', '0') == '1'
@@ -577,7 +578,7 @@ class GirParser:
         else:
             namespace = None
 
-        res = ast.Function(name=name, namespace=namespace, identifier=identifier, throws=throws)
+        res = ast.Function(name=name, namespace=namespace, identifier=identifier, throws=throws, inline=inline)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
         res.set_version(node.attrib.get('version'))
         res.set_return_value(return_value)
@@ -593,6 +594,10 @@ class GirParser:
 
     def _parse_function(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
         res = self._parse_type_function(node, ns)
+        ns.add_function(res)
+
+    def _parse_function_inline(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
+        res = self._parse_type_function(node, ns, inline=True)
         ns.add_function(res)
 
     def _parse_function_macro(self, node: ET.Element, repo: ast.Repository, ns: ast.Namespace) -> None:
@@ -617,7 +622,7 @@ class GirParser:
         self._maybe_parse_docs(node, res)
         ns.add_function_macro(res)
 
-    def _parse_method(self, node: ET.Element) -> ast.Method:
+    def _parse_method(self, node: ET.Element, inline: bool = False) -> ast.Method:
         name = node.attrib.get('name')
         identifier = node.attrib.get(_cns('identifier'))
         throws = node.attrib.get('throws', '0') == '1'
@@ -641,7 +646,7 @@ class GirParser:
             params.append(self._parse_parameter(child))
 
         res = ast.Method(name=name, identifier=identifier, instance_param=instance_param, throws=throws,
-                         set_property=set_property, get_property=get_property)
+                         set_property=set_property, get_property=get_property, inline=inline)
         res.set_return_value(return_value)
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')
@@ -874,6 +879,9 @@ class GirParser:
         children = node.findall('core:method', GI_NAMESPACES)
         for child in children:
             methods.append(self._parse_method(child))
+        children = node.findall('core:method-inline', GI_NAMESPACES)
+        for child in children:
+            methods.append(self._parse_method(child, inline=True))
 
         vmethods = []
         children = node.findall('core:virtual-method', GI_NAMESPACES)
