@@ -895,6 +895,7 @@ class TemplateMethod:
         else:
             self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
+        self.is_inline = method.inline
         self.throws = method.throws
 
         self.instance_parameter = TemplateArgument(namespace, method, method.instance_param, CallableType.METHOD)
@@ -1010,9 +1011,13 @@ class TemplateMethod:
     def c_decl(self):
         res = []
         if self.return_value is None:
-            res += ["void"]
+            retval = "void"
         else:
-            res += [f"{self.return_value.type_cname}"]
+            retval = self.return_value.type_cname
+        if self.is_inline:
+            res += [f"static inline {retval}"]
+        else:
+            res += [retval]
         if self.identifier is not None:
             res += [f"{self.identifier} ("]
         else:
@@ -1114,6 +1119,7 @@ class TemplateFunction:
 
         self.is_type_func = type_ is not None
         self.is_macro = isinstance(func, gir.FunctionMacro)
+        self.is_inline = func.inline
 
         self.throws = func.throws
 
@@ -1189,9 +1195,13 @@ class TemplateFunction:
             res += [f"#define {self.identifier} ("]
         else:
             if self.return_value is None:
-                res += ["void"]
+                retval = "void"
             else:
-                res += [f"{self.return_value.type_cname}"]
+                retval = self.return_value.type_cname
+            if self.is_inline:
+                res += [f"static inline {retval}"]
+            else:
+                res += [retval]
             res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
         if n_args == 0:
