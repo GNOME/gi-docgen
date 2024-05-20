@@ -314,15 +314,20 @@ class ReturnValue(GIRElement):
 
 class Callable(GIRElement):
     """A callable symbol: function, method, function-macro, ..."""
-    def __init__(self, name: str, namespace: T.Optional[str], identifier: T.Optional[str], throws: bool = False):
+    def __init__(self, name: str, namespace: T.Optional[str], identifier: T.Optional[str], throws: bool = False,
+                 inline: bool = False):
         super().__init__(name=name, namespace=namespace)
         self.identifier = identifier
         self.parameters: T.List[Parameter] = []
         self.return_value: T.Optional[ReturnValue] = None
         self.throws: bool = throws
+        self.inline: bool = inline
         self.moved_to: T.Optional[str] = None
         self.shadows: T.Optional[str] = None
         self.shadowed_by: T.Optional[str] = None
+        self.async_func: T.Optional[str] = None
+        self.sync_func: T.Optional[str] = None
+        self.finish_func: T.Optioal[str] = None
 
     def add_parameter(self, param: Parameter) -> None:
         self.parameters.append(param)
@@ -342,6 +347,15 @@ class Callable(GIRElement):
     def set_moved_to(self, func: str) -> None:
         self.moved_to = func
 
+    def set_async_func(self, func: T.Optional[str]) -> None:
+        self.async_func = func
+
+    def set_sync_func(self, func: T.Optional[str]) -> None:
+        self.sync_func = func
+
+    def set_finish_func(self, func: T.Optional[str]) -> None:
+        self.finish_func = func
+
     def __contains__(self, param):
         if isinstance(param, str):
             for p in self.parameters:
@@ -360,14 +374,16 @@ class FunctionMacro(Callable):
 
 
 class Function(Callable):
-    def __init__(self, name: str, namespace: T.Optional[str], identifier: str, throws: bool = False):
-        super().__init__(name, namespace, identifier, throws)
+    def __init__(self, name: str, namespace: T.Optional[str], identifier: str, throws: bool = False,
+                 inline: bool = False):
+        super().__init__(name, namespace, identifier, throws, inline)
 
 
 class Method(Callable):
     def __init__(self, name: str, identifier: str, instance_param: Parameter, throws: bool = False,
-                 set_property: T.Optional[str] = None, get_property: T.Optional[str] = None):
-        super().__init__(name, None, identifier, throws)
+                 set_property: T.Optional[str] = None, get_property: T.Optional[str] = None,
+                 inline: bool = False):
+        super().__init__(name, None, identifier, throws, inline)
         self.instance_param = instance_param
         self.set_property = set_property
         self.get_property = get_property

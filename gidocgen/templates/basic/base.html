@@ -45,7 +45,7 @@ SPDX-License-Identifier: {{ CONFIG.license }}
   {% block style_other %}{% endblock %}
 
   {% if CONFIG.urlmap_file %}
-  <script src="{{ CONFIG.urlmap_file }}"></script>
+  <script src="{{ CONFIG.urlmap_basename }}"></script>
   {% endif %}
   {% if CONFIG.search_index %}
   <script src="fzy.js"></script>

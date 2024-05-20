@@ -44,6 +44,7 @@ class TestLinkGenerator(unittest.TestCase):
         self.assertIsNotNone(res)
         self.assertEqual(res.group('fragment'), 'type')
         self.assertEqual(res.group('endpoint'), 'GObject.Value')
+        self.assertIsNone(res.group('anchor'))
         self.assertIsNone(res.group('text'))
 
         text = "Some text [with some text][type@GObject.Binding] other text"
@@ -51,29 +52,40 @@ class TestLinkGenerator(unittest.TestCase):
         self.assertIsNotNone(res)
         self.assertEqual(res.group('fragment'), 'type')
         self.assertEqual(res.group('endpoint'), 'GObject.Binding')
+        self.assertIsNone(res.group('anchor'))
         self.assertEqual(res.group('text'), '[with some text]')
+
+        text = "Some text [struct@GLib.Variant#serialized-data-memory] other text"
+        res = utils.LINK_RE.search(text)
+        self.assertIsNotNone(res)
+        self.assertEqual(res.group('fragment'), 'struct')
+        self.assertEqual(res.group('endpoint'), 'GLib.Variant')
+        self.assertEqual(res.group('anchor'), '#serialized-data-memory')
+        self.assertIsNone(res.group('text'))
 
     def test_link_generator(self):
         """
         Test LinkGenerator
         """
-        text = "Some text [with some, amazing, text][type@GObject.Binding] other text"
+        text = "Some text [with some, amazing, text][type@GObject.Binding#text] other text"
         res = utils.LINK_RE.search(text)
         self.assertIsNotNone(res)
 
         fragment = res.group('fragment')
         endpoint = res.group('endpoint')
+        anchor = res.group('anchor')
         alt_text = res.group('text')
 
         link = utils.LinkGenerator(line=text, start=res.start(), end=res.end(),
                                    namespace=self._repository.namespace,
-                                   fragment=fragment, endpoint=endpoint, text=alt_text)
+                                   fragment=fragment, endpoint=endpoint, anchor=anchor,
+                                   text=alt_text)
         self.assertIsNotNone(link)
 
         root = ET.fromstring(str(link))
         self.assertEqual(root.tag, 'a')
         self.assertIn('href', root.attrib)
-        self.assertEqual(root.attrib['href'], 'class.Binding.html')
+        self.assertEqual(root.attrib['href'], 'class.Binding.html#text')
         self.assertEqual(root.text, 'with some, amazing, text')
 
     def test_link_error(self):

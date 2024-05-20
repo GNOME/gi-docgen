@@ -92,14 +92,17 @@
           {%- endif -%}
         </div>
         {%- endif %}
+        {% if method.finish_func -%}
+        <p>This method completes asynchronously. Use <a href="method.{{class.name}}.{{method.finish_func}}.html"><code>{{method.finish_func_symbol}}()</code></a> inside the <code>GAsyncReadyCallback</code> to obtain the result of the operation.</p>
+        {%- endif %}
         {% if not method.introspectable -%}
         <p>This method is not directly available to language bindings.</p>
         {%- endif %}
         {% if method.shadows -%}
-        <p>This method is renamed to <a href="method.{{class.name}}.{{method.shadows}}.html"><code>{{method.shadows_symbol}}()</code></a> in language bindings</p>
+        <p>This method is renamed to <a href="method.{{class.name}}.{{method.shadows}}.html"><code>{{method.shadows_symbol}}()</code></a> in language bindings.</p>
         {%- endif %}
         {% if method.shadowed_by -%}
-        <p>The implementation of this method is provided by <a href="method.{{class.name}}.{{method.shadowed_by}}.html"><code>{{method.shadowed_by_symbol}}()</code></a> in language bindings</p>
+        <p>The implementation of this method is provided by <a href="method.{{class.name}}.{{method.shadowed_by}}.html"><code>{{method.shadowed_by_symbol}}()</code></a> in language bindings.</p>
         {%- endif %}
       </div>
 

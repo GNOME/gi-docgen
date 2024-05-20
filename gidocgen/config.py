@@ -89,6 +89,12 @@ class GIDocConfig:
         return self.extra.get('urlmap_file')
 
     @property
+    def urlmap_basename(self):
+        if self.urlmap_file is not None:
+            return os.path.basename(self.urlmap_file)
+        return None
+
+    @property
     def version(self):
         return self.library.get('version', 'Unknown')
 

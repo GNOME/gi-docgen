@@ -31,12 +31,12 @@ MISSING_DESCRIPTION = "No description available."
 
 STRING_TYPES = {
     'utf8': 'The value is a NUL terminated UTF-8 string.',
-    'filename': 'The value is a file system path, using the OS encoding.',
+    'filename': 'The value is a platform-native string, using the preferred OS encoding on Unix and UTF-8 on Windows.',
 }
 
 STRING_ELEMENT_TYPES = {
     'utf8': 'Each element is a NUL terminated UTF-8 string.',
-    'filename': 'Each element is a file system path, using the OS encoding.',
+    'filename': 'Each element is a platform-native string, using the preferred OS encoding on Unix and UTF-8 on Windows..',
 }
 
 IN_ARG_TRANSFER_MODES = {
@@ -895,6 +895,7 @@ class TemplateMethod:
         else:
             self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
 
+        self.is_inline = method.inline
         self.throws = method.throws
 
         self.instance_parameter = TemplateArgument(namespace, method, method.instance_param, CallableType.METHOD)
@@ -937,6 +938,13 @@ class TemplateMethod:
             for m in type_.methods:
                 if m.name == method.shadowed_by:
                     self.shadowed_by_symbol = m.identifier
+                    break
+
+        self.finish_func = method.finish_func
+        if method.finish_func:
+            for m in type_.methods:
+                if m.name == method.finish_func:
+                    self.finish_func_symbol = m.identifier
                     break
 
         def transform_property_attribute(namespace, type_, method, value):
@@ -1003,9 +1011,13 @@ class TemplateMethod:
     def c_decl(self):
         res = []
         if self.return_value is None:
-            res += ["void"]
+            retval = "void"
         else:
-            res += [f"{self.return_value.type_cname}"]
+            retval = self.return_value.type_cname
+        if self.is_inline:
+            res += [f"static inline {retval}"]
+        else:
+            res += [retval]
         if self.identifier is not None:
             res += [f"{self.identifier} ("]
         else:
@@ -1107,6 +1119,7 @@ class TemplateFunction:
 
         self.is_type_func = type_ is not None
         self.is_macro = isinstance(func, gir.FunctionMacro)
+        self.is_inline = func.inline
 
         self.throws = func.throws
 
@@ -1160,6 +1173,21 @@ class TemplateFunction:
             if f is not None:
                 self.shadowed_by_symbol = f.identifier
 
+        self.finish_func = func.finish_func
+        if func.finish_func:
+            if type_ is not None:
+                type_funcs = []
+                type_funcs.extend(getattr(type_, 'constructors', []))
+                type_funcs.extend(getattr(type_, 'functions', []))
+                for f in type_funcs:
+                    if f.name == func.finish_func:
+                        self.finish_func_symbol = f.identifier
+                        break
+            else:
+                f = namespace.find_function(func.finish_func)
+                if f is not None:
+                    self.finish_func_symbol = f.identifier
+
     @property
     def c_decl(self):
         res = []
@@ -1167,9 +1195,13 @@ class TemplateFunction:
             res += [f"#define {self.identifier} ("]
         else:
             if self.return_value is None:
-                res += ["void"]
+                retval = "void"
             else:
-                res += [f"{self.return_value.type_cname}"]
+                retval = self.return_value.type_cname
+            if self.is_inline:
+                res += [f"static inline {retval}"]
+            else:
+                res += [retval]
             res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
         if n_args == 0:

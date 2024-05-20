@@ -72,6 +72,7 @@ LINK_RE = re.compile(
     (?P<fragment>[\w]+)
     @
     (?P<endpoint>[\w\-_:\.]+)
+    (?P<anchor>\#[\w\-_]+)?
     (`)?
     \]
     ''',
@@ -199,6 +200,7 @@ class LinkGenerator:
         self._namespace = kwargs.get('namespace')
         self._fragment = kwargs.get('fragment', '')
         self._endpoint = kwargs.get('endpoint', '')
+        self._anchor = kwargs.get('anchor')
         self._no_link = kwargs.get('no_link', False)
         self._alt_text = kwargs.get('text')
         self._do_raise = kwargs.get('do_raise', False)
@@ -210,7 +212,9 @@ class LinkGenerator:
         self._repository = self._namespace.repository
         self._valid_namespaces = [n for n in self._repository.includes]
         self._external = False
-        self._anchor = None
+
+        if self._anchor is not None and self._anchor.startswith('#'):
+            self._anchor = self._anchor[1:]
 
         fragment_parsers = {
             "alias": self._parse_type,
@@ -796,12 +800,14 @@ def preprocess_docs(text, namespace, summary=False, md=None, extensions=[], plai
             for m in LINK_RE.finditer(line, idx):
                 fragment = m.group('fragment')
                 endpoint = m.group('endpoint')
+                anchor = m.group('anchor')
                 text = m.group('text')
                 start = m.start()
                 end = m.end()
                 link = LinkGenerator(line=line, start=start, end=end,
                                      namespace=namespace,
                                      fragment=fragment, endpoint=endpoint,
+                                     anchor=anchor,
                                      no_link=summary, text=text)
                 left_pad = line[idx:start]
                 replacement = re.sub(LINK_RE, str(link), line[start:end])
