@@ -42,6 +42,10 @@ will all link to ``Bar``.
 
 Backticks will be stripped, so ``[`class@Foo`]`` will correctly link to ``Foo``.
 
+Fragment identifiers can be included to link to anchors in the target page:
+``[class@Foo#some-subheading]``. All subheadings in gi-docgen generated pages
+have an automatically generated anchor.
+
 The link can either be a fully qualified name, which includes the namespace; or
 a name relative to the current namespace; for instance, both of the following links
 will point to ``ExampleFoo`` when generating the documentation for the "Example"
