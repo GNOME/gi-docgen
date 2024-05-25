@@ -172,6 +172,17 @@ The following keys are used, if found:
       [ 'PangoCairo', 'https://gnome.pages.gitlab.gnome.org/pango/PangoCairo/' ],
     ]
 
+The ``check`` section
+~~~~~~~~~~~~~~~~~~~~~
+
+The ``check`` section is used to define the behavior of the ``gi-docgen check``
+command.
+
+The following keys are used, if found:
+
+``ignore_deprecated`` = ``b``
+  A boolean value that controls whether to skip deprecated types and symbols
+  when checking documentation blocks. It is set to ``false`` by default.
 
 Symbol overrides
 ----------------

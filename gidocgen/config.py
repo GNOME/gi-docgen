@@ -66,6 +66,10 @@ class GIDocConfig:
     def theme(self):
         return self._config.get('theme', {})
 
+    @property
+    def check(self):
+        return self._config.get('check', {})
+
     def get_templates_dir(self, default=None):
         return self.theme.get('templates_dir', default)
 
@@ -276,6 +280,10 @@ class GIDocConfig:
             ]
 
         return self._favicons
+
+    @property
+    def ignore_deprecated(self):
+        return self.check.get('ignore_deprecated', False)
 
 
 class GITemplateConfig:
