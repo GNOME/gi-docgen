@@ -45,6 +45,9 @@ def _check_retval_docs(path, retval, results):
 
 def _check_aliases(config, repository, symbols, results):
     for alias in symbols:
+        if config.ignore_deprecated and alias.deprecated:
+            log.debug(f"Skipping deprecated alias {alias.name}")
+            continue
         if config.is_skipped(alias.name):
             log.debug(f"Skipping hidden alias {alias.name}")
             continue
@@ -53,6 +56,9 @@ def _check_aliases(config, repository, symbols, results):
 
 def _check_bitfields(config, repository, symbols, results):
     for bitfield in symbols:
+        if config.ignore_deprecated and bitfield.deprecated:
+            log.debug(f"Skipping deprecated bitfield {bitfield.name}")
+            continue
         if config.is_skipped(bitfield.name):
             log.debug(f"Skipping hidden bitfield {bitfield.name}")
             continue
@@ -63,6 +69,8 @@ def _check_bitfields(config, repository, symbols, results):
             _check_doc_element([repository.namespace.name, bitfield.name], member, results)
 
         for func in bitfield.functions:
+            if config.ignore_deprecated and func.deprecated:
+                continue
             if config.is_skipped(bitfield.name, 'function', func.name):
                 continue
             _check_doc_element([repository.namespace.name, bitfield.name], func, results)
@@ -72,6 +80,9 @@ def _check_bitfields(config, repository, symbols, results):
 
 def _check_callbacks(config, repository, symbols, results):
     for cb in symbols:
+        if config.ignore_deprecated and cb.deprecated:
+            log.debug(f"Skipping deprecated callback {cb.name}")
+            continue
         if config.is_skipped(cb.name):
             log.debug(f"Skipping hidden callback {cb.name}")
             continue
@@ -83,6 +94,9 @@ def _check_callbacks(config, repository, symbols, results):
 
 def _check_classes(config, repository, symbols, results):
     for cls in symbols:
+        if config.ignore_deprecated and cls.deprecated:
+            log.debug(f"Skipping deprecated class {cls.name}")
+            continue
         if config.is_skipped(cls.name):
             log.debug(f"Skipping hidden class {cls.name}")
             continue
@@ -90,6 +104,8 @@ def _check_classes(config, repository, symbols, results):
         _check_doc_element([repository.namespace.name], cls, results)
 
         for ctor in cls.constructors:
+            if config.ignore_deprecated and ctor.deprecated:
+                continue
             if config.is_skipped(cls.name, 'constructor', ctor.name):
                 continue
             _check_doc_element([repository.namespace.name, cls.name], ctor, results)
@@ -97,6 +113,8 @@ def _check_classes(config, repository, symbols, results):
             _check_retval_docs([repository.namespace.name, cls.name, ctor.name], ctor.return_value, results)
 
         for method in cls.methods:
+            if config.ignore_deprecated and method.deprecated:
+                continue
             if config.is_skipped(cls.name, 'method', method.name):
                 continue
             _check_doc_element([repository.namespace.name, cls.name], method, results)
@@ -104,6 +122,8 @@ def _check_classes(config, repository, symbols, results):
             _check_retval_docs([repository.namespace.name, cls.name, method.name], method.return_value, results)
 
         for func in cls.functions:
+            if config.ignore_deprecated and func.deprecated:
+                continue
             if config.is_skipped(cls.name, 'function', func.name):
                 continue
             _check_doc_element([repository.namespace.name, cls.name], func, results)
@@ -111,11 +131,15 @@ def _check_classes(config, repository, symbols, results):
             _check_retval_docs([repository.namespace.name, cls.name, func.name], func.return_value, results)
 
         for prop in cls.properties.values():
+            if config.ignore_deprecated and prop.deprecated:
+                continue
             if config.is_skipped(cls.name, 'property', prop.name):
                 continue
             _check_doc_element([repository.namespace.name, cls.name], prop, results)
 
         for signal in cls.signals.values():
+            if config.ignore_deprecated and signal.deprecated:
+                continue
             if config.is_skipped(cls.name, 'signal', signal.name):
                 continue
             _check_doc_element([repository.namespace.name, cls.name], signal, results)
@@ -125,6 +149,9 @@ def _check_classes(config, repository, symbols, results):
 
 def _check_constants(config, repository, symbols, results):
     for constant in symbols:
+        if config.ignore_deprecated and constant.deprecated:
+            log.debug(f"Skipping deprecated constant {constant.name}")
+            continue
         if config.is_skipped(constant.name):
             log.debug(f"Skipping hidden constant {constant.name}")
             continue
@@ -134,6 +161,9 @@ def _check_constants(config, repository, symbols, results):
 
 def _check_domains(config, repository, symbols, results):
     for domain in symbols:
+        if config.ignore_deprecated and domain.deprecated:
+            log.debug(f"Skipping deprecated error domain {domain.name}")
+            continue
         if config.is_skipped(domain.name):
             log.debug(f"Skipping hidden error domain {domain.name}")
             continue
@@ -144,6 +174,8 @@ def _check_domains(config, repository, symbols, results):
             _check_doc_element([repository.namespace.name, domain.name], member, results)
 
         for func in domain.functions:
+            if config.ignore_deprecated and func.deprecated:
+                continue
             if config.is_skipped(domain.name, 'function', func.name):
                 continue
             _check_doc_element([repository.namespace.name, domain.name], func, results)
@@ -153,6 +185,9 @@ def _check_domains(config, repository, symbols, results):
 
 def _check_enums(config, repository, symbols, results):
     for enum in symbols:
+        if config.ignore_deprecated and enum.deprecated:
+            log.debug(f"Skipping deprecated enumeration {enum.name}")
+            continue
         if config.is_skipped(enum.name):
             log.debug(f"Skipping hidden enumeration {enum.name}")
             continue
@@ -163,6 +198,8 @@ def _check_enums(config, repository, symbols, results):
             _check_doc_element([repository.namespace.name, enum.name], member, results)
 
         for func in enum.functions:
+            if config.ignore_deprecated and func.deprecated:
+                continue
             if config.is_skipped(enum.name, 'function', func.name):
                 continue
             _check_doc_element([repository.namespace.name, enum.name], func, results)
@@ -172,6 +209,9 @@ def _check_enums(config, repository, symbols, results):
 
 def _check_functions(config, repository, symbols, results):
     for func in symbols:
+        if config.ignore_deprecated and func.deprecated:
+            log.debug(f"Skipping deprecated function {func.name}")
+            continue
         if config.is_skipped(func.name):
             log.debug(f"Skipping hidden function {func.name}")
             continue
@@ -183,6 +223,9 @@ def _check_functions(config, repository, symbols, results):
 
 def _check_function_macros(config, repository, symbols, results):
     for func in symbols:
+        if config.ignore_deprecated and func.deprecated:
+            log.debug(f"Skipping deprecated function macro {func.name}")
+            continue
         if config.is_skipped(func.name):
             log.debug(f"Skipping hidden function macro {func.name}")
             continue
@@ -194,6 +237,9 @@ def _check_function_macros(config, repository, symbols, results):
 
 def _check_interfaces(config, repository, symbols, results):
     for iface in symbols:
+        if config.ignore_deprecated and iface.deprecated:
+            log.debug(f"Skipping deprecated interface {iface.name}")
+            continue
         if config.is_skipped(iface.name):
             log.debug(f"Skipping hidden interface {iface.name}")
             continue
@@ -201,6 +247,8 @@ def _check_interfaces(config, repository, symbols, results):
         _check_doc_element([repository.namespace.name], iface, results)
 
         for method in iface.methods:
+            if config.ignore_deprecated and method.deprecated:
+                continue
             if config.is_skipped(iface.name, 'method', method.name):
                 continue
             _check_doc_element([repository.namespace.name, iface.name], method, results)
@@ -208,6 +256,8 @@ def _check_interfaces(config, repository, symbols, results):
             _check_retval_docs([repository.namespace.name, iface.name, method.name], method.return_value, results)
 
         for func in iface.functions:
+            if config.ignore_deprecated and func.deprecated:
+                continue
             if config.is_skipped(iface.name, 'function', func.name):
                 continue
             _check_doc_element([repository.namespace.name, iface.name], func, results)
@@ -215,11 +265,15 @@ def _check_interfaces(config, repository, symbols, results):
             _check_retval_docs([repository.namespace.name, iface.name, func.name], func.return_value, results)
 
         for prop in iface.properties.values():
+            if config.ignore_deprecated and prop.deprecated:
+                continue
             if config.is_skipped(iface.name, 'property', prop.name):
                 continue
             _check_doc_element([repository.namespace.name, iface.name], prop, results)
 
         for signal in iface.signals.values():
+            if config.ignore_deprecated and signal.deprecated:
+                continue
             if config.is_skipped(iface.name, 'signal', signal.name):
                 continue
             _check_doc_element([repository.namespace.name, iface.name], signal, results)
@@ -229,6 +283,9 @@ def _check_interfaces(config, repository, symbols, results):
 
 def _check_records(config, repository, symbols, results):
     for struct in symbols:
+        if config.ignore_deprecated and struct.deprecated:
+            log.debug(f"Skipping deprecated record {struct.name}")
+            continue
         if config.is_skipped(struct.name):
             log.debug(f"Skipping hidden record {struct.name}")
             continue
@@ -236,6 +293,8 @@ def _check_records(config, repository, symbols, results):
         _check_doc_element([repository.namespace.name], struct, results)
 
         for ctor in struct.constructors:
+            if config.ignore_deprecated and ctor.deprecated:
+                continue
             if config.is_skipped(struct.name, 'constructor', ctor.name):
                 continue
             _check_doc_element([repository.namespace.name, struct.name], ctor, results)
@@ -243,6 +302,8 @@ def _check_records(config, repository, symbols, results):
             _check_retval_docs([repository.namespace.name, struct.name, ctor.name], ctor.return_value, results)
 
         for method in struct.methods:
+            if config.ignore_deprecated and method.deprecated:
+                continue
             if config.is_skipped(struct.name, 'method', method.name):
                 continue
             _check_doc_element([repository.namespace.name, struct.name], method, results)
@@ -250,6 +311,8 @@ def _check_records(config, repository, symbols, results):
             _check_retval_docs([repository.namespace.name, struct.name, method.name], method.return_value, results)
 
         for func in struct.functions:
+            if config.ignore_deprecated and func.deprecated:
+                continue
             if config.is_skipped(struct.name, 'function', func.name):
                 continue
             _check_doc_element([repository.namespace.name, struct.name], func, results)
@@ -259,6 +322,9 @@ def _check_records(config, repository, symbols, results):
 
 def _check_unions(config, repository, symbols, results):
     for union in symbols:
+        if config.ignore_deprecated and union.deprecated:
+            log.debug(f"Skipping deprecated union {union.name}")
+            continue
         if config.is_skipped(union.name):
             log.debug(f"Skipping hidden union {union.name}")
             continue
@@ -266,6 +332,8 @@ def _check_unions(config, repository, symbols, results):
         _check_doc_element([repository.namespace.name], union, results)
 
         for ctor in union.constructors:
+            if config.ignore_deprecated and ctor.deprecated:
+                continue
             if config.is_skipped(union.name, 'constructor', ctor.name):
                 continue
             _check_doc_element([repository.namespace.name, union.name], ctor, results)
@@ -273,6 +341,8 @@ def _check_unions(config, repository, symbols, results):
             _check_retval_docs([repository.namespace.name, union.name, ctor.name], ctor.return_value, results)
 
         for method in union.methods:
+            if config.ignore_deprecated and method.deprecated:
+                continue
             if config.is_skipped(union.name, 'method', method.name):
                 continue
             _check_doc_element([repository.namespace.name, union.name], method, results)
@@ -280,6 +350,8 @@ def _check_unions(config, repository, symbols, results):
             _check_retval_docs([repository.namespace.name, union.name, method.name], method.return_value, results)
 
         for func in union.functions:
+            if config.ignore_deprecated and func.deprecated:
+                continue
             if config.is_skipped(union.name, 'function', func.name):
                 continue
             _check_doc_element([repository.namespace.name, union.name], func, results)
