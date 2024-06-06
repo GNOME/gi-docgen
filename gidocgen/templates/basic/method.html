@@ -117,7 +117,7 @@
       {% endif %}
     </div>
 
-    {% if method.arguments|length != 0 %}
+    {% if method.arguments|length != 0 or (method.instance_parameter and (method.instance_parameter.transfer != "none" or method.instance_parameter.nullable)) %}
     <div class="parameters toggle-wrapper">
       <h4 id="parameters">
         Parameters
@@ -126,6 +126,24 @@
 
       <div class="docblock">
         <dl class="arguments">
+          {% if method.instance_parameter.transfer != "none" or method.instance_parameter.nullable %}
+          <dt class="arg-name"><code>{{ method.instance_parameter.name }}</code></dt>
+          <dd class="arg-description">
+            <p><em>Type:</em>&nbsp;
+            {%- if method.instance_parameter.link -%}
+            {{ method.instance_parameter.link|safe }}
+            {%- else -%}
+            <code>{{ method.instance_parameter.type_cname }}</code>
+            {%- endif -%}
+            </p>
+            {{ method.instance_parameter.description|safe }}
+            <table>
+            {% if method.instance_parameter.nullable %}<tr><td>The argument can be <code>NULL</code>.</td></tr>{% endif %}
+            {% if method.instance_parameter.transfer != "none" %}<tr><td title="transfer: {{ method.instance_parameter.transfer }}">{{ method.instance_parameter.transfer_note }}</td></tr>{% endif %}
+            </table>
+          </dd>
+          {% endif %}
+
           {% for arg in method.arguments %}
           <dt class="arg-name"><code>{{ arg.name }}</code></dt>
           <dd class="arg-description">
