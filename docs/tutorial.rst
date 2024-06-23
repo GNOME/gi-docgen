@@ -30,7 +30,8 @@ and you can use the ``--config`` command line option for gi-docgen.
 
 We begin with the ``library`` preamble:
 
-::
+.. code-block:: toml
+
         # SPDX-FileCopyrightText: 2023 Your Name Here
         # SPDX-License-Identifier: CC0-1.0
 
@@ -51,7 +52,7 @@ If your project has dependencies, and you wish to display them or cross-link
 types and symbols from your API reference, you will need to describe them using
 the ``dependencies`` key, for instance:
 
-::
+.. code-block:: toml
 
         # List the dependencies using their GIR namespace
         dependencies = [
@@ -64,7 +65,7 @@ the ``dependencies`` key, for instance:
 
 Each dependency will need its own object, for instance:
 
-::
+.. code-block:: toml
 
         [dependencies."GObject-2.0"]
         name = "GObject"
@@ -78,7 +79,7 @@ If you wish to add links to the source code repository for type and symbol
 declarations, as well as the location of the documentation source, you will need
 a ``source-location`` section:
 
-::
+.. code-block:: toml
 
         [source-location]
         # The base URL for the web UI
@@ -89,7 +90,7 @@ a ``source-location`` section:
 If your library has additional content, in the form of Markdown files that you
 wish to include in the generated API reference, you can use the ``extra`` section:
 
-::
+.. code-block:: toml
 
         [extra]
         # A list of Markdown files; they will be parsed using the
@@ -107,7 +108,7 @@ wish to include in the generated API reference, you can use the ``extra`` sectio
           "compiling.md",
           "running.md",
           "question_index.md",
-          ...
+          # ...
         ]
         # Additional images referenced by the documentation; their path
         # is relative to the content directory specified on the command
@@ -121,13 +122,13 @@ wish to include in the generated API reference, you can use the ``extra`` sectio
           "images/action-bar.png",
           "images/appchooserbutton.png",
           "images/appchooserdialog.png",
-          ...
+          # ...
         ]
 
 Each additional Markdown file should have its copyright and license specified
 as metadata in its header:
 
-::
+.. code-block:: markdown
 
         Title: An Extra Markdown File
         SPDX-License-Identifier: LGPL-2.1-or-later
@@ -157,7 +158,7 @@ You will need to provide:
 
 A simple invocation for the installed ``Gtk-4.0.gir`` file is:
 
-::
+.. code-block:: shell
 
   gi-docgen generate -C gtk4.toml /usr/share/gir-1.0/Gtk-4.0.gir
 
