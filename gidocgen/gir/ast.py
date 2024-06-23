@@ -8,7 +8,9 @@ from .. import log
 
 class Doc:
     """A documentation node, pointing to the source code"""
-    def __init__(self, content: str, filename: str, line: int, version: T.Optional[str] = None, stability: T.Optional[str] = None):
+    def __init__(self, content: str, filename: str, line: int,
+                 version: T.Optional[str] = None,
+                 stability: T.Optional[str] = None):
         self.content = content
         self.filename = filename
         self.line = line
@@ -120,7 +122,8 @@ class GIRElement:
             return None
         return self.info.source_position.filename, self.info.source_position.line
 
-    def set_deprecated(self, doc: T.Optional[str] = None, since_version: T.Optional[str] = None) -> None:
+    def set_deprecated(self, doc: T.Optional[str] = None,
+                       since_version: T.Optional[str] = None) -> None:
         """Set the deprecation annotations for the element"""
         self.info.deprecated_msg = doc
         self.info.deprecated_version = since_version
@@ -299,7 +302,9 @@ class Parameter(GIRElement):
 
 class ReturnValue(GIRElement):
     """A callable's return value"""
-    def __init__(self, transfer: str, target: Type, nullable: bool = False, closure: int = -1, destroy: int = -1, scope: T.Optional[str] = None):
+    def __init__(self, transfer: str, target: Type, nullable: bool = False,
+                 closure: int = -1, destroy: int = -1,
+                 scope: T.Optional[str] = None):
         super().__init__()
         self.transfer = transfer
         self.nullable = nullable
