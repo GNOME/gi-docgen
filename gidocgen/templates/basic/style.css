@@ -845,6 +845,7 @@ table.arguments tr.arg-description td {
   margin: var(--box-padding);
 
   visibility: hidden;
+  z-index: 1;
 }
 
 .docblock .codehilite:hover > .copy-button {
