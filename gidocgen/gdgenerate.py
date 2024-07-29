@@ -2837,6 +2837,9 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
     # All GTypeInstance sub-types
     typed_tree = repository.get_class_hierarchy()
 
+    if len(objects_tree) == 0 and len(typed_tree) == 0:
+        return None
+
     res = ["<h1>Classes Hierarchy</h1>"]
 
     def dump_tree(node, out):
@@ -3142,7 +3145,9 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
 
     content_files = gen_content_files(config, theme_config, content_dirs, ns_dir, jinja_env, namespace)
     content_images = gen_content_images(config, content_dirs, ns_dir)
-    content_files.append(gen_types_hierarchy(config, theme_config, ns_dir, jinja_env, repository))
+    types_hierarchy = gen_types_hierarchy(config, theme_config, ns_dir, jinja_env, repository)
+    if types_hierarchy:
+        content_files.append(types_hierarchy)
 
     if options.sections == [] or options.sections == ["all"]:
         gen_indices = list(all_indices.keys())
