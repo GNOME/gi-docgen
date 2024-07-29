@@ -19,8 +19,12 @@ meson-build:
   needs: []
   script:
     - dnf install -y meson ninja-build pytest python3-markdown python3-jinja2 python3-packaging python3-pygments python3-typogrify python3-flake8 python3-mypy
-    - meson _build .
+    - meson setup _build .
     - meson test -C _build
+  artifacts:
+    when: always
+    paths:
+      - "${CI_PROJECT_DIR}/_build/meson-logs"
 
 pip-build:
   extends: .pip
