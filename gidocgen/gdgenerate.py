@@ -36,7 +36,7 @@ STRING_TYPES = {
 
 STRING_ELEMENT_TYPES = {
     'utf8': 'Each element is a NUL terminated UTF-8 string.',
-    'filename': 'Each element is a platform-native string, using the preferred OS encoding on Unix and UTF-8 on Windows..',
+    'filename': 'Each element is a platform-native string, using the preferred OS encoding on Unix and UTF-8 on Windows.',
 }
 
 IN_ARG_TRANSFER_MODES = {
