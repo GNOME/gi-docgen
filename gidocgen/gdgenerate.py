@@ -1300,17 +1300,23 @@ class TemplateCallback:
 class TemplateField:
     def __init__(self, namespace, field):
         self.name = field.name
+        self.is_callback = False
+        self.is_array = False
         if field.target is not None:
             if isinstance(field.target, gir.Callback):
                 self.is_callback = True
-                self.type_name: field.target.name
+                self.type_name = field.target.name
                 self.type_cname = TemplateCallback(namespace, field.target, field=True).c_decl
+            elif isinstance(field.target, gir.ArrayType):
+                self.is_array = True
+                self.fixed_size = field.target.fixed_size
+                self.zero_terminated = field.target.zero_terminated
+                self.type_name = field.target.name
+                self.type_cname = field.target.value_type.ctype
             else:
-                self.is_callback = False
                 self.type_name = field.target.name
                 self.type_cname = field.target.ctype
         else:
-            self.is_callback = False
             self.type_name = 'none'
             self.type_cname = 'gpointer'
         self.private = field.private
@@ -1320,6 +1326,22 @@ class TemplateField:
         else:
             self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
         self.introspectable = field.introspectable
+
+    @property
+    def c_decl(self):
+        res = ""
+        if self.is_callback:
+            res = f"{self.type_cname};"
+        elif self.is_array:
+            if self.fixed_size > 0:
+                res = f"{self.type_cname} {self.name}[{self.fixed_size}]"
+            else:
+                res = f"{self.type_cname} {self.name}[]"
+        elif self.bits > 0:
+            res = f"{self.type_cname} {self.name} : {self.bits}"
+        else:
+            res = f"{self.type_cname} {self.name}"
+        return res
 
 
 class TemplateInterface:
@@ -1679,9 +1701,9 @@ class TemplateClass:
         if n_fields > 0:
             for (idx, field) in enumerate(self.fields):
                 if idx < n_fields - 1:
-                    res += [f"  {field.name}: {field.type_cname},"]
+                    res += [f"  {field.c_decl},"]
                 else:
-                    res += [f"  {field.name}: {field.type_cname}"]
+                    res += [f"  {field.c_decl}"]
         else:
             res += ["  /* No available fields */"]
         res += ["}"]
@@ -1811,12 +1833,7 @@ class TemplateRecord:
         n_fields = len(self.fields)
         if n_fields > 0:
             for field in self.fields:
-                if field.is_callback:
-                    res += [f"  {field.type_cname};"]
-                elif field.bits > 0:
-                    res += [f"  {field.type_cname} {field.name} : {field.bits};"]
-                else:
-                    res += [f"  {field.type_cname} {field.name};"]
+                res += [f"  {field.c_decl};"]
         else:
             res += ["  /* No available fields */"]
         res += ["}"]
@@ -1890,10 +1907,7 @@ class TemplateUnion:
         n_fields = len(self.fields)
         if n_fields > 0:
             for field in self.fields:
-                if field.is_callback:
-                    res += [f"  {field.type_cname};"]
-                else:
-                    res += [f"  {field.type_cname} {field.name};"]
+                res += [f"  {field.c_decl};"]
         else:
             res += ["  /* No available fields */"]
         res += ["}"]
