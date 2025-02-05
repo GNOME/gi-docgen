@@ -664,19 +664,24 @@ class GirParser:
         identifier = node.attrib.get(_cns('identifier'))
         invoker = node.attrib.get('invoker')
         throws = node.attrib.get('throws', '0') == '1'
+        static = node.attrib.get('static', '0') == '1'
 
         child = node.find('core:return-value', GI_NAMESPACES)
         return_value = self._parse_return_value(child)
 
         child = node.find('./core:parameters/core:instance-parameter', GI_NAMESPACES)
-        instance_param = self._parse_parameter(child, True)
+        if child is not None:
+            instance_param = self._parse_parameter(child, True)
+        else:
+            instance_param = None
 
         children = node.findall('./core:parameters/core:parameter', GI_NAMESPACES)
         params = []
         for child in children:
             params.append(self._parse_parameter(child))
 
-        res = ast.VirtualMethod(name=name, identifier=identifier, invoker=invoker, instance_param=instance_param, throws=throws)
+        res = ast.VirtualMethod(name=name, identifier=identifier, invoker=invoker, instance_param=instance_param,
+                                throws=throws, static=static)
         res.set_return_value(return_value)
         res.set_parameters(params)
         res.set_introspectable(node.attrib.get('introspectable', '1') != '0')

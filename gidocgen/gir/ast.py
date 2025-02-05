@@ -400,10 +400,12 @@ class Method(Callable):
 
 
 class VirtualMethod(Callable):
-    def __init__(self, name: str, identifier: str, invoker: str, instance_param: Parameter, throws: bool = False):
+    def __init__(self, name: str, identifier: str, invoker: str, instance_param: T.Optional[Parameter],
+                 static: bool = False, throws: bool = False):
         super().__init__(name, None, identifier, throws)
         self.instance_param = instance_param
         self.invoker = invoker
+        self.static = static
 
     def __contains__(self, param):
         if isinstance(param, Parameter) and param == self.instance_param:

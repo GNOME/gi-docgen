@@ -898,7 +898,10 @@ class TemplateMethod:
         self.is_inline = method.inline
         self.throws = method.throws
 
-        self.instance_parameter = TemplateArgument(namespace, method, method.instance_param, CallableType.METHOD)
+        if method.instance_param is not None:
+            self.instance_parameter = TemplateArgument(namespace, method, method.instance_param, CallableType.METHOD)
+        else:
+            self.instance_parameter = None
 
         self.arguments = []
         for arg in method.parameters:
@@ -1024,9 +1027,13 @@ class TemplateMethod:
             res += [f"{self.name} ("]
         n_args = len(self.arguments)
         if n_args == 0:
-            res += [f"  {self.instance_parameter.type_cname} {self.instance_parameter.name}"]
+            if self.instance_parameter is not None:
+                res += [f"  {self.instance_parameter.type_cname} {self.instance_parameter.name}"]
+            else:
+                res += ["   void"]
         else:
-            res += [f"  {self.instance_parameter.type_cname} {self.instance_parameter.name},"]
+            if self.instance_parameter is not None:
+                res += [f"  {self.instance_parameter.type_cname} {self.instance_parameter.name},"]
             for (idx, arg) in enumerate(self.arguments):
                 if idx == n_args - 1 and not self.throws:
                     res += [f"  {arg.c_decl}"]
