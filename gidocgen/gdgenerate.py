@@ -1029,7 +1029,7 @@ class TemplateMethod:
         if n_args == 0:
             if self.instance_parameter is not None:
                 res += [f"  {self.instance_parameter.type_cname} {self.instance_parameter.name}"]
-            else:
+            elif not self.throws:
                 res += ["   void"]
         else:
             if self.instance_parameter is not None:
@@ -1211,7 +1211,7 @@ class TemplateFunction:
                 res += [retval]
             res += [f"{self.identifier} ("]
         n_args = len(self.arguments)
-        if n_args == 0:
+        if n_args == 0 and not self.throws:
             res += ["  void"]
         else:
             for (idx, arg) in enumerate(self.arguments):
