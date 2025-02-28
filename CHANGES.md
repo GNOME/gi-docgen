@@ -12,6 +12,24 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+## [2025.1] - 2025-02-28
+
+### Added
+
+- Add layout for tablet portrait mode [#95]
+- Support static virtual methods [#211]
+
+### Changed
+
+- Don't generate classes hierarchy if not needed [!220]
+- Improve copy buttons on narrow layouts [#91]
+
+### Fixed
+
+- Only consider dot data processing fail if dot returns non-zero [#188]
+- Show non-standard instance parameters [#202]
+- Fix C declaration of structure fields [#210]
+
 ## [2024.1] - 2024-05-20
 
 ### Added
