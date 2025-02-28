@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
+include:
+  - component: gitlab.gnome.org/GNOME/citemplates/release-service@master
+    inputs:
+      dist-job-name: "meson-build"
+      tarball-artifact-path: "${TARBALL_ARTIFACT_PATH}"
+
 stages:
   - build
   - check
@@ -18,9 +24,11 @@ meson-build:
   stage: build
   needs: []
   script:
-    - dnf install -y meson ninja-build pytest python3-markdown python3-jinja2 python3-packaging python3-pygments python3-typogrify python3-flake8 python3-mypy
+    - dnf install -y git meson ninja-build pytest python3-markdown python3-jinja2 python3-packaging python3-pygments python3-typogrify python3-flake8 python3-mypy
+    - git config --global --add safe.directory $CI_PROJECT_DIR
     - meson setup _build .
     - meson test -C _build
+    - meson dist -C _build
   artifacts:
     when: always
     paths:
