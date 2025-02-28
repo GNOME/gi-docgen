@@ -6,7 +6,7 @@ include:
   - component: gitlab.gnome.org/GNOME/citemplates/release-service@master
     inputs:
       dist-job-name: "meson-build"
-      tarball-artifact-path: "${TARBALL_ARTIFACT_PATH}"
+      tarball-artifact-path: "_build/meson-dist/$CI_PROJECT_NAME-$CI_COMMIT_TAG.tar.xz"
 
 stages:
   - build
