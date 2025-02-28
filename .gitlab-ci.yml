@@ -31,8 +31,10 @@ meson-build:
     - meson dist -C _build
   artifacts:
     when: always
+    name: "gi-docgen-${CI_COMMIT_REF_NAME}"
     paths:
       - "${CI_PROJECT_DIR}/_build/meson-logs"
+      - "${CI_PROJECT_DIR}/_build/meson-dist/*.tar.xz"
 
 pip-build:
   extends: .pip
