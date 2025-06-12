@@ -2957,6 +2957,8 @@ def gen_devhelp(config, repository, namespace, symbols, content_files):
     book.set("name", f"{namespace.name}")
     book.set("version", "2")
     book.set("language", "c")
+    if config.docs_url:
+        book.set("online", f"{config.docs_url}")
 
     chapters = etree.SubElement(book, 'chapters')
 
