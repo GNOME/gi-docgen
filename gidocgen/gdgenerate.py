@@ -2938,7 +2938,7 @@ def gen_opensearch(config, repository, namespace, symbols, content_files):
     sub.text = "UTF-8"
     if config.logo_url:
         sub = etree.SubElement(desc, 'Image')
-        sub.text = config.logo_url
+        sub.text = f"{config.docs_url}/{config.logo_url}"
     sub = etree.SubElement(desc, 'Url', type="text/html")
     sub.set("type", "text/html")
     sub.set("template", f"{config.docs_url}/?q={{searchTerms}}")
