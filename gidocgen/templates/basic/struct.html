@@ -117,7 +117,7 @@
           <div class="docblock">
             <dl>
             {% for field in struct.fields %}
-              <dt><code>{{ field.name }}</code></dt>
+              <dt><code>{{ field.name }}: </code> {%- if field.link -%}{{ field.link|safe }}{%- else -%}{{ field.type_cname }}{%- endif -%}</dt>
               <dd>{{ field.description }}</dd>
             {% endfor %}
             </dl>
