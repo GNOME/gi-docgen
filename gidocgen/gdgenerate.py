@@ -1307,19 +1307,38 @@ class TemplateCallback:
 class TemplateField:
     def __init__(self, namespace, field):
         self.name = field.name
+        self.is_fundamental = False
         self.is_callback = False
         self.is_array = False
+        self.is_map = False
+        self.is_list = False
+        self.is_list_model = False
         if field.target is not None:
+            self.is_fundamental = field.target.is_fundamental
             if isinstance(field.target, gir.Callback):
                 self.is_callback = True
                 self.type_name = field.target.name
                 self.type_cname = TemplateCallback(namespace, field.target, field=True).c_decl
             elif isinstance(field.target, gir.ArrayType):
                 self.is_array = True
-                self.fixed_size = field.target.fixed_size
-                self.zero_terminated = field.target.zero_terminated
                 self.type_name = field.target.name
                 self.type_cname = field.target.value_type.ctype
+                self.fixed_size = field.target.fixed_size
+                self.zero_terminated = field.target.zero_terminated
+                self.value_type = field.target.value_type.name
+                self.value_type_cname = field.target.value_type.ctype
+            elif isinstance(field.target, gir.ListType):
+                self.is_list = True
+                self.type_name = field.target.value_type.name
+                self.type_cname = field.target.value_type.ctype
+                self.value_type = field.target.value_type.name
+                self.value_type_cname = field.target.value_type.ctype
+            elif field.target.name in ['Gio.ListModel', 'GListModel']:
+                self.is_list_model = True
+                if field.attributes is not None:
+                    self.value_type = field.attributes.get('element-type', 'GObject')
+            elif isinstance(field.target, gir.MapType):
+                self.is_map = True
             else:
                 self.type_name = field.target.name
                 self.type_cname = field.target.ctype
@@ -1333,6 +1352,30 @@ class TemplateField:
         else:
             self.description = Markup(f"<p>{MISSING_DESCRIPTION}</p>")
         self.introspectable = field.introspectable
+        if self.type_name in ['utf8', 'filename']:
+            self.string_note = STRING_TYPES[self.type_name]
+        elif self.is_array or self.is_list:
+            if self.value_type in ['utf8', 'filename']:
+                self.string_note = STRING_ELEMENT_TYPES[self.value_type]
+        if self.is_array:
+            name = self.value_type
+        elif self.is_list:
+            name = self.value_type
+        elif self.is_list_model:
+            name = self.value_type
+        elif self.type_name is not None:
+            name = self.type_name
+        else:
+            name = None
+        if name is not None:
+            if self.is_fundamental:
+                self.link = f"<code>{self.type_cname}</code>"
+            else:
+                if '.' in name:
+                    ns, name = name.split('.')
+                else:
+                    ns = namespace.name
+                self.link = gen_type_link(namespace.repository, ns, name, self.type_cname)
 
     @property
     def c_decl(self):
