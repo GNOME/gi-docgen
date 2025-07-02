@@ -12,6 +12,17 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+## [2025.4] - 2025-07-02
+
+### Added
+
+- Add online attribute for devhelp index [#204]
+- Include type data in the field template [!250]
+
+### Fixed
+
+- Use normal font size for enumeration values description [#218]
+
 ## [2025.1] - 2025-02-28
 
 ### Added
