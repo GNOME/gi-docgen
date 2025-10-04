@@ -1,0 +1,11 @@
+# Example configuration for using the markdown theme
+[library]
+name = "ExampleLibrary"
+version = "1.0"
+description = "An example library using the markdown theme"
+
+[theme]
+name = "markdown"
+
+[project]
+namespace = "Example"

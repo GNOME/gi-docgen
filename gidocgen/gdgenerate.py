@@ -2104,6 +2104,11 @@ class TemplateNamespace:
         self.identifier_prefix = namespace.identifier_prefix[0]
 
 
+def _get_file_extension(theme_config):
+    """Get the file extension for generated files from theme config"""
+    return theme_config.file_suffix
+
+
 def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_classes):
     namespace = repository.namespace
 
@@ -2122,7 +2127,8 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
         if config.is_hidden(cls.name):
             log.debug(f"Skipping hidden class {cls.name}")
             continue
-        class_file = os.path.join(output_dir, f"class.{cls.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        class_file = os.path.join(output_dir, f"class.{cls.name}.{file_ext}")
         log.info(f"Creating class file for {namespace.name}.{cls.name}: {class_file}")
 
         tmpl = TemplateClass(namespace, cls, config)
@@ -2234,7 +2240,7 @@ def _gen_classes(config, theme_config, output_dir, jinja_env, repository, all_cl
                     continue
 
                 s = section['template_class'](namespace, cls, sym)
-                sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{cls.name}.{sym.name}.html")
+                sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{cls.name}.{sym.name}.{file_ext}")
                 log.debug(f"Creating symbol file for {namespace.name}.{cls.name}.{sym.name}: {sym_file}")
 
                 with open(sym_file, "w", encoding="utf-8") as out:
@@ -2266,7 +2272,8 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
         if config.is_hidden(iface.name):
             log.debug(f"Skipping hidden interface {iface.name}")
             continue
-        iface_file = os.path.join(output_dir, f"iface.{iface.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        iface_file = os.path.join(output_dir, f"iface.{iface.name}.{file_ext}")
         log.info(f"Creating interface file for {namespace.name}.{iface.name}: {iface_file}")
 
         tmpl = TemplateInterface(namespace, iface, config)
@@ -2362,7 +2369,7 @@ def _gen_interfaces(config, theme_config, output_dir, jinja_env, repository, all
                     continue
 
                 s = section['template_class'](namespace, iface, sym)
-                sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{iface.name}.{sym.name}.html")
+                sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{iface.name}.{sym.name}.{file_ext}")
                 log.debug(f"Creating symbol file for {namespace.name}.{iface.name}.{sym.name}: {sym_file}")
 
                 with open(sym_file, "w", encoding="utf-8") as out:
@@ -2389,7 +2396,8 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
         if config.is_hidden(enum.name):
             log.debug(f"Skipping hidden enum {enum.name}")
             continue
-        enum_file = os.path.join(output_dir, f"enum.{enum.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        enum_file = os.path.join(output_dir, f"enum.{enum.name}.{file_ext}")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
         tmpl = TemplateEnum(namespace, enum, config)
@@ -2408,7 +2416,7 @@ def _gen_enums(config, theme_config, output_dir, jinja_env, repository, all_enum
                 continue
 
             f = TemplateFunction(namespace, enum, type_func)
-            type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
+            type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.{file_ext}")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
             with open(type_func_file, "w", encoding="utf-8") as out:
@@ -2434,7 +2442,8 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
         if config.is_hidden(enum.name):
             log.debug(f"Skipping hidden bitfield {enum.name}")
             continue
-        enum_file = os.path.join(output_dir, f"flags.{enum.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        enum_file = os.path.join(output_dir, f"flags.{enum.name}.{file_ext}")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
         tmpl = TemplateEnum(namespace, enum, config)
@@ -2453,7 +2462,7 @@ def _gen_bitfields(config, theme_config, output_dir, jinja_env, repository, all_
                 continue
 
             f = TemplateFunction(namespace, enum, type_func)
-            type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
+            type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.{file_ext}")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
             with open(type_func_file, "w", encoding="utf-8") as out:
@@ -2479,7 +2488,8 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
         if config.is_hidden(enum.name):
             log.debug(f"Skipping hidden domain {enum.name}")
             continue
-        enum_file = os.path.join(output_dir, f"error.{enum.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        enum_file = os.path.join(output_dir, f"error.{enum.name}.{file_ext}")
         log.info(f"Creating enum file for {namespace.name}.{enum.name}: {enum_file}")
 
         tmpl = TemplateEnum(namespace, enum, config)
@@ -2498,7 +2508,7 @@ def _gen_domains(config, theme_config, output_dir, jinja_env, repository, all_en
                 continue
 
             f = TemplateFunction(namespace, enum, type_func)
-            type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.html")
+            type_func_file = os.path.join(output_dir, f"type_func.{enum.name}.{type_func.name}.{file_ext}")
             log.debug(f"Creating type func file for {namespace.name}.{enum.name}.{type_func.name}: {type_func_file}")
 
             with open(type_func_file, "w", encoding="utf-8") as out:
@@ -2523,7 +2533,8 @@ def _gen_constants(config, theme_config, output_dir, jinja_env, repository, all_
         if config.is_hidden(const.name):
             log.debug(f"Skipping hidden constant {const.name}")
             continue
-        const_file = os.path.join(output_dir, f"const.{const.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        const_file = os.path.join(output_dir, f"const.{const.name}.{file_ext}")
         log.info(f"Creating constant file for {namespace.name}.{const.name}: {const_file}")
 
         tmpl = TemplateConstant(namespace, const)
@@ -2550,7 +2561,8 @@ def _gen_aliases(config, theme_config, output_dir, jinja_env, repository, all_al
         if config.is_hidden(alias.name):
             log.debug(f"Skipping hidden alias {alias.name}")
             continue
-        alias_file = os.path.join(output_dir, f"alias.{alias.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        alias_file = os.path.join(output_dir, f"alias.{alias.name}.{file_ext}")
         log.info(f"Creating alias file for {namespace.name}.{alias.name}: {alias_file}")
 
         tmpl = TemplateAlias(namespace, alias)
@@ -2581,7 +2593,8 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
         if config.is_hidden(record.name):
             log.debug(f"Skipping hidden record {record.name}")
             continue
-        record_file = os.path.join(output_dir, f"struct.{record.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        record_file = os.path.join(output_dir, f"struct.{record.name}.{file_ext}")
         log.info(f"Creating record file for {namespace.name}.{record.name}: {record_file}")
 
         tmpl = TemplateRecord(namespace, record, config)
@@ -2640,7 +2653,7 @@ def _gen_records(config, theme_config, output_dir, jinja_env, repository, all_re
                     continue
 
                 s = section['template_class'](namespace, record, sym)
-                sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{record.name}.{sym.name}.html")
+                sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{record.name}.{sym.name}.{file_ext}")
                 log.debug(f"Creating symbol file for {namespace.name}.{record.name}.{sym.name}: {sym_file}")
 
                 with open(sym_file, "w", encoding="utf-8") as out:
@@ -2668,7 +2681,8 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
         if config.is_hidden(union.name):
             log.debug(f"Skipping hidden union {union.name}")
             continue
-        union_file = os.path.join(output_dir, f"union.{union.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        union_file = os.path.join(output_dir, f"union.{union.name}.{file_ext}")
         log.info(f"Creating union file for {namespace.name}.{union.name}: {union_file}")
 
         tmpl = TemplateUnion(namespace, union, config)
@@ -2727,7 +2741,7 @@ def _gen_unions(config, theme_config, output_dir, jinja_env, repository, all_uni
                     continue
 
                 s = section['template_class'](namespace, union, sym)
-                sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{union.name}.{sym.name}.html")
+                sym_file = os.path.join(output_dir, f"{section['section_fragment']}.{union.name}.{sym.name}.{file_ext}")
                 log.debug(f"Creating symbol file for {namespace.name}.{union.name}.{sym.name}: {sym_file}")
 
                 with open(sym_file, "w", encoding="utf-8") as out:
@@ -2753,7 +2767,8 @@ def _gen_functions(config, theme_config, output_dir, jinja_env, repository, all_
         if config.is_hidden(func.name):
             log.debug(f"Skipping hidden function {func.name}")
             continue
-        func_file = os.path.join(output_dir, f"func.{func.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        func_file = os.path.join(output_dir, f"func.{func.name}.{file_ext}")
         log.info(f"Creating function file for {namespace.name}.{func.name}: {func_file}")
 
         tmpl = TemplateFunction(namespace, None, func)
@@ -2782,7 +2797,8 @@ def _gen_callbacks(config, theme_config, output_dir, jinja_env, repository, all_
         if config.is_hidden(func.name):
             log.debug(f"Skipping hidden callback {func.name}")
             continue
-        func_file = os.path.join(output_dir, f"callback.{func.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        func_file = os.path.join(output_dir, f"callback.{func.name}.{file_ext}")
         log.info(f"Creating callback file for {namespace.name}.{func.name}: {func_file}")
 
         tmpl = TemplateCallback(namespace, func)
@@ -2811,7 +2827,8 @@ def _gen_function_macros(config, theme_config, output_dir, jinja_env, repository
         if config.is_hidden(func.name):
             log.debug(f"Skipping hidden macro {func.name}")
             continue
-        func_file = os.path.join(output_dir, f"func.{func.name}.html")
+        file_ext = _get_file_extension(theme_config)
+        func_file = os.path.join(output_dir, f"func.{func.name}.{file_ext}")
         log.info(f"Creating function macro file for {namespace.name}.{func.name}: {func_file}")
 
         tmpl = TemplateFunction(namespace, None, func)
@@ -2850,7 +2867,8 @@ def gen_content_files(config, theme_config, content_dirs, output_dir, jinja_env,
 
         origin = md.Meta.get("origin", file_name)
 
-        content_file = file_name.replace(".md", ".html")
+        file_ext = _get_file_extension(theme_config)
+        content_file = file_name.replace(".md", f".{file_ext}")
         dst_file = os.path.join(output_dir, content_file)
 
         content = {
@@ -2941,8 +2959,9 @@ def gen_types_hierarchy(config, theme_config, output_dir, jinja_env, repository)
         res += ["</ul>"]
         res += ["</div>"]
 
+    file_ext = _get_file_extension(theme_config)
     content = {
-        "output_file": "classes_hierarchy.html",
+        "output_file": f"classes_hierarchy.{file_ext}",
         "meta": {
             "keywords": "types, hierarchy, classes",
         },
@@ -3260,7 +3279,8 @@ def gen_reference(config, options, repository, templates_dir, theme_config, cont
     template_symbols = dict(sorted(template_symbols.items()))
 
     ns_tmpl = jinja_env.get_template(theme_config.namespace_template)
-    ns_file = os.path.join(ns_dir, "index.html")
+    file_ext = _get_file_extension(theme_config)
+    ns_file = os.path.join(ns_dir, f"index.{file_ext}")
     log.info(f"Creating namespace index file for {namespace.name}-{namespace.version}: {ns_file}")
     with open(ns_file, "w", encoding="utf-8") as out:
         out.write(ns_tmpl.render({

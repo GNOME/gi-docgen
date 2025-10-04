@@ -391,3 +391,9 @@ class GITemplateConfig:
     @property
     def alias_template(self):
         return self.templates.get('alias', 'alias.html')
+
+    @property
+    def file_suffix(self):
+        """Get the file suffix for generated files"""
+        metadata = self._config.get('metadata', {})
+        return metadata.get('file_suffix', 'html')

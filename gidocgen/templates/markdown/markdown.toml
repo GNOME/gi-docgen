@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: 2024 GNOME Foundation
+#
+# SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
+
+[metadata]
+name = "Markdown"
+author_name = "gi-docgen"
+author_email = "gi-docgen@gnome.org"
+copyright_year = "2024"
+license = "Apache-2.0 OR GPL-3.0-or-later"
+file_suffix = "md"
+
+[templates]
+class = "class.md"
+interface = "interface.md"
+content = "content.md"
+property = "property.md"
+signal = "signal.md"
+vfunc = "vfunc.md"
+method = "method.md"
+type_func = "type_func.md"
+class_method = "class_method.md"
+namespace = "namespace.md"
+error = "enum.md"
+flags = "enum.md"
+enum = "enum.md"
+constant = "constant.md"
+record = "struct.md"
+union = "struct.md"
+alias = "struct.md"
+function = "function.md"
+ctor = "ctor.md"
