@@ -28,6 +28,12 @@ SPDX-FileCopyrightText = "2021  Emmanuele Bassi"
 SPDX-License-Identifier = "CC-BY-SA-3.0"
 
 [[annotations]]
+path = ["docs/**.rst"]
+precedence = "override"
+SPDX-FileCopyrightText = "2021  GNOME Foundation"
+SPDX-License-Identifier = "Apache-2.0 OR GPL-3.0-or-later"
+
+[[annotations]]
 path = "gidocgen/templates/basic/**.html"
 precedence = "override"
 SPDX-FileCopyrightText = "2021  GNOME Foundation"
