@@ -1,0 +1,88 @@
+version = 1
+SPDX-PackageName = "gi-docgen"
+SPDX-PackageSupplier = "Emmanuele Bassi <ebassi@gnome.org>"
+SPDX-PackageDownloadLocation = "https://gitlab.gnome.org/ebassi/gi-docgen"
+
+[[annotations]]
+path = "README.md"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021  GNOME Foundation"
+SPDX-License-Identifier = "Apache-2.0 OR GPL-3.0-or-later"
+
+[[annotations]]
+path = "CHANGES.md"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2022  Emmanuele Bassi"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = "gi-docgen.pc.in"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021  GNOME Foundation"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = ["docs/gi-docgen.png", "docs/gi-docgen.svg"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021  Emmanuele Bassi"
+SPDX-License-Identifier = "CC-BY-SA-3.0"
+
+[[annotations]]
+path = ["docs/**.rst"]
+precedence = "override"
+SPDX-FileCopyrightText = "2021  GNOME Foundation"
+SPDX-License-Identifier = "Apache-2.0 OR GPL-3.0-or-later"
+
+[[annotations]]
+path = "gidocgen/templates/basic/**.html"
+precedence = "override"
+SPDX-FileCopyrightText = "2021  GNOME Foundation"
+SPDX-License-Identifier = "Apache-2.0 OR GPL-3.0-or-later"
+
+[[annotations]]
+path = "gidocgen/templates/basic/**.png"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021  GNOME Foundation"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = "gidocgen/templates/basic/RedHat**.woff"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2019  Red Hat Inc."
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = "gidocgen/templates/basic/RedHat**.woff2"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2019  Red Hat Inc."
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = "gidocgen/templates/basic/SourceCodePro**.woff"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2010, 2012  Adobe Systems Inc."
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = "tests/data/gir/Utility-1.0.gir"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021  The gobject-introspection authors"
+SPDX-License-Identifier = "GPL-2.0-or-later"
+
+[[annotations]]
+path = "tests/data/gir/Regress-1.0.gir"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021  The gobject-introspection authors"
+SPDX-License-Identifier = "GPL-2.0-or-later"
+
+[[annotations]]
+path = ["tests/data/gir/GLib-2.0.gir", "tests/data/gir/GObject-2.0.gir", "tests/data/gir/Gio-2.0.gir"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021  The GLib authors"
+SPDX-License-Identifier = "LGPL-2.0-or-later"
+
+[[annotations]]
+path = "tests/data/gir/cairo-1.0.gir"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021  The gobject-introspection authors"
+SPDX-License-Identifier = "LGPL-2.0-or-later OR MPL-1.1"
