@@ -12,6 +12,12 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+## [2025.5] - 2025-10-11
+
+### Fixed
+
+- Make sure to escape query strings [#228]
+
 ## [2025.4] - 2025-07-02
 
 ### Added
