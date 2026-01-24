@@ -184,3 +184,14 @@ class TestGtkDocExtension(unittest.TestCase):
                          "`GDBusProxy:g-connection` must be `NULL` and will be set to the")
         self.assertEqual(mdext.process_gtkdoc_sigils("#GDBusProxy:g-name-owner. Connect to the #GObject::notify signal"),
                          "`GDBusProxy:g-name-owner`. Connect to the `GObject::notify` signal")
+
+
+class TestDotRenderer(unittest.TestCase):
+
+    def test_render_dot(self):
+        graph_definition = "digraph G { a -> b; }"
+        svg_data = utils.render_dot(graph_definition, output_format="svg")
+        self.assertTrue("<svg" in svg_data)
+        self.assertTrue("</svg>" in svg_data)
+        self.assertTrue("<?xml" not in svg_data)
+        self.assertTrue("DOCTYPE" not in svg_data)

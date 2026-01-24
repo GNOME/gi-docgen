@@ -12,6 +12,20 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+## [2026.1] - 2026-01-23
+
+### Added
+
+- Parse method-inline for records, unions and interfaces [#173]
+
+### Changed
+
+- Use dot's `svg_inline` output format [!251]
+
+### Fixed
+
+- Fix Red Hat Display italic font-face [!257]
+
 ## [2025.5] - 2025-10-11
 
 ### Fixed

@@ -951,6 +951,9 @@ class GirParser:
         children = node.findall('core:method', GI_NAMESPACES)
         for child in children:
             methods.append(self._parse_method(child))
+        children = node.findall('core:method-inline', GI_NAMESPACES)
+        for child in children:
+            methods.append(self._parse_method(child, inline=True))
 
         vmethods = []
         children = node.findall('core:virtual-method', GI_NAMESPACES)
@@ -1036,6 +1039,10 @@ class GirParser:
         for child in children:
             methods.append(self._parse_method(child))
 
+        children = node.findall('core:method-inline', GI_NAMESPACES)
+        for child in children:
+            methods.append(self._parse_method(child, inline=True))
+
         functions = []
         children = node.findall('core:function', GI_NAMESPACES)
         for child in children:
@@ -1079,6 +1086,10 @@ class GirParser:
         children = node.findall('core:method', GI_NAMESPACES)
         for child in children:
             methods.append(self._parse_method(child))
+
+        children = node.findall('core:method-inline', GI_NAMESPACES)
+        for child in children:
+            methods.append(self._parse_method(child, inline=True))
 
         functions = []
         children = node.findall('core:function', GI_NAMESPACES)
