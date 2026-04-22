@@ -1183,17 +1183,22 @@ class TemplateFunction:
         self.finish_func = func.finish_func
         if func.finish_func:
             if type_ is not None:
-                type_funcs = []
-                type_funcs.extend(getattr(type_, 'constructors', []))
-                type_funcs.extend(getattr(type_, 'functions', []))
-                for f in type_funcs:
+                for f in getattr(type_, 'functions', []):
                     if f.name == func.finish_func:
                         self.finish_func_symbol = f.identifier
+                        self.finish_func_fragment = 'type_func'
                         break
+                if self.finish_func_symbol is not None:
+                    for f in getattr(type_, 'constructors', []):
+                        if f.name == func.finish_func:
+                            self.finish_func_symbol = f.identifier
+                            self.finish_func_fragment = 'ctor'
+                            break
             else:
                 f = namespace.find_function(func.finish_func)
                 if f is not None:
                     self.finish_func_symbol = f.identifier
+                    self.finish_func_fragment = 'type_func'
 
     @property
     def c_decl(self):
