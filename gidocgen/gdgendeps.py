@@ -54,6 +54,10 @@ def gen_dependencies(repository, config, options):
         outfile.write(f)
         outfile.write("\n")
 
+    if config.urlmap_file:
+        outfile.write(config.urlmap_file)
+        outfile.write("\n")
+
 
 def add_args(parser):
     parser.add_argument("--add-include-path", action="append", dest="include_paths", default=[],
