@@ -79,6 +79,7 @@ const refs = {
     search: null,
     main: null,
     toc: null,
+    clear: null,
 };
 
 let searchIndex = undefined;
@@ -87,7 +88,7 @@ let activeTypeFilter = null;
 
 // Exports
 window.onInitSearch = onInitSearch;
-window.hideResults = hideResults;
+window.clearSearch = clearSearch;
 
 /* Event handlers */
 
@@ -103,10 +104,12 @@ function onDidLoadSearchIndex(data) {
     refs.search = document.querySelector("#search");
     refs.main   = document.querySelector("#main");
     refs.toc    = document.querySelector("#toc");
+    refs.clear  = document.querySelector("#search-clear");
 
     attachInputHandlers();
 
     if (searchParams.q) {
+        removeClass(refs.clear, "hidden");
         search(searchParams.q, searchParams.type || null);
     }
 }
@@ -118,10 +121,11 @@ function getNakedUrl() {
 function onDidSearch() {
     const query = refs.input.value;
     if (query) {
+        removeClass(refs.clear, "hidden");
         search(query);
     }
     else {
-        hideSearchResults();
+        clearSearch();
     }
 }
 
@@ -139,6 +143,11 @@ function attachInputHandlers() {
 
     refs.input.addEventListener('keyup', debounce(200, onDidSearch))
     refs.form.addEventListener('submit', onDidSubmit)
+
+    refs.clear.addEventListener('click', function() {
+        clearSearch();
+        refs.input.focus();
+    });
 }
 
 /* Searching */
@@ -187,10 +196,25 @@ function hideSearchResults() {
 function createResultsTitle(query, n_results) {
     // Ensure we're returning an escaped query string, to ensure we
     // prevent XSS vulnerabilities
+    let header = document.createElement("div");
+    header.className = "search-results-header";
+
     let h1 = document.createElement("h1");
     let text = document.createTextNode("Results for “" + query + "” (" + n_results + ")");
-    h1.appendChild(text)
-    return h1;
+    h1.appendChild(text);
+    header.appendChild(h1);
+
+    let btn = document.createElement("button");
+    btn.className = "search-clear-btn";
+    btn.setAttribute("aria-label", "Clear search");
+    btn.textContent = "✕";
+    btn.addEventListener("click", function() {
+        clearSearch();
+        refs.input.focus();
+    });
+    header.appendChild(btn);
+
+    return header;
 }
 
 function createResultsContent(results) {
@@ -296,7 +320,10 @@ function createTypeFilter(query, allResults) {
     return filterBar;
 }
 
-function hideResults() {
+function clearSearch() {
+    refs.input.value = "";
+    activeTypeFilter = null;
+    addClass(refs.clear, "hidden");
     if (window.history && typeof window.history.pushState === "function") {
         let baseUrl = getNakedUrl();
         window.history.replaceState(refs.input.value, "", baseUrl + window.location.hash);

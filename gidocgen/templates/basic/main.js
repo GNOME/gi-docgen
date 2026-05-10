@@ -21,8 +21,8 @@ function onDidLoad() {
 }
 
 function onDidHashChange() {
-    if (window.hideResults) {
-        window.hideResults();
+    if (window.clearSearch) {
+        window.clearSearch();
     }
 
     // When URL fragment changes to ID of a collapsible section,
@@ -158,10 +158,9 @@ function onKeyDown(event) {
             event.preventDefault();
             search_input.focus();
         } else if (event.key === "Escape" && document.activeElement === search_input) {
-            if (window.hideResults) {
-                window.hideResults();
+            if (window.clearSearch) {
+                window.clearSearch();
             }
-            search_input.value = "";
             search_input.blur();
         }
     }

@@ -28,6 +28,7 @@
   --sidebar-search-focus-bg: rgba(127, 127, 127, 0.3);
   --sidebar-padding: 1.5em;
   --search-button-bg: rgba(127, 127, 127, 0.2);
+  --search-button-hover-bg: rgba(127, 127, 127, 0.35);
   --warning-bg-color: rgba(229, 165, 10, 0.7);
   --warning-fg-color: rgba(0, 0, 0, 0.8);
   --error-bg-color: rgba(224, 27, 36, 0.7);
@@ -510,19 +511,63 @@ footer {
 .sidebar .search {
   box-sizing: border-box;
   text-align: center;
+  position: relative;
 }
 
 .sidebar .search input[type="text"] {
   border: none;
   width: 100%;
   border-radius: 50px;
-  padding: 8px 14px;
+  padding: 8px 32px 8px 14px;
   display: inline-block;
   font-size: 14px;
   outline: transparent;
   background: var(--sidebar-search-bg);
   color: var(--sidebar-text-color);
   transition: background-color 150ms ease;
+}
+
+#search-clear {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--sidebar-text-color);
+  opacity: 0.6;
+  font-size: 12px;
+}
+
+#search-clear:hover {
+  opacity: 1;
+}
+
+.search-results-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.search-results-header h1 {
+  flex: 1;
+  margin: 0;
+}
+
+.search-clear-btn {
+  background: var(--search-button-bg);
+  border: none;
+  cursor: pointer;
+  color: var(--text-color);
+  font-size: 1.1em;
+  padding: 0.25rem 0.4rem;
+  border-radius: var(--box-radius);
+}
+
+.search-clear-btn:hover {
+  background: var(--search-button-hover-bg);
 }
 
 .sidebar .search input[type="text"]:hover,
