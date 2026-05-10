@@ -228,8 +228,10 @@ function showResults(query, results) {
 
     window.title = "Results for “" + query + "” (" + results.length + ")";
     window.scroll({ top: 0 })
-    refs.search.appendChild(createResultsTitle(query, results.length));
-    refs.search.appendChild(createResultsContent(results));
+    refs.search.replaceChildren(
+        createResultsTitle(query, results.length),
+        createResultsContent(results)
+    );
     showSearchResults(search);
 }
 
