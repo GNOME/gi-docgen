@@ -527,21 +527,74 @@ footer {
   transition: background-color 150ms ease;
 }
 
-#search-clear {
+#search-clear,
+#search-help {
   position: absolute;
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  cursor: pointer;
   color: var(--sidebar-text-color);
   opacity: 0.6;
   font-size: 12px;
 }
 
-#search-clear:hover {
+#search-clear {
+  cursor: pointer;
+}
+
+#search-help {
+  cursor: help;
+  font-weight: bold;
+}
+
+#search-clear:hover,
+#search-help:hover,
+#search-help:focus-visible {
   opacity: 1;
+}
+
+#search-help-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 10;
+  display: none;
+  padding: 10px;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text-color);
+  border: 1px solid var(--sidebar-search-bg);
+  border-radius: var(--box-radius);
+  font-size: 12px;
+  text-align: left;
+}
+
+#search-help:hover + #search-help-popover,
+#search-help:focus-visible + #search-help-popover,
+#search-help-popover:hover {
+  display: block;
+}
+
+.search-help-title {
+  margin: 0 0 0.5em 0;
+  font-weight: bold;
+}
+
+.search-help-types {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2em 0.8em;
+  margin: 0;
+}
+
+.search-help-types dt {
+  font-family: monospace;
+}
+
+.search-help-types dd {
+  margin: 0;
+  opacity: 0.85;
 }
 
 .search-results-header {

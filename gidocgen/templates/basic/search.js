@@ -105,11 +105,13 @@ function onDidLoadSearchIndex(data) {
     refs.main   = document.querySelector("#main");
     refs.toc    = document.querySelector("#toc");
     refs.clear  = document.querySelector("#search-clear");
+    refs.help   = document.querySelector("#search-help");
 
     attachInputHandlers();
 
     if (searchParams.q) {
         removeClass(refs.clear, "hidden");
+        addClass(refs.help, "hidden");
         search(searchParams.q, searchParams.type || null);
     }
 }
@@ -122,6 +124,7 @@ function onDidSearch() {
     const query = refs.input.value;
     if (query) {
         removeClass(refs.clear, "hidden");
+        addClass(refs.help, "hidden");
         search(query);
     }
     else {
@@ -324,6 +327,7 @@ function clearSearch() {
     refs.input.value = "";
     activeTypeFilter = null;
     addClass(refs.clear, "hidden");
+    removeClass(refs.help, "hidden");
     if (window.history && typeof window.history.pushState === "function") {
         let baseUrl = getNakedUrl();
         window.history.replaceState(refs.input.value, "", baseUrl + window.location.hash);
