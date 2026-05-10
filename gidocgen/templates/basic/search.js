@@ -146,11 +146,11 @@ function searchQuery(query) {
     const q = matchQuery(query);
     const docs = searchIndex.searchDocs(q.term, q.type);
 
-    const results = docs.map(function(doc) {
+    const results = docs.map(function({ doc, positions }) {
         return {
             name: doc.name,
             type: doc.type,
-            text: getLabelForDocument(doc, searchIndex.meta),
+            text: getLabelForDocument(doc, searchIndex.meta, positions),
             href: getLinkForDocument(doc),
             summary: doc.summary,
             deprecated: doc.deprecated,
@@ -253,8 +253,14 @@ SearchIndex.prototype.searchDocs = function searchDocs(term, type) {
     const filteredSymbols = !type ?
         this.symbols :
         this.symbols.filter(s => s.type === type);
-    const results = fzy.filter(term, filteredSymbols, doc => getTextForDocument(doc, this.meta))
-    return results.map(i => i.item)
+    const results = fzy.filter(term, filteredSymbols, doc => getTextForDocument(doc, this.meta));
+    return results.map(i => {
+        const text = getTextForDocument(i.item, this.meta);
+        return {
+            doc: i.item,
+            positions: fzy.positions(term.toLowerCase(), text.toLowerCase()),
+        };
+    });
 }
 
 
@@ -286,7 +292,21 @@ function getLinkForDocument(doc) {
     return null;
 }
 
-function getLabelForDocument(doc, meta) {
+function highlightPositions(text, positions) {
+    const posSet = new Set(positions);
+    let html = '';
+    let inMark = false;
+    for (let i = 0; i < text.length; i++) {
+        const isMatch = posSet.has(i);
+        if (isMatch && !inMark) { html += '<mark>'; inMark = true; }
+        else if (!isMatch && inMark) { html += '</mark>'; inMark = false; }
+        html += text[i];
+    }
+    if (inMark) html += '</mark>';
+    return html;
+}
+
+function getLabelForDocument(doc, meta, positions) {
     switch (doc.type) {
         case "alias":
         case "bitfield":
@@ -297,7 +317,7 @@ function getLabelForDocument(doc, meta) {
         case "interface":
         case "record":
         case "union":
-            return "<code>" + doc.ctype + "</code>";
+            return "<code>" + highlightPositions(doc.ctype, positions) + "</code>";
 
         case "class_method":
         case "constant":
@@ -306,7 +326,7 @@ function getLabelForDocument(doc, meta) {
         case "function_macro":
         case "method":
         case "type_func":
-            return "<code>" + doc.ident + "</code>";
+            return "<code>" + highlightPositions(doc.ident, positions) + "</code>";
 
         // NOTE: meta.ns added for more consistent results, otherwise
         // searching for "Button" would return all signals, properties
@@ -314,14 +334,14 @@ function getLabelForDocument(doc, meta) {
         // (eg "GtkButton") because "Button" matches higher with starting
         // sequences.
         case "property":
-            return "<code>" + meta.ns + doc.type_name + ":" + doc.name + "</code>";
+            return "<code>" + highlightPositions(meta.ns + doc.type_name + ":" + doc.name, positions) + "</code>";
         case "signal":
-            return "<code>" + meta.ns + doc.type_name + "::" + doc.name + "</code>";
+            return "<code>" + highlightPositions(meta.ns + doc.type_name + "::" + doc.name, positions) + "</code>";
         case "vfunc":
-            return "<code>" + meta.ns + doc.type_name + "." + doc.name + "</code>";
+            return "<code>" + highlightPositions(meta.ns + doc.type_name + "." + doc.name, positions) + "</code>";
 
         case "content":
-            return doc.name;
+            return highlightPositions(doc.name, positions);
     }
 
     return null;

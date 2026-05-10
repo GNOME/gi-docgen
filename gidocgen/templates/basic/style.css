@@ -33,6 +33,7 @@
   --error-fg-color: #ffffff;
   --accent-bg-color: rgba(53, 132, 228, 0.7);
   --accent-fg-color: #ffffff;
+  --accent-search-mark-color: rgba(53, 132, 228, 0.4);
 
   /* boxes, e.g. code blocks */
   --box-bg: rgba(135, 135, 135, 0.085);
@@ -879,6 +880,12 @@ table.arguments tr.arg-description td {
 
 dt.result {
   padding: .5em 0;
+}
+
+dt.result mark {
+  background: var(--accent-search-mark-color);
+  color: inherit;
+  border-radius: 0.15em;
 }
 
 .result.emblem.alias,
