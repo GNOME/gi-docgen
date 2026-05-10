@@ -83,6 +83,7 @@ const refs = {
 
 let searchIndex = undefined;
 let searchResults = [];
+let activeTypeFilter = null;
 
 // Exports
 window.onInitSearch = onInitSearch;
@@ -106,7 +107,7 @@ function onDidLoadSearchIndex(data) {
     attachInputHandlers();
 
     if (searchParams.q) {
-        search(searchParams.q);
+        search(searchParams.q, searchParams.type || null);
     }
 }
 
@@ -160,9 +161,9 @@ function searchQuery(query) {
     return results;
 }
 
-function search(query) {
-    searchResults = searchQuery(query)
-    showResults(query, searchResults);
+function search(query, typeFilter = null) {
+    activeTypeFilter = typeFilter;
+    showResults(query, searchQuery(query));
 }
 
 /* Rendering */
@@ -219,20 +220,80 @@ function createResultsContent(results) {
     return search_results;
 }
 
-function showResults(query, results) {
+function showResults(query, allResults) {
     if (window.history && typeof window.history.pushState === "function") {
         let baseUrl = getNakedUrl();
         let extra = "?q=" + encodeURIComponent(refs.input.value);
+        if (activeTypeFilter) {
+            extra += "&type=" + encodeURIComponent(activeTypeFilter);
+        }
         window.history.replaceState(refs.input.value, "", baseUrl + extra + window.location.hash);
     }
 
-    window.title = "Results for “" + query + "” (" + results.length + ")";
-    window.scroll({ top: 0 })
-    refs.search.replaceChildren(
-        createResultsTitle(query, results.length),
-        createResultsContent(results)
-    );
-    showSearchResults(search);
+    const filteredResults = activeTypeFilter
+        ? allResults.filter(r => r.type === activeTypeFilter)
+        : allResults;
+
+    searchResults = filteredResults;
+
+    window.title = "Results for “" + query + "” (" + filteredResults.length + ")";
+    window.scroll({ top: 0 });
+    const children = [createResultsTitle(query, filteredResults.length)];
+    const filterBar = createTypeFilter(query, allResults);
+    if (filterBar) children.push(filterBar);
+    children.push(createResultsContent(filteredResults));
+    refs.search.replaceChildren(...children);
+    showSearchResults();
+}
+
+function createTypeFilter(query, allResults) {
+    if (allResults.length === 0) return null;
+
+    const counts = {};
+    allResults.forEach(function(item) {
+        counts[item.type] = (counts[item.type] || 0) + 1;
+    });
+
+    const types = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    if (types.length <= 1) return null;
+
+    const filterBar = document.createElement("div");
+    filterBar.setAttribute("id", "search-type-filter");
+
+    const ul = document.createElement("ul");
+
+    function makeItem(label, count, typeKey) {
+        const li = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.className = "type-filter-btn" + (activeTypeFilter === typeKey ? " active" : "");
+
+        const labelSpan = document.createElement("span");
+        labelSpan.className = "type-filter-label";
+        labelSpan.textContent = label;
+
+        const countSpan = document.createElement("span");
+        countSpan.className = "type-filter-count";
+        countSpan.textContent = count;
+
+        btn.appendChild(labelSpan);
+        btn.appendChild(countSpan);
+
+        btn.addEventListener("click", function() {
+            activeTypeFilter = typeKey;
+            showResults(query, allResults);
+        });
+
+        li.appendChild(btn);
+        ul.appendChild(li);
+    }
+
+    makeItem("all", allResults.length, null);
+    types.forEach(function(type) {
+        makeItem(TYPE_NAMES[type] || type, counts[type], type);
+    });
+
+    filterBar.appendChild(ul);
+    return filterBar;
 }
 
 function hideResults() {
