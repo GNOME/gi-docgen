@@ -21,6 +21,10 @@ function onDidLoad() {
 }
 
 function onDidHashChange() {
+    if (window.hideResults) {
+        window.hideResults();
+    }
+
     // When URL fragment changes to ID of a collapsible section,
     // expand it when it is collapsed.
     // This is useful for clicking section links in the sidebar on the index page.
