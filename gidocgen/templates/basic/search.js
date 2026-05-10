@@ -138,7 +138,7 @@ function onDidSubmit(ev) {
 
 function attachInputHandlers() {
     if (refs.input.value === "") {
-        refs.input.value === searchParams.q || "";
+        refs.input.value = searchParams.q || "";
     }
 
     refs.input.addEventListener('keyup', debounce(200, onDidSearch))
