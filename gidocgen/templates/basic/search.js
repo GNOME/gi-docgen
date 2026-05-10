@@ -137,7 +137,7 @@ function attachInputHandlers() {
         refs.input.value === searchParams.q || "";
     }
 
-    refs.input.addEventListener('keyup', debounce(500, onDidSearch))
+    refs.input.addEventListener('keyup', debounce(200, onDidSearch))
     refs.form.addEventListener('submit', onDidSubmit)
 }
 
