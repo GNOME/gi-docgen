@@ -44,6 +44,16 @@ SPDX-License-Identifier: {{ CONFIG.license }}
 
   {% block style_other %}{% endblock %}
 
+  {% if CONFIG.search_index %}
+  <noscript>
+    <style>
+      #search-form { cursor: not-allowed; }
+      #search-input { opacity: 0.5; pointer-events: none; }
+      #search-help { display: none; }
+    </style>
+  </noscript>
+  {% endif %}
+
   {% if CONFIG.urlmap_file %}
   <script src="{{ CONFIG.urlmap_basename }}"></script>
   {% endif %}
