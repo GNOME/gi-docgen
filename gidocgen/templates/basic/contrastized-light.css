@@ -5,7 +5,7 @@
  */
 
 :root {
-  --pyg-bg-color: ##fcfded;
+  --pyg-bg-color: #fcfded;
   --pyg-bg-color2: #eee8d5;
   --pyg-linenos-color: #000000;
   --pyg-bg-linenos-color: #ffffc0;
@@ -13,8 +13,8 @@
   --pyg-bg-error-color: #991c1a;
   --pyg-generic-color: #4b5b61;
   --pyg-comment-color: #325c5c;
-  --pyg-keyword-color: #525e00;
-  --pyg-literal-color: ##2aa198;
+  --pyg-keyword-color: #505c00;
+  --pyg-literal-color: #2aa198;
   --pyg-type-color: #664d02;
   --pyg-name-color: #17547f;
   --pyg-regex-color: #9a3911;
