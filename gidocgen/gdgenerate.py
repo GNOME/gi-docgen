@@ -1335,6 +1335,8 @@ class TemplateField:
                 self.value_type_cname = field.target.value_type.ctype
             elif field.target.name in ['Gio.ListModel', 'GListModel']:
                 self.is_list_model = True
+                self.type_name = field.target.name
+                self.type_cname = field.target.ctype
                 if field.attributes is not None:
                     self.value_type = field.attributes.get('element-type', 'GObject')
             elif isinstance(field.target, gir.MapType):
