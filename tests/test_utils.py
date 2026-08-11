@@ -99,6 +99,8 @@ class TestLinkGenerator(unittest.TestCase):
             "An [unknown type][type@GObject.Unknown]",
             "An [unknown identifier][id@unknown_symbol]",
             "An [unknown component][type@GObject.Object.Foo]",
+            "An [unknown namespace][flags@InvalidNamespace.BindingFlags.SYNC_CREATE]",
+            "An [unknown local type][flags@InvalidType.SYNC_CREATE]",
         ]
 
         for idx, c in enumerate(checks):
@@ -153,6 +155,27 @@ class TestLinkGenerator(unittest.TestCase):
         self.assertIn('href', root.attrib)
         self.assertEqual(root.attrib['href'], 'flags.BindingFlags.html#sync-create')
 
+        # The namespace can be omitted for types in the current namespace,
+        # with or without the identifier prefix
+        for endpoint in ["BindingFlags.SYNC_CREATE", "GBindingFlags.SYNC_CREATE"]:
+            with self.subTest(endpoint=endpoint):
+                text = f"A value of [flags@{endpoint}]"
+                res = utils.LINK_RE.search(text)
+                self.assertIsNotNone(res)
+
+                link = utils.LinkGenerator(line=text, start=res.start(), end=res.end(),
+                                           namespace=self._repository.namespace,
+                                           fragment=res.group('fragment'),
+                                           endpoint=res.group('endpoint'),
+                                           text=res.group('text'),
+                                           do_raise=True)
+                self.assertIsNotNone(link)
+
+                root = ET.fromstring(str(link))
+                self.assertEqual(root.tag, 'a')
+                self.assertIn('href', root.attrib)
+                self.assertEqual(root.attrib['href'], 'flags.BindingFlags.html#sync-create')
+
         text = "A value of [flags@GObject.BindingFlags.INVALID_NAME]"
         res = utils.LINK_RE.search(text)
         self.assertIsNotNone(res)
@@ -166,6 +189,75 @@ class TestLinkGenerator(unittest.TestCase):
                                 namespace=self._repository.namespace,
                                 fragment=fragment, endpoint=endpoint, text=alt_text,
                                 do_raise=True)
+
+
+class TestLinkGeneratorEnumMembers(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        paths = []
+        paths.extend([os.path.join(os.getcwd(), "tests/data/gir")])
+        paths.extend(utils.default_search_paths())
+
+        parser = gir.GirParser(search_paths=paths, error=False)
+        parser.parse(os.path.join(os.getcwd(), "tests/data/gir", "Regress-1.0.gir"))
+
+        cls._repository = parser.get_repository()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._repository = None
+
+    def _link(self, fragment, endpoint):
+        text = f"See [{fragment}@{endpoint}]"
+        res = utils.LINK_RE.search(text)
+        self.assertIsNotNone(res)
+
+        return str(utils.LinkGenerator(line=text, start=res.start(), end=res.end(),
+                                       namespace=self._repository.namespace,
+                                       fragment=res.group('fragment'),
+                                       endpoint=res.group('endpoint'),
+                                       do_raise=True))
+
+    def test_member_link_without_namespace(self):
+        """
+        Check that members of enumerations, error domains, and bit fields in
+        the current namespace can be linked with the namespace omitted, with
+        or without the identifier prefix.
+        """
+        checks = [
+            ('error', 'Regress.TestError.CODE1',
+             'error.TestError.html#code1', 'REGRESS_TEST_ERROR_CODE1'),
+            ('enum', 'Regress.FooEnumType.ALPHA',
+             'enum.FooEnumType.html#alpha', 'REGRESS_FOO_ENUM_ALPHA'),
+            ('flags', 'Regress.FooFlagsType.FIRST',
+             'flags.FooFlagsType.html#first', 'REGRESS_FOO_FLAGS_FIRST'),
+        ]
+
+        for fragment, qualified, href, identifier in checks:
+            local = qualified[len('Regress.'):]
+            prefixed = f"Regress{local}"
+            with self.subTest(fragment=fragment, endpoint=qualified):
+                expected = self._link(fragment, qualified)
+                self.assertIn(f'href="{href}"', expected)
+                self.assertIn(f"<code>{identifier}</code>", expected)
+                self.assertEqual(self._link(fragment, local), expected)
+                self.assertEqual(self._link(fragment, prefixed), expected)
+
+    def test_member_link_errors(self):
+        """
+        Check that links which only look like member links are still reported.
+        """
+        checks = [
+            ('error', 'TestError.INVALID_CODE'),
+            ('error', 'InvalidNamespace.TestError.CODE1'),
+            ('enum', 'InvalidType.ALPHA'),
+        ]
+
+        for fragment, endpoint in checks:
+            with self.subTest(fragment=fragment, endpoint=endpoint):
+                with self.assertRaises(utils.LinkParseError):
+                    self._link(fragment, endpoint)
 
 
 class TestGtkDocExtension(unittest.TestCase):
