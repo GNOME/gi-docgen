@@ -257,6 +257,18 @@ class LinkGenerator:
                                         self._fragment, self._endpoint))
                 self._fragment = None
 
+    def _find_namespace(self, ns):
+        if ns == self._namespace.name:
+            return self._namespace
+        return self._repository.find_included_namespace(ns)
+
+    def _strip_identifier_prefix(self, name):
+        # Accept FooBar in place of Foo.Bar
+        if name.startswith(tuple(self._namespace.identifier_prefix)):
+            for prefix in self._namespace.identifier_prefix:
+                name = name.replace(prefix, '')
+        return name
+
     def _parse_id(self, fragment, endpoint):
         symbol = self._repository.find_symbol(endpoint)
         if symbol is None:
@@ -382,30 +394,26 @@ class LinkGenerator:
                 ns = None
             if ns is not None:
                 ns = ns[:len(ns) - 1]   # Drop the trailing dot
-            else:
+                if self._find_namespace(ns) is None:
+                    local_name = self._strip_identifier_prefix(ns)
+                    if self._namespace.find_real_type(local_name) is not None:
+                        rest = endpoint[len(ns):]
+                        name = local_name
+                        ns = None
+            if ns is None:
                 ns = self._namespace.name
-                # Accept FooBar in place of Foo.Bar
-                if name.startswith(tuple(self._namespace.identifier_prefix)):
-                    for prefix in self._namespace.identifier_prefix:
-                        name = name.replace(prefix, '')
+                name = self._strip_identifier_prefix(name)
         else:
             raise LinkParseError(self._line, self._start, self._end,
                                  fragment, endpoint,
                                  "Invalid type link")
-        if ns == self._namespace.name:
-            namespace = self._namespace
-            self._external = False
-            self._ns = ns
-        else:
-            repository = self._namespace.repository
-            namespace = repository.find_included_namespace(ns)
-            if namespace is not None:
-                self._external = True
-                self._ns = namespace.name
-            else:
-                raise LinkParseError(self._line, self._start, self._end,
-                                     fragment, endpoint,
-                                     f"Unknown namespace {ns}")
+        namespace = self._find_namespace(ns)
+        if namespace is None:
+            raise LinkParseError(self._line, self._start, self._end,
+                                 fragment, endpoint,
+                                 f"Unknown namespace {ns}")
+        self._external = namespace is not self._namespace
+        self._ns = namespace.name
         t = namespace.find_real_type(name)
         if t is not None and t.base_ctype is not None:
             if isinstance(t, gir.Enumeration):
