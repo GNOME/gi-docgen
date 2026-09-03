@@ -105,10 +105,6 @@
         <pre><code>{{ interface.c_decl }}</code></pre>
 
         <div class="docblock">
-          {{ interface.description }}
-        </div>
-
-        <div class="docblock">
           {% if interface.stability %}
           <p>Stability: {{ interface.stability }}</p>
           {% endif %}
@@ -125,6 +121,10 @@
             {%- endif -%}
           </div>
           {% endif %}
+        </div>
+
+        <div class="docblock">
+          {{ interface.description }}
         </div>
 
         {% if interface.attributes %}

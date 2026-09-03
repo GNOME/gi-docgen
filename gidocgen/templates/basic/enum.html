@@ -99,10 +99,6 @@
       </h4>
 
       <div class="docblock">
-      {{ enum.description }}
-      </div>
-
-      <div class="docblock">
         {% if enum.stability %}
         <p>Stability: {{ enum.stability }}</p>
         {% endif %}
@@ -119,6 +115,10 @@
           {%- endif -%}
         </div>
         {% endif %}
+      </div>
+
+      <div class="docblock">
+      {{ enum.description }}
       </div>
 
       {% if enum.attributes %}

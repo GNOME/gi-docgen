@@ -116,10 +116,6 @@
         <pre><code>{{ class.c_decl }}</pre></code>
 
         <div class="docblock">
-          {{ class.description }}
-        </div>
-
-        <div class="docblock">
           {% if class.stability %}
           <p>Stability: {{ class.stability }}</p>
           {% endif %}
@@ -136,6 +132,10 @@
             {%- endif -%}
           </div>
           {% endif %}
+        </div>
+
+        <div class="docblock">
+          {{ class.description }}
         </div>
 
         {% if class.attributes %}
