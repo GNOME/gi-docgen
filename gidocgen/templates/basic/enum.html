@@ -99,10 +99,6 @@
       </h4>
 
       <div class="docblock">
-      {{ enum.description }}
-      </div>
-
-      <div class="docblock">
         {% if enum.stability %}
         <p>Stability: {{ enum.stability }}</p>
         {% endif %}
@@ -110,7 +106,7 @@
         <p>Available since: {{ enum.available_since }}</p>
         {% endif %}
         {% if enum.deprecated_since %}
-        <div class="admonition deprecation">
+        <div class="admonition deprecation" id="deprecated">
           <p class="admonition-title">Deprecated since: {{ enum.deprecated_since.version }}</p>
           {%- if enum.deprecated_since.message -%}
           {{ enum.deprecated_since.message }}
@@ -119,6 +115,10 @@
           {%- endif -%}
         </div>
         {% endif %}
+      </div>
+
+      <div class="docblock">
+      {{ enum.description }}
       </div>
 
       {% if enum.attributes %}

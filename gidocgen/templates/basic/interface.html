@@ -105,10 +105,6 @@
         <pre><code>{{ interface.c_decl }}</code></pre>
 
         <div class="docblock">
-          {{ interface.description }}
-        </div>
-
-        <div class="docblock">
           {% if interface.stability %}
           <p>Stability: {{ interface.stability }}</p>
           {% endif %}
@@ -116,7 +112,7 @@
           <p>Available since: {{ interface.available_since }}</p>
           {% endif %}
           {% if interface.deprecated_since %}
-          <div class="admonition deprecation">
+          <div class="admonition deprecation" id="deprecated">
             <p class="admonition-title">Deprecated since: {{ interface.deprecated_since.version }}</p>
             {%- if interface.deprecated_since.message -%}
             {{ interface.deprecated_since.message }}
@@ -125,6 +121,10 @@
             {%- endif -%}
           </div>
           {% endif %}
+        </div>
+
+        <div class="docblock">
+          {{ interface.description }}
         </div>
 
         {% if interface.attributes %}
