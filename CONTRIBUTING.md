@@ -35,8 +35,8 @@ the development tools appropriate for your operating system, including:
  - Meson
 
 The GI-DocGen project uses GitLab for code hosting and for tracking issues.
-More information about using GitLab can be found [on the GNOME
-wiki](https://wiki.gnome.org/GitLab).
+More information about using GitLab can be found [in the GNOME
+Handbook](https://handbook.gnome.org/development.html).
 
 ### Getting started
 

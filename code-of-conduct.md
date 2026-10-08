@@ -12,11 +12,9 @@ Thank you for being a part of the GNOME project. We value your participation and
 
 This Code of Conduct applies to all online GNOME community spaces, including, but not limited to:
 
- * Issue tracking systems - bugzilla.gnome.org
+ * Issue tracking systems - gitlab.gnome.org
  * Documentation and tutorials - developer.gnome.org
- * Code repositories - git.gnome.org and gitlab.gnome.org
- * Mailing lists - mail.gnome.org
- * Wikis - wiki.gnome.org
+ * Code repositories - gitlab.gnome.org
  * Chat and forums - irc.gnome.org, discourse.gnome.org, GNOME Telegram channels, and GNOME groups and channels on Matrix.org (including bridges to GNOME IRC channels)
  * Community spaces hosted on gnome.org infrastructure
  * Any other channels or groups which exist in order to discuss GNOME project activities
@@ -28,7 +26,7 @@ All participants in GNOME online community spaces are subject to the Code of Con
 ## Reporting an Incident
 
 If you believe that someone is violating the Code of Conduct, or have
-any other concerns, please [contact the Code of Conduct committee](https://wiki.gnome.org/Foundation/CodeOfConduct/ReporterGuide).
+any other concerns, please [contact the Code of Conduct committee](https://conduct.gnome.org/reporter-guide).
 
 ## Our Standards
 
@@ -99,11 +97,11 @@ If a participant engages in behavior that violates this code of conduct, the GNO
 
 ## Procedure for Handling Incidents
 
- * [Reporter Guide](https://wiki.gnome.org/Foundation/CodeOfConduct/ReporterGuide)
+ * [Reporter Guide](https://conduct.gnome.org/reporter-guide/)
 
- * [Moderator Procedures](https://wiki.gnome.org/Foundation/CodeOfConduct/ModeratorProcedures)
+ * [Moderator Procedures](https://conduct.gnome.org/moderator-procedures/)
 
- * [Committee Procedures Guide](https://wiki.gnome.org/Foundation/CodeOfConduct/CommitteeProcedures)
+ * [Committee Procedures Guide](https://conduct.gnome.org/committee-procedures/)
 
 ## License
 
