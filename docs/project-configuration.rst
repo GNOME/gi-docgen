@@ -54,17 +54,19 @@ The following keys are used, if found:
 ``dependencies`` = ``dict(s, dict(s, s))``
   A dictionary of dependencies; each entry in the dictionary has a key in the
   form of ``{namespace}-{version}``, and values in the form of a dictionary
-  with the following keys: ``name``, ``description``, and ``docs_url``. Each
-  entry in the this dictionary can only describe a namespace included in the
-  introspection data; any other namespace listed here will be ignored. See
-  the ``related`` configuration below.
+  with the following keys: ``name``, ``description``, and ``docs_url``. The
+  ``name`` key must contain the namespace name of the dependency, otherwise it
+  will be ignored. **Note**: Each entry in the this dictionary can only
+  describe a namespace included in the introspection data; any other value
+  will be ignored. See the ``related`` configuration below for a way to add
+  related libraries not included in the introspection data.
 
 ``related`` = ``dict(s, dict(s, s))``
   A dictionary of related namespaces; each entry in the dictionary has a key
   in the form of ``{namespace}-{version}``, and values in the form of a
   dictionary with the following keys: ``name``, ``description``, and
   ``docs_url``. Each entry in this dictionary can describe a namespace that
-  is related to the project.
+  is related to the project without necessarily being a dependency.
 
 ``devhelp`` = ``b``
   Whether gi-docgen should generate a DevHelp file for the namespace.
