@@ -141,6 +141,8 @@ class GIDocConfig:
         for gir_name, dep in dependencies.items():
             res = {}
             res['name'] = dep.get('name', 'Unknown')
+            if res['name'].contains('-'):
+                log.warning(f"Invalid name {res['name']} for dependency {gir_name}")
             res['description'] = dep.get('description', 'No description provided')
             res['docs_url'] = dep.get('docs_url', '#')
             retval[gir_name] = res
